@@ -899,11 +899,11 @@ async def apply(request: Request):
 
     if telegram_is_configured():
         text = (
-            "<b>Новая заявка</b>\n"
-            f"Имя: {name or '—'}\n"
-            f"Контакт: {contact or '—'}\n"
-            f"Курс: {course or '—'}\n"
-            f"Страница: {page or '—'}"
+            "🆕 <b>Новая заявка</b>\n"
+            f"👤 <b>Имя:</b> {name or '—'}\n"
+            f"📱 <b>Контакт:</b> {contact or '—'}\n"
+            f"🎯 <b>Курс:</b> {course or '—'}\n"
+            f"🔗 <b>Страница:</b> {page or '—'}"
         )
         try:
             sent = await send_lead_message(text)
@@ -941,12 +941,12 @@ async def enroll(request: Request):
 
     if telegram_is_configured():
         text = (
-            "<b>Заявка на покупку курса</b>\n"
-            f"Курс: {payload.get('course')}\n"
-            f"ФИО: {payload.get('full_name')}\n"
-            f"Телефон: {payload.get('phone')}\n"
-            f"Email: {payload.get('email')}\n"
-            f"Telegram: {payload.get('telegram')}"
+            "✅ <b>Заявка на покупку курса</b>\n"
+            f"🎯 <b>Курс:</b> {payload.get('course')}\n"
+            f"👤 <b>ФИО:</b> {payload.get('full_name')}\n"
+            f"📞 <b>Телефон:</b> {payload.get('phone')}\n"
+            f"✉️ <b>Email:</b> {payload.get('email')}\n"
+            f"💬 <b>Telegram:</b> {payload.get('telegram')}"
         )
         try:
             sent = await send_lead_message(text)

@@ -54,7 +54,7 @@ async def send_lead_message(text: str) -> bool:
         sent = False
         for chat_id in WHITELIST_CHAT_IDS:
             try:
-                await bot.send_message(chat_id=chat_id, text=text)
+                await bot.send_message(chat_id=chat_id, text=text, disable_web_page_preview=True)
                 logger.info("Lead message sent to chat_id=%s", chat_id)
                 sent = True
             except Exception as exc:
