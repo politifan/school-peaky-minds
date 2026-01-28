@@ -207,6 +207,7 @@ logging.getLogger().addHandler(file_handler)
 logging.getLogger("uvicorn").addHandler(file_handler)
 logging.getLogger("uvicorn.access").addHandler(file_handler)
 logging.getLogger("uvicorn.error").addHandler(file_handler)
+logging.getLogger(__name__).info("Logging initialized. Writing to %s", log_path)
 
 app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
 app.mount("/documents", StaticFiles(directory=DOCUMENTS_DIR), name="documents")
@@ -223,6 +224,21 @@ async def enforce_canonical_host(request: Request, call_next):
                 target = f"{target}?{request.url.query}"
             return RedirectResponse(target, status_code=HTTP_302_FOUND)
     return await call_next(request)
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start = time.time()
+    response = await call_next(request)
+    duration = (time.time() - start) * 1000
+    logging.getLogger("app.access").info(
+        "%s %s -> %s (%.1f ms)",
+        request.method,
+        request.url.path,
+        response.status_code,
+        duration,
+    )
+    return response
 
 def get_telethon_lock() -> asyncio.Lock:
     global _telethon_lock
