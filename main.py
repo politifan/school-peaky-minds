@@ -906,9 +906,11 @@ async def apply(request: Request):
             f"Страница: {page or '—'}"
         )
         try:
-            await send_lead_message(text)
-        except Exception:
-            pass
+            sent = await send_lead_message(text)
+            if not sent:
+                logging.getLogger("app.telegram").warning("Telegram lead message not delivered.")
+        except Exception as exc:
+            logging.getLogger("app.telegram").error("Telegram lead send failed: %s", exc)
 
     if "text/html" in request.headers.get("accept", ""):
         return render(request, "success.html")
@@ -947,9 +949,11 @@ async def enroll(request: Request):
             f"Telegram: {payload.get('telegram')}"
         )
         try:
-            await send_lead_message(text)
-        except Exception:
-            pass
+            sent = await send_lead_message(text)
+            if not sent:
+                logging.getLogger("app.telegram").warning("Telegram enroll message not delivered.")
+        except Exception as exc:
+            logging.getLogger("app.telegram").error("Telegram enroll send failed: %s", exc)
 
     return render(request, "enroll_success.html", {"course": payload.get("course")})
 
