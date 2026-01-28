@@ -676,6 +676,17 @@ async def auth_google(request: Request):
 
     try:
         token = await oauth.google.authorize_access_token(request)
+        if not isinstance(token, dict) or not token.get("access_token"):
+            token, manual_error = await exchange_google_token()
+            if not token:
+                detail = "missing_token"
+                extra = f" [manual_exchange: {manual_error}]" if manual_error else " [manual_exchange_failed]"
+                safe_detail = re.sub(r"[\\r\\n]+", " ", f"{detail}{extra}")[:300]
+                return render(
+                    request,
+                    "login.html",
+                    login_context(request, error=f"Ошибка авторизации Google: {safe_detail}"),
+                )
     except OAuthError as exc:
         detail = getattr(exc, "error", None) or str(exc) or "OAuthError"
         description = getattr(exc, "description", None) or ""
@@ -729,11 +740,32 @@ async def auth_google(request: Request):
         except Exception:
             userinfo = None
     if not userinfo:
-        userinfo_resp = await oauth.google.get("userinfo")
-        userinfo = userinfo_resp.json()
+        try:
+            userinfo_resp = await oauth.google.get("userinfo")
+            userinfo = userinfo_resp.json()
+        except Exception:
+            userinfo = None
+    if not userinfo or not isinstance(userinfo, dict):
+        # direct fallback to userinfo endpoint
+        try:
+            access_token = token.get("access_token") if isinstance(token, dict) else None
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.get(
+                    "https://www.googleapis.com/oauth2/v3/userinfo",
+                    headers={"Authorization": f"Bearer {access_token}"},
+                )
+            userinfo = resp.json()
+        except Exception as exc:
+            safe_detail = re.sub(r"[\\r\\n]+", " ", str(exc) or "userinfo_error")[:300]
+            return render(
+                request,
+                "login.html",
+                login_context(request, error=f"Ошибка авторизации Google: userinfo_failed {safe_detail}"),
+            )
 
     users = load_json(USERS_FILE, {})
-    user_id = f"google:{userinfo.get('sub')}"
+    user_sub = userinfo.get("sub") or userinfo.get("id") or userinfo.get("email")
+    user_id = f"google:{user_sub}"
     user = {
         "id": user_id,
         "email": userinfo.get("email"),
