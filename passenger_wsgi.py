@@ -1,24 +1,21 @@
-import os
-import sys
+import os, sys
 
-# 1) путь к корню проекта
-PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-# 2) путь к venv (важно: именно к site-packages)
-VENV_SITE_PACKAGES = os.path.join(PROJECT_DIR, "venv", "lib", "python3.10", "site-packages")
+# 1) Подключаем проект в sys.path
+if APP_ROOT not in sys.path:
+    sys.path.insert(0, APP_ROOT)
 
-sys.path.insert(0, PROJECT_DIR)
-sys.path.insert(0, VENV_SITE_PACKAGES)
+# 2) Активируем venv (важно на шаред-хостинге)
+activate_this = os.path.join(APP_ROOT, "venv", "bin", "activate_this.py")
+if os.path.exists(activate_this):
+    with open(activate_this, "r") as f:
+        code = compile(f.read(), activate_this, "exec")
+        exec(code, {"__file__": activate_this})
 
-# 3) если нужно — активировать переменные окружения
-os.environ.setdefault("PYTHONPATH", PROJECT_DIR)
+# 3) Импортируем FastAPI-приложение
+from main import app as fastapi_app
 
-# 4) импорт приложения
-from main import app  # FastAPI ASGI
-
-# !!! Passenger ждёт WSGI "application"
-# Если Passenger на вашем тарифе умеет ASGI напрямую — можно было бы отдать app.
-# Но чаще всего нужно WSGI-адаптер:
-from asgiref.wsgi import WsgiToAsgi
-
-application = WsgiToAsgi(app)
+# 4) Оборачиваем ASGI (FastAPI) в WSGI для Passenger
+from a2wsgi import ASGIMiddleware
+application = ASGIMiddleware(fastapi_app)
