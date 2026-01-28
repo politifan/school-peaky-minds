@@ -68,6 +68,13 @@ def format_ts(value: Optional[int]) -> str:
         return "—"
 
 
+def safe_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(value)
+    except Exception:
+        return default
+
+
 def status_from_item(item: Dict[str, Any]) -> Tuple[str, str, str]:
     manual = (item.get("status") or "").strip()
     if manual in STATUS_META:
@@ -78,7 +85,7 @@ def status_from_item(item: Dict[str, Any]) -> Tuple[str, str, str]:
     if not ts:
         return "archived", STATUS_META["archived"][0], STATUS_META["archived"][1]
     try:
-        delta = datetime.now() - datetime.fromtimestamp(int(ts))
+        delta = datetime.now() - datetime.fromtimestamp(safe_int(ts))
     except Exception:
         return "archived", STATUS_META["archived"][0], STATUS_META["archived"][1]
 
@@ -298,16 +305,16 @@ def admin_panel(request: Request):
     def lead_sort_key(item: Dict[str, Any]):
         status_key, _, _ = status_from_item(item)
         order_map = {"new": 0, "in_progress": 1, "closed": 2, "archived": 3}
-        return (order_map.get(status_key, 3), int(item.get("timestamp", 0)))
+        return (order_map.get(status_key, 3), safe_int(item.get("timestamp", 0)))
 
     lead_key_map = {
-        "date": lambda item: int(item.get("timestamp", 0)),
+        "date": lambda item: safe_int(item.get("timestamp", 0)),
         "name": lambda item: (item.get("name") or "").lower(),
         "course": lambda item: (item.get("course") or "").lower(),
         "status": lead_sort_key,
     }
     agreement_key_map = {
-        "date": lambda item: int(item.get("timestamp", 0)),
+        "date": lambda item: safe_int(item.get("timestamp", 0)),
         "name": lambda item: (item.get("full_name") or "").lower(),
         "course": lambda item: (item.get("course") or "").lower(),
     }
@@ -558,13 +565,13 @@ def admin_panel(request: Request):
     for item in leads_all:
         ts = item.get("timestamp")
         if ts:
-            d = datetime.fromtimestamp(int(ts)).date()
+            d = datetime.fromtimestamp(safe_int(ts)).date()
             if d in lead_counts:
                 lead_counts[d] += 1
     for item in agreements_all:
         ts = item.get("timestamp")
         if ts:
-            d = datetime.fromtimestamp(int(ts)).date()
+            d = datetime.fromtimestamp(safe_int(ts)).date()
             if d in enroll_counts:
                 enroll_counts[d] += 1
     lead_max = max(lead_counts.values()) if lead_counts else 1
@@ -586,8 +593,10 @@ def admin_panel(request: Request):
     last_ts = 0
     for item in (leads_all + agreements_all):
         ts = item.get("timestamp")
-        if ts and int(ts) > last_ts:
-            last_ts = int(ts)
+        if ts:
+            ts_value = safe_int(ts)
+            if ts_value > last_ts:
+                last_ts = ts_value
     last_activity = format_ts(last_ts) if last_ts else "—"
 
     def count_recent(items: List[Dict[str, Any]], hours: int) -> int:
