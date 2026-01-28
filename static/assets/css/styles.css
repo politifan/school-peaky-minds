@@ -1319,6 +1319,10 @@ section {
   overflow: hidden;
 }
 
+.auth-provider-label > span {
+  pointer-events: none;
+}
+
 .auth-provider-label:hover {
   transform: translateY(-1px);
 }
@@ -1332,7 +1336,7 @@ section {
 .auth-provider-label .tg-login-button--visible {
   position: absolute;
   inset: 0;
-  opacity: 0;
+  opacity: 0.001;
   z-index: 2;
 }
 
