@@ -75,7 +75,7 @@
 
       {% if providers.telegram %}
       <div class="auth-telegram">
-        <div class="auth-provider-label auth-provider-btn--tg">
+        <button class="auth-provider-label auth-provider-btn--tg" type="button" data-telegram-trigger>
           <span class="auth-provider-icon" aria-hidden="true">
             <svg viewBox="0 0 48 48">
               <path fill="#29b6f6" d="M24 4A20 20 0 1 0 24 44A20 20 0 1 0 24 4Z"></path>
@@ -85,7 +85,7 @@
             </svg>
           </span>
           <span>Войти через Telegram</span>
-        </div>
+        </button>
         <div id="telegram-login" class="tg-login-button tg-login-button--visible">
           <script async src="https://telegram.org/js/telegram-widget.js?22"
             data-telegram-login="{{ telegram_bot_username }}"

@@ -1314,6 +1314,11 @@ section {
   background: rgba(41, 182, 246, 0.16);
   border: 1px solid rgba(41, 182, 246, 0.45);
   color: #dbf2ff;
+  cursor: pointer;
+}
+
+.auth-provider-label:hover {
+  transform: translateY(-1px);
 }
 
 .auth-provider-btn--tg {
