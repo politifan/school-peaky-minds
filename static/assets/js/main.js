@@ -378,15 +378,31 @@ carousels.forEach((carousel) => {
   const nextBtn = carousel.querySelector('[data-carousel-next]');
   const dotsWrap = carousel.querySelector('[data-carousel-dots]');
   let currentIndex = 0;
+  let snapPoints = [];
 
-  const clampIndex = (index) => Math.max(0, Math.min(index, slides.length - 1));
+  const buildSnapPoints = () => {
+    const maxScrollLeft = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+    const points = slides
+      .map((slide) => Math.min(slide.offsetLeft, maxScrollLeft))
+      .sort((a, b) => a - b)
+      .reduce((acc, value) => {
+        if (!acc.length || Math.abs(value - acc[acc.length - 1]) > 2) {
+          acc.push(value);
+        }
+        return acc;
+      }, []);
+    if (!points.length) points.push(0);
+    return points;
+  };
+
+  const clampIndex = (index) => Math.max(0, Math.min(index, snapPoints.length - 1));
 
   const scrollToIndex = (index) => {
     const nextIndex = clampIndex(index);
-    const target = slides[nextIndex];
-    if (!target) return;
+    const target = snapPoints[nextIndex];
+    if (target === undefined) return;
     viewport.scrollTo({
-      left: target.offsetLeft,
+      left: target,
       behavior: prefersReduced ? 'auto' : 'smooth',
     });
   };
@@ -401,13 +417,14 @@ carousels.forEach((carousel) => {
 
   const updateControls = () => {
     if (prevBtn) prevBtn.disabled = currentIndex === 0;
-    if (nextBtn) nextBtn.disabled = currentIndex === slides.length - 1;
+    if (nextBtn) nextBtn.disabled = currentIndex === snapPoints.length - 1;
     updateDots();
   };
 
-  if (dotsWrap) {
+  const buildDots = () => {
+    if (!dotsWrap) return;
     dotsWrap.innerHTML = '';
-    slides.forEach((_, index) => {
+    snapPoints.forEach((_, index) => {
       const dot = document.createElement('button');
       dot.type = 'button';
       dot.className = 'course-carousel__dot';
@@ -416,36 +433,15 @@ carousels.forEach((carousel) => {
       dot.addEventListener('click', () => scrollToIndex(index));
       dotsWrap.appendChild(dot);
     });
-  }
+  };
 
   const updateIndexFromScroll = () => {
     const scrollLeft = viewport.scrollLeft;
-    const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
-    const edgeThreshold = 2;
-
-    if (maxScrollLeft <= edgeThreshold) {
-      currentIndex = 0;
-      updateControls();
-      return;
-    }
-
-    if (scrollLeft <= edgeThreshold) {
-      currentIndex = 0;
-      updateControls();
-      return;
-    }
-
-    if (scrollLeft >= maxScrollLeft - edgeThreshold) {
-      currentIndex = slides.length - 1;
-      updateControls();
-      return;
-    }
-
     let closestIndex = 0;
     let closestDistance = Infinity;
 
-    slides.forEach((slide, index) => {
-      const distance = Math.abs(slide.offsetLeft - scrollLeft);
+    snapPoints.forEach((point, index) => {
+      const distance = Math.abs(point - scrollLeft);
       if (distance < closestDistance) {
         closestDistance = distance;
         closestIndex = index;
@@ -466,7 +462,11 @@ carousels.forEach((carousel) => {
   };
 
   viewport.addEventListener('scroll', handleScroll, { passive: true });
-  window.addEventListener('resize', updateIndexFromScroll);
+  window.addEventListener('resize', () => {
+    snapPoints = buildSnapPoints();
+    buildDots();
+    updateIndexFromScroll();
+  });
   viewport.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowLeft') {
       event.preventDefault();
@@ -479,6 +479,8 @@ carousels.forEach((carousel) => {
   });
 
   viewport.setAttribute('tabindex', '0');
+  snapPoints = buildSnapPoints();
+  buildDots();
   updateIndexFromScroll();
 
   if (prevBtn) prevBtn.addEventListener('click', () => scrollToIndex(currentIndex - 1));

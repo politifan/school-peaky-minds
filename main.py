@@ -174,7 +174,15 @@ providers = {
 
 TELETHON_ENABLED = bool(TELETHON_API_ID and TELETHON_API_HASH and TelegramClient)
 _telethon_client: Optional["TelegramClient"] = None
-_telethon_lock = asyncio.Lock()
+_telethon_lock = None
+
+def get_telethon_lock() -> asyncio.Lock:
+    global _telethon_lock
+    if _telethon_lock is None:
+        # создаём lock только когда уже есть активный event loop
+        asyncio.get_running_loop()
+        _telethon_lock = asyncio.Lock()
+    return _telethon_lock
 
 def build_redirect_uri(request: Request, route_name: str) -> str:
     url = request.url_for(route_name)
@@ -251,7 +259,7 @@ async def get_telethon_client() -> Optional["TelegramClient"]:
     api_id = _telethon_api_id()
     if not api_id:
         return None
-    async with _telethon_lock:
+    async with get_telethon_lock():
         global _telethon_client
         if _telethon_client is None:
             _telethon_client = TelegramClient(TELETHON_SESSION_PATH, api_id, TELETHON_API_HASH)
