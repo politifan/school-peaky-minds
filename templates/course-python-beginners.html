@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+
+{% block title %}Курс Python для новичков{% endblock %}
+{% block description %}Python для новичков в IT‑школе Peaky Minds: основы, практика, первые проекты и уверенный старт в программировании.{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block meta_keywords %}Python для новичков, курс Python с нуля, обучение программированию, основы Python, первые проекты{% endblock %}
+
+{% block extra_head %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "name": "Python для новичков",
+      "description": "Python для новичков: основы, практика и первые проекты.",
+      "provider": {
+        "@type": "Organization",
+        "name": "IT‑школа Peaky Minds",
+        "url": "{{ request.base_url }}"
+      },
+      "url": "{{ request.base_url }}courses/python-beginners",
+      "inLanguage": "ru",
+      "offers": {
+        "@type": "Offer",
+        "price": "1000",
+        "priceCurrency": "RUB"
+      }
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Главная",
+          "item": "{{ request.base_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Python для новичков",
+          "item": "{{ request.base_url }}courses/python-beginners"
+        }
+      ]
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Нужен ли опыт программирования?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Нет, курс рассчитан на полный ноль."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Подойдёт ли курс школьникам или студентам?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да, если есть интерес к IT и готовность практиковаться."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Будут ли проекты?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да, 2–3 проекта с разбором и публикацией на GitHub."
+          }
+        }
+      ]
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+<section class="hero course-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy reveal">
+          <div class="eyebrow">Курс</div>
+          <h1>Python для новичков: быстрый старт в программировании</h1>
+          <p class="lead">Осваиваем Python с нуля и сразу закрепляем на практике. Уже во время обучения собираете первые проекты, портфолио и опыт решения реальных задач.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" data-open-modal="apply">Записаться на курс</button>
+            <a class="btn btn-secondary" href="#program">Смотреть программу</a>
+          </div>
+          <div class="archive-stack reveal">
+            <div class="visual-card glass-card archive-card">
+              <div class="tag">Группа</div>
+              <div class="value">до 10 человек</div>
+              <div class="meta">комфортный старт</div>
+            </div>
+            <div class="visual-card glass-card accent archive-card">
+              <div class="tag">Цена</div>
+              <div class="value">1000 ₽ / час</div>
+              <div class="meta">фиксируется при старте</div>
+            </div>
+            <div class="visual-card glass-card archive-card">
+              <div class="tag">Длительность</div>
+              <div class="value">6 месяцев</div>
+              <div class="meta">с нуля до проектов</div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual reveal">
+          <div class="visual-card code-card">
+            <div class="code-title">/python/start.py</div>
+            <pre><code>import requests
+
+symbols = ["BTC", "ETH"]
+prices = []
+for symbol in symbols:
+    data = requests.get(f"/price/{symbol}").json()
+    prices.append(data["price"])
+
+print("Средняя цена:", sum(prices) / len(prices))
+</code></pre>
+          </div>
+          <div class="visual-card glass-card accent">
+            <div class="tag">Результат</div>
+            <div class="value">3 проекта в портфолио</div>
+            <div class="meta">скрипты • боты • отчёты</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="for-who">
+      <div class="container">
+        <h2 class="section-title reveal">Для кого курс</h2>
+        <div class="card-grid three reveal">
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-2);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="8" r="3"></circle>
+                <path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"></path>
+              </svg>
+            </div>
+            <h3>Хочу в IT с нуля</h3>
+            <p>Получите базу и понимание, как устроен код.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-1);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 12h12"></path>
+                <path d="M12 6v12"></path>
+                <path d="M4 4h16v16H4z"></path>
+              </svg>
+            </div>
+            <h3>Нужна крепкая база</h3>
+            <p>Системно освоите Python и практику.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-3);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 7h16v10H4z"></path>
+                <path d="M8 7V5h8v2"></path>
+                <path d="M9 12h6"></path>
+              </svg>
+            </div>
+            <h3>Хочу первые проекты</h3>
+            <p>Сразу пишем скрипты и решаем задачи.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="results">
+      <div class="container">
+        <h2 class="section-title reveal">Что вы будете уметь</h2>
+        <ul class="results-list reveal">
+          <li>Писать код на Python и понимать структуру программ</li>
+          <li>Работать с файлами, JSON/CSV и API</li>
+          <li>Использовать функции, модули и базовое ООП</li>
+          <li>Автоматизировать рутину и делать полезные скрипты</li>
+          <li>Собрать 2–3 проекта в портфолио</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="tech">
+      <div class="container">
+        <h2 class="section-title reveal">Стек технологий</h2>
+        <div class="tag-grid reveal">
+          <span class="tag">Python</span>
+          <span class="tag">VS Code</span>
+          <span class="tag">Git</span>
+          <span class="tag">GitHub</span>
+          <span class="tag">pip</span>
+          <span class="tag">venv</span>
+          <span class="tag">requests</span>
+          <span class="tag">JSON</span>
+          <span class="tag">CSV</span>
+          <span class="tag">pandas</span>
+          <span class="tag">SQLite</span>
+          <span class="tag">SQL basics</span>
+          <span class="tag">FastAPI intro</span>
+          <span class="tag">Telegram Bot API</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="projects">
+      <div class="container">
+        <h2 class="section-title reveal">Проекты для первого портфолио</h2>
+        <div class="card-grid three reveal">
+          <div class="card">
+            <h3>Скрипт аналитики</h3>
+            <p>Работа с CSV/JSON и построение понятных отчётов.</p>
+            <div class="chip">pandas • CSV</div>
+          </div>
+          <div class="card">
+            <h3>Парсер + бот</h3>
+            <p>Сбор данных и уведомления в Telegram.</p>
+            <div class="chip">requests • Telegram</div>
+          </div>
+          <div class="card">
+            <h3>Мини‑API</h3>
+            <p>Простой сервис заметок с сохранением данных.</p>
+            <div class="chip">FastAPI intro</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="career-pack">
+      <div class="container">
+        <h2 class="section-title reveal">Что вы получите на руки</h2>
+        <div class="card-grid three reveal">
+          <div class="card">
+            <h3>Базовый GitHub</h3>
+            <p>Оформленные репозитории и понимание структуры проектов.</p>
+            <div class="chip">GitHub</div>
+          </div>
+          <div class="card">
+            <h3>План следующего шага</h3>
+            <p>Выбор направления: Full‑stack, Data Science или бизнес‑разработка.</p>
+            <div class="chip">Roadmap</div>
+          </div>
+          <div class="card">
+            <h3>Мини‑портфолио</h3>
+            <p>2–3 проекта с практикой и реальным опытом.</p>
+            <div class="chip">Portfolio</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="program" id="program">
+      <div class="container">
+        <h2 class="section-title reveal">Программа по модулям</h2>
+        <div class="module-grid reveal">
+          <div class="module">
+            <h3>Модуль 1 — База Python и инструменты</h3>
+            <p>Синтаксис, типы данных, условия, циклы, Git.</p>
+            <span class="tag">Проект: CLI‑скрипт</span>
+          </div>
+          <div class="module">
+            <h3>Модуль 2 — Данные и файлы</h3>
+            <p>CSV/JSON, запросы к API, основы анализа.</p>
+            <span class="tag">Проект: мини‑аналитика</span>
+          </div>
+          <div class="module">
+            <h3>Модуль 3 — Функции и ООП</h3>
+            <p>Модули, классы, структура проекта.</p>
+            <span class="tag">Проект: приложение с логикой</span>
+          </div>
+          <div class="module">
+            <h3>Модуль 4 — Практика и портфолио</h3>
+            <p>Автоматизация, боты, итоговый проект.</p>
+            <span class="tag">Проект: полезный сервис</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="journey">
+      <div class="container">
+        <h2 class="section-title reveal">Реализация в разработчика</h2>
+        <div class="timeline reveal">
+          <div class="step">
+            <div class="step-number">01</div>
+            <h3>Портфолио</h3>
+            <p>Собираем первые проекты и GitHub.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">02</div>
+            <h3>Реальные задачи</h3>
+            <p>Работа по ТЗ и дедлайнам.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">03</div>
+            <h3>Тестовые</h3>
+            <p>Подготовка под вакансии.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">04</div>
+            <h3>Собеседования</h3>
+            <p>Разбор вопросов и мок‑интервью.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq" id="faq">
+      <div class="container">
+        <h2 class="section-title reveal">FAQ по курсу</h2>
+        <div class="faq-list reveal">
+          <div class="faq-item">
+            <button type="button">Нужен ли опыт программирования?</button>
+            <div class="faq-answer">Нет, курс рассчитан на полный ноль.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Подойдёт ли курс школьникам или студентам?</button>
+            <div class="faq-answer">Да, если есть интерес к IT и готовность практиковаться.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будут ли проекты?</button>
+            <div class="faq-answer">Да, 2–3 проекта с разбором и публикацией на GitHub.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta enroll" id="enroll">
+      <div class="container">
+        <div class="cta-box reveal">
+          <div>
+            <h2>Запись на курс Python для новичков</h2>
+            <p>Подпишите договор и оставьте контакты — мы свяжемся для старта обучения.</p>
+            <div class="doc-links">
+              <a href="/documents/course_agreement.pdf" target="_blank" rel="noopener">Договор на обучение (PDF)</a>
+              <a href="/documents/personal_data_consent.pdf" target="_blank" rel="noopener">Согласие на обработку данных (PDF)</a>
+            </div>
+          </div>
+          {% if user %}
+          <form class="cta-form" action="/enroll" method="post" data-validate-phone>
+            <input type="hidden" name="course" value="Python для новичков">
+            <input type="text" name="full_name" placeholder="ФИО" value="{{ user.name or "" }}" required>
+            <div class="input-wrap">
+              <input type="tel" name="phone" placeholder="Телефон" data-phone="strict" required>
+              <div class="input-hint">Пример: +7 999 000‑00‑00</div>
+              <div class="input-error" aria-live="polite"></div>
+            </div>
+            <input type="email" name="email" placeholder="Email" value="{{ user.email or "" }}" required>
+            <div class="input-wrap">
+              <input type="text" name="telegram" placeholder="Telegram (@username)" data-telegram>
+              <div class="input-hint">Пример: @politifan</div>
+              <div class="input-error" aria-live="polite"></div>
+              <div class="input-status" aria-live="polite"></div>
+            </div>
+            <label class="form-check">
+              <input type="checkbox" name="agreement" required>
+              <span>Я ознакомился с договором и согласен с условиями.</span>
+            </label>
+            <label class="form-check">
+              <input type="checkbox" name="consent" required>
+              <span>Даю согласие на обработку персональных данных.</span>
+            </label>
+            <button class="btn btn-primary" type="submit">Подписать и отправить</button>
+          </form>
+          {% else %}
+          <div class="auth-cta">
+            <p>Чтобы подписать документы и записаться, войдите в аккаунт.</p>
+            <a class="btn btn-primary" href="/login?next=/courses/python-beginners">Войти</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+{% endblock %}

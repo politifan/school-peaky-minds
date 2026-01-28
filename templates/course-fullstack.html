@@ -1,0 +1,439 @@
+{% extends "base.html" %}
+
+{% block title %}Курс Full‑stack разработчик{% endblock %}
+{% block description %}Курс Full‑stack разработчик в IT‑школе Peaky Minds: FastAPI, SQLAlchemy, проекты, портфолио и трудоустройство.{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block meta_keywords %}Full-stack курс, backend разработчик, FastAPI, SQLAlchemy, PostgreSQL, обучение Python, API разработка{% endblock %}
+
+{% block extra_head %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "name": "Full‑stack разработчик",
+      "description": "Full‑stack курс: backend на FastAPI, SQLAlchemy, проекты и трудоустройство.",
+      "provider": {
+        "@type": "Organization",
+        "name": "IT‑школа Peaky Minds",
+        "url": "{{ request.base_url }}"
+      },
+      "url": "{{ request.base_url }}courses/fullstack",
+      "inLanguage": "ru",
+      "offers": {
+        "@type": "Offer",
+        "price": "1500",
+        "priceCurrency": "RUB"
+      }
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Главная",
+          "item": "{{ request.base_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Курс Full‑stack",
+          "item": "{{ request.base_url }}courses/fullstack"
+        }
+      ]
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Нужно ли знание Python?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Нет. Начинаем с базы и постепенно выходим к реальным backend‑задачам."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Как быстро появится первый проект?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Первый проект обычно появляется в первые 4–6 недель обучения."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Будет ли портфолио?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да, вы соберёте портфолио из нескольких API‑сервисов с документацией и деплоем."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Будет ли практика с базами данных?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да. Проектируем схемы, пишем SQL, работаем с ORM и оптимизацией запросов."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Помогаете ли с трудоустройством?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да. Есть отдельный блок по резюме, GitHub и тестовым заданиям."
+          }
+        }
+      ]
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+<section class="hero course-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy reveal">
+          <div class="eyebrow">Курс</div>
+          <h1>Full‑stack разработчик: от нуля до реальной backend‑разработки</h1>
+          <p class="lead">Вы освоите Python, ООП, базы данных и backend на FastAPI. В процессе курса собираем портфолио и выходим на реальные задачи и работу.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" data-open-modal="apply">Записаться на курс</button>
+            <a class="btn btn-secondary" href="#program">Смотреть программу</a>
+          </div>
+          <div class="archive-stack reveal">
+            <div class="visual-card glass-card archive-card">
+              <div class="tag">Кому подходит</div>
+              <div class="value">С нуля или с базой</div>
+              <div class="meta">Full‑stack</div>
+            </div>
+            <div class="visual-card glass-card accent archive-card">
+              <div class="tag">Цена</div>
+              <div class="value">1500 ₽ / час</div>
+              <div class="meta">Фиксируется при старте</div>
+            </div>
+            <div class="visual-card glass-card archive-card">
+              <div class="tag">Длительность</div>
+              <div class="value">1,5 года / 1 год</div>
+              <div class="meta">Зависит от базы</div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual reveal">
+          <div class="visual-card code-card">
+            <div class="code-title">/site/routes.py</div>
+            <pre><code>from fastapi import APIRouter
+from fastapi.responses import HTMLResponse
+
+router = APIRouter()
+
+@router.get("/", response_class=HTMLResponse)
+def home():
+    return render("index.html")
+
+@router.get("/courses/{slug}")
+def course(slug: str):
+    return render(f"course-{slug}.html")
+</code></pre>
+          </div>
+          <div class="visual-card glass-card accent">
+            <div class="tag">Результат</div>
+            <div class="value">API‑сервис под прод</div>
+            <div class="meta">FastAPI • PostgreSQL • Docker</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="for-who">
+      <div class="container">
+        <h2 class="section-title reveal">Для кого курс</h2>
+        <div class="card-grid three reveal">
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-2);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="8" r="3"></circle>
+                <path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"></path>
+              </svg>
+            </div>
+            <h3>Хочу с нуля</h3>
+            <p>Выстраиваем фундамент и идём в боевые задачи.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-1);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 12h12"></path>
+                <path d="M12 6v12"></path>
+                <path d="M4 4h16v16H4z"></path>
+              </svg>
+            </div>
+            <h3>Уже пробовал</h3>
+            <p>Нужна структура и сильный проект.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-3);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 7h16v10H4z"></path>
+                <path d="M8 7V5h8v2"></path>
+                <path d="M9 12h6"></path>
+              </svg>
+            </div>
+            <h3>Нужна работа/фриланс</h3>
+            <p>Фокус на реальный опыт и деньги.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="results">
+      <div class="container">
+        <h2 class="section-title reveal">Что вы будете уметь</h2>
+        <ul class="results-list reveal">
+          <li>Писать API на FastAPI</li>
+          <li>Проектировать БД и писать SQL</li>
+          <li>Работать с SQLAlchemy и миграциями</li>
+          <li>Реализовывать авторизацию (JWT), роли пользователей</li>
+          <li>Тестировать и деплоить проекты</li>
+          <li>Проходить собеседования и выполнять тестовые</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="tech">
+      <div class="container">
+        <h2 class="section-title reveal">Стек технологий</h2>
+        <div class="tag-grid reveal">
+          <span class="tag">Python</span>
+          <span class="tag">FastAPI</span>
+          <span class="tag">Starlette</span>
+          <span class="tag">Pydantic</span>
+          <span class="tag">SQLAlchemy</span>
+          <span class="tag">PostgreSQL</span>
+          <span class="tag">Alembic</span>
+          <span class="tag">Redis</span>
+          <span class="tag">Celery</span>
+          <span class="tag">RabbitMQ</span>
+          <span class="tag">JWT</span>
+          <span class="tag">OAuth2</span>
+          <span class="tag">OpenAPI</span>
+          <span class="tag">REST</span>
+          <span class="tag">Docker</span>
+          <span class="tag">Docker Compose</span>
+          <span class="tag">Nginx</span>
+          <span class="tag">Git</span>
+          <span class="tag">GitHub Actions</span>
+          <span class="tag">Linux</span>
+          <span class="tag">Bash</span>
+          <span class="tag">Pytest</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="projects">
+      <div class="container">
+        <h2 class="section-title reveal">Проекты курса Full‑stack</h2>
+        <div class="card-grid three reveal">
+          <div class="card">
+            <h3>API‑маркетплейс</h3>
+            <p>Каталог, фильтры, роли, авторизация и платежные сценарии.</p>
+            <div class="chip">FastAPI • SQLAlchemy</div>
+          </div>
+          <div class="card">
+            <h3>Сервис аналитики</h3>
+            <p>Сбор метрик, отчёты, админ‑панель и оптимизация запросов.</p>
+            <div class="chip">PostgreSQL • Alembic</div>
+          </div>
+          <div class="card">
+            <h3>Финальный прод‑сервис</h3>
+            <p>Полный цикл: Docker, CI/CD, документация и деплой.</p>
+            <div class="chip">Docker • OpenAPI</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="career-pack">
+      <div class="container">
+        <h2 class="section-title reveal">Карьерный пакет для backend‑старта</h2>
+        <div class="card-grid three reveal">
+          <div class="card">
+            <h3>GitHub + README</h3>
+            <p>Оформляем репозитории, пишем документацию и делаем демо.</p>
+            <div class="chip">Code review</div>
+          </div>
+          <div class="card">
+            <h3>Резюме backend</h3>
+            <p>Список тестовых, проверка ответов и формулировок.</p>
+            <div class="chip">Тестовые</div>
+          </div>
+          <div class="card">
+            <h3>Мок‑интервью</h3>
+            <p>Разбор вопросов и уверенное прохождение собеседований.</p>
+            <div class="chip">Interview</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="program" id="program">
+      <div class="container">
+        <h2 class="section-title reveal">Программа по модулям</h2>
+        <div class="module-grid reveal">
+          <div class="module">
+            <h3>Модуль 1 — База Python и инструменты</h3>
+            <p>Python, Git, Linux, структура проектов.</p>
+            <span class="tag">Проект: CLI‑утилита</span>
+          </div>
+          <div class="module">
+            <h3>Модуль 2 — ООП и архитектура</h3>
+            <p>Классы, паттерны, чистый код.</p>
+            <span class="tag">Проект: сервис с доменной логикой</span>
+          </div>
+          <div class="module">
+            <h3>Модуль 3 — Базы данных</h3>
+            <p>SQL, проектирование схем, индексы.</p>
+            <span class="tag">Проект: БД для бизнеса</span>
+          </div>
+          <div class="module">
+            <h3>Модуль 4 — Backend на FastAPI</h3>
+            <p>API, авторизация, роли, документация.</p>
+            <span class="tag">Проект: REST‑сервис</span>
+          </div>
+          <div class="module">
+            <h3>Модуль 5 — Тестирование и качество</h3>
+            <p>Pytest, мокирование, CI.</p>
+            <span class="tag">Проект: покрытие тестами</span>
+          </div>
+          <div class="module">
+            <h3>Модуль 6 — Деплой и прод</h3>
+            <p>Docker, сервер, мониторинг.</p>
+            <span class="tag">Проект: релиз в прод</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="method">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2>Реализация в разработчика</h2>
+          <p>Не просто обучение — выход на реальные задачи.</p>
+        </div>
+        <div class="timeline reveal">
+          <div class="step">
+            <div class="step-number">01</div>
+            <h3>Портфолио</h3>
+            <p>Проекты и оформление GitHub.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">02</div>
+            <h3>Реальные задачи</h3>
+            <p>Работа по ТЗ и дедлайнам.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">03</div>
+            <h3>Тестовые</h3>
+            <p>Подготовка под вакансии.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">04</div>
+            <h3>Собеседования</h3>
+            <p>Разбор вопросов и мок‑интервью.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq" id="faq">
+      <div class="container">
+        <h2 class="section-title reveal">FAQ по курсу</h2>
+        <div class="faq-list reveal">
+          <div class="faq-item">
+            <button type="button">Нужно ли знание Python?</button>
+            <div class="faq-answer">Нет. Мы начинаем с базы и постепенно выстраиваем уверенный уровень для backend‑задач.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Как быстро появится первый проект?</button>
+            <div class="faq-answer">Первый проект появляется уже на ранних модулях — обычно в первые 4–6 недель.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будет ли портфолио?</button>
+            <div class="faq-answer">Да, вы соберёте портфолио из нескольких API‑сервисов с документацией и деплоем.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Какие темы по backend будут точно?</button>
+            <div class="faq-answer">REST API, авторизация, роли, базы данных, миграции, тестирование, деплой и базовый DevOps.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будет ли практика с базами данных?</button>
+            <div class="faq-answer">Да. Мы проектируем схемы, пишем SQL, работаем с ORM и оптимизацией запросов.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будет ли деплой в прод?</button>
+            <div class="faq-answer">Да. Мы учимся упаковывать проект в Docker и выкатывать на сервер.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Как проходит код‑ревью?</button>
+            <div class="faq-answer">Каждую задачу проверяем и дорабатываем до качества, близкого к рабочему.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Помогаете ли с трудоустройством?</button>
+            <div class="faq-answer">Да. Есть отдельный блок по резюме, GitHub и тестовым заданиям.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta enroll" id="enroll">
+      <div class="container">
+        <div class="cta-box reveal">
+          <div>
+            <h2>Запись на курс Full‑stack</h2>
+            <p>Подпишите договор и оставьте контакты — мы свяжемся для старта обучения.</p>
+            <div class="doc-links">
+              <a href="/documents/course_agreement.pdf" target="_blank" rel="noopener">Договор на обучение (PDF)</a>
+              <a href="/documents/personal_data_consent.pdf" target="_blank" rel="noopener">Согласие на обработку данных (PDF)</a>
+            </div>
+          </div>
+          {% if user %}
+          <form class="cta-form" action="/enroll" method="post" data-validate-phone>
+            <input type="hidden" name="course" value="Full-stack">
+            <input type="text" name="full_name" placeholder="ФИО" value="{{ user.name or "" }}" required>
+            <div class="input-wrap">
+              <input type="tel" name="phone" placeholder="Телефон" data-phone="strict" required>
+              <div class="input-hint">Пример: +7 999 000‑00‑00</div>
+              <div class="input-error" aria-live="polite"></div>
+            </div>
+            <input type="email" name="email" placeholder="Email" value="{{ user.email or "" }}" required>
+            <div class="input-wrap">
+              <input type="text" name="telegram" placeholder="Telegram (@username)" data-telegram>
+              <div class="input-hint">Пример: @politifan</div>
+              <div class="input-error" aria-live="polite"></div>
+              <div class="input-status" aria-live="polite"></div>
+            </div>
+            <label class="form-check">
+              <input type="checkbox" name="agreement" required>
+              <span>Я ознакомился с договором и согласен с условиями.</span>
+            </label>
+            <label class="form-check">
+              <input type="checkbox" name="consent" required>
+              <span>Даю согласие на обработку персональных данных.</span>
+            </label>
+            <button class="btn btn-primary" type="submit">Подписать и отправить</button>
+          </form>
+          {% else %}
+          <div class="auth-cta">
+            <p>Чтобы подписать документы и записаться, войдите в аккаунт.</p>
+            <a class="btn btn-primary" href="/login?next=/courses/fullstack">Войти</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+{% endblock %}

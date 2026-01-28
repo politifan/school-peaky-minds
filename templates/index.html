@@ -1,0 +1,705 @@
+{% extends "base.html" %}
+
+{% block title %}IT‑школа Peaky Minds — обучение программированию{% endblock %}
+{% block description %}IT‑школа Peaky Minds: мини‑группы, практика, портфолио, фриланс и первые деньги во время обучения.{% endblock %}
+{% block extra_head %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Можно ли начать с нуля?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да. Стартуем с фундаментальных тем и постепенно выводим к реальным задачам."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Сколько времени нужно в неделю?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "В среднем 2–5 занятий в неделю плюс 4–6 часов практики. Темп подстроим под вас."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Что если я работаю или учусь?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Есть гибкое расписание в окне 16:00–21:00, график подстраиваем под вашу занятость."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Будут ли реальные проекты?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да. В курсы встроены реальные задачи, тестовые и фриланс‑блок."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Есть ли помощь с трудоустройством?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да, есть блок по резюме, GitHub, тестовым и собеседованиям."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Какие требования к ноутбуку?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Достаточно обычного современного ноутбука (8–16 ГБ RAM). Для ML поможем настроить облачную среду."
+          }
+        }
+      ]
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy reveal">
+          <div class="eyebrow">IT‑школа Peaky Minds</div>
+          <h1>Онлайн IT‑школа, где вы начнёте зарабатывать как разработчик ещё во время обучения</h1>
+          <p class="lead">Мы учим работать в реальных задачах и доводим до результата ещё до окончания курса: портфолио, проекты, опыт, первые деньги и выход на работу. С нами вы не просто выйдите из курса в жестокий мир IT, а как разработчик уже повидавший много задач, работавший с другими разработчиками, знаниями под текущий рынок и умением ставить цены, сроки для задач.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" data-open-modal="apply">Записаться на курс</button>
+            <a class="btn btn-secondary" href="#courses">Выбрать курс</a>
+          </div>
+          <div class="archive-stack reveal">
+            <div class="visual-card glass-card archive-card work-card">
+              <div class="tag">Работа во время курса</div>
+              <div class="value">Стажировка / оффер</div>
+              <div class="meta">Подготовка + тестовые</div>
+            </div>
+            <div class="visual-card glass-card accent archive-card">
+              <div class="tag">Фриланс</div>
+              <div class="value">1 реальный заказ</div>
+              <div class="meta">До окончания курса</div>
+            </div>
+            <div class="visual-card glass-card archive-card">
+              <div class="tag">Портфолио</div>
+              <div class="value">1 проект каждые 6 недель</div>
+              <div class="meta">GitHub • Код‑ревью • Демо</div>
+            </div>
+            <div class="visual-card glass-card archive-card">
+              <div class="tag">Знакомства</div>
+              <div class="value">Вы сами выбираете, с кем заниматься</div>
+              <div class="meta">Комфортная мини‑группа</div>
+            </div>
+            <div class="visual-card glass-card archive-card">
+              <div class="tag">Индивидуальность</div>
+              <div class="value">Разбираем ваши идеи и монетизацию</div>
+              <div class="meta">Проект под ваши цели</div>
+            </div>
+            <div class="visual-card glass-card archive-card">
+              <div class="tag">Востребованность</div>
+              <div class="value">Отзывы, сильные проекты, деньги и опыт</div>
+              <div class="meta">К финалу курса</div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual reveal">
+          <svg class="hero-graphic" viewBox="0 0 400 300" aria-hidden="true">
+            <defs>
+              <linearGradient id="heroGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#63f7d3" stop-opacity="0.6" />
+                <stop offset="50%" stop-color="#ffb347" stop-opacity="0.4" />
+                <stop offset="100%" stop-color="#ff6b4a" stop-opacity="0.5" />
+              </linearGradient>
+            </defs>
+            <path d="M40 220 C120 80, 280 60, 360 140" stroke="url(#heroGradient)" stroke-width="2" fill="none" />
+            <path d="M20 260 C140 140, 260 140, 380 220" stroke="url(#heroGradient)" stroke-width="1.5" fill="none" opacity="0.7" />
+            <circle cx="140" cy="120" r="26" fill="none" stroke="url(#heroGradient)" stroke-width="1.5" opacity="0.8" />
+            <circle cx="240" cy="200" r="20" fill="none" stroke="url(#heroGradient)" stroke-width="1.2" opacity="0.7" />
+          </svg>
+          <div class="visual-card code-card primary">
+            <div class="code-title">/chain/web3.py</div>
+            <pre><code>from web3 import Web3
+
+w3 = Web3(Web3.HTTPProvider("https://mainnet.infura.io/v3/$KEY"))
+targets = {"0xA0b8...", "0x3d98..."}
+
+def scan_wallets(w3, targets, depth=120):
+    ...
+
+def scan_contract(w3, address, depth=120):
+    ...
+
+wallet_hits = scan_wallets(w3, targets)
+events = scan_contract(w3, "0xToken...")
+</code></pre>
+          </div>
+          <div class="visual-card code-card secondary">
+            <div class="code-title">/ui/site.js</div>
+            <pre><code>const links = document.querySelectorAll("[data-scroll]")
+links.forEach((link) => {
+  link.addEventListener("click", (event) => {
+    event.preventDefault()
+    document.querySelector(link.getAttribute("href"))
+      .scrollIntoView({ behavior: "smooth" })
+  })
+})
+</code></pre>
+          </div>
+          <div class="visual-spark"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust">
+      <div class="container">
+        <h2 class="section-title reveal">Обучение, которое приводит к реальным навыкам и работе</h2>
+        <div class="card-grid reveal">
+          <div class="card">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="7" cy="8" r="3"></circle>
+                <circle cx="17" cy="8" r="3"></circle>
+                <path d="M2 20c0-3 3-5 5-5"></path>
+                <path d="M22 20c0-3-3-5-5-5"></path>
+                <path d="M9 20h6"></path>
+              </svg>
+            </div>
+            <h3>Мини‑группа</h3>
+            <p>До 3 человек — вы не теряетесь в потоке.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-1);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 7l-5 5 5 5"></path>
+                <path d="M16 7l5 5-5 5"></path>
+                <path d="M13 4l-2 16"></path>
+              </svg>
+            </div>
+            <h3>Практика вместо воды</h3>
+            <p>Каждый модуль закрепляется задачами и кодом.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-2);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 7h6l2 2h10v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path>
+                <path d="M3 7v-1a2 2 0 0 1 2-2h4l2 2"></path>
+              </svg>
+            </div>
+            <h3>Портфолио</h3>
+            <p>GitHub и проекты, которые не стыдно показать.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-3);">
+              <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M15.75 5.99996V10.5817L20.25 15.4567V19.5L14.85 17.25H14.164C14.2486 17.7211 14.3143 18.3821 14.142 18.9632C13.9659 19.5569 13.4881 20.2215 13.1356 20.6687C12.9464 20.9088 12.7667 21.1187 12.6346 21.2684C12.5683 21.3434 12.5134 21.404 12.4746 21.4463C12.4552 21.4674 12.4398 21.484 12.429 21.4957L12.4162 21.5094L12.4125 21.5133L12.4113 21.5145L12.4108 21.5151L11.8348 22.1242L11.2932 21.4844L11.2915 21.4825L11.2881 21.4784L11.2764 21.4644C11.2665 21.4525 11.2525 21.4357 11.235 21.4143C11.2 21.3715 11.1507 21.3104 11.0913 21.2347C10.9731 21.0839 10.8128 20.8723 10.6459 20.6301C10.3367 20.1815 9.91547 19.504 9.79514 18.8955C9.68449 18.3359 9.79889 17.7103 9.92202 17.25H9.15L3.75 19.5V15.4567L8.25 10.5817V5.99996C8.25 5.35551 8.54034 4.80104 8.87841 4.36963C9.21911 3.93484 9.65484 3.56455 10.0602 3.2711C10.4698 2.97466 10.8748 2.73774 11.175 2.57572C11.326 2.49424 11.4525 2.43056 11.5426 2.38666C11.5877 2.36469 11.6238 2.34761 11.6494 2.33567L11.6799 2.32162L11.6889 2.31754L11.6917 2.31624L11.6935 2.31543L12 2.17822L12.3072 2.31577L12.3083 2.31624L12.3111 2.31754L12.3201 2.32162L12.3506 2.33567C12.3762 2.34761 12.4123 2.36469 12.4574 2.38666C12.5475 2.43056 12.674 2.49424 12.825 2.57572C13.1252 2.73774 13.5302 2.97466 13.9398 3.2711C14.3452 3.56455 14.7809 3.93484 15.1216 4.36963C15.4597 4.80104 15.75 5.35551 15.75 5.99996ZM11.4896 17.25C11.4625 17.3292 11.4346 17.4157 11.4078 17.5068C11.2792 17.9448 11.2175 18.3559 11.2666 18.6045C11.3201 18.8746 11.5662 19.3221 11.881 19.7789L11.9023 19.8097C11.9206 19.7869 11.939 19.7637 11.9575 19.7402C12.3185 19.2821 12.6193 18.8218 12.7039 18.5367C12.7799 18.2806 12.7573 17.8699 12.6733 17.4389C12.6605 17.3731 12.6468 17.3098 12.633 17.25H11.4896ZM15.75 16V12.7932L18.75 16.0432V17.25L15.75 16ZM14.25 5.99996V15.75H9.75V5.99996C9.75 5.81598 9.83466 5.58123 10.0591 5.29482C10.2809 5.01178 10.5952 4.73562 10.9398 4.48618C11.2802 4.23973 11.6252 4.0373 11.8875 3.89571C11.9272 3.87428 11.9648 3.85435 12 3.83598C12.0352 3.85435 12.0728 3.87428 12.1125 3.89571C12.3748 4.0373 12.7198 4.23973 13.0602 4.48618C13.4048 4.73562 13.7191 5.01178 13.9409 5.29482C14.1653 5.58123 14.25 5.81598 14.25 5.99996ZM8.25 12.7932V16L5.25 17.25V16.0432L8.25 12.7932Z" fill="#080341"/>
+              </svg>
+            </div>
+            <h3>Работа в процессе</h3>
+            <p>Фриланс / стажировка / подготовка к вакансиям.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="problem">
+      <div class="container">
+        <h2 class="section-title reveal">Почему после большинства курсов люди не становятся разработчиками</h2>
+        <div class="columns reveal">
+          <div class="panel muted">
+            <h3>Как у всех</h3>
+            <ul>
+              <li>Большие потоки</li>
+              <li>Уроки ради уроков</li>
+              <li>Мало практики</li>
+              <li>Нет персонального плана</li>
+              <li>Нет реального опыта</li>
+            </ul>
+          </div>
+          <div class="panel highlight">
+            <h3>Как у нас</h3>
+            <p>Вы учитесь и сразу делаете проекты, решаете реальные задачи, проходите тестовые и выходите на первые деньги.</p>
+            <div class="stamp">Фокус на результат</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="method" id="method">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2>Как вы начнёте зарабатывать во время обучения</h2>
+          <p>Пять этапов, которые превращают новичка в разработчика с первыми доходами.</p>
+        </div>
+        <div class="timeline reveal">
+          <div class="step">
+            <div class="step-number">01</div>
+            <h3>Осваиваем базу</h3>
+            <p>Python + инструменты разработчика.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">02</div>
+            <h3>Пишем проекты</h3>
+            <p>Портфолио, структура кода, практика.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">03</div>
+            <h3>Боевой режим</h3>
+            <p>ТЗ, дедлайны, качество, ревью.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">04</div>
+            <h3>Фриланс и собеседования</h3>
+            <p>Резюме, GitHub, отклики.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">05</div>
+            <h3>Выход на доход</h3>
+            <p>Первые заказы и работа до окончания курса.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="courses" id="courses">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2>Выберите направление</h2>
+          <p>4 трека под разные цели и уровень подготовки.</p>
+        </div>
+        <div class="course-carousel reveal" data-carousel>
+          <div class="course-carousel__viewport" data-carousel-viewport aria-label="Карточки курсов">
+            <div class="course-carousel__track" data-carousel-track>
+              <article class="course-card course-carousel__slide course-card--fullstack">
+                <div class="course-card__header">
+                  <div class="course-card__tag">Full‑stack разработчик</div>
+                  <div class="course-card__price">1500 ₽ / час</div>
+                </div>
+                <h3 class="course-card__title">Backend на FastAPI + SQLAlchemy</h3>
+                <p class="course-card__subtitle">API, базы, архитектура, деплой и production‑качество.</p>
+                <div class="course-card__stats">
+                  <div class="course-detail">
+                    <span>Кому подходит</span>
+                    <strong>С нуля / с базой</strong>
+                  </div>
+                  <div class="course-detail">
+                    <span>Длительность</span>
+                    <strong>1,5 года / 1 год</strong>
+                  </div>
+                  <div class="course-detail">
+                    <span>Формат</span>
+                    <strong>Мини‑группа до 3</strong>
+                  </div>
+                </div>
+                <div class="course-card__stack">
+                  <span>FastAPI</span>
+                  <span>SQLAlchemy</span>
+                  <span>PostgreSQL</span>
+                  <span>Docker</span>
+                </div>
+                <div class="course-card__actions">
+                  <a class="btn btn-secondary" href="/courses/fullstack">Смотреть программу</a>
+                  <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться</button>
+                </div>
+              </article>
+              <article class="course-card course-carousel__slide course-card--beginners">
+                <div class="course-card__header">
+                  <div class="course-card__tag">Python для новичков</div>
+                  <div class="course-card__price">1000 ₽ / час</div>
+                </div>
+                <h3 class="course-card__title">Быстрый старт в программировании</h3>
+                <p class="course-card__subtitle">Практика с первых недель, скрипты и мини‑проекты.</p>
+                <div class="course-card__stats">
+                  <div class="course-detail">
+                    <span>Группа</span>
+                    <strong>до 10 человек</strong>
+                  </div>
+                  <div class="course-detail">
+                    <span>Длительность</span>
+                    <strong>6 месяцев</strong>
+                  </div>
+                  <div class="course-detail">
+                    <span>Результат</span>
+                    <strong>2–3 проекта</strong>
+                  </div>
+                </div>
+                <div class="course-card__stack">
+                  <span>Python</span>
+                  <span>Git</span>
+                  <span>requests</span>
+                  <span>SQLite</span>
+                </div>
+                <div class="course-card__actions">
+                  <a class="btn btn-secondary" href="/courses/python-beginners">Смотреть программу</a>
+                  <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться</button>
+                </div>
+              </article>
+              <article class="course-card course-carousel__slide course-card--data">
+                <div class="course-card__header">
+                  <div class="course-card__tag">Data Science / ML</div>
+                  <div class="course-card__price">2000 ₽ / час</div>
+                </div>
+                <h3 class="course-card__title">PyTorch + Hugging Face + CV + API</h3>
+                <p class="course-card__subtitle">Модели, данные, прод‑инференс и портфолио.</p>
+                <div class="course-card__stats">
+                  <div class="course-detail">
+                    <span>Кому подходит</span>
+                    <strong>ML / аналитика</strong>
+                  </div>
+                  <div class="course-detail">
+                    <span>Длительность</span>
+                    <strong>2 года / 1,5 года</strong>
+                  </div>
+                  <div class="course-detail">
+                    <span>Проекты</span>
+                    <strong>3+ серьёзных</strong>
+                  </div>
+                </div>
+                <div class="course-card__stack">
+                  <span>PyTorch</span>
+                  <span>Hugging Face</span>
+                  <span>OpenCV</span>
+                  <span>FastAPI</span>
+                </div>
+                <div class="course-card__actions">
+                  <a class="btn btn-secondary" href="/courses/data-science">Смотреть программу</a>
+                  <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться</button>
+                </div>
+              </article>
+              <article class="course-card course-carousel__slide course-card--business">
+                <div class="course-card__header">
+                  <div class="course-card__tag">Программирование для бизнеса</div>
+                  <div class="course-card__price">2000 ₽ / час</div>
+                </div>
+                <h3 class="course-card__title">Автоматизация, парсеры, боты, интеграции</h3>
+                <p class="course-card__subtitle">Фриланс‑кейсы и бизнес‑инструменты под задачи.</p>
+                <div class="course-card__stats">
+                  <div class="course-detail">
+                    <span>Кому подходит</span>
+                    <strong>Быстрый старт</strong>
+                  </div>
+                  <div class="course-detail">
+                    <span>Длительность</span>
+                    <strong>1,5 года / 1 год</strong>
+                  </div>
+                  <div class="course-detail">
+                    <span>Фокус</span>
+                    <strong>Фриланс/бизнес</strong>
+                  </div>
+                </div>
+                <div class="course-card__stack">
+                  <span>Парсинг</span>
+                  <span>Telegram</span>
+                  <span>FastAPI</span>
+                  <span>Google Sheets</span>
+                </div>
+                <div class="course-card__actions">
+                  <a class="btn btn-secondary" href="/courses/business">Смотреть программу</a>
+                  <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться</button>
+                </div>
+              </article>
+            </div>
+          </div>
+          <div class="course-carousel__controls">
+            <button class="carousel-btn" type="button" data-carousel-prev aria-label="Предыдущий курс">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15 6l-6 6 6 6" />
+              </svg>
+            </button>
+            <button class="carousel-btn" type="button" data-carousel-next aria-label="Следующий курс">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 6l6 6-6 6" />
+              </svg>
+            </button>
+          </div>
+          <div class="course-carousel__dots" data-carousel-dots></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="comparison">
+      <div class="container">
+        <h2 class="section-title reveal">Чем мы отличаемся от потоковых курсов</h2>
+        <div class="compare-table reveal">
+          <div class="compare-row header">
+            <div>Критерий</div>
+            <div>Потоковые курсы</div>
+            <div>Наши курсы</div>
+          </div>
+          <div class="compare-row">
+            <div>Группа</div>
+            <div>5-15 человек</div>
+            <div>Максимум 3 человека вам по нраву</div>
+          </div>
+          <div class="compare-row">
+            <div>Формат</div>
+            <div>Единая программа для всех</div>
+            <div>Адаптируемся под ваши замыслы</div>
+          </div>
+          <div class="compare-row">
+            <div>Практика</div>
+            <div>Слабая / не реалистичная</div>
+            <div>Частая и по текущему рынку</div>
+          </div>
+          <div class="compare-row">
+            <div>Реальные задачи</div>
+            <div>Редко + это не заказы с оплатой</div>
+            <div>По мере ваших амбиций и платой труда</div>
+          </div>
+          <div class="compare-row">
+            <div>Выход на работу</div>
+            <div>После окончания (обещания)</div>
+            <div>В процессе обучения (реальность)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="format">
+      <div class="container">
+        <h2 class="section-title reveal">Как проходит обучение</h2>
+        <div class="card-grid reveal">
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-1);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 7l-5 5 5 5"></path>
+                <path d="M16 7l5 5-5 5"></path>
+                <path d="M13 4l-2 16"></path>
+              </svg>
+            </div>
+            <h3>Практика на каждом занятии</h3>
+            <p>Код пишется вместе с преподавателем и закрепляется заданиями.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-2);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 6h16"></path>
+                <path d="M4 12h16"></path>
+                <path d="M4 18h10"></path>
+                <path d="M6 6l2 2 4-4"></path>
+              </svg>
+            </div>
+            <h3>Домашки с разбором</h3>
+            <p>Мы не просто выдаём задания — мы проверяем, объясняем, исправляем.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-3);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="7"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+              </svg>
+            </div>
+            <h3>Фокус на результате</h3>
+            <p>Цель может быть разной: работа, фриланс, стажировка.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-2);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 7h6l2 2h8v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z"></path>
+                <path d="M7 13h10"></path>
+                <path d="M7 16h6"></path>
+              </svg>
+            </div>
+            <h3>Чёткая система</h3>
+            <p>GitHub, проекты, код‑ревью, дисциплина — как в разработке.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="portfolio" id="portfolio">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2>Портфолио проектов</h2>
+          <p>Витрина реальных кейсов и учебных проектов.</p>
+        </div>
+        <div class="card-grid three reveal portfolio-grid collapsed" data-portfolio-grid>
+          <div class="project-card" data-parallax="0.08">
+            <h3>CopyTrading платформа</h3>
+            <p>Web3 (без библиотек)</p>
+            <span class="tag">Полный on‑chain цикл копирования сделок</span>
+          </div>
+          <div class="project-card" data-parallax="0.1">
+            <h3>Бот отслеживания кошельков</h3>
+            <p>Web3 + PostgreSQL</p>
+            <span class="tag">Статистика, алерты и история транзакций</span>
+          </div>
+          <div class="project-card" data-parallax="0.12">
+            <h3>ML проекты для Finam</h3>
+            <p>PyTorch + pandas</p>
+            <span class="tag">Прогнозы и модели риска</span>
+          </div>
+          <div class="project-card" data-parallax="0.09">
+            <h3>Telegram‑боты с фриланса</h3>
+            <p>aiogram + API</p>
+            <span class="tag">Автоматизация заявок и поддержки</span>
+          </div>
+          <div class="project-card" data-parallax="0.11">
+            <h3>Сайт для парикмахерской</h3>
+            <p>HTML/CSS/JS</p>
+            <span class="tag">Запись, услуги, галерея</span>
+          </div>
+          <div class="project-card" data-parallax="0.07">
+            <h3>Маркетплейс для этого же сайта</h3>
+            <p>FastAPI + PostgreSQL</p>
+            <span class="tag">Каталог, корзина и заявки</span>
+          </div>
+          <div class="project-card" data-parallax="0.1">
+            <h3>Алготрейдинг для Bybit</h3>
+            <p>Python + Bybit API</p>
+            <span class="tag">Автоматизация сделок и риск‑менеджмент</span>
+          </div>
+          <div class="project-card" data-parallax="0.12">
+            <h3>Разработка API Zerion</h3>
+            <p>Web3 API</p>
+            <span class="tag">Интеграции кошельков и токенов</span>
+          </div>
+          <div class="project-card" data-parallax="0.09">
+            <h3>Массовые парсеры</h3>
+            <p>Python + asyncio</p>
+            <span class="tag">Миллионы страниц и антибот‑логика</span>
+          </div>
+          <div class="project-card" data-parallax="0.11">
+            <h3>Распознавание лиц</h3>
+            <p>OpenCV + Raspberry Pi + Arduino</p>
+            <span class="tag">Edge‑CV и управление устройствами</span>
+          </div>
+          <div class="project-card" data-parallax="0.08">
+            <h3>Агрегатор on‑chain статистики</h3>
+            <p>Web3 + аналитика</p>
+            <span class="tag">Сводные отчёты по кошелькам</span>
+          </div>
+          <div class="project-card" data-parallax="0.1">
+            <h3>Другие проекты по ссылкам</h3>
+            <p>Web, ML, Web3, автоматизация</p>
+            <span class="tag">Предоставлю ссылки по запросу</span>
+          </div>
+        </div>
+        <div class="portfolio-actions reveal">
+          <button class="btn btn-secondary portfolio-toggle" type="button" data-portfolio-toggle aria-expanded="false">
+            Показать ещё проекты
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="team">
+      <div class="container">
+        <h2 class="section-title reveal">Кто с вами работает</h2>
+        <div class="columns reveal">
+          <div class="panel">
+            <h3>Преподаватель — Politifan</h3>
+            <p>Опыт преподавания — 3 года. Официально 1,5 года работал преподавателем в «Школа облачных технологий» и выпустил Full‑stack и Data Science специалистов. Веду все дисциплины лично, принимаю заявки и строю план обучения.</p>
+            <div class="chip">CEO • Lead Teacher • Sales</div>
+          </div>
+          <div class="panel">
+            <h3>Организация и поддержка</h3>
+            <p>Александр и Владимир — договоры, платежи, расписание и сопровождение по организационным вопросам.</p>
+            <div class="chip">Менеджмент и поддержка</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="testimonials">
+      <div class="container">
+        <h2 class="section-title reveal">Истории студентов</h2>
+        <div class="card-grid three reveal">
+          <div class="card">
+            <h3>Было → стало</h3>
+            <p>Ноль в программировании → сайт‑парсер</p>
+            <span class="tag">Первый заказ на фрилансе через 3 месяца</span>
+          </div>
+          <div class="card">
+            <h3>Было → стало</h3>
+            <p>База Python → API‑сервис</p>
+            <span class="tag">Стажировка в продуктовой компании</span>
+          </div>
+          <div class="card">
+            <h3>Было → стало</h3>
+            <p>Аналитик → NLP‑модель</p>
+            <span class="tag">Фриланс‑заказ на 40 000 ₽</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq" id="faq">
+      <div class="container">
+        <h2 class="section-title reveal">FAQ</h2>
+        <div class="faq-list reveal">
+          <div class="faq-item">
+            <button type="button">Можно ли начать с нуля?</button>
+            <div class="faq-answer">Да. Мы стартуем с фундаментальных тем и постепенно выводим вас к реальным задачам. Темп и глубина подстраиваются под ваш текущий уровень.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Сколько времени нужно в неделю?</button>
+            <div class="faq-answer">В среднем 2–5 занятий в неделю плюс 4–6 часов практики. Если времени меньше — подстроим план и темп.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Что если я работаю или учусь?</button>
+            <div class="faq-answer">У нас гибкое расписание в окне 16:00–21:00. Составляем график, который реально выдерживать без выгорания.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Как выглядит практика?</button>
+            <div class="faq-answer">Каждый модуль закрепляется задачами и мини‑проектами. Мы делаем код‑ревью, разбор архитектуры и доработку до «боевого» качества.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будут ли реальные проекты?</button>
+            <div class="faq-answer">Да. В курсы встроены реальные задачи, тестовые и фриланс‑блок. Вы собираете портфолио, которое можно показать работодателю.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Есть ли помощь с трудоустройством?</button>
+            <div class="faq-answer">Да, есть блок по резюме, GitHub, тестовым и собеседованиям. Помогаем выстроить стратегию откликов и первые интервью.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Сколько длится обучение и можно ли ускорить?</button>
+            <div class="faq-answer">Длительность зависит от направления и старта: от 1 года до 2 лет. Если у вас уже есть база, траектория будет короче.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Как формируется стоимость и есть ли рассрочка?</button>
+            <div class="faq-answer">Стоимость — почасовая, вы оплачиваете фактические занятия. Возможна рассрочка по договорённости.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Что если я пропустил занятие?</button>
+            <div class="faq-answer">Мы переносим занятие или даём разбор ключевых тем, чтобы вы не выпадали из темпа.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Какие требования к ноутбуку?</button>
+            <div class="faq-answer">Достаточно обычного современного ноутбука (8–16 ГБ RAM). Для ML‑задач поможем настроить облачную среду.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Можно ли сменить направление в процессе?</button>
+            <div class="faq-answer">Да, если вы понимаете, что другая траектория подходит лучше. Мы корректируем план и переносим на релевантные модули.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Когда можно ожидать первые результаты?</button>
+            <div class="faq-answer">Обычно первые проекты появляются через 4–8 недель. Первые реальные задания — после базового блока.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="container">
+        <div class="cta-box reveal">
+          <div>
+            <h2>Оставьте заявку — и мы составим план обучения под вашу цель</h2>
+            <p>Подберём курс, оценим уровень и скажем, как быстрее выйти на проекты, фриланс или работу.</p>
+          </div>
+          <form class="cta-form" action="/apply" method="post" data-validate-phone>
+            <input type="text" name="name" placeholder="Ваше имя">
+            <div class="input-wrap">
+              <input type="tel" name="phone" placeholder="Телефон или Telegram (@username)" data-phone="flex">
+              <div class="input-hint">Пример: +7 999 000‑00‑00 или @politifan</div>
+              <div class="input-error" aria-live="polite"></div>
+            </div>
+            <input type="hidden" name="course" value="Main">
+            <button class="btn btn-primary" type="submit">Получить консультацию</button>
+          </form>
+        </div>
+      </div>
+    </section>
+{% endblock %}

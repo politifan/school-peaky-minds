@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Личный кабинет</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Prata&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <main class="container" style="padding: 120px 0;">
+    <div class="cta-box" style="grid-template-columns: 1fr;">
+      <div>
+        <h1>Личный кабинет</h1>
+        {% if user %}
+        <p>Вы вошли как <strong>{{ user.name or user.email }}</strong>.</p>
+        <p>Проверьте доступные курсы и оформите запись.</p>
+        {% endif %}
+      </div>
+      <div class="auth-cta">
+        <a class="btn btn-secondary" href="/">На главную</a>
+        <a class="btn btn-primary" href="/logout">Выйти</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

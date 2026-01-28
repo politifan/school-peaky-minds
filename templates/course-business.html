@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+
+{% block title %}Курс Программирование для бизнеса{% endblock %}
+{% block description %}Курс программирование для бизнеса в IT‑школе Peaky Minds: автоматизация, боты, парсинг и отчёты на Python.{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block meta_keywords %}программирование для бизнеса, автоматизация, боты, парсинг, python курс, фриланс, интеграции{% endblock %}
+
+{% block extra_head %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "name": "Программирование для бизнеса",
+      "description": "Автоматизация, боты, парсинг и бизнес‑решения на Python.",
+      "provider": {
+        "@type": "Organization",
+        "name": "IT‑школа Peaky Minds",
+        "url": "{{ request.base_url }}"
+      },
+      "url": "{{ request.base_url }}courses/business",
+      "inLanguage": "ru",
+      "offers": {
+        "@type": "Offer",
+        "price": "2000",
+        "priceCurrency": "RUB"
+      }
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Главная",
+          "item": "{{ request.base_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Курс для бизнеса",
+          "item": "{{ request.base_url }}courses/business"
+        }
+      ]
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Нужен ли опыт в программировании?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Нет. Курс рассчитан на новичков и быстрый практический старт."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Можно ли начать зарабатывать быстро?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да, фриланс‑блок заложен в программу, учим искать заказы и оформлять отклики."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Какие проекты будут в портфолио?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Парсеры, боты, отчёты и интеграции для бизнеса — реальные кейсы."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Будут ли Telegram‑боты и парсинг?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да. Эти блоки — ядро программы и их можно быстро монетизировать."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Можно ли автоматизировать свой бизнес?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да. Поможем разобрать процессы и собрать инструмент под вашу задачу."
+          }
+        }
+      ]
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+<section class="hero course-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy reveal">
+          <div class="eyebrow">Курс</div>
+          <h1>Программирование для бизнеса: автоматизация и быстрый выход на заработок</h1>
+          <p class="lead">С нуля учим Python и доводим до реальных задач: парсинг, боты, отчёты, интеграции, автоматизация таблиц и процессов.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" data-open-modal="apply">Записаться на курс</button>
+            <a class="btn btn-secondary" href="#program">Смотреть программу</a>
+          </div>
+          <div class="archive-stack reveal">
+            <div class="visual-card glass-card archive-card">
+              <div class="tag">Кому подходит</div>
+              <div class="value">Быстрый старт в фрилансе</div>
+              <div class="meta">Business‑курс</div>
+            </div>
+            <div class="visual-card glass-card accent archive-card">
+              <div class="tag">Цена</div>
+              <div class="value">2000 ₽ / час</div>
+              <div class="meta">Фиксируется при старте</div>
+            </div>
+            <div class="visual-card glass-card archive-card">
+              <div class="tag">Длительность</div>
+              <div class="value">1,5 года / 1 год</div>
+              <div class="meta">Зависит от базы</div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual reveal">
+          <div class="visual-card code-card">
+            <div class="code-title">/analytics/report.py</div>
+            <pre><code>import pyexcel as pe
+
+rows = pe.get_records(file_name="sales.xlsx")
+summary = []
+for row in rows:
+    margin = row["Revenue"] - row["Cost"]
+    summary.append({"Month": row["Month"], "Margin": margin})
+
+pe.save_as(records=summary, dest_file_name="report.xlsx")
+</code></pre>
+          </div>
+          <div class="visual-card glass-card accent">
+            <div class="tag">Результат</div>
+            <div class="value">Автоматизация процессов</div>
+            <div class="meta">Python • API • Telegram</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="for-who">
+      <div class="container">
+        <h2 class="section-title reveal">Для кого курс</h2>
+        <div class="card-grid three reveal">
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-2);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 7h16v10H4z"></path>
+                <path d="M8 7V5h8v2"></path>
+                <path d="M9 12h6"></path>
+              </svg>
+            </div>
+            <h3>Хочу быстро начать зарабатывать</h3>
+            <p>Практический Python для задач бизнеса.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-1);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 6h16"></path>
+                <path d="M4 12h16"></path>
+                <path d="M4 18h10"></path>
+                <path d="M6 6l2 2 4-4"></path>
+              </svg>
+            </div>
+            <h3>Нужен прикладной навык</h3>
+            <p>Автоматизация рутины и отчетности.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon" style="color: var(--accent-3);">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="7"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+              </svg>
+            </div>
+            <h3>Решать задачи предпринимателей</h3>
+            <p>Интеграции, боты, парсинг.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="results">
+      <div class="container">
+        <h2 class="section-title reveal">Что вы будете уметь</h2>
+        <ul class="results-list reveal">
+          <li>Писать скрипты автоматизации</li>
+          <li>Парсить сайты и собирать данные</li>
+          <li>Делать Telegram‑ботов</li>
+          <li>Автоматизировать Excel/Google Sheets</li>
+          <li>Делать API для бизнес‑инструментов</li>
+          <li>Брать заказы на фрилансе</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="tech">
+      <div class="container">
+        <h2 class="section-title reveal">Стек технологий</h2>
+        <div class="tag-grid reveal">
+          <span class="tag">Python</span>
+          <span class="tag">requests</span>
+          <span class="tag">aiohttp</span>
+          <span class="tag">bs4</span>
+          <span class="tag">lxml</span>
+          <span class="tag">Selenium</span>
+          <span class="tag">Playwright</span>
+          <span class="tag">pandas</span>
+          <span class="tag">numpy</span>
+          <span class="tag">openpyxl</span>
+          <span class="tag">gspread</span>
+          <span class="tag">Google Sheets API</span>
+          <span class="tag">SQL</span>
+          <span class="tag">SQLite</span>
+          <span class="tag">PostgreSQL</span>
+          <span class="tag">FastAPI</span>
+          <span class="tag">Telegram Bot API</span>
+          <span class="tag">APScheduler</span>
+          <span class="tag">Cron</span>
+          <span class="tag">Docker</span>
+          <span class="tag">Git</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="projects">
+      <div class="container">
+        <h2 class="section-title reveal">Проекты курса для бизнеса</h2>
+        <div class="card-grid three reveal">
+          <div class="card">
+            <h3>Парсер + отчёт</h3>
+            <p>Сбор данных и выгрузка в Google Sheets с автосводкой.</p>
+            <div class="chip">requests • pandas</div>
+          </div>
+          <div class="card">
+            <h3>Telegram‑бот</h3>
+            <p>Бот для поддержки, продаж или напоминаний с логикой.</p>
+            <div class="chip">Telegram Bot API</div>
+          </div>
+          <div class="card">
+            <h3>Интеграция через API</h3>
+            <p>Связь CRM, платежей и внутренних сервисов.</p>
+            <div class="chip">FastAPI • Webhooks</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="career-pack">
+      <div class="container">
+        <h2 class="section-title reveal">Пакет для фриланс‑старта</h2>
+        <div class="card-grid three reveal">
+          <div class="card">
+            <h3>Коммерческие шаблоны</h3>
+            <p>Бриф, ТЗ, оценка сроков и стоимости.</p>
+            <div class="chip">Коммуникация</div>
+          </div>
+          <div class="card">
+            <h3>Портфолио кейсов</h3>
+            <p>Готовые решения для бизнеса с понятной пользой.</p>
+            <div class="chip">Portfolio</div>
+          </div>
+          <div class="card">
+            <h3>Первые заявки</h3>
+            <p>План поиска заказов и быстрый выход на оплату.</p>
+            <div class="chip">Freelance</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="program" id="program">
+      <div class="container">
+        <h2 class="section-title reveal">Программа по модулям</h2>
+        <div class="module-grid reveal">
+          <div class="module">
+            <h3>Модуль 1 — Python и автоматизация</h3>
+            <p>Базовый синтаксис, файловые операции.</p>
+            <span class="tag">Проект: скрипт‑помощник</span>
+          </div>
+          <div class="module">
+            <h3>Модуль 2 — Парсинг данных</h3>
+            <p>requests, bs4, сбор информации.</p>
+            <span class="tag">Проект: парсер конкурентов</span>
+          </div>
+          <div class="module">
+            <h3>Модуль 3 — Таблицы и отчеты</h3>
+            <p>Excel/Google Sheets, pandas.</p>
+            <span class="tag">Проект: автоматический отчет</span>
+          </div>
+          <div class="module">
+            <h3>Модуль 4 — API и интеграции</h3>
+            <p>REST, вебхуки, интеграции.</p>
+            <span class="tag">Проект: интеграция CRM</span>
+          </div>
+          <div class="module">
+            <h3>Модуль 5 — Боты</h3>
+            <p>Telegram‑боты, сценарии общения.</p>
+            <span class="tag">Проект: бот поддержки</span>
+          </div>
+          <div class="module">
+            <h3>Модуль 6 — Продакшен</h3>
+            <p>Деплой, поддержка, SLA.</p>
+            <span class="tag">Проект: сервис для бизнеса</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="method">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2>Реализация в разработчика</h2>
+          <p>Быстрый выход на практические задачи и заказы.</p>
+        </div>
+        <div class="timeline reveal">
+          <div class="step">
+            <div class="step-number">01</div>
+            <h3>Портфолио</h3>
+            <p>Практические кейсы для бизнеса.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">02</div>
+            <h3>Реальные задачи</h3>
+            <p>ТЗ, дедлайны и результат.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">03</div>
+            <h3>Фриланс</h3>
+            <p>Поиск заказов и коммуникация.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">04</div>
+            <h3>Доход</h3>
+            <p>Первые платные проекты.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq" id="faq">
+      <div class="container">
+        <h2 class="section-title reveal">FAQ по курсу</h2>
+        <div class="faq-list reveal">
+          <div class="faq-item">
+            <button type="button">Нужен ли опыт в программировании?</button>
+            <div class="faq-answer">Нет. Курс рассчитан на новичков и быстрый практический старт.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Можно ли начать зарабатывать быстро?</button>
+            <div class="faq-answer">Да, фриланс‑блок заложен в программу, мы учим искать заказы и оформлять отклики.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Какие проекты будут в портфолио?</button>
+            <div class="faq-answer">Парсеры, боты, отчеты и интеграции для бизнеса — реальные кейсы, а не учебные «демки».</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будут ли Telegram‑боты и парсинг?</button>
+            <div class="faq-answer">Да. Эти блоки — ядро программы, их можно быстро монетизировать.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Можно ли автоматизировать свой бизнес?</button>
+            <div class="faq-answer">Да. Мы поможем разобрать ваши процессы и собрать инструмент под вашу задачу.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Как проходит практика?</button>
+            <div class="faq-answer">Каждый модуль завершается задачей с реальными данными и разбором кода.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Сколько времени нужно в неделю?</button>
+            <div class="faq-answer">2–4 занятия + самостоятельные задачи. График можно подстроить.</div>
+          </div>
+          <div class="faq-item">
+            <button type="button">Помогаете ли с фрилансом?</button>
+            <div class="faq-answer">Да. Учим искать заказы, формировать портфолио и вести переговоры.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta enroll" id="enroll">
+      <div class="container">
+        <div class="cta-box reveal">
+          <div>
+            <h2>Запись на курс для бизнеса</h2>
+            <p>Подпишите договор и оставьте контакты — мы свяжемся для старта обучения.</p>
+            <div class="doc-links">
+              <a href="/documents/course_agreement.pdf" target="_blank" rel="noopener">Договор на обучение (PDF)</a>
+              <a href="/documents/personal_data_consent.pdf" target="_blank" rel="noopener">Согласие на обработку данных (PDF)</a>
+            </div>
+          </div>
+          {% if user %}
+          <form class="cta-form" action="/enroll" method="post" data-validate-phone>
+            <input type="hidden" name="course" value="Business">
+            <input type="text" name="full_name" placeholder="ФИО" value="{{ user.name or "" }}" required>
+            <div class="input-wrap">
+              <input type="tel" name="phone" placeholder="Телефон" data-phone="strict" required>
+              <div class="input-hint">Пример: +7 999 000‑00‑00</div>
+              <div class="input-error" aria-live="polite"></div>
+            </div>
+            <input type="email" name="email" placeholder="Email" value="{{ user.email or "" }}" required>
+            <div class="input-wrap">
+              <input type="text" name="telegram" placeholder="Telegram (@username)" data-telegram>
+              <div class="input-hint">Пример: @politifan</div>
+              <div class="input-error" aria-live="polite"></div>
+              <div class="input-status" aria-live="polite"></div>
+            </div>
+            <label class="form-check">
+              <input type="checkbox" name="agreement" required>
+              <span>Я ознакомился с договором и согласен с условиями.</span>
+            </label>
+            <label class="form-check">
+              <input type="checkbox" name="consent" required>
+              <span>Даю согласие на обработку персональных данных.</span>
+            </label>
+            <button class="btn btn-primary" type="submit">Подписать и отправить</button>
+          </form>
+          {% else %}
+          <div class="auth-cta">
+            <p>Чтобы подписать документы и записаться, войдите в аккаунт.</p>
+            <a class="btn btn-primary" href="/login?next=/courses/business">Войти</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+{% endblock %}
