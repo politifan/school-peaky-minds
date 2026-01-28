@@ -68,7 +68,11 @@ async def send_lead_message(text: str) -> bool:
 
 
 async def _start(message: Message) -> None:
-    logger.info("Received /start from user_id=%s", message.from_user.id if message.from_user else "unknown")
+    user_id = message.from_user.id if message.from_user else None
+    if user_id not in WHITELIST_CHAT_IDS:
+        logger.info("Ignored /start from non-whitelisted user_id=%s", user_id)
+        return
+    logger.info("Received /start from user_id=%s", user_id)
     await message.answer("Бот подключен. Заявки будут приходить сюда.")
 
 
