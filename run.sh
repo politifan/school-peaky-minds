@@ -1,30 +1,27 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 APP_DIR="/var/www/u3395358/data/www/school.peaky-minds.ru"
-PIDFILE="$APP_DIR/uvicorn.pid"
-LOGFILE="$APP_DIR/uvicorn.log"
+VENV_ACTIVATE="/var/www/u3395358/data/venv/bin/activate"
+RESTART_FILE="${APP_DIR}/passenger_wsgi.py"
 
 cd "$APP_DIR"
 
-echo "=== Pulling latest code ==="
-git pull --rebase
+# 1) Активируем виртуальное окружение
+source "$VENV_ACTIVATE"
 
-echo "=== Stopping old uvicorn (if running) ==="
-if [ -f "$PIDFILE" ]; then
-    OLD_PID=$(cat "$PIDFILE")
-    if ps -p "$OLD_PID" > /dev/null 2>&1; then
-        kill "$OLD_PID"
-        sleep 2
-    fi
+# 2) Обновляем зависимости (если есть requirements.txt)
+if [ -f requirements.txt ]; then
+  python -m pip install --upgrade pip
+  python -m pip install -r requirements.txt
 fi
 
-echo "=== Starting uvicorn ==="
-nohup venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000 \
-    --workers 2 \
-    > "$LOGFILE" 2>&1 &
+# (опционально) если у вас зависимости в pyproject.toml/poetry — скажите, подстрою
 
-echo $! > "$PIDFILE"
+# 3) Триггерим перезапуск Passenger
+# Обычно Passenger реагирует на изменение файла WSGI entrypoint.
+touch "$RESTART_FILE"
 
-echo "Started uvicorn with PID $(cat $PIDFILE)"
-echo "Logs: $LOGFILE"
+# 4) Быстрая диагностика путей (не валит деплой, но помогает понять, что на месте)
+python -c "import sys; print('Python:', sys.version)"
+echo "Touched restart file: $RESTART_FILE"

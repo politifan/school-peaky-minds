@@ -1,18 +1,16 @@
-import os, sys
+import sys
+import os
 
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+INTERP = os.path.expanduser("/var/www/u3395358/data/venv/bin/python")
+if sys.executable != INTERP:
+    os.execl(INTERP, INTERP, *sys.argv)
 
-# project in path
-if APP_ROOT not in sys.path:
-    sys.path.insert(0, APP_ROOT)
+sys.path.append(os.getcwd())
 
-# venv activate (shared hosting safe)
-activate_this = os.path.join(APP_ROOT, "venv", "bin", "activate_this.py")
-if os.path.exists(activate_this):
-    with open(activate_this, "r") as f:
-        exec(compile(f.read(), activate_this, "exec"), {"__file__": activate_this})
-
-from main import app as fastapi_app  # must exist in main.py
+BASE_DIR = os.path.dirname(__file__)
+os.chdir(BASE_DIR)
 
 from a2wsgi import ASGIMiddleware
-application = ASGIMiddleware(fastapi_app)
+from main import app as asgi_app
+
+application = ASGIMiddleware(asgi_app)
