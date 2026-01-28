@@ -14,7 +14,7 @@ from datetime import date
 from email.message import EmailMessage
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 from urllib.parse import urlparse
 from uvicorn import run
 
@@ -640,25 +640,42 @@ async def login_google(request: Request):
 async def auth_google(request: Request):
     if not oauth:
         return render(request, "login.html", login_context(request, error="Google OAuth не настроен"))
+    logging.getLogger("app.auth").info(
+        "Google callback: host=%s scheme=%s query_state=%s cookies=%s session_keys=%s",
+        request.url.hostname,
+        request.url.scheme,
+        request.query_params.get("state"),
+        list(request.cookies.keys()),
+        list(request.session.keys()),
+    )
+
+    async def exchange_google_token() -> Tuple[Optional[dict], Optional[str]]:
+        code = request.query_params.get("code")
+        if not code:
+            return None, "missing_code"
+        redirect_uri = build_redirect_uri(request, "auth_google")
+        payload = {
+            "code": code,
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "redirect_uri": redirect_uri,
+            "grant_type": "authorization_code",
+        }
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.post("https://oauth2.googleapis.com/token", data=payload)
+        try:
+            data = resp.json()
+        except Exception:
+            data = {}
+        if not isinstance(data, dict) or "access_token" not in data:
+            err = data.get("error") or f"http_{resp.status_code}"
+            err_desc = data.get("error_description")
+            message = f"{err}: {err_desc}" if err_desc else str(err)
+            return None, message
+        return data, None
+
     try:
-        logging.getLogger("app.auth").info(
-            "Google callback: host=%s scheme=%s query_state=%s cookies=%s session_keys=%s",
-            request.url.hostname,
-            request.url.scheme,
-            request.query_params.get("state"),
-            list(request.cookies.keys()),
-            list(request.session.keys()),
-        )
         token = await oauth.google.authorize_access_token(request)
-        userinfo = None
-        if isinstance(token, dict) and token.get("id_token"):
-            try:
-                userinfo = await oauth.google.parse_id_token(request, token)
-            except Exception:
-                userinfo = None
-        if not userinfo:
-            userinfo_resp = await oauth.google.get("userinfo")
-            userinfo = userinfo_resp.json()
     except OAuthError as exc:
         detail = getattr(exc, "error", None) or str(exc) or "OAuthError"
         description = getattr(exc, "description", None) or ""
@@ -679,15 +696,24 @@ async def auth_google(request: Request):
                         extra = f" [{err}: {err_desc}]" if err_desc else f" [{err}]"
             except Exception:
                 extra = ""
-        message = f"{detail}{response_hint}{extra}"
-        if description:
-            message = f"{message}: {description}"
-        safe_detail = re.sub(r"[\\r\\n]+", " ", message)[:300]
-        return render(
-            request,
-            "login.html",
-            login_context(request, error=f"Ошибка авторизации Google: {safe_detail}"),
-        )
+
+        if "missing_token" in str(detail):
+            token, manual_error = await exchange_google_token()
+            if token:
+                detail = ""
+                description = ""
+            else:
+                extra = f" [manual_exchange: {manual_error}]" if manual_error else " [manual_exchange_failed]"
+        if detail:
+            message = f"{detail}{response_hint}{extra}"
+            if description:
+                message = f"{message}: {description}"
+            safe_detail = re.sub(r"[\\r\\n]+", " ", message)[:300]
+            return render(
+                request,
+                "login.html",
+                login_context(request, error=f"Ошибка авторизации Google: {safe_detail}"),
+            )
     except Exception as exc:
         safe_detail = re.sub(r"[\\r\\n]+", " ", str(exc) or "Unknown error")[:300]
         return render(
@@ -695,6 +721,16 @@ async def auth_google(request: Request):
             "login.html",
             login_context(request, error=f"Ошибка авторизации Google: {safe_detail}"),
         )
+
+    userinfo = None
+    if isinstance(token, dict) and token.get("id_token"):
+        try:
+            userinfo = await oauth.google.parse_id_token(request, token)
+        except Exception:
+            userinfo = None
+    if not userinfo:
+        userinfo_resp = await oauth.google.get("userinfo")
+        userinfo = userinfo_resp.json()
 
     users = load_json(USERS_FILE, {})
     user_id = f"google:{userinfo.get('sub')}"
