@@ -364,45 +364,7 @@ reveals.forEach((el, index) => {
   observer.observe(el);
 });
 
-const telegramLoginWrap = document.querySelector('.auth-telegram');
-if (telegramLoginWrap) {
-  const trigger = telegramLoginWrap.querySelector('[data-telegram-trigger]');
-  const fallbackLink = telegramLoginWrap.querySelector('.auth-telegram-fallback');
-
-  const checkTelegramWidget = () => {
-    const iframe = telegramLoginWrap.querySelector('iframe');
-    if (!iframe) return null;
-    const rect = iframe.getBoundingClientRect();
-    const visible = rect.width > 30 && rect.height > 20;
-    return visible ? iframe : null;
-  };
-
-  const activateFallback = () => {
-    telegramLoginWrap.classList.add('is-fallback');
-  };
-
-  const tryDetectWidget = () => {
-    if (checkTelegramWidget()) return;
-    activateFallback();
-  };
-
-  if (trigger) {
-    trigger.addEventListener('click', () => {
-      const iframe = checkTelegramWidget();
-      if (iframe) {
-        iframe.click();
-        return;
-      }
-      activateFallback();
-      if (fallbackLink) {
-        fallbackLink.click();
-      }
-    });
-  }
-
-  setTimeout(tryDetectWidget, 1200);
-  setTimeout(tryDetectWidget, 2500);
-}
+// Telegram login widget is overlaid on the visible button; no fallback needed.
 
 const carousels = document.querySelectorAll('[data-carousel]');
 

@@ -1315,6 +1315,8 @@ section {
   border: 1px solid rgba(41, 182, 246, 0.45);
   color: #dbf2ff;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .auth-provider-label:hover {
@@ -1327,16 +1329,16 @@ section {
   color: #dbf2ff;
 }
 
-.auth-telegram-fallback {
-  display: none;
+.auth-provider-label .tg-login-button--visible {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  z-index: 2;
 }
 
-.auth-telegram.is-fallback .auth-telegram-fallback {
-  display: inline-flex;
-}
-
-.auth-telegram.is-fallback .tg-login-button--visible {
-  display: none;
+.auth-provider-label .tg-login-button--visible iframe {
+  width: 100%;
+  height: 100%;
 }
 
 .auth-provider-btn.disabled {
@@ -1408,17 +1410,9 @@ section {
 }
 
 .tg-login-button--visible iframe {
-  width: 220px;
-  height: 40px;
+  width: 100%;
+  height: 100%;
   border: 0;
-}
-
-.tg-login-button--visible {
-  width: 100%;
-}
-
-.tg-login-button--visible iframe {
-  width: 100%;
 }
 
 .auth-divider {
