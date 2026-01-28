@@ -1,0 +1,4 @@
+PassengerEnabled on
+PassengerAppRoot /var/www/u3395358/data/www/school.peaky-minds.ru
+PassengerPython /var/www/u3395358/data/www/school.peaky-minds.ru/venv/bin/python
+PassengerStartupFile passenger_wsgi.py
