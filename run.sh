@@ -2,7 +2,7 @@
 set -euo pipefail
 
 APP_DIR="/var/www/u3395358/data/www/school.peaky-minds.ru"
-VENV_ACTIVATE="/var/www/u3395358/data/venv/bin/activate"
+VENV_ACTIVATE="/var/www/u3395358/data/www/school.peaky-minds.ru/venv/bin/activate"
 RESTART_FILE="${APP_DIR}/passenger_wsgi.py"
 
 cd "$APP_DIR"
