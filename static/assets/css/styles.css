@@ -1264,12 +1264,29 @@ section {
 }
 
 .auth-provider-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   width: 100%;
   justify-content: center;
   text-align: center;
   border-radius: 14px;
   padding: 14px 20px;
   font-size: 0.95rem;
+}
+
+.auth-provider-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-provider-icon svg {
+  width: 20px;
+  height: 20px;
+  display: block;
 }
 
 .auth-provider-btn--google {
@@ -1282,6 +1299,21 @@ section {
   background: rgba(24, 118, 210, 0.16);
   border: 1px solid rgba(24, 118, 210, 0.45);
   color: #dbe8ff;
+}
+
+.auth-provider-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+  border-radius: 14px;
+  padding: 14px 20px;
+  font-size: 0.95rem;
+  background: rgba(41, 182, 246, 0.16);
+  border: 1px solid rgba(41, 182, 246, 0.45);
+  color: #dbf2ff;
 }
 
 .auth-provider-btn.disabled {
