@@ -9,38 +9,50 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Prata&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
-<body>
+<body class="admin-page" data-sort="{{ filters.sort }}" data-order="{{ filters.order }}">
   <div class="bg-orb orb-1"></div>
   <div class="bg-orb orb-2"></div>
   <div class="bg-orb orb-3"></div>
 
-  <main class="container" style="padding: 110px 0 140px;">
-    <a class="page-back" href="/">← На главную</a>
-    <div class="section-head">
-      <h1>Админ панель</h1>
-      <p>Метрики, заявки, пользователи и whitelist Telegram.</p>
-    </div>
-
-    <section class="panel" style="margin-top: 24px;">
-      <h2 class="section-title" style="margin-bottom: 18px;">Метрики</h2>
-      <div class="card-grid three">
-        <div class="card">
-          <div class="course-meta">Посещения</div>
-          <h3>{{ metrics.total_visits }}</h3>
-          <p>Всего просмотров страниц.</p>
+  <main class="container admin-container">
+    <header class="panel admin-hero">
+      <div class="admin-hero__content">
+        <a class="page-back" href="/">← На главную</a>
+        <div>
+          <h1>Админ панель</h1>
+          <p>Метрики, заявки, пользователи и whitelist Telegram.</p>
         </div>
-        <div class="card">
-          <div class="course-meta">Уникальные</div>
-          <h3>{{ metrics.unique_visits }}</h3>
-          <p>Сессии с сайта.</p>
-        </div>
-        <div class="card">
-          <div class="course-meta">Заявки</div>
-          <h3>{{ metrics.funnel.apply }}</h3>
-          <p>Оставили контакты.</p>
+        <div class="admin-meta">
+          <span class="admin-chip">Последняя активность: {{ last_activity }}</span>
+          <span class="admin-chip">Фильтр: {{ filters_label }}</span>
+          <span class="admin-chip">Пользователей: {{ users_total }}</span>
         </div>
       </div>
-      <div class="card-grid" style="margin-top: 18px;">
+      <div class="admin-hero__actions">
+        <a class="btn btn-secondary" href="/admin/export/leads.csv{{ export_query }}">CSV заявок</a>
+        <a class="btn btn-secondary" href="/admin/export/agreements.csv{{ export_query }}">CSV договоров</a>
+        <a class="btn btn-secondary" href="/admin/export/users.csv">CSV пользователей</a>
+      </div>
+    </header>
+
+    <section class="panel" style="margin-top: 24px;">
+      <div class="admin-section-head">
+        <h2 class="section-title">Обзор</h2>
+        <div class="admin-section-actions">
+          <span class="admin-badge">Заявки: {{ metrics.funnel.apply }}</span>
+          <span class="admin-badge">Покупки: {{ metrics.funnel.enroll }}</span>
+        </div>
+      </div>
+      <div class="admin-kpi-grid">
+        {% for kpi in kpis %}
+        <div class="card kpi-card">
+          <div class="kpi-label">{{ kpi.label }}</div>
+          <div class="kpi-value">{{ kpi.value }}</div>
+          <div class="kpi-note">{{ kpi.note }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="admin-grid two" style="margin-top: 18px;">
         <div class="card">
           <div class="course-meta">Заявки за 7 дней</div>
           <div class="admin-chart">
@@ -48,7 +60,7 @@
             <div class="admin-chart__row">
               <span>{{ point.label }}</span>
               <div class="admin-chart__bar">
-                <div style="width: {{ point.count * 12 }}px;"></div>
+                <div style="width: {{ point.pct }}%;"></div>
               </div>
               <strong>{{ point.count }}</strong>
             </div>
@@ -62,7 +74,7 @@
             <div class="admin-chart__row">
               <span>{{ point.label }}</span>
               <div class="admin-chart__bar">
-                <div style="width: {{ point.count * 12 }}px;"></div>
+                <div style="width: {{ point.pct }}%;"></div>
               </div>
               <strong>{{ point.count }}</strong>
             </div>
@@ -70,60 +82,283 @@
           </div>
         </div>
       </div>
-      <div class="card-grid" style="margin-top: 18px;">
+      <div class="admin-grid two" style="margin-top: 18px;">
+        <div class="card">
+          <div class="course-meta">Недели (8 недель)</div>
+          <div class="admin-grid" style="margin-top: 12px;">
+            <div>
+              <div class="course-meta">Заявки</div>
+              <div class="admin-chart">
+                {% for point in weekly_leads %}
+                <div class="admin-chart__row">
+                  <span>{{ point.label }}</span>
+                  <div class="admin-chart__bar">
+                    <div style="width: {{ point.pct }}%;"></div>
+                  </div>
+                  <strong>{{ point.count }}</strong>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            <div>
+              <div class="course-meta">Покупки</div>
+              <div class="admin-chart">
+                {% for point in weekly_enrolls %}
+                <div class="admin-chart__row">
+                  <span>{{ point.label }}</span>
+                  <div class="admin-chart__bar">
+                    <div style="width: {{ point.pct }}%;"></div>
+                  </div>
+                  <strong>{{ point.count }}</strong>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="course-meta">Месяцы (6 месяцев)</div>
+          <div class="admin-grid" style="margin-top: 12px;">
+            <div>
+              <div class="course-meta">Заявки</div>
+              <div class="admin-chart">
+                {% for point in monthly_leads %}
+                <div class="admin-chart__row">
+                  <span>{{ point.label }}</span>
+                  <div class="admin-chart__bar">
+                    <div style="width: {{ point.pct }}%;"></div>
+                  </div>
+                  <strong>{{ point.count }}</strong>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            <div>
+              <div class="course-meta">Покупки</div>
+              <div class="admin-chart">
+                {% for point in monthly_enrolls %}
+                <div class="admin-chart__row">
+                  <span>{{ point.label }}</span>
+                  <div class="admin-chart__bar">
+                    <div style="width: {{ point.pct }}%;"></div>
+                  </div>
+                  <strong>{{ point.count }}</strong>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="admin-grid two" style="margin-top: 18px;">
         <div class="card">
           <div class="course-meta">Воронка</div>
-          <p>Главная: <strong>{{ metrics.funnel.home }}</strong></p>
-          <p>Логин: <strong>{{ metrics.funnel.login }}</strong></p>
-          <p>Заявки: <strong>{{ metrics.funnel.apply }}</strong></p>
-          <p>Покупки: <strong>{{ metrics.funnel.enroll }}</strong></p>
+          <div class="funnel-list">
+            {% for step in funnel_steps %}
+            <div class="funnel-item">
+              <div>
+                <div class="funnel-title">{{ step.label }}</div>
+                <div class="funnel-meta">{{ step.count }} · {{ step.rate }}</div>
+              </div>
+              <div class="funnel-bar">
+                <div style="width: {{ step.pct }}%;"></div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
         </div>
+        <div class="card">
+          <div class="course-meta">Источники заявок</div>
+          {% if sources_sorted %}
+            <ul class="admin-list">
+              {% for source, count in sources_sorted %}
+              <li><span class="admin-truncate" title="{{ source }}">{{ source }}</span><strong>{{ count }}</strong></li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p>Пока нет данных.</p>
+          {% endif %}
+          <div style="height: 12px;"></div>
+          <div class="course-meta">Последние заявки</div>
+          {% if recent_leads %}
+          <ul class="admin-list">
+            {% for lead in recent_leads %}
+            <li>
+              <span class="admin-truncate" title="{{ lead.name }}">{{ lead.name }}</span>
+              <span class="admin-status {{ lead.status_class }}">{{ lead.status_label }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p>Пока нет данных.</p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="admin-grid two" style="margin-top: 18px;">
         <div class="card">
           <div class="course-meta">Топ страниц</div>
           {% if path_counts_sorted %}
-            <ul>
+            <ul class="admin-list">
               {% for path, count in path_counts_sorted[:6] %}
-              <li><strong>{{ path }}</strong> — {{ count }}</li>
+              <li><span class="admin-truncate" title="{{ path }}">{{ path }}</span><strong>{{ count }}</strong></li>
               {% endfor %}
             </ul>
           {% else %}
             <p>Пока нет данных.</p>
           {% endif %}
         </div>
+        <div class="card">
+          <div class="course-meta">Топ курсов</div>
+          <div class="admin-grid two" style="margin-top: 12px;">
+            <div>
+              <div class="course-meta">Заявки</div>
+              {% if top_courses %}
+              <ul class="admin-list">
+                {% for course_name, count in top_courses %}
+                <li><span class="admin-truncate" title="{{ course_name }}">{{ course_name }}</span><strong>{{ count }}</strong></li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              <p>Пока нет данных.</p>
+              {% endif %}
+            </div>
+            <div>
+              <div class="course-meta">Покупки</div>
+              {% if top_agreements %}
+              <ul class="admin-list">
+                {% for course_name, count in top_agreements %}
+                <li><span class="admin-truncate" title="{{ course_name }}">{{ course_name }}</span><strong>{{ count }}</strong></li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              <p>Пока нет данных.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
     <section class="panel" style="margin-top: 24px;">
-      <h2 class="section-title" style="margin-bottom: 18px;">Заявки</h2>
-      <form class="cta-form" method="get" action="/admin" style="max-width: 680px; margin-bottom: 16px;">
-        <label class="auth-label">Фильтры</label>
-        <div style="display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
-          <select name="course">
-            <option value="">Все курсы</option>
-            {% for item in courses %}
-            <option value="{{ item }}" {% if filters.course == item %}selected{% endif %}>{{ item }}</option>
-            {% endfor %}
-          </select>
-          <input type="date" name="date_from" value="{{ filters.date_from }}">
-          <input type="date" name="date_to" value="{{ filters.date_to }}">
+      <div class="admin-section-head">
+        <h2 class="section-title">Заявки</h2>
+        <div class="admin-section-actions">
+          <span class="admin-badge">Показано {{ leads_count }} из {{ leads_total }}</span>
+          <a class="btn btn-secondary" href="/admin/export/leads.csv{{ export_query }}">Экспорт CSV</a>
         </div>
-        <div style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;">
+      </div>
+      <form class="admin-filter" method="get" action="/admin">
+        <div class="admin-filter__row">
+          <div class="input-wrap">
+            <label class="auth-label">Курс</label>
+            <select name="course">
+              <option value="">Все курсы</option>
+              {% for item in courses %}
+              <option value="{{ item }}" {% if filters.course == item %}selected{% endif %}>{{ item }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">Дата от</label>
+            <input type="date" name="date_from" value="{{ filters.date_from }}">
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">Дата до</label>
+            <input type="date" name="date_to" value="{{ filters.date_to }}">
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">Поиск</label>
+            <input type="text" name="q" placeholder="Имя, контакт, курс" value="{{ filters.query }}">
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">Сортировка</label>
+            <select name="sort">
+              <option value="date" {% if filters.sort == "date" %}selected{% endif %}>По дате</option>
+              <option value="name" {% if filters.sort == "name" %}selected{% endif %}>По имени</option>
+              <option value="course" {% if filters.sort == "course" %}selected{% endif %}>По курсу</option>
+              <option value="status" {% if filters.sort == "status" %}selected{% endif %}>По статусу</option>
+            </select>
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">Порядок</label>
+            <select name="order">
+              <option value="desc" {% if filters.order == "desc" %}selected{% endif %}>По убыванию</option>
+              <option value="asc" {% if filters.order == "asc" %}selected{% endif %}>По возрастанию</option>
+            </select>
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">Лимит</label>
+            <select name="limit">
+              <option value="20" {% if filters.limit == "20" %}selected{% endif %}>20</option>
+              <option value="50" {% if filters.limit == "50" %}selected{% endif %}>50</option>
+              <option value="100" {% if filters.limit == "100" %}selected{% endif %}>100</option>
+              <option value="all" {% if filters.limit == "all" %}selected{% endif %}>Все</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-filter__actions">
           <button class="btn btn-primary" type="submit">Применить</button>
           <a class="btn btn-secondary" href="/admin">Сбросить</a>
-          <a class="btn btn-secondary" href="/admin/export/leads.csv">Экспорт CSV</a>
+          <div class="admin-filter__presets">
+            <button type="button" data-range="7">7 дней</button>
+            <button type="button" data-range="30">30 дней</button>
+            <button type="button" data-range="90">90 дней</button>
+          </div>
         </div>
       </form>
       {% if leads %}
-      <div class="card-grid">
-        {% for lead in leads[:8] %}
-        <div class="card">
-          <div class="course-meta">{{ lead.timestamp }}</div>
-          <h3>{{ lead.name or "Без имени" }}</h3>
-          <p>Контакт: {{ lead.contact or "—" }}</p>
-          <p>Курс: {{ lead.course or "—" }}</p>
-          <p>Страница: {{ lead.page or "—" }}</p>
-        </div>
-        {% endfor %}
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th><button type="button" class="admin-sort" data-sort="date">Дата</button></th>
+              <th><button type="button" class="admin-sort" data-sort="name">Имя</button></th>
+              <th>Контакт</th>
+              <th><button type="button" class="admin-sort" data-sort="course">Курс</button></th>
+              <th>Источник</th>
+              <th>Страница</th>
+              <th><button type="button" class="admin-sort" data-sort="status">Статус</button></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for lead in leads %}
+            <tr>
+              <td>{{ lead.display_time }}</td>
+              <td>
+                <div class="admin-cell">
+                  <strong>{{ lead.name or "Без имени" }}</strong>
+                </div>
+              </td>
+              <td>
+                <div class="admin-cell">
+                  <span>{{ lead.contact or "—" }}</span>
+                  {% if lead.contact %}
+                  <button class="admin-copy" type="button" data-copy="{{ lead.contact }}">Коп.</button>
+                  {% endif %}
+                </div>
+              </td>
+              <td>{{ lead.course or "—" }}</td>
+              <td><span class="admin-chip">{{ lead.source }}</span></td>
+              <td><span class="admin-truncate" title="{{ lead.page }}">{{ lead.page or "—" }}</span></td>
+              <td>
+                <form class="admin-status-form" action="/admin/leads/status" method="post">
+                  <input type="hidden" name="file" value="{{ lead._file }}">
+                  <input type="hidden" name="next" value="{{ next_url }}">
+                  <div class="admin-cell">
+                    <span class="admin-status {{ lead.status_class }}">{{ lead.status_label }}</span>
+                    <select name="status">
+                      {% for key, label in status_options %}
+                      <option value="{{ key }}" {% if key == "auto" and not lead.manual_status %}selected{% elif key == lead.manual_status %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="admin-copy" type="submit">OK</button>
+                  </div>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
       {% else %}
       <p>Заявок пока нет.</p>
@@ -131,21 +366,41 @@
     </section>
 
     <section class="panel" style="margin-top: 24px;">
-      <h2 class="section-title" style="margin-bottom: 18px;">Покупки / договоры</h2>
-      <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
-        <a class="btn btn-secondary" href="/admin/export/agreements.csv">Экспорт CSV</a>
+      <div class="admin-section-head">
+        <h2 class="section-title">Покупки / договоры</h2>
+        <div class="admin-section-actions">
+          <span class="admin-badge">Показано {{ agreements_count }} из {{ agreements_total }}</span>
+          <a class="btn btn-secondary" href="/admin/export/agreements.csv{{ export_query }}">Экспорт CSV</a>
+        </div>
       </div>
       {% if agreements %}
-      <div class="card-grid">
-        {% for item in agreements[:6] %}
-        <div class="card">
-          <div class="course-meta">{{ item.timestamp }}</div>
-          <h3>{{ item.full_name or "Без имени" }}</h3>
-          <p>Курс: {{ item.course or "—" }}</p>
-          <p>Телефон: {{ item.phone or "—" }}</p>
-          <p>Email: {{ item.email or "—" }}</p>
-        </div>
-        {% endfor %}
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>ФИО</th>
+              <th>Курс</th>
+              <th>Телефон</th>
+              <th>Email</th>
+              <th>Telegram</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in agreements %}
+            <tr>
+              <td>{{ item.display_time }}</td>
+              <td><strong>{{ item.full_name or "Без имени" }}</strong></td>
+              <td>{{ item.course or "—" }}</td>
+              <td>{{ item.phone or "—" }}</td>
+              <td>{{ item.email or "—" }}</td>
+              <td>{{ item.telegram or "—" }}</td>
+              <td><span class="admin-status {{ item.status_class }}">{{ item.status_label }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
       {% else %}
       <p>Договоров пока нет.</p>
@@ -153,29 +408,49 @@
     </section>
 
     <section class="panel" style="margin-top: 24px;">
-      <h2 class="section-title" style="margin-bottom: 18px;">Пользователи</h2>
-      <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
-        <a class="btn btn-secondary" href="/admin/export/users.csv">Экспорт CSV</a>
+      <div class="admin-section-head">
+        <h2 class="section-title">Пользователи</h2>
+        <div class="admin-section-actions">
+          <span class="admin-badge">Всего: {{ users_total }}</span>
+          <a class="btn btn-secondary" href="/admin/export/users.csv">Экспорт CSV</a>
+        </div>
       </div>
       {% if users %}
-      <div class="card-grid">
-        {% for user in users.values() %}
-        <div class="card">
-          <div class="course-meta">{{ user.provider }}</div>
-          <h3>{{ user.name or user.email or user.id }}</h3>
-          <p>{{ user.email or "—" }}</p>
-          <p>ID: {{ user.id }}</p>
-        </div>
-        {% endfor %}
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Имя</th>
+              <th>Email</th>
+              <th>Провайдер</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td>{{ user.id }}</td>
+              <td><strong>{{ user.name }}</strong></td>
+              <td>{{ user.email }}</td>
+              <td><span class="admin-chip">{{ user.provider }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
       {% else %}
       <p>Пользователей пока нет.</p>
       {% endif %}
     </section>
 
-    <section class="panel" style="margin-top: 24px;">
-      <h2 class="section-title" style="margin-bottom: 18px;">Whitelist Telegram</h2>
-      <p>Админ‑доступ: {{ admin_ids|join(", ") }}</p>
+    <section class="panel" style="margin-top: 24px; margin-bottom: 140px;">
+      <div class="admin-section-head">
+        <h2 class="section-title">Whitelist Telegram</h2>
+        <div class="admin-section-actions">
+          <span class="admin-badge">Админы: {{ admin_ids|join(", ") }}</span>
+        </div>
+      </div>
+      <p class="admin-subtext">Последний ID в списке не получает доступ к админке (только рассылка).</p>
       <div class="tag-grid" style="margin: 12px 0 18px;">
         {% for item in whitelist %}
         <form action="/admin/whitelist/remove" method="post">
@@ -184,13 +459,83 @@
         </form>
         {% endfor %}
       </div>
-      <form class="cta-form" action="/admin/whitelist" method="post" style="max-width: 520px;">
+      <form class="admin-filter" action="/admin/whitelist" method="post" style="max-width: 620px;">
         <label class="auth-label">ID через запятую или новую строку</label>
         <textarea name="whitelist" rows="4" style="width: 100%; border-radius: 14px; padding: 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--stroke); color: inherit;">{{ whitelist|join(", ") }}</textarea>
         <button class="btn btn-primary" type="submit">Сохранить whitelist</button>
       </form>
-      <p class="auth-hint">Последний ID в списке не получает доступ к админке (только рассылка).</p>
     </section>
   </main>
+
+  <script>
+    (function () {
+      const filterForm = document.querySelector(".admin-filter");
+      if (filterForm) {
+        const fromInput = filterForm.querySelector("input[name='date_from']");
+        const toInput = filterForm.querySelector("input[name='date_to']");
+        const presetButtons = filterForm.querySelectorAll("[data-range]");
+        presetButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            if (!fromInput || !toInput) return;
+            const days = Number(btn.dataset.range || 0);
+            if (!days) return;
+            const today = new Date();
+            const from = new Date();
+            from.setDate(today.getDate() - (days - 1));
+            const toValue = today.toISOString().slice(0, 10);
+            const fromValue = from.toISOString().slice(0, 10);
+            fromInput.value = fromValue;
+            toInput.value = toValue;
+          });
+        });
+      }
+
+      document.querySelectorAll("[data-copy]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const value = button.getAttribute("data-copy");
+          if (!value) return;
+          try {
+            await navigator.clipboard.writeText(value);
+            button.textContent = "Готово";
+            setTimeout(() => {
+              button.textContent = "Коп.";
+            }, 1200);
+          } catch (err) {
+            const range = document.createRange();
+            const temp = document.createElement("span");
+            temp.textContent = value;
+            temp.style.position = "fixed";
+            temp.style.opacity = "0";
+            document.body.appendChild(temp);
+            range.selectNodeContents(temp);
+            const selection = window.getSelection();
+            if (selection) {
+              selection.removeAllRanges();
+              selection.addRange(range);
+              document.execCommand("copy");
+              selection.removeAllRanges();
+            }
+            temp.remove();
+          }
+        });
+      });
+
+      document.querySelectorAll(".admin-sort").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const sortKey = btn.dataset.sort;
+          const url = new URL(window.location.href);
+          const currentSort = document.body.dataset.sort || "date";
+          const currentOrder = document.body.dataset.order || "desc";
+          let nextOrder = "desc";
+          if (currentSort === sortKey) {
+            nextOrder = currentOrder === "asc" ? "desc" : "asc";
+          }
+          url.searchParams.set("sort", sortKey);
+          url.searchParams.set("order", nextOrder);
+          window.location.href = url.toString();
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
