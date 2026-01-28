@@ -240,6 +240,8 @@ def bucket_counts(items: List[Dict[str, Any]], bucket: str, periods: int) -> Lis
             if start in counts:
                 counts[start] += 1
         max_count = max(counts.values()) if counts else 1
+        if max_count == 0:
+            max_count = 1
         for start in weeks:
             label = f"{start.strftime('%d.%m')}"
             results.append({"label": label, "count": counts[start], "pct": round((counts[start] / max_count) * 100, 1)})
@@ -269,6 +271,8 @@ def bucket_counts(items: List[Dict[str, Any]], bucket: str, periods: int) -> Lis
             if key in counts:
                 counts[key] += 1
         max_count = max(counts.values()) if counts else 1
+        if max_count == 0:
+            max_count = 1
         for year, month in months:
             label = f"{month:02d}.{str(year)[-2:]}"
             results.append({"label": label, "count": counts[(year, month)], "pct": round((counts[(year, month)] / max_count) * 100, 1)})
