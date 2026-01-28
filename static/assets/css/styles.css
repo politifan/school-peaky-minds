@@ -1316,6 +1316,24 @@ section {
   color: #dbf2ff;
 }
 
+.auth-provider-btn--tg {
+  background: rgba(41, 182, 246, 0.16);
+  border: 1px solid rgba(41, 182, 246, 0.45);
+  color: #dbf2ff;
+}
+
+.auth-telegram-fallback {
+  display: none;
+}
+
+.auth-telegram.is-fallback .auth-telegram-fallback {
+  display: inline-flex;
+}
+
+.auth-telegram.is-fallback .tg-login-button--visible {
+  display: none;
+}
+
 .auth-provider-btn.disabled {
   opacity: 0.55;
   cursor: not-allowed;

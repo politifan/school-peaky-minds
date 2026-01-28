@@ -93,6 +93,9 @@
             data-auth-url="{{ telegram_auth_url }}"
             data-request-access="write"></script>
         </div>
+        <a class="btn auth-provider-btn auth-provider-btn--tg auth-telegram-fallback" href="https://t.me/{{ telegram_bot_username }}" target="_blank" rel="noopener">
+          Открыть Telegram и войти
+        </a>
         <p class="auth-hint">Если кнопка не появляется — отключите блокировщик рекламы или откройте страницу без режима инкогнито.</p>
       </div>
       {% else %}
