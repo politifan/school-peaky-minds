@@ -563,8 +563,21 @@ async def auth_google(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)
         userinfo = await oauth.google.parse_id_token(request, token)
-    except OAuthError:
-        return render(request, "login.html", login_context(request, error="Ошибка авторизации Google"))
+    except OAuthError as exc:
+        detail = getattr(exc, "error", None) or str(exc) or "OAuthError"
+        safe_detail = re.sub(r"[\\r\\n]+", " ", detail)[:300]
+        return render(
+            request,
+            "login.html",
+            login_context(request, error=f"Ошибка авторизации Google: {safe_detail}"),
+        )
+    except Exception as exc:
+        safe_detail = re.sub(r"[\\r\\n]+", " ", str(exc) or "Unknown error")[:300]
+        return render(
+            request,
+            "login.html",
+            login_context(request, error=f"Ошибка авторизации Google: {safe_detail}"),
+        )
 
     users = load_json(USERS_FILE, {})
     user_id = f"google:{userinfo.get('sub')}"
