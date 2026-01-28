@@ -1,13 +1,16 @@
 import csv
+import html
 import io
+import logging
 import math
 import re
+import traceback
 from datetime import date, datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import parse_qs, urlencode, urlparse
 
 from fastapi import APIRouter, Request
-from fastapi.responses import RedirectResponse, Response
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from starlette.status import HTTP_302_FOUND
 
 import core
@@ -196,6 +199,28 @@ def page_window(current: int, total: int, span: int = 2) -> List[Optional[int]]:
     return pages
 
 
+def render_admin_error(exc: Exception) -> HTMLResponse:
+    logging.getLogger("app.admin").exception("Admin panel error")
+    message = html.escape(str(exc) or exc.__class__.__name__)
+    tb = html.escape("".join(traceback.format_exception(type(exc), exc, exc.__traceback__)))
+    return HTMLResponse(
+        f"""
+        <html>
+          <head><meta charset="utf-8"><title>Admin error</title></head>
+          <body style="background:#0b0f10;color:#e9eef0;font-family:monospace;padding:24px;">
+            <h2>Ошибка админки</h2>
+            <p>{message}</p>
+            <details open>
+              <summary>Traceback</summary>
+              <pre style="white-space:pre-wrap;word-break:break-word;">{tb}</pre>
+            </details>
+          </body>
+        </html>
+        """,
+        status_code=500,
+    )
+
+
 def bucket_counts(items: List[Dict[str, Any]], bucket: str, periods: int) -> List[Dict[str, Any]]:
     today = date.today()
     results = []
@@ -208,7 +233,7 @@ def bucket_counts(items: List[Dict[str, Any]], bucket: str, periods: int) -> Lis
             if not ts:
                 continue
             try:
-                d = datetime.fromtimestamp(int(ts)).date()
+                d = datetime.fromtimestamp(safe_int(ts)).date()
             except Exception:
                 continue
             start = d - timedelta(days=d.weekday())
@@ -237,7 +262,7 @@ def bucket_counts(items: List[Dict[str, Any]], bucket: str, periods: int) -> Lis
             if not ts:
                 continue
             try:
-                d = datetime.fromtimestamp(int(ts)).date()
+                d = datetime.fromtimestamp(safe_int(ts)).date()
             except Exception:
                 continue
             key = (d.year, d.month)
@@ -256,7 +281,13 @@ def admin_panel(request: Request):
     guard = admin_required(request)
     if guard:
         return guard
+    try:
+        return _admin_panel_impl(request)
+    except Exception as exc:
+        return render_admin_error(exc)
 
+
+def _admin_panel_impl(request: Request):
     metrics = load_metrics()
     leads_all = load_leads()
     agreements_all = load_agreements()
@@ -609,7 +640,7 @@ def admin_panel(request: Request):
             if not ts:
                 continue
             try:
-                if datetime.fromtimestamp(int(ts)) >= since:
+                if datetime.fromtimestamp(safe_int(ts)) >= since:
                     total += 1
             except Exception:
                 continue
