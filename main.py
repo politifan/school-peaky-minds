@@ -3,6 +3,7 @@ import getpass
 import hashlib
 import hmac
 import json
+import logging
 import os
 import re
 import secrets
@@ -11,6 +12,7 @@ import sys
 import time
 from datetime import date
 from email.message import EmailMessage
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any, Dict, Optional
 from urllib.parse import urlparse
@@ -82,6 +84,8 @@ AGREEMENTS_DIR = DATA_DIR / "agreements"
 AGREEMENTS_DIR.mkdir(exist_ok=True)
 
 DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
+LOGS_DIR = BASE_DIR / "logs"
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 SESSION_SECRET = os.getenv("SESSION_SECRET", "dev-secret-key")
 
@@ -192,6 +196,17 @@ app.add_middleware(
     https_only=bool(CANONICAL_SCHEME == "https"),
     domain=session_domain,
 )
+
+log_path = LOGS_DIR / "app.log"
+file_handler = RotatingFileHandler(log_path, maxBytes=5_000_000, backupCount=3, encoding="utf-8")
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+
+logging.getLogger().setLevel(logging.INFO)
+logging.getLogger().addHandler(file_handler)
+logging.getLogger("uvicorn").addHandler(file_handler)
+logging.getLogger("uvicorn.access").addHandler(file_handler)
+logging.getLogger("uvicorn.error").addHandler(file_handler)
 
 app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
 app.mount("/documents", StaticFiles(directory=DOCUMENTS_DIR), name="documents")
