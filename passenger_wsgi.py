@@ -1,7 +1,7 @@
 import sys
 import os
 
-INTERP = os.path.expanduser("/var/www/u3395358/data/venv/bin/python")
+INTERP = os.path.expanduser("/var/www/u3395358/data/www/school.peaky-minds.ru/venv/bin/python")
 if sys.executable != INTERP:
     os.execl(INTERP, INTERP, *sys.argv)
 
