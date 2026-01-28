@@ -1321,7 +1321,15 @@ section {
 .auth-telegram {
   margin-top: 16px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.tg-login-button--visible iframe {
+  width: 220px;
+  height: 40px;
+  border: 0;
 }
 
 .auth-divider {
@@ -1536,6 +1544,20 @@ select:focus {
   font-size: 0.9rem;
   margin-bottom: 12px;
   cursor: pointer;
+}
+
+.page-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent-2);
+  text-decoration: none;
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+}
+
+.page-back:hover {
+  text-decoration: underline;
 }
 
 .modal-note {
