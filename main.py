@@ -85,33 +85,6 @@ DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
 
 SESSION_SECRET = os.getenv("SESSION_SECRET", "dev-secret-key")
 
-app = FastAPI(docs_url=None, redoc_url=None)
-app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET, max_age=60 * 60 * 24 * 14)
-
-app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
-app.mount("/documents", StaticFiles(directory=DOCUMENTS_DIR), name="documents")
-
-templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
-
-CANONICAL_ORIGIN = None
-CANONICAL_HOST = None
-if APP_BASE_URL:
-    parsed_origin = urlparse(APP_BASE_URL.strip())
-    if parsed_origin.scheme and parsed_origin.netloc:
-        CANONICAL_ORIGIN = f"{parsed_origin.scheme}://{parsed_origin.netloc}"
-        CANONICAL_HOST = parsed_origin.hostname
-
-
-@app.middleware("http")
-async def enforce_canonical_host(request: Request, call_next):
-    if CANONICAL_ORIGIN and CANONICAL_HOST:
-        if request.url.hostname and request.url.hostname != CANONICAL_HOST:
-            target = f"{CANONICAL_ORIGIN}{request.url.path}"
-            if request.url.query:
-                target = f"{target}?{request.url.query}"
-            return RedirectResponse(target, status_code=HTTP_302_FOUND)
-    return await call_next(request)
-
 
 def load_json(path: Path, default: Any) -> Any:
     if path.exists():
@@ -195,6 +168,46 @@ providers = {
 TELETHON_ENABLED = bool(TELETHON_API_ID and TELETHON_API_HASH and TelegramClient)
 _telethon_client: Optional["TelegramClient"] = None
 _telethon_lock = None
+
+CANONICAL_ORIGIN = None
+CANONICAL_HOST = None
+CANONICAL_SCHEME = None
+if APP_BASE_URL:
+    parsed_origin = urlparse(APP_BASE_URL.strip())
+    if parsed_origin.scheme and parsed_origin.netloc:
+        CANONICAL_ORIGIN = f"{parsed_origin.scheme}://{parsed_origin.netloc}"
+        CANONICAL_HOST = parsed_origin.hostname
+        CANONICAL_SCHEME = parsed_origin.scheme
+
+session_domain = None
+if CANONICAL_HOST and CANONICAL_HOST != "localhost" and not re.match(r"^\\d+\\.\\d+\\.\\d+\\.\\d+$", CANONICAL_HOST):
+    session_domain = CANONICAL_HOST
+
+app = FastAPI(docs_url=None, redoc_url=None)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=SESSION_SECRET,
+    max_age=60 * 60 * 24 * 14,
+    same_site="lax",
+    https_only=bool(CANONICAL_SCHEME == "https"),
+    domain=session_domain,
+)
+
+app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
+app.mount("/documents", StaticFiles(directory=DOCUMENTS_DIR), name="documents")
+
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+
+
+@app.middleware("http")
+async def enforce_canonical_host(request: Request, call_next):
+    if CANONICAL_ORIGIN and CANONICAL_HOST:
+        if request.url.hostname and request.url.hostname != CANONICAL_HOST:
+            target = f"{CANONICAL_ORIGIN}{request.url.path}"
+            if request.url.query:
+                target = f"{target}?{request.url.query}"
+            return RedirectResponse(target, status_code=HTTP_302_FOUND)
+    return await call_next(request)
 
 def get_telethon_lock() -> asyncio.Lock:
     global _telethon_lock
