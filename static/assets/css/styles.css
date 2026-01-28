@@ -1852,9 +1852,9 @@ select:focus {
   }
 
   .comparison .compare-row {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
 
   .comparison .compare-row.header {
@@ -1866,9 +1866,10 @@ select:focus {
   }
 
   .comparison .compare-row div:first-child {
+    grid-column: 1 / -1;
     text-transform: uppercase;
     letter-spacing: 0.14em;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--muted);
   }
 
@@ -1889,6 +1890,20 @@ select:focus {
   .comparison .compare-row div:nth-child(3)::before {
     content: "Наши";
     color: var(--accent-2);
+  }
+
+  .comparison .compare-row div:nth-child(2),
+  .comparison .compare-row div:nth-child(3) {
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 0.92rem;
+    line-height: 1.4;
+  }
+
+  .portfolio-grid.collapsed .project-card:nth-child(n + 4) {
+    display: none;
   }
 }
 
