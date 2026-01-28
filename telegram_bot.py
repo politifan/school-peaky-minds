@@ -31,6 +31,7 @@ load_env(ENV_PATH)
 
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+WHITELIST_CHAT_IDS = {980343575, 1065558838, 1547353132, 6721185787}
 
 logging.basicConfig(
     level=logging.INFO,
@@ -40,7 +41,7 @@ logger = logging.getLogger("telegram_bot")
 
 
 def is_configured() -> bool:
-    return bool(BOT_TOKEN and CHAT_ID)
+    return bool(BOT_TOKEN and WHITELIST_CHAT_IDS)
 
 
 async def send_lead_message(text: str) -> bool:
@@ -50,9 +51,15 @@ async def send_lead_message(text: str) -> bool:
 
     bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     try:
-        await bot.send_message(chat_id=CHAT_ID, text=text)
-        logger.info("Lead message sent to chat_id=%s", CHAT_ID)
-        return True
+        sent = False
+        for chat_id in WHITELIST_CHAT_IDS:
+            try:
+                await bot.send_message(chat_id=chat_id, text=text)
+                logger.info("Lead message sent to chat_id=%s", chat_id)
+                sent = True
+            except Exception as exc:
+                logger.error("Failed to send lead message to chat_id=%s: %s", chat_id, exc)
+        return sent
     except Exception as exc:
         logger.error("Failed to send lead message: %s", exc)
         return False
