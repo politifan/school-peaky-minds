@@ -991,6 +991,23 @@ section {
   font-weight: 600;
 }
 
+.compare-mobile-hint {
+  display: none;
+  margin: 12px 0 6px;
+  font-size: 0.85rem;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.compare-mobile-hint span:first-of-type {
+  color: var(--muted);
+}
+
+.compare-mobile-hint span:last-of-type {
+  color: var(--accent-2);
+}
+
 .tag {
   display: inline-flex;
   padding: 8px 14px;
@@ -1658,12 +1675,32 @@ select:focus {
   }
 
   .hero {
-    padding-top: 110px;
+    padding-top: 90px;
     overflow-x: hidden;
   }
 
   .hero::before {
     inset: -30% 0 auto;
+  }
+
+  .hero-grid {
+    gap: 36px;
+  }
+
+  .eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    margin-bottom: 12px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(1.85rem, 7vw, 2.25rem);
+    letter-spacing: 0.01em;
+  }
+
+  .lead {
+    font-size: 1rem;
+    margin: 16px 0 22px;
   }
 
   .hero-visual {
@@ -1822,6 +1859,36 @@ select:focus {
 
   .comparison .compare-row.header {
     display: none;
+  }
+
+  .compare-mobile-hint {
+    display: block;
+  }
+
+  .comparison .compare-row div:first-child {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .comparison .compare-row div:nth-child(2)::before,
+  .comparison .compare-row div:nth-child(3)::before {
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    color: var(--muted);
+  }
+
+  .comparison .compare-row div:nth-child(2)::before {
+    content: "Потоковые";
+  }
+
+  .comparison .compare-row div:nth-child(3)::before {
+    content: "Наши";
+    color: var(--accent-2);
   }
 }
 
