@@ -606,7 +606,18 @@ async def auth_google(request: Request):
             userinfo = userinfo_resp.json()
     except OAuthError as exc:
         detail = getattr(exc, "error", None) or str(exc) or "OAuthError"
-        safe_detail = re.sub(r"[\\r\\n]+", " ", detail)[:300]
+        description = getattr(exc, "description", None) or ""
+        response_hint = ""
+        response = getattr(exc, "response", None)
+        if response is not None:
+            try:
+                response_hint = f" (status {response.status_code})"
+            except Exception:
+                response_hint = ""
+        message = f"{detail}{response_hint}"
+        if description:
+            message = f"{message}: {description}"
+        safe_detail = re.sub(r"[\\r\\n]+", " ", message)[:300]
         return render(
             request,
             "login.html",
