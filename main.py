@@ -608,13 +608,23 @@ async def auth_google(request: Request):
         detail = getattr(exc, "error", None) or str(exc) or "OAuthError"
         description = getattr(exc, "description", None) or ""
         response_hint = ""
+        extra = ""
         response = getattr(exc, "response", None)
         if response is not None:
             try:
                 response_hint = f" (status {response.status_code})"
             except Exception:
                 response_hint = ""
-        message = f"{detail}{response_hint}"
+            try:
+                data = response.json()
+                if isinstance(data, dict):
+                    err = data.get("error")
+                    err_desc = data.get("error_description")
+                    if err or err_desc:
+                        extra = f" [{err}: {err_desc}]" if err_desc else f" [{err}]"
+            except Exception:
+                extra = ""
+        message = f"{detail}{response_hint}{extra}"
         if description:
             message = f"{message}: {description}"
         safe_detail = re.sub(r"[\\r\\n]+", " ", message)[:300]
