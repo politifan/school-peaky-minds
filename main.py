@@ -13,6 +13,7 @@ from datetime import date
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, Dict, Optional
+from urllib.parse import urlparse
 from uvicorn import run
 
 
@@ -91,6 +92,25 @@ app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
 app.mount("/documents", StaticFiles(directory=DOCUMENTS_DIR), name="documents")
 
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+
+CANONICAL_ORIGIN = None
+CANONICAL_HOST = None
+if APP_BASE_URL:
+    parsed_origin = urlparse(APP_BASE_URL.strip())
+    if parsed_origin.scheme and parsed_origin.netloc:
+        CANONICAL_ORIGIN = f"{parsed_origin.scheme}://{parsed_origin.netloc}"
+        CANONICAL_HOST = parsed_origin.hostname
+
+
+@app.middleware("http")
+async def enforce_canonical_host(request: Request, call_next):
+    if CANONICAL_ORIGIN and CANONICAL_HOST:
+        if request.url.hostname and request.url.hostname != CANONICAL_HOST:
+            target = f"{CANONICAL_ORIGIN}{request.url.path}"
+            if request.url.query:
+                target = f"{target}?{request.url.query}"
+            return RedirectResponse(target, status_code=HTTP_302_FOUND)
+    return await call_next(request)
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -562,7 +582,12 @@ async def auth_google(request: Request):
         return render(request, "login.html", login_context(request, error="Google OAuth не настроен"))
     try:
         token = await oauth.google.authorize_access_token(request)
-        userinfo = await oauth.google.parse_id_token(request, token)
+        userinfo = None
+        if token.get("id_token"):
+            userinfo = await oauth.google.parse_id_token(request, token)
+        if not userinfo:
+            userinfo_resp = await oauth.google.get("userinfo")
+            userinfo = userinfo_resp.json()
     except OAuthError as exc:
         detail = getattr(exc, "error", None) or str(exc) or "OAuthError"
         safe_detail = re.sub(r"[\\r\\n]+", " ", detail)[:300]
