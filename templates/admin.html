@@ -248,6 +248,8 @@
         </div>
       </div>
       <form class="admin-filter" method="get" action="/admin">
+        <input type="hidden" name="status" value="{{ filters.status }}">
+        <input type="hidden" name="source" value="{{ filters.source }}">
         <div class="admin-filter__row">
           <div class="input-wrap">
             <label class="auth-label">Курс</label>
@@ -287,7 +289,7 @@
             </select>
           </div>
           <div class="input-wrap">
-            <label class="auth-label">Лимит</label>
+            <label class="auth-label">На странице</label>
             <select name="limit">
               <option value="20" {% if filters.limit == "20" %}selected{% endif %}>20</option>
               <option value="50" {% if filters.limit == "50" %}selected{% endif %}>50</option>
@@ -306,6 +308,30 @@
           </div>
         </div>
       </form>
+      {% if status_filters %}
+      <div class="admin-filter-chips">
+        <div class="admin-chip-group">
+          <span class="admin-chip-label">Статус</span>
+          {% for item in status_filters %}
+          <a class="admin-chip-link {% if item.active %}is-active{% endif %}" href="{{ item.url }}">
+            {{ item.label }}
+            <span class="admin-chip-count">{{ item.count }}</span>
+          </a>
+          {% endfor %}
+        </div>
+        {% if source_filters %}
+        <div class="admin-chip-group">
+          <span class="admin-chip-label">Источник</span>
+          {% for item in source_filters %}
+          <a class="admin-chip-link {% if item.active %}is-active{% endif %}" href="{{ item.url }}">
+            <span class="admin-truncate" title="{{ item.label }}">{{ item.label }}</span>
+            <span class="admin-chip-count">{{ item.count }}</span>
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
       {% if leads %}
       <div class="admin-table-wrap">
         <table class="admin-table">
@@ -360,6 +386,19 @@
           </tbody>
         </table>
       </div>
+      {% if leads_pagination.total_pages > 1 %}
+      <div class="admin-pagination">
+        <a class="admin-page-btn {% if not leads_pagination.has_prev %}is-disabled{% endif %}" href="{{ leads_pagination.prev_url }}">←</a>
+        {% for link in leads_pagination.links %}
+          {% if link.ellipsis %}
+            <span class="admin-page-ellipsis">…</span>
+          {% else %}
+            <a class="admin-page-btn {% if link.active %}is-active{% endif %}" href="{{ link.url }}">{{ link.page }}</a>
+          {% endif %}
+        {% endfor %}
+        <a class="admin-page-btn {% if not leads_pagination.has_next %}is-disabled{% endif %}" href="{{ leads_pagination.next_url }}">→</a>
+      </div>
+      {% endif %}
       {% else %}
       <p>Заявок пока нет.</p>
       {% endif %}
@@ -396,12 +435,39 @@
               <td>{{ item.phone or "—" }}</td>
               <td>{{ item.email or "—" }}</td>
               <td>{{ item.telegram or "—" }}</td>
-              <td><span class="admin-status {{ item.status_class }}">{{ item.status_label }}</span></td>
+              <td>
+                <form class="admin-status-form" action="/admin/agreements/status" method="post">
+                  <input type="hidden" name="file" value="{{ item._file }}">
+                  <input type="hidden" name="next" value="{{ next_url }}">
+                  <div class="admin-cell">
+                    <span class="admin-status {{ item.status_class }}">{{ item.status_label }}</span>
+                    <select name="status">
+                      {% for key, label in agreement_status_options %}
+                      <option value="{{ key }}" {% if key == "auto" and not item.manual_status %}selected{% elif key == item.manual_status %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="admin-copy" type="submit">OK</button>
+                  </div>
+                </form>
+              </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
+      {% if agreements_pagination.total_pages > 1 %}
+      <div class="admin-pagination">
+        <a class="admin-page-btn {% if not agreements_pagination.has_prev %}is-disabled{% endif %}" href="{{ agreements_pagination.prev_url }}">←</a>
+        {% for link in agreements_pagination.links %}
+          {% if link.ellipsis %}
+            <span class="admin-page-ellipsis">…</span>
+          {% else %}
+            <a class="admin-page-btn {% if link.active %}is-active{% endif %}" href="{{ link.url }}">{{ link.page }}</a>
+          {% endif %}
+        {% endfor %}
+        <a class="admin-page-btn {% if not agreements_pagination.has_next %}is-disabled{% endif %}" href="{{ agreements_pagination.next_url }}">→</a>
+      </div>
+      {% endif %}
       {% else %}
       <p>Договоров пока нет.</p>
       {% endif %}
@@ -532,6 +598,8 @@
           }
           url.searchParams.set("sort", sortKey);
           url.searchParams.set("order", nextOrder);
+          url.searchParams.delete("leads_page");
+          url.searchParams.delete("agreements_page");
           window.location.href = url.toString();
         });
       });

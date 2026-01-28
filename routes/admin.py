@@ -1,5 +1,6 @@
 import csv
 import io
+import math
 import re
 from datetime import date, datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
@@ -22,6 +23,7 @@ from core import (
     parse_date,
     render,
     save_whitelist,
+    update_agreement_status,
     update_lead_status,
 )
 
@@ -39,6 +41,21 @@ STATUS_OPTIONS = [
     ("new", "Новая"),
     ("in_progress", "В работе"),
     ("closed", "Закрыта"),
+]
+
+AGREEMENT_STATUS_META = {
+    "signed": ("Подписан", "status-good"),
+    "paid": ("Оплачен", "status-new"),
+    "review": ("На проверке", "status-warm"),
+    "canceled": ("Отменён", "status-muted"),
+}
+
+AGREEMENT_STATUS_OPTIONS = [
+    ("auto", "Авто"),
+    ("signed", "Подписан"),
+    ("paid", "Оплачен"),
+    ("review", "На проверке"),
+    ("canceled", "Отменён"),
 ]
 
 
@@ -70,6 +87,14 @@ def status_from_item(item: Dict[str, Any]) -> Tuple[str, str, str]:
     if delta <= timedelta(days=7):
         return "in_progress", STATUS_META["in_progress"][0], STATUS_META["in_progress"][1]
     return "archived", STATUS_META["archived"][0], STATUS_META["archived"][1]
+
+
+def agreement_status_from_item(item: Dict[str, Any]) -> Tuple[str, str, str]:
+    manual = (item.get("status") or "").strip()
+    if manual in AGREEMENT_STATUS_META:
+        label, cls = AGREEMENT_STATUS_META[manual]
+        return manual, label, cls
+    return "signed", AGREEMENT_STATUS_META["signed"][0], AGREEMENT_STATUS_META["signed"][1]
 
 
 def matches_query(item: Dict[str, Any], fields: List[str], query: str) -> bool:
@@ -136,6 +161,32 @@ def build_query(params: Dict[str, str], *, exclude: Optional[List[str]] = None) 
     if not params:
         return ""
     return f"?{urlencode(params)}"
+
+
+def parse_page(value: Optional[str]) -> int:
+    try:
+        page = int(value or 1)
+    except Exception:
+        page = 1
+    return max(page, 1)
+
+
+def page_window(current: int, total: int, span: int = 2) -> List[Optional[int]]:
+    if total <= 1:
+        return [1]
+    start = max(1, current - span)
+    end = min(total, current + span)
+    pages: List[Optional[int]] = []
+    if start > 1:
+        pages.append(1)
+        if start > 2:
+            pages.append(None)
+    pages.extend(range(start, end + 1))
+    if end < total:
+        if end < total - 1:
+            pages.append(None)
+        pages.append(total)
+    return pages
 
 
 def bucket_counts(items: List[Dict[str, Any]], bucket: str, periods: int) -> List[Dict[str, Any]]:
@@ -210,9 +261,13 @@ def admin_panel(request: Request):
     date_from_value = request.query_params.get("date_from", "")
     date_to_value = request.query_params.get("date_to", "")
     query = (request.query_params.get("q") or "").strip()
+    status_filter = request.query_params.get("status") or ""
+    source_filter = request.query_params.get("source") or ""
     sort = request.query_params.get("sort") or "date"
     order = request.query_params.get("order") or "desc"
     limit_raw = request.query_params.get("limit") or "20"
+    leads_page = parse_page(request.query_params.get("leads_page"))
+    agreements_page = parse_page(request.query_params.get("agreements_page"))
     date_from = parse_date(date_from_value)
     date_to = parse_date(date_to_value)
 
@@ -221,6 +276,24 @@ def admin_panel(request: Request):
 
     leads = apply_search(leads, query, ["name", "contact", "course", "page"])
     agreements = apply_search(agreements, query, ["full_name", "phone", "email", "telegram", "course"])
+
+    leads = [{**item, "_source": extract_source(item.get("page", ""))} for item in leads]
+    leads_base_count = len(leads)
+
+    status_counts = {key: 0 for key in STATUS_META}
+    source_counts: Dict[str, int] = {}
+    for item in leads:
+        status_key, _, _ = status_from_item(item)
+        status_counts[status_key] = status_counts.get(status_key, 0) + 1
+        source = item.get("_source") or "Прямой"
+        source_counts[source] = source_counts.get(source, 0) + 1
+
+    if status_filter and status_filter not in STATUS_META:
+        status_filter = ""
+    if status_filter:
+        leads = [item for item in leads if status_from_item(item)[0] == status_filter]
+    if source_filter:
+        leads = [item for item in leads if item.get("_source") == source_filter]
 
     def lead_sort_key(item: Dict[str, Any]):
         status_key, _, _ = status_from_item(item)
@@ -249,8 +322,17 @@ def admin_panel(request: Request):
         except Exception:
             limit_value = 20
 
-    leads_display = leads if limit_value is None else leads[:limit_value]
-    agreements_display = agreements if limit_value is None else agreements[:limit_value]
+    def paginate(items: List[Dict[str, Any]], page: int, per_page: Optional[int]):
+        if not per_page:
+            return items, 1, 1
+        total_pages = max(1, math.ceil(len(items) / per_page))
+        page = max(1, min(page, total_pages))
+        start = (page - 1) * per_page
+        end = start + per_page
+        return items[start:end], page, total_pages
+
+    leads_display, leads_page, leads_pages = paginate(leads, leads_page, limit_value)
+    agreements_display, agreements_page, agreements_pages = paginate(agreements, agreements_page, limit_value)
 
     courses = sorted(
         {item.get("course") for item in (leads_all + agreements_all) if item.get("course")}
@@ -274,18 +356,22 @@ def admin_panel(request: Request):
                 "status_class": status_class,
                 "status_key": status_key,
                 "manual_status": manual_status,
-                "source": extract_source(item.get("page", "")),
+                "source": item.get("_source") or extract_source(item.get("page", "")),
             }
         )
 
     agreements_view = []
     for item in agreements_display:
+        status_key, status_label, status_class = agreement_status_from_item(item)
+        manual_status = (item.get("status") or "").strip()
         agreements_view.append(
             {
                 **item,
                 "display_time": format_ts(item.get("timestamp")),
-                "status_label": "Подписан",
-                "status_class": "status-good",
+                "status_label": status_label,
+                "status_class": status_class,
+                "status_key": status_key,
+                "manual_status": manual_status,
             }
         )
 
@@ -306,6 +392,11 @@ def admin_panel(request: Request):
     filter_bits = []
     if course:
         filter_bits.append(f"Курс: {course}")
+    if status_filter:
+        status_label = STATUS_META.get(status_filter, (status_filter, ""))[0]
+        filter_bits.append(f"Статус: {status_label}")
+    if source_filter:
+        filter_bits.append(f"Источник: {source_filter}")
     if query:
         filter_bits.append(f"Поиск: {query}")
     if date_from_value or date_to_value:
@@ -328,15 +419,96 @@ def admin_panel(request: Request):
         params["date_to"] = date_to_value
     if query:
         params["q"] = query
+    if status_filter:
+        params["status"] = status_filter
+    if source_filter:
+        params["source"] = source_filter
     if sort:
         params["sort"] = sort
     if order:
         params["order"] = order
     if limit_raw:
         params["limit"] = limit_raw
+    if leads_page > 1:
+        params["leads_page"] = str(leads_page)
+    if agreements_page > 1:
+        params["agreements_page"] = str(agreements_page)
 
     filters_query = build_query(dict(params))
-    export_query = build_query(dict(params), exclude=["limit"])
+    export_query = build_query(dict(params), exclude=["limit", "leads_page", "agreements_page"])
+
+    status_filter_options = [("", "Все", leads_base_count)]
+    for key, (label, _) in STATUS_META.items():
+        status_filter_options.append((key, label, status_counts.get(key, 0)))
+
+    source_items = sorted(source_counts.items(), key=lambda item: item[1], reverse=True)
+    source_filter_options = [("", "Все", leads_base_count)]
+    for source, count in source_items:
+        source_filter_options.append((source, source, count))
+
+    def build_filter_links(options, param_name: str, active_value: str):
+        links = []
+        for key, label, count in options:
+            link_params = dict(params)
+            if key:
+                link_params[param_name] = key
+            else:
+                link_params.pop(param_name, None)
+            if param_name in {"status", "source"}:
+                link_params.pop("leads_page", None)
+            url = f"/admin{build_query(link_params)}"
+            links.append(
+                {
+                    "label": label,
+                    "count": count,
+                    "url": url,
+                    "active": (key == active_value) or (not key and not active_value),
+                }
+            )
+        return links
+
+    status_filters = build_filter_links(status_filter_options, "status", status_filter)
+    source_filters = build_filter_links(source_filter_options, "source", source_filter)
+
+    def build_pagination(current_page: int, total_pages: int, page_param: str):
+        if total_pages <= 1:
+            return {
+                "page": current_page,
+                "total_pages": total_pages,
+                "links": [],
+                "has_prev": False,
+                "has_next": False,
+                "prev_url": "",
+                "next_url": "",
+            }
+        base_params = dict(params)
+
+        def make_page_url(page: int) -> str:
+            link_params = dict(base_params)
+            if page <= 1:
+                link_params.pop(page_param, None)
+            else:
+                link_params[page_param] = str(page)
+            return f"/admin{build_query(link_params)}"
+
+        links = []
+        for page in page_window(current_page, total_pages):
+            if page is None:
+                links.append({"ellipsis": True})
+            else:
+                links.append({"page": page, "url": make_page_url(page), "active": page == current_page})
+        return {
+            "page": current_page,
+            "total_pages": total_pages,
+            "links": links,
+            "has_prev": current_page > 1,
+            "has_next": current_page < total_pages,
+            "prev_url": make_page_url(max(1, current_page - 1)),
+            "next_url": make_page_url(min(total_pages, current_page + 1)),
+        }
+
+    leads_pagination = build_pagination(leads_page, leads_pages, "leads_page")
+    agreements_pagination = build_pagination(agreements_page, agreements_pages, "agreements_page")
 
     path_counts = metrics.get("path_counts", {})
     path_counts_sorted = sorted(path_counts.items(), key=lambda item: item[1], reverse=True)
@@ -524,9 +696,13 @@ def admin_panel(request: Request):
                 "date_from": date_from_value,
                 "date_to": date_to_value,
                 "query": query,
+                "status": status_filter,
+                "source": source_filter,
                 "sort": sort,
                 "order": order,
                 "limit": limit_raw,
+                "leads_page": leads_page,
+                "agreements_page": agreements_page,
             },
             "lead_chart": lead_chart,
             "enroll_chart": enroll_chart,
@@ -549,6 +725,11 @@ def admin_panel(request: Request):
             "top_agreements": top_agreements,
             "sources_sorted": sources_sorted,
             "status_options": STATUS_OPTIONS,
+            "agreement_status_options": AGREEMENT_STATUS_OPTIONS,
+            "status_filters": status_filters,
+            "source_filters": source_filters,
+            "leads_pagination": leads_pagination,
+            "agreements_pagination": agreements_pagination,
             "next_url": next_url,
             "recent_leads": recent_leads,
         },
@@ -567,6 +748,21 @@ async def admin_update_lead_status(request: Request):
     if status == "auto":
         status = ""
     update_lead_status(file_name, status)
+    return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+
+
+@router.post("/admin/agreements/status", include_in_schema=False)
+async def admin_update_agreement_status(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    file_name = str(form.get("file") or "").strip()
+    status = str(form.get("status") or "").strip()
+    next_url = str(form.get("next") or "/admin")
+    if status == "auto":
+        status = ""
+    update_agreement_status(file_name, status)
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
@@ -619,11 +815,18 @@ def export_leads(request: Request):
     date_from = parse_date(request.query_params.get("date_from"))
     date_to = parse_date(request.query_params.get("date_to"))
     query = (request.query_params.get("q") or "").strip()
+    status_filter = request.query_params.get("status") or ""
+    source_filter = request.query_params.get("source") or ""
     sort = request.query_params.get("sort") or "date"
     order = request.query_params.get("order") or "desc"
 
     leads = filter_items(load_leads(), course, date_from, date_to)
     leads = apply_search(leads, query, ["name", "contact", "course", "page"])
+    leads = [{**item, "_source": extract_source(item.get("page", ""))} for item in leads]
+    if status_filter and status_filter in STATUS_META:
+        leads = [item for item in leads if status_from_item(item)[0] == status_filter]
+    if source_filter:
+        leads = [item for item in leads if item.get("_source") == source_filter]
 
     def lead_sort_key(item: Dict[str, Any]):
         status_key, _, _ = status_from_item(item)
@@ -682,8 +885,9 @@ def export_agreements(request: Request):
 
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["timestamp", "course", "full_name", "phone", "email", "telegram"])
+    writer.writerow(["timestamp", "course", "full_name", "phone", "email", "telegram", "status"])
     for item in agreements:
+        _, status_label, _ = agreement_status_from_item(item)
         writer.writerow([
             item.get("timestamp"),
             item.get("course"),
@@ -691,6 +895,7 @@ def export_agreements(request: Request):
             item.get("phone"),
             item.get("email"),
             item.get("telegram"),
+            status_label,
         ])
     return Response(
         content=output.getvalue(),

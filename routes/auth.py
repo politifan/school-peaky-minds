@@ -342,7 +342,7 @@ async def validate_telegram(username: str) -> dict:
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getChat"
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
-            response = await client.get(url, params={"chat_id": f\"@{handle}\"})
+            response = await client.get(url, params={"chat_id": f"@{handle}"})
         data = response.json()
     except Exception:
         return {"ok": False, "reason": "error"}

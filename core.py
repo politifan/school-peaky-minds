@@ -190,6 +190,23 @@ def update_lead_status(file_name: str, status: str) -> bool:
     return True
 
 
+def update_agreement_status(file_name: str, status: str) -> bool:
+    if not file_name:
+        return False
+    path = AGREEMENTS_DIR / file_name
+    if not path.exists():
+        return False
+    data = load_json(path, {})
+    if not isinstance(data, dict):
+        return False
+    if status:
+        data["status"] = status
+    else:
+        data.pop("status", None)
+    save_json(path, data)
+    return True
+
+
 def load_agreements() -> List[Dict[str, Any]]:
     items = []
     for path in sorted(AGREEMENTS_DIR.glob("agreement_*.json")):
