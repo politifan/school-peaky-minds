@@ -1161,6 +1161,7 @@ async def admin_update_whitelist(request: Request):
 
 @app.post("/admin/whitelist/remove", include_in_schema=False)
 async def admin_remove_whitelist(request: Request):
+    global WHITELIST_IDS
     guard = admin_required(request)
     if guard:
         return guard
@@ -1171,7 +1172,6 @@ async def admin_remove_whitelist(request: Request):
         return RedirectResponse("/admin", status_code=HTTP_302_FOUND)
     ids = [item for item in WHITELIST_IDS if item != target]
     if ids:
-        global WHITELIST_IDS
         WHITELIST_IDS = ids
         save_whitelist(ids)
     return RedirectResponse("/admin", status_code=HTTP_302_FOUND)
