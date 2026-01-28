@@ -625,6 +625,13 @@ async def login_verify(request: Request):
 async def login_google(request: Request):
     if not (oauth and providers["google"]):
         return render(request, "login.html", login_context(request, error="Google OAuth не настроен"))
+    logging.getLogger("app.auth").info(
+        "Google login start: host=%s scheme=%s cookies=%s session_keys=%s",
+        request.url.hostname,
+        request.url.scheme,
+        list(request.cookies.keys()),
+        list(request.session.keys()),
+    )
     redirect_uri = build_redirect_uri(request, "auth_google")
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
@@ -634,6 +641,14 @@ async def auth_google(request: Request):
     if not oauth:
         return render(request, "login.html", login_context(request, error="Google OAuth не настроен"))
     try:
+        logging.getLogger("app.auth").info(
+            "Google callback: host=%s scheme=%s query_state=%s cookies=%s session_keys=%s",
+            request.url.hostname,
+            request.url.scheme,
+            request.query_params.get("state"),
+            list(request.cookies.keys()),
+            list(request.session.keys()),
+        )
         token = await oauth.google.authorize_access_token(request)
         userinfo = None
         if isinstance(token, dict) and token.get("id_token"):
