@@ -3,6 +3,7 @@ import json
 import logging
 import os
 from pathlib import Path
+from typing import Set
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
@@ -36,7 +37,7 @@ CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 DEFAULT_WHITELIST = [980343575, 1065558838, 1547353132]
 
 
-def load_whitelist() -> set[int]:
+def load_whitelist() -> Set[int]:
     if not WHITELIST_FILE.exists():
         return set(DEFAULT_WHITELIST)
     try:
@@ -57,7 +58,7 @@ def load_whitelist() -> set[int]:
 WHITELIST_CHAT_IDS = load_whitelist()
 
 
-def current_whitelist() -> set[int]:
+def current_whitelist() -> Set[int]:
     return load_whitelist()
 
 logging.basicConfig(

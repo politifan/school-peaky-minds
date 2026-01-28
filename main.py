@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta
 from email.message import EmailMessage
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 from urllib.parse import urlparse
 from uvicorn import run
 
@@ -121,7 +121,7 @@ def clear_user(request: Request) -> None:
     request.session.pop("user", None)
 
 
-def load_whitelist() -> list[int]:
+def load_whitelist() -> List[int]:
     default_ids = [980343575, 1065558838, 1547353132]
     if not WHITELIST_FILE.exists():
         save_json(WHITELIST_FILE, default_ids)
@@ -142,11 +142,11 @@ def load_whitelist() -> list[int]:
 WHITELIST_IDS = load_whitelist()
 
 
-def save_whitelist(ids: list[int]) -> None:
+def save_whitelist(ids: List[int]) -> None:
     save_json(WHITELIST_FILE, ids)
 
 
-def get_admin_ids() -> set[int]:
+def get_admin_ids() -> Set[int]:
     if len(WHITELIST_IDS) <= 1:
         return set(WHITELIST_IDS)
     return set(WHITELIST_IDS[:-1])
@@ -175,7 +175,7 @@ def save_lead(payload: Dict[str, Any]) -> Path:
     return path
 
 
-def load_leads() -> list[dict]:
+def load_leads() -> List[Dict[str, Any]]:
     items = []
     for path in sorted(LEADS_DIR.glob("lead_*.json")):
         data = load_json(path, {})
@@ -185,7 +185,7 @@ def load_leads() -> list[dict]:
     return sorted(items, key=lambda item: item.get("timestamp", 0), reverse=True)
 
 
-def load_agreements() -> list[dict]:
+def load_agreements() -> List[Dict[str, Any]]:
     items = []
     for path in sorted(AGREEMENTS_DIR.glob("agreement_*.json")):
         data = load_json(path, {})
