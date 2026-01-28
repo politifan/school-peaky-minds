@@ -1,15 +1,20 @@
-cat > run.sh <<'SH'
 #!/usr/bin/env bash
-set -euo pipefail
-cd "$(dirname "$0")"
-source venv/bin/activate
 
-export PYTHONUNBUFFERED=1
-nohup uvicorn main:app --host 0.0.0.0 --port 8000 --workers 2 \
-  > uvicorn.log 2>&1 &
+APP_DIR="/var/www/u3395358/data/www/school.peaky-minds.ru"
+PIDFILE="$APP_DIR/uvicorn.pid"
 
-echo $! > uvicorn.pid
-echo "Started uvicorn with PID $(cat uvicorn.pid)"
-SH
+cd "$APP_DIR"
 
-chmod +x run.sh
+if [ -f "$PIDFILE" ]; then
+    OLD_PID=$(cat "$PIDFILE")
+    if ps -p "$OLD_PID" > /dev/null 2>&1; then
+        echo "Stopping old uvicorn ($OLD_PID)"
+        kill "$OLD_PID"
+        sleep 2
+    fi
+fi
+
+nohup venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000 > uvicorn.log 2>&1 &
+
+echo $! > "$PIDFILE"
+echo "Started uvicorn with PID $(cat $PIDFILE)"
