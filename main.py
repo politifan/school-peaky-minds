@@ -207,6 +207,10 @@ logging.getLogger().addHandler(file_handler)
 logging.getLogger("uvicorn").addHandler(file_handler)
 logging.getLogger("uvicorn.access").addHandler(file_handler)
 logging.getLogger("uvicorn.error").addHandler(file_handler)
+access_logger = logging.getLogger("app.access")
+access_logger.setLevel(logging.INFO)
+access_logger.addHandler(file_handler)
+access_logger.propagate = False
 logging.getLogger(__name__).info("Logging initialized. Writing to %s", log_path)
 
 app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
@@ -231,7 +235,7 @@ async def log_requests(request: Request, call_next):
     start = time.time()
     response = await call_next(request)
     duration = (time.time() - start) * 1000
-    logging.getLogger("app.access").info(
+    access_logger.info(
         "%s %s -> %s (%.1f ms)",
         request.method,
         request.url.path,
@@ -239,6 +243,11 @@ async def log_requests(request: Request, call_next):
         duration,
     )
     return response
+
+
+@app.on_event("startup")
+async def log_startup():
+    access_logger.info("App startup complete.")
 
 def get_telethon_lock() -> asyncio.Lock:
     global _telethon_lock
