@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import os
 from pathlib import Path
@@ -11,6 +12,7 @@ from aiogram.types import Message
 
 BASE_DIR = Path(__file__).resolve().parent
 ENV_PATH = BASE_DIR / "config" / ".env"
+WHITELIST_FILE = BASE_DIR / "data" / "telegram_whitelist.json"
 
 
 def load_env(path: Path) -> None:
@@ -31,7 +33,32 @@ load_env(ENV_PATH)
 
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
-WHITELIST_CHAT_IDS = {980343575, 1065558838, 1547353132, 6721185787}
+DEFAULT_WHITELIST = [980343575, 1065558838, 1547353132]
+
+
+def load_whitelist() -> set[int]:
+    if not WHITELIST_FILE.exists():
+        return set(DEFAULT_WHITELIST)
+    try:
+        data = json.loads(WHITELIST_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return set(DEFAULT_WHITELIST)
+    if not isinstance(data, list):
+        return set(DEFAULT_WHITELIST)
+    ids = []
+    for item in data:
+        try:
+            ids.append(int(item))
+        except Exception:
+            continue
+    return set(ids or DEFAULT_WHITELIST)
+
+
+WHITELIST_CHAT_IDS = load_whitelist()
+
+
+def current_whitelist() -> set[int]:
+    return load_whitelist()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -41,7 +68,7 @@ logger = logging.getLogger("telegram_bot")
 
 
 def is_configured() -> bool:
-    return bool(BOT_TOKEN and WHITELIST_CHAT_IDS)
+    return bool(BOT_TOKEN and current_whitelist())
 
 
 async def send_lead_message(text: str) -> bool:
@@ -52,7 +79,7 @@ async def send_lead_message(text: str) -> bool:
     bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     try:
         sent = False
-        for chat_id in WHITELIST_CHAT_IDS:
+        for chat_id in current_whitelist():
             try:
                 await bot.send_message(chat_id=chat_id, text=text, disable_web_page_preview=True)
                 logger.info("Lead message sent to chat_id=%s", chat_id)
@@ -69,7 +96,7 @@ async def send_lead_message(text: str) -> bool:
 
 async def _start(message: Message) -> None:
     user_id = message.from_user.id if message.from_user else None
-    if user_id not in WHITELIST_CHAT_IDS:
+    if user_id not in current_whitelist():
         logger.info("Ignored /start from non-whitelisted user_id=%s", user_id)
         return
     logger.info("Received /start from user_id=%s", user_id)

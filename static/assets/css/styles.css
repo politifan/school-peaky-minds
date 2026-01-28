@@ -1677,6 +1677,34 @@ select:focus {
   box-shadow: 0 16px 26px rgba(0, 0, 0, 0.35);
 }
 
+.admin-chart {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.admin-chart__row {
+  display: grid;
+  grid-template-columns: 52px 1fr 32px;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+
+.admin-chart__bar {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.admin-chart__bar > div {
+  height: 100%;
+  background: linear-gradient(120deg, rgba(99, 247, 211, 0.8), rgba(255, 179, 71, 0.8));
+  border-radius: 999px;
+}
+
 .input-wrap {
   display: grid;
   gap: 6px;

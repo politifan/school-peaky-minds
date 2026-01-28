@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Админ панель</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Prata&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <main class="container" style="padding: 110px 0 140px;">
+    <a class="page-back" href="/">← На главную</a>
+    <div class="section-head">
+      <h1>Админ панель</h1>
+      <p>Метрики, заявки, пользователи и whitelist Telegram.</p>
+    </div>
+
+    <section class="panel" style="margin-top: 24px;">
+      <h2 class="section-title" style="margin-bottom: 18px;">Метрики</h2>
+      <div class="card-grid three">
+        <div class="card">
+          <div class="course-meta">Посещения</div>
+          <h3>{{ metrics.total_visits }}</h3>
+          <p>Всего просмотров страниц.</p>
+        </div>
+        <div class="card">
+          <div class="course-meta">Уникальные</div>
+          <h3>{{ metrics.unique_visits }}</h3>
+          <p>Сессии с сайта.</p>
+        </div>
+        <div class="card">
+          <div class="course-meta">Заявки</div>
+          <h3>{{ metrics.funnel.apply }}</h3>
+          <p>Оставили контакты.</p>
+        </div>
+      </div>
+      <div class="card-grid" style="margin-top: 18px;">
+        <div class="card">
+          <div class="course-meta">Заявки за 7 дней</div>
+          <div class="admin-chart">
+            {% for point in lead_chart %}
+            <div class="admin-chart__row">
+              <span>{{ point.label }}</span>
+              <div class="admin-chart__bar">
+                <div style="width: {{ point.count * 12 }}px;"></div>
+              </div>
+              <strong>{{ point.count }}</strong>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="card">
+          <div class="course-meta">Покупки за 7 дней</div>
+          <div class="admin-chart">
+            {% for point in enroll_chart %}
+            <div class="admin-chart__row">
+              <span>{{ point.label }}</span>
+              <div class="admin-chart__bar">
+                <div style="width: {{ point.count * 12 }}px;"></div>
+              </div>
+              <strong>{{ point.count }}</strong>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="card-grid" style="margin-top: 18px;">
+        <div class="card">
+          <div class="course-meta">Воронка</div>
+          <p>Главная: <strong>{{ metrics.funnel.home }}</strong></p>
+          <p>Логин: <strong>{{ metrics.funnel.login }}</strong></p>
+          <p>Заявки: <strong>{{ metrics.funnel.apply }}</strong></p>
+          <p>Покупки: <strong>{{ metrics.funnel.enroll }}</strong></p>
+        </div>
+        <div class="card">
+          <div class="course-meta">Топ страниц</div>
+          {% if path_counts_sorted %}
+            <ul>
+              {% for path, count in path_counts_sorted[:6] %}
+              <li><strong>{{ path }}</strong> — {{ count }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p>Пока нет данных.</p>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 24px;">
+      <h2 class="section-title" style="margin-bottom: 18px;">Заявки</h2>
+      <form class="cta-form" method="get" action="/admin" style="max-width: 680px; margin-bottom: 16px;">
+        <label class="auth-label">Фильтры</label>
+        <div style="display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+          <select name="course">
+            <option value="">Все курсы</option>
+            {% for item in courses %}
+            <option value="{{ item }}" {% if filters.course == item %}selected{% endif %}>{{ item }}</option>
+            {% endfor %}
+          </select>
+          <input type="date" name="date_from" value="{{ filters.date_from }}">
+          <input type="date" name="date_to" value="{{ filters.date_to }}">
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;">
+          <button class="btn btn-primary" type="submit">Применить</button>
+          <a class="btn btn-secondary" href="/admin">Сбросить</a>
+          <a class="btn btn-secondary" href="/admin/export/leads.csv">Экспорт CSV</a>
+        </div>
+      </form>
+      {% if leads %}
+      <div class="card-grid">
+        {% for lead in leads[:8] %}
+        <div class="card">
+          <div class="course-meta">{{ lead.timestamp }}</div>
+          <h3>{{ lead.name or "Без имени" }}</h3>
+          <p>Контакт: {{ lead.contact or "—" }}</p>
+          <p>Курс: {{ lead.course or "—" }}</p>
+          <p>Страница: {{ lead.page or "—" }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p>Заявок пока нет.</p>
+      {% endif %}
+    </section>
+
+    <section class="panel" style="margin-top: 24px;">
+      <h2 class="section-title" style="margin-bottom: 18px;">Покупки / договоры</h2>
+      <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
+        <a class="btn btn-secondary" href="/admin/export/agreements.csv">Экспорт CSV</a>
+      </div>
+      {% if agreements %}
+      <div class="card-grid">
+        {% for item in agreements[:6] %}
+        <div class="card">
+          <div class="course-meta">{{ item.timestamp }}</div>
+          <h3>{{ item.full_name or "Без имени" }}</h3>
+          <p>Курс: {{ item.course or "—" }}</p>
+          <p>Телефон: {{ item.phone or "—" }}</p>
+          <p>Email: {{ item.email or "—" }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p>Договоров пока нет.</p>
+      {% endif %}
+    </section>
+
+    <section class="panel" style="margin-top: 24px;">
+      <h2 class="section-title" style="margin-bottom: 18px;">Пользователи</h2>
+      <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
+        <a class="btn btn-secondary" href="/admin/export/users.csv">Экспорт CSV</a>
+      </div>
+      {% if users %}
+      <div class="card-grid">
+        {% for user in users.values() %}
+        <div class="card">
+          <div class="course-meta">{{ user.provider }}</div>
+          <h3>{{ user.name or user.email or user.id }}</h3>
+          <p>{{ user.email or "—" }}</p>
+          <p>ID: {{ user.id }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p>Пользователей пока нет.</p>
+      {% endif %}
+    </section>
+
+    <section class="panel" style="margin-top: 24px;">
+      <h2 class="section-title" style="margin-bottom: 18px;">Whitelist Telegram</h2>
+      <p>Админ‑доступ: {{ admin_ids|join(", ") }}</p>
+      <div class="tag-grid" style="margin: 12px 0 18px;">
+        {% for item in whitelist %}
+        <form action="/admin/whitelist/remove" method="post">
+          <input type="hidden" name="id" value="{{ item }}">
+          <button class="tag" type="submit">{{ item }} ✕</button>
+        </form>
+        {% endfor %}
+      </div>
+      <form class="cta-form" action="/admin/whitelist" method="post" style="max-width: 520px;">
+        <label class="auth-label">ID через запятую или новую строку</label>
+        <textarea name="whitelist" rows="4" style="width: 100%; border-radius: 14px; padding: 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--stroke); color: inherit;">{{ whitelist|join(", ") }}</textarea>
+        <button class="btn btn-primary" type="submit">Сохранить whitelist</button>
+      </form>
+      <p class="auth-hint">Последний ID в списке не получает доступ к админке (только рассылка).</p>
+    </section>
+  </main>
+</body>
+</html>

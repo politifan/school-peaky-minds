@@ -1,7 +1,9 @@
 import asyncio
+import csv
 import getpass
 import hashlib
 import hmac
+import io
 import json
 import logging
 import os
@@ -10,7 +12,7 @@ import secrets
 import smtplib
 import sys
 import time
-from datetime import date
+from datetime import date, datetime, timedelta
 from email.message import EmailMessage
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -82,6 +84,10 @@ USERS_FILE = DATA_DIR / "users.json"
 CODES_FILE = DATA_DIR / "codes.json"
 AGREEMENTS_DIR = DATA_DIR / "agreements"
 AGREEMENTS_DIR.mkdir(exist_ok=True)
+LEADS_DIR = DATA_DIR / "leads"
+LEADS_DIR.mkdir(exist_ok=True)
+METRICS_FILE = DATA_DIR / "metrics.json"
+WHITELIST_FILE = DATA_DIR / "telegram_whitelist.json"
 
 DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR = BASE_DIR / "logs"
@@ -113,6 +119,136 @@ def set_current_user(request: Request, user: Dict[str, Any]) -> None:
 
 def clear_user(request: Request) -> None:
     request.session.pop("user", None)
+
+
+def load_whitelist() -> list[int]:
+    default_ids = [980343575, 1065558838, 1547353132]
+    if not WHITELIST_FILE.exists():
+        save_json(WHITELIST_FILE, default_ids)
+    data = load_json(WHITELIST_FILE, default_ids)
+    if not isinstance(data, list):
+        data = default_ids
+    cleaned = []
+    for item in data:
+        try:
+            cleaned.append(int(item))
+        except Exception:
+            continue
+    if not cleaned:
+        cleaned = default_ids
+    return cleaned
+
+
+WHITELIST_IDS = load_whitelist()
+
+
+def save_whitelist(ids: list[int]) -> None:
+    save_json(WHITELIST_FILE, ids)
+
+
+def get_admin_ids() -> set[int]:
+    if len(WHITELIST_IDS) <= 1:
+        return set(WHITELIST_IDS)
+    return set(WHITELIST_IDS[:-1])
+
+
+def is_admin_user(user: Optional[Dict[str, Any]]) -> bool:
+    if not user or user.get("provider") != "telegram":
+        return False
+    user_id = str(user.get("id", ""))
+    if not user_id.startswith("telegram:"):
+        return False
+    try:
+        tg_id = int(user_id.split("telegram:", 1)[1])
+    except Exception:
+        return False
+    return tg_id in get_admin_ids()
+
+
+def next_lead_path() -> Path:
+    return LEADS_DIR / f"lead_{int(time.time())}_{secrets.token_hex(4)}.json"
+
+
+def save_lead(payload: Dict[str, Any]) -> Path:
+    path = next_lead_path()
+    save_json(path, payload)
+    return path
+
+
+def load_leads() -> list[dict]:
+    items = []
+    for path in sorted(LEADS_DIR.glob("lead_*.json")):
+        data = load_json(path, {})
+        if isinstance(data, dict):
+            data["_file"] = path.name
+            items.append(data)
+    return sorted(items, key=lambda item: item.get("timestamp", 0), reverse=True)
+
+
+def load_agreements() -> list[dict]:
+    items = []
+    for path in sorted(AGREEMENTS_DIR.glob("agreement_*.json")):
+        data = load_json(path, {})
+        if isinstance(data, dict):
+            data["_file"] = path.name
+            items.append(data)
+    return sorted(items, key=lambda item: item.get("timestamp", 0), reverse=True)
+
+
+def load_metrics() -> dict:
+    default = {
+        "total_visits": 0,
+        "unique_visits": 0,
+        "path_counts": {},
+        "funnel": {"home": 0, "login": 0, "apply": 0, "enroll": 0},
+    }
+    data = load_json(METRICS_FILE, default)
+    if not isinstance(data, dict):
+        return default
+    for key in ("total_visits", "unique_visits"):
+        if not isinstance(data.get(key), int):
+            data[key] = 0
+    if not isinstance(data.get("path_counts"), dict):
+        data["path_counts"] = {}
+    if not isinstance(data.get("funnel"), dict):
+        data["funnel"] = {"home": 0, "login": 0, "apply": 0, "enroll": 0}
+    return data
+
+
+def save_metrics(metrics: dict) -> None:
+    save_json(METRICS_FILE, metrics)
+
+
+def parse_date(value: Optional[str]) -> Optional[date]:
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except Exception:
+        return None
+
+
+def within_dates(timestamp: Optional[int], date_from: Optional[date], date_to: Optional[date]) -> bool:
+    if not timestamp:
+        return False
+    try:
+        ts_date = datetime.fromtimestamp(int(timestamp)).date()
+    except Exception:
+        return False
+    if date_from and ts_date < date_from:
+        return False
+    if date_to and ts_date > date_to:
+        return False
+    return True
+
+
+def admin_required(request: Request) -> Optional[Response]:
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse("/login?next=/admin", status_code=HTTP_302_FOUND)
+    if not is_admin_user(user):
+        return HTMLResponse("Доступ запрещён", status_code=403)
+    return None
 
 
 def send_email_code(recipient: str, code: str) -> None:
@@ -228,6 +364,36 @@ async def enforce_canonical_host(request: Request, call_next):
                 target = f"{target}?{request.url.query}"
             return RedirectResponse(target, status_code=HTTP_302_FOUND)
     return await call_next(request)
+
+
+@app.middleware("http")
+async def track_metrics(request: Request, call_next):
+    response = await call_next(request)
+    if request.method != "GET":
+        return response
+    path = request.url.path
+    if path.startswith(("/assets", "/documents")):
+        return response
+    if path in ("/healthz", "/favicon.ico", "/robots.txt", "/sitemap.xml"):
+        return response
+    accept = request.headers.get("accept", "")
+    if "text/html" not in accept and path != "/":
+        return response
+
+    metrics = load_metrics()
+    metrics["total_visits"] += 1
+    if "visit_id" not in request.session:
+        request.session["visit_id"] = secrets.token_hex(8)
+        metrics["unique_visits"] += 1
+    metrics["path_counts"][path] = metrics["path_counts"].get(path, 0) + 1
+
+    if path == "/":
+        metrics["funnel"]["home"] = metrics["funnel"].get("home", 0) + 1
+    if path == "/login":
+        metrics["funnel"]["login"] = metrics["funnel"].get("login", 0) + 1
+
+    save_metrics(metrics)
+    return response
 
 
 @app.middleware("http")
@@ -889,6 +1055,198 @@ def account(request: Request):
     return render(request, "account.html")
 
 
+@app.get("/admin", include_in_schema=False)
+def admin_panel(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+
+    metrics = load_metrics()
+    leads = load_leads()
+    agreements = load_agreements()
+    users = load_json(USERS_FILE, {})
+    whitelist = WHITELIST_IDS
+    admin_ids = get_admin_ids()
+
+    course = request.query_params.get("course") or ""
+    date_from = parse_date(request.query_params.get("date_from"))
+    date_to = parse_date(request.query_params.get("date_to"))
+
+    if course:
+        leads = [item for item in leads if (item.get("course") or "") == course]
+        agreements = [item for item in agreements if (item.get("course") or "") == course]
+
+    if date_from or date_to:
+        leads = [item for item in leads if within_dates(item.get("timestamp"), date_from, date_to)]
+        agreements = [item for item in agreements if within_dates(item.get("timestamp"), date_from, date_to)]
+
+    courses = sorted(
+        {
+            item.get("course")
+            for item in (load_leads() + load_agreements())
+            if item.get("course")
+        }
+    )
+
+    path_counts = metrics.get("path_counts", {})
+    path_counts_sorted = sorted(path_counts.items(), key=lambda item: item[1], reverse=True)
+
+    # simple 7-day chart for leads and enrollments
+    today = datetime.now().date()
+    days = [today - timedelta(days=offset) for offset in range(6, -1, -1)]
+    lead_counts = {d: 0 for d in days}
+    enroll_counts = {d: 0 for d in days}
+    for item in load_leads():
+        ts = item.get("timestamp")
+        if ts:
+            d = datetime.fromtimestamp(int(ts)).date()
+            if d in lead_counts:
+                lead_counts[d] += 1
+    for item in load_agreements():
+        ts = item.get("timestamp")
+        if ts:
+            d = datetime.fromtimestamp(int(ts)).date()
+            if d in enroll_counts:
+                enroll_counts[d] += 1
+    lead_chart = [{"label": d.strftime("%d.%m"), "count": lead_counts[d]} for d in days]
+    enroll_chart = [{"label": d.strftime("%d.%m"), "count": enroll_counts[d]} for d in days]
+
+    return render(
+        request,
+        "admin.html",
+        {
+            "metrics": metrics,
+            "leads": leads,
+            "agreements": agreements,
+            "users": users,
+            "whitelist": whitelist,
+            "admin_ids": admin_ids,
+            "path_counts_sorted": path_counts_sorted,
+            "user": get_current_user(request),
+            "courses": courses,
+            "filters": {
+                "course": course,
+                "date_from": request.query_params.get("date_from", ""),
+                "date_to": request.query_params.get("date_to", ""),
+            },
+            "lead_chart": lead_chart,
+            "enroll_chart": enroll_chart,
+        },
+    )
+
+
+@app.post("/admin/whitelist", include_in_schema=False)
+async def admin_update_whitelist(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+
+    form = await request.form()
+    raw = str(form.get("whitelist", "")).strip()
+    ids = []
+    for part in re.split(r"[,\n ]+", raw):
+        part = part.strip()
+        if not part:
+            continue
+        try:
+            ids.append(int(part))
+        except Exception:
+            continue
+    if ids:
+        global WHITELIST_IDS
+        WHITELIST_IDS = ids
+        save_whitelist(ids)
+    return RedirectResponse("/admin", status_code=HTTP_302_FOUND)
+
+
+@app.post("/admin/whitelist/remove", include_in_schema=False)
+async def admin_remove_whitelist(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    try:
+        target = int(form.get("id"))
+    except Exception:
+        return RedirectResponse("/admin", status_code=HTTP_302_FOUND)
+    ids = [item for item in WHITELIST_IDS if item != target]
+    if ids:
+        global WHITELIST_IDS
+        WHITELIST_IDS = ids
+        save_whitelist(ids)
+    return RedirectResponse("/admin", status_code=HTTP_302_FOUND)
+
+
+@app.get("/admin/export/leads.csv", include_in_schema=False)
+def export_leads(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["timestamp", "name", "contact", "course", "page"])
+    for item in load_leads():
+        writer.writerow([
+            item.get("timestamp"),
+            item.get("name"),
+            item.get("contact"),
+            item.get("course"),
+            item.get("page"),
+        ])
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=leads.csv"},
+    )
+
+
+@app.get("/admin/export/agreements.csv", include_in_schema=False)
+def export_agreements(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["timestamp", "course", "full_name", "phone", "email", "telegram"])
+    for item in load_agreements():
+        writer.writerow([
+            item.get("timestamp"),
+            item.get("course"),
+            item.get("full_name"),
+            item.get("phone"),
+            item.get("email"),
+            item.get("telegram"),
+        ])
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=agreements.csv"},
+    )
+
+
+@app.get("/admin/export/users.csv", include_in_schema=False)
+def export_users(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["id", "email", "name", "provider"])
+    users = load_json(USERS_FILE, {})
+    for item in users.values():
+        writer.writerow([
+            item.get("id"),
+            item.get("email"),
+            item.get("name"),
+            item.get("provider"),
+        ])
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=users.csv"},
+    )
+
+
 @app.post("/apply", include_in_schema=False)
 async def apply(request: Request):
     form = await request.form()
@@ -896,6 +1254,19 @@ async def apply(request: Request):
     contact = str(form.get("phone", "")).strip()
     course = str(form.get("course", "")).strip()
     page = request.headers.get("referer", "")
+
+    lead_payload = {
+        "timestamp": int(time.time()),
+        "name": name,
+        "contact": contact,
+        "course": course,
+        "page": page,
+        "user": get_current_user(request),
+    }
+    save_lead(lead_payload)
+    metrics = load_metrics()
+    metrics["funnel"]["apply"] = metrics["funnel"].get("apply", 0) + 1
+    save_metrics(metrics)
 
     if telegram_is_configured():
         text = (
@@ -938,6 +1309,9 @@ async def enroll(request: Request):
     }
 
     save_agreement(payload)
+    metrics = load_metrics()
+    metrics["funnel"]["enroll"] = metrics["funnel"].get("enroll", 0) + 1
+    save_metrics(metrics)
 
     if telegram_is_configured():
         text = (
