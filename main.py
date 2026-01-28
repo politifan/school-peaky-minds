@@ -596,8 +596,11 @@ async def auth_google(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)
         userinfo = None
-        if token.get("id_token"):
-            userinfo = await oauth.google.parse_id_token(request, token)
+        if isinstance(token, dict) and token.get("id_token"):
+            try:
+                userinfo = await oauth.google.parse_id_token(request, token)
+            except Exception:
+                userinfo = None
         if not userinfo:
             userinfo_resp = await oauth.google.get("userinfo")
             userinfo = userinfo_resp.json()
