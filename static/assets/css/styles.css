@@ -756,10 +756,23 @@ section {
   margin: 0 -6px;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  position: relative;
 }
 
 .course-carousel__viewport::-webkit-scrollbar {
   display: none;
+}
+
+.course-carousel__viewport::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(11, 17, 16, 0) 0%, rgba(11, 17, 16, 0.6) 55%, rgba(11, 17, 16, 0.9) 100%);
+  backdrop-filter: blur(10px);
 }
 
 .course-carousel__track {
