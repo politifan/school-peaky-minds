@@ -1,4 +1,4 @@
-{% extends "base_amp.html" %}
+{% extends "base.html" %}
 
 {% block title %}IT‑школа Peaky Minds — курсы программирования, заработок в IT и фриланс{% endblock %}
 {% block description %}IT‑школа Peaky Minds — онлайн курсы программирования и заработка в IT: Python, Full‑stack, Data Science/ML и автоматизация бизнеса. Много практики, реальные проекты, портфолио, фриланс и стажировки, помощь с резюме и трудоустройством. Обучение с нуля и для уровня базовый: мини‑группы и индивидуальные траектории.{% endblock %}
@@ -71,7 +71,7 @@
           <h1>Онлайн IT‑школа, где вы начнёте зарабатывать как разработчик ещё во время обучения</h1>
           <p class="lead">Мы учим работать в реальных задачах и доводим до результата ещё до окончания курса: портфолио, проекты, опыт, первые деньги и выход на работу. С нами вы не просто выйдите из курса в жестокий мир IT, а как разработчик уже повидавший много задач, работавший с другими разработчиками, знаниями под текущий рынок и умением ставить цены, сроки для задач.</p>
           <div class="hero-actions">
-            <button class="btn btn-primary" type="button" on="tap:apply-modal.open">Записаться на курс</button>
+            <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться на курс</button>
             <a class="btn btn-secondary" href="#courses">Выбрать курс</a>
           </div>
           <div class="archive-stack reveal">
@@ -271,8 +271,9 @@ links.forEach((link) => {
           <h2>Выберите направление</h2>
           <p>4 трека под разные цели и уровень подготовки.</p>
         </div>
-        <div class="course-carousel reveal">
-          <amp-carousel id="courses-carousel" class="course-carousel__viewport" layout="fixed-height" height="560" type="carousel" aria-label="Карточки курсов">
+        <div class="course-carousel reveal" data-carousel>
+          <div class="course-carousel__viewport" data-carousel-viewport aria-label="Карточки курсов">
+            <div class="course-carousel__track" data-carousel-track>
               <article class="course-card course-carousel__slide course-card--fullstack">
                 <div class="course-card__header">
                   <div class="course-card__tag">Full‑stack разработчик</div>
@@ -302,7 +303,7 @@ links.forEach((link) => {
                 </div>
                 <div class="course-card__actions">
                   <a class="btn btn-secondary" href="/courses/fullstack">Смотреть программу</a>
-                  <button class="btn btn-primary" type="button" on="tap:apply-modal.open">Записаться</button>
+                  <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться</button>
                 </div>
               </article>
               <article class="course-card course-carousel__slide course-card--beginners">
@@ -334,7 +335,7 @@ links.forEach((link) => {
                 </div>
                 <div class="course-card__actions">
                   <a class="btn btn-secondary" href="/courses/python-beginners">Смотреть программу</a>
-                  <button class="btn btn-primary" type="button" on="tap:apply-modal.open">Записаться</button>
+                  <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться</button>
                 </div>
               </article>
               <article class="course-card course-carousel__slide course-card--data">
@@ -366,7 +367,7 @@ links.forEach((link) => {
                 </div>
                 <div class="course-card__actions">
                   <a class="btn btn-secondary" href="/courses/data-science">Смотреть программу</a>
-                  <button class="btn btn-primary" type="button" on="tap:apply-modal.open">Записаться</button>
+                  <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться</button>
                 </div>
               </article>
               <article class="course-card course-carousel__slide course-card--business">
@@ -398,22 +399,24 @@ links.forEach((link) => {
                 </div>
                 <div class="course-card__actions">
                   <a class="btn btn-secondary" href="/courses/business">Смотреть программу</a>
-                  <button class="btn btn-primary" type="button" on="tap:apply-modal.open">Записаться</button>
+                  <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться</button>
                 </div>
               </article>
-          </amp-carousel>
+            </div>
+          </div>
           <div class="course-carousel__controls">
-            <button class="carousel-btn" type="button" on="tap:courses-carousel.prev" aria-label="Предыдущий курс">
+            <button class="carousel-btn" type="button" data-carousel-prev aria-label="Предыдущий курс">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M15 6l-6 6 6 6" />
               </svg>
             </button>
-            <button class="carousel-btn" type="button" on="tap:courses-carousel.next" aria-label="Следующий курс">
+            <button class="carousel-btn" type="button" data-carousel-next aria-label="Следующий курс">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M9 6l6 6-6 6" />
               </svg>
             </button>
           </div>
+          <div class="course-carousel__dots" data-carousel-dots></div>
         </div>
       </div>
     </section>
@@ -631,56 +634,56 @@ links.forEach((link) => {
     <section class="faq" id="faq">
       <div class="container">
         <h2 class="section-title reveal">FAQ</h2>
-        <amp-accordion class="faq-list reveal">
-          <section class="faq-item">
-            <h3>Можно ли начать с нуля?</h3>
+        <div class="faq-list reveal">
+          <div class="faq-item">
+            <button type="button">Можно ли начать с нуля?</button>
             <div class="faq-answer">Да. Мы стартуем с фундаментальных тем и постепенно выводим вас к реальным задачам. Темп и глубина подстраиваются под ваш текущий уровень.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Сколько времени нужно в неделю?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Сколько времени нужно в неделю?</button>
             <div class="faq-answer">В среднем 2–5 занятий в неделю плюс 4–6 часов практики. Если времени меньше — подстроим план и темп.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Что если я работаю или учусь?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Что если я работаю или учусь?</button>
             <div class="faq-answer">У нас гибкое расписание в окне 16:00–21:00. Составляем график, который реально выдерживать без выгорания.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Как выглядит практика?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Как выглядит практика?</button>
             <div class="faq-answer">Каждый модуль закрепляется задачами и мини‑проектами. Мы делаем код‑ревью, разбор архитектуры и доработку до «боевого» качества.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Будут ли реальные проекты?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будут ли реальные проекты?</button>
             <div class="faq-answer">Да. В курсы встроены реальные задачи, тестовые и фриланс‑блок. Вы собираете портфолио, которое можно показать работодателю.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Есть ли помощь с трудоустройством?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Есть ли помощь с трудоустройством?</button>
             <div class="faq-answer">Да, есть блок по резюме, GitHub, тестовым и собеседованиям. Помогаем выстроить стратегию откликов и первые интервью.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Сколько длится обучение и можно ли ускорить?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Сколько длится обучение и можно ли ускорить?</button>
             <div class="faq-answer">Длительность зависит от направления и старта: от 1 года до 2 лет. Если у вас уже есть база, траектория будет короче.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Как формируется стоимость и есть ли рассрочка?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Как формируется стоимость и есть ли рассрочка?</button>
             <div class="faq-answer">Стоимость — почасовая, вы оплачиваете фактические занятия. Возможна рассрочка по договорённости.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Что если я пропустил занятие?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Что если я пропустил занятие?</button>
             <div class="faq-answer">Мы переносим занятие или даём разбор ключевых тем, чтобы вы не выпадали из темпа.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Какие требования к ноутбуку?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Какие требования к ноутбуку?</button>
             <div class="faq-answer">Достаточно обычного современного ноутбука (8–16 ГБ RAM). Для ML‑задач поможем настроить облачную среду.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Можно ли сменить направление в процессе?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Можно ли сменить направление в процессе?</button>
             <div class="faq-answer">Да, если вы понимаете, что другая траектория подходит лучше. Мы корректируем план и переносим на релевантные модули.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Когда можно ожидать первые результаты?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Когда можно ожидать первые результаты?</button>
             <div class="faq-answer">Обычно первые проекты появляются через 4–8 недель. Первые реальные задания — после базового блока.</div>
-          </section>
-        </amp-accordion>
+          </div>
+        </div>
       </div>
     </section>
 

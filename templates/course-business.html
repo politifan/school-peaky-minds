@@ -1,4 +1,4 @@
-{% extends "base_amp.html" %}
+{% extends "base.html" %}
 
 {% block title %}Курс программирования для бизнеса — автоматизация и фриланс{% endblock %}
 {% block description %}Курс программирования для бизнеса: автоматизация, парсеры, боты, интеграции, отчеты и CRM‑сценарии. Быстрый старт, реальные кейсы и выход на фриланс и заработок в IT.{% endblock %}
@@ -104,7 +104,7 @@
           <h1>Программирование для бизнеса: автоматизация и быстрый выход на заработок</h1>
           <p class="lead">С нуля учим Python и доводим до реальных задач: парсинг, боты, отчёты, интеграции, автоматизация таблиц и процессов.</p>
           <div class="hero-actions">
-            <button class="btn btn-primary" type="button" on="tap:apply-modal.open">Записаться на курс</button>
+            <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться на курс</button>
             <a class="btn btn-secondary" href="#program">Смотреть программу</a>
           </div>
           <div class="archive-stack reveal">
@@ -350,40 +350,40 @@ pe.save_as(records=summary, dest_file_name="report.xlsx")
         <section class="faq" id="faq">
       <div class="container">
         <h2 class="section-title reveal">FAQ</h2>
-        <amp-accordion class="faq-list reveal">
-          <section class="faq-item">
-            <h3>Нужен ли опыт в программировании?</h3>
+        <div class="faq-list reveal">
+          <div class="faq-item">
+            <button type="button">Нужен ли опыт в программировании?</button>
             <div class="faq-answer">Нет. Курс рассчитан на новичков и быстрый практический старт.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Можно ли начать зарабатывать быстро?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Можно ли начать зарабатывать быстро?</button>
             <div class="faq-answer">Да, фриланс‑блок заложен в программу, мы учим искать заказы и оформлять отклики.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Какие проекты будут в портфолио?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Какие проекты будут в портфолио?</button>
             <div class="faq-answer">Парсеры, боты, отчеты и интеграции для бизнеса — реальные кейсы, а не учебные «демки».</div>
-          </section>
-          <section class="faq-item">
-            <h3>Будут ли Telegram‑боты и парсинг?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будут ли Telegram‑боты и парсинг?</button>
             <div class="faq-answer">Да. Эти блоки — ядро программы, их можно быстро монетизировать.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Можно ли автоматизировать свой бизнес?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Можно ли автоматизировать свой бизнес?</button>
             <div class="faq-answer">Да. Мы поможем разобрать ваши процессы и собрать инструмент под вашу задачу.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Как проходит практика?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Как проходит практика?</button>
             <div class="faq-answer">Каждый модуль завершается задачей с реальными данными и разбором кода.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Сколько времени нужно в неделю?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Сколько времени нужно в неделю?</button>
             <div class="faq-answer">2–4 занятия + самостоятельные задачи. График можно подстроить.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Помогаете ли с фрилансом?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Помогаете ли с фрилансом?</button>
             <div class="faq-answer">Да. Учим искать заказы, формировать портфолио и вести переговоры.</div>
-          </section>
-        </amp-accordion>
+          </div>
+        </div>
       </div>
     </section>
 

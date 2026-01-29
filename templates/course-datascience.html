@@ -1,4 +1,4 @@
-{% extends "base_amp.html" %}
+{% extends "base.html" %}
 
 {% block title %}Курс Data Science/ML — нейросети, заработок в IT и фриланс{% endblock %}
 {% block description %}Курс Data Science и ML: PyTorch, Hugging Face, компьютерное зрение, NLP, прод‑инференс и API. Практика, проекты и портфолио для выхода на заработок в IT, фриланс и стажировки. Подходит с базой Python.{% endblock %}
@@ -104,7 +104,7 @@
           <h1>Data Science / ML Engineer: обучение с практикой, моделями и API</h1>
           <p class="lead">Вы освоите Python, анализ данных, PyTorch, Hugging Face, CV2 и научитесь разворачивать ML‑модели как сервисы через FastAPI.</p>
           <div class="hero-actions">
-            <button class="btn btn-primary" type="button" on="tap:apply-modal.open">Записаться на курс</button>
+            <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться на курс</button>
             <a class="btn btn-secondary" href="#program">Смотреть программу</a>
           </div>
           <div class="archive-stack reveal">
@@ -354,40 +354,40 @@ logits = model(batch)
         <section class="faq" id="faq">
       <div class="container">
         <h2 class="section-title reveal">FAQ</h2>
-        <amp-accordion class="faq-list reveal">
-          <section class="faq-item">
-            <h3>Нужна ли математика?</h3>
+        <div class="faq-list reveal">
+          <div class="faq-item">
+            <button type="button">Нужна ли математика?</button>
             <div class="faq-answer">Достаточно базовых основ. Сложную математику объясняем в момент, когда она реально нужна.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Будет ли практика с данными?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будет ли практика с данными?</button>
             <div class="faq-answer">Да, мы работаем с реальными датасетами и задачами бизнеса, а не только с учебными примерами.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Сколько проектов в портфолио?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Сколько проектов в портфолио?</button>
             <div class="faq-answer">Минимум 3 серьёзных проекта: NLP, CV и табличные данные.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Будет ли обучение моделей на PyTorch?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будет ли обучение моделей на PyTorch?</button>
             <div class="faq-answer">Да, от базовых нейросетей до трансформеров и fine‑tuning.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Будет ли деплой моделей?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будет ли деплой моделей?</button>
             <div class="faq-answer">Да, разворачиваем inference‑сервисы через FastAPI и учим выкатывать в прод.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Нужна ли мощная видеокарта?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Нужна ли мощная видеокарта?</button>
             <div class="faq-answer">Нет. Мы поможем настроить облачную среду, если локальной мощности не хватает.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Есть ли подготовка к стажировке?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Есть ли подготовка к стажировке?</button>
             <div class="faq-answer">Да, отдельный блок по резюме, портфолио и интервью.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Сколько времени нужно в неделю?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Сколько времени нужно в неделю?</button>
             <div class="faq-answer">В среднем 2–4 занятия в неделю + самостоятельная практика по задачам.</div>
-          </section>
-        </amp-accordion>
+          </div>
+        </div>
       </div>
     </section>
 

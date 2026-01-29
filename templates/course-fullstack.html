@@ -1,4 +1,4 @@
-{% extends "base_amp.html" %}
+{% extends "base.html" %}
 
 {% block title %}Курс Full‑stack — заработок в IT, фриланс, backend на FastAPI{% endblock %}
 {% block description %}Курс Full‑stack разработчик: backend на FastAPI и SQLAlchemy, базы данных, архитектура, деплой и DevOps‑основы. Реальные проекты, портфолио и выход на заработок в IT и фриланс. Подходит с нуля и для уровня базовый.{% endblock %}
@@ -104,7 +104,7 @@
           <h1>Full‑stack разработчик: от нуля до реальной backend‑разработки</h1>
           <p class="lead">Вы освоите Python, ООП, базы данных и backend на FastAPI. В процессе курса собираем портфолио и выходим на реальные задачи и работу.</p>
           <div class="hero-actions">
-            <button class="btn btn-primary" type="button" on="tap:apply-modal.open">Записаться на курс</button>
+            <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться на курс</button>
             <a class="btn btn-secondary" href="#program">Смотреть программу</a>
           </div>
           <div class="archive-stack reveal">
@@ -353,40 +353,40 @@ def course(slug: str):
         <section class="faq" id="faq">
       <div class="container">
         <h2 class="section-title reveal">FAQ</h2>
-        <amp-accordion class="faq-list reveal">
-          <section class="faq-item">
-            <h3>Нужно ли знание Python?</h3>
+        <div class="faq-list reveal">
+          <div class="faq-item">
+            <button type="button">Нужно ли знание Python?</button>
             <div class="faq-answer">Нет. Мы начинаем с базы и постепенно выстраиваем уверенный уровень для backend‑задач.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Как быстро появится первый проект?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Как быстро появится первый проект?</button>
             <div class="faq-answer">Первый проект появляется уже на ранних модулях — обычно в первые 4–6 недель.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Будет ли портфолио?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будет ли портфолио?</button>
             <div class="faq-answer">Да, вы соберёте портфолио из нескольких API‑сервисов с документацией и деплоем.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Какие темы по backend будут точно?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Какие темы по backend будут точно?</button>
             <div class="faq-answer">REST API, авторизация, роли, базы данных, миграции, тестирование, деплой и базовый DevOps.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Будет ли практика с базами данных?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будет ли практика с базами данных?</button>
             <div class="faq-answer">Да. Мы проектируем схемы, пишем SQL, работаем с ORM и оптимизацией запросов.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Будет ли деплой в прод?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будет ли деплой в прод?</button>
             <div class="faq-answer">Да. Мы учимся упаковывать проект в Docker и выкатывать на сервер.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Как проходит код‑ревью?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Как проходит код‑ревью?</button>
             <div class="faq-answer">Каждую задачу проверяем и дорабатываем до качества, близкого к рабочему.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Помогаете ли с трудоустройством?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Помогаете ли с трудоустройством?</button>
             <div class="faq-answer">Да. Есть отдельный блок по резюме, GitHub и тестовым заданиям.</div>
-          </section>
-        </amp-accordion>
+          </div>
+        </div>
       </div>
     </section>
 

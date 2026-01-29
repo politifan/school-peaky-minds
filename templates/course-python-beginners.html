@@ -1,4 +1,4 @@
-{% extends "base_amp.html" %}
+{% extends "base.html" %}
 
 {% block title %}Курс Python для новичков — обучение с нуля, фриланс и заработок в IT{% endblock %}
 {% block description %}Курс Python для новичков: обучение с нуля, практика с первых недель, мини‑проекты, Git и основы разработки. Формируем портфолио и путь к первым заказам, фрилансу и заработку в IT.{% endblock %}
@@ -88,7 +88,7 @@
           <h1>Python для новичков: быстрый старт в программировании</h1>
           <p class="lead">Осваиваем Python с нуля и сразу закрепляем на практике. Уже во время обучения собираете первые проекты, портфолио и опыт решения реальных задач.</p>
           <div class="hero-actions">
-            <button class="btn btn-primary" type="button" on="tap:apply-modal.open">Записаться на курс</button>
+            <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться на курс</button>
             <a class="btn btn-secondary" href="#program">Смотреть программу</a>
           </div>
           <div class="archive-stack reveal">
@@ -312,20 +312,20 @@ print("Средняя цена:", sum(prices) / len(prices))
         <section class="faq" id="faq">
       <div class="container">
         <h2 class="section-title reveal">FAQ</h2>
-        <amp-accordion class="faq-list reveal">
-          <section class="faq-item">
-            <h3>Нужен ли опыт программирования?</h3>
+        <div class="faq-list reveal">
+          <div class="faq-item">
+            <button type="button">Нужен ли опыт программирования?</button>
             <div class="faq-answer">Нет, курс рассчитан на полный ноль.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Подойдёт ли курс школьникам или студентам?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Подойдёт ли курс школьникам или студентам?</button>
             <div class="faq-answer">Да, если есть интерес к IT и готовность практиковаться.</div>
-          </section>
-          <section class="faq-item">
-            <h3>Будут ли проекты?</h3>
+          </div>
+          <div class="faq-item">
+            <button type="button">Будут ли проекты?</button>
             <div class="faq-answer">Да, 2–3 проекта с разбором и публикацией на GitHub.</div>
-          </section>
-        </amp-accordion>
+          </div>
+        </div>
       </div>
     </section>
 
