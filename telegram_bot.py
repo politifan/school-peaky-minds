@@ -1,4 +1,5 @@
 import asyncio
+import html
 import json
 import logging
 import os
@@ -6,6 +7,7 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
+from urllib.parse import quote_plus
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
@@ -38,6 +40,7 @@ load_env(ENV_PATH)
 
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+APP_BASE_URL = os.getenv("APP_BASE_URL", "").rstrip("/")
 DEFAULT_WHITELIST = [980343575, 1065558838, 1547353132]
 
 STATUS_META = {
@@ -50,6 +53,19 @@ STATUS_META = {
     "in_progress": "В работе",
     "closed": "Закрыта",
     "archived": "Архив",
+}
+
+STATUS_EMOJI = {
+    "new": "🆕",
+    "contacted": "📞",
+    "qualified": "✅",
+    "call_scheduled": "📅",
+    "paid": "💰",
+    "lost": "❌",
+    "in_progress": "⏳",
+    "closed": "📦",
+    "archived": "🗄",
+    "auto": "🤖",
 }
 
 STATUS_BUTTON_ROWS = [
@@ -165,22 +181,70 @@ def normalize_tags(value: object) -> str:
         raw = ",".join([str(item) for item in value])
     else:
         raw = str(value)
-    parts = [part.strip() for part in raw.split(",") if part.strip()]
+    raw = raw.replace("#", " ")
+    parts = [part.strip() for part in raw.replace("\n", ",").replace(";", ",").split(",") if part.strip()]
+    if not parts:
+        parts = [part.strip() for part in raw.split() if part.strip()]
     return ", ".join(parts)
 
 
-def build_status_keyboard(file_name: str, selected: Optional[str] = None) -> InlineKeyboardMarkup:
+def format_tags_display(value: object) -> str:
+    tags = normalize_tags(value)
+    if not tags:
+        return ""
+    return " ".join([f"#{tag.replace('#', '').strip()}" for tag in tags.split(",") if tag.strip()])
+
+
+def normalize_phone(value: object) -> str:
+    digits = "".join(ch for ch in str(value or "") if ch.isdigit())
+    if not digits:
+        return ""
+    if len(digits) == 11 and digits.startswith("8"):
+        digits = "7" + digits[1:]
+    if not digits.startswith("+"):
+        digits = f"+{digits}"
+    return digits
+
+
+def build_tel_link(value: object) -> Optional[str]:
+    phone = normalize_phone(value)
+    return f"tel:{phone}" if phone else None
+
+
+def build_whatsapp_link(value: object) -> Optional[str]:
+    phone = normalize_phone(value).replace("+", "")
+    return f"https://wa.me/{phone}" if phone else None
+
+
+def build_admin_url(item: Dict[str, object]) -> Optional[str]:
+    if not APP_BASE_URL:
+        return None
+    contact = str(item.get("contact") or "").strip()
+    name = str(item.get("name") or "").strip()
+    query = contact or name
+    if not query:
+        return f"{APP_BASE_URL}/admin?view=leads"
+    return f"{APP_BASE_URL}/admin?view=leads&q={quote_plus(query)}"
+
+
+def build_status_keyboard(
+    file_name: str,
+    selected: Optional[str] = None,
+    admin_url: Optional[str] = None,
+) -> InlineKeyboardMarkup:
     rows: List[List[InlineKeyboardButton]] = []
     for row in STATUS_BUTTON_ROWS:
         buttons = []
         for key in row:
             label = "Авто" if key == "auto" else STATUS_META.get(key, key)
+            emoji = STATUS_EMOJI.get(key, "")
             if selected and key == selected:
                 label = f"✅ {label}"
-            buttons.append(
-                InlineKeyboardButton(text=label, callback_data=f"lead:{file_name}:{key}")
-            )
+            text = f"{emoji} {label}".strip()
+            buttons.append(InlineKeyboardButton(text=text, callback_data=f"lead:{file_name}:{key}"))
         rows.append(buttons)
+    if admin_url:
+        rows.append([InlineKeyboardButton(text="🧭 Открыть в админке", url=admin_url)])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
@@ -190,27 +254,50 @@ def build_lead_text(item: Dict[str, object]) -> str:
     course = str(item.get("course") or "—")
     page = str(item.get("page") or "—")
     note = str(item.get("note") or "").strip()
-    tags = normalize_tags(item.get("tags"))
+    tags_display = format_tags_display(item.get("tags"))
     next_contact = str(item.get("next_contact") or "").strip() or "—"
+    safe_name = html.escape(name)
+    safe_contact = html.escape(contact)
+    safe_course = html.escape(course)
+    safe_page = html.escape(page)
+    safe_note = html.escape(note)
+    safe_tags = html.escape(tags_display)
+    safe_next = html.escape(next_contact)
     lead_id = lead_short_id(str(item.get("_file") or ""))
     status_key, status_label = status_from_item(item)
     title = "🆕 <b>Новая заявка</b>" if status_key == "new" else "🧾 <b>Заявка</b>"
+    status_emoji = STATUS_EMOJI.get(status_key, "📌")
+    tel_link = build_tel_link(contact)
+    wa_link = build_whatsapp_link(contact)
     lines = [
         title,
         f"🆔 <b>ID:</b> <code>{lead_id}</code>",
-        f"📌 <b>Статус:</b> {status_label}",
+        f"{status_emoji} <b>Статус:</b> {status_label}",
         f"🕒 <b>Время:</b> {format_ts(item.get('timestamp'))}",
-        f"👤 <b>Имя:</b> {name}",
-        f"📱 <b>Контакт:</b> {contact}",
-        f"🎯 <b>Курс:</b> {course}",
-        f"🔗 <b>Страница:</b> {page}",
+        "",
+        "<b>Контакт</b>",
+        f"👤 {safe_name}",
+        f"📱 {safe_contact}",
+        f"🎯 {safe_course}",
+        "",
+        "<b>Источник</b>",
+        f"🔗 {safe_page}",
     ]
-    if tags:
-        lines.append(f"🏷 <b>Теги:</b> {tags}")
-    if note:
-        lines.append(f"📝 <b>Заметка:</b> {note}")
-    if next_contact and next_contact != "—":
-        lines.append(f"📅 <b>След. контакт:</b> {next_contact}")
+    if safe_tags:
+        lines.append(f"🏷 <b>Теги:</b> {safe_tags}")
+    if safe_note:
+        lines.append(f"📝 <b>Заметка:</b> {safe_note}")
+    if safe_next and safe_next != "—":
+        lines.append(f"📅 <b>След. контакт:</b> {safe_next}")
+    actions = []
+    if tel_link:
+        actions.append(f"<a href=\"{tel_link}\">📞 Позвонить</a>")
+    if wa_link:
+        actions.append(f"<a href=\"{wa_link}\">💬 WhatsApp</a>")
+    if actions:
+        lines.append("")
+        lines.append("<b>Быстрые действия</b>")
+        lines.append(" | ".join(actions))
     return "\n".join(lines)
 
 
@@ -284,7 +371,7 @@ async def send_lead_message(text: str, lead_file: Optional[str] = None) -> bool:
                     lead_item["_file"] = lead_file
                     text = build_lead_text(lead_item)
                     status_key, _ = status_from_item(lead_item)
-                    keyboard = build_status_keyboard(lead_file, status_key)
+                    keyboard = build_status_keyboard(lead_file, status_key, build_admin_url(lead_item))
         for chat_id in current_whitelist():
             try:
                 await bot.send_message(
@@ -312,16 +399,18 @@ async def _start(message: Message) -> None:
         return
     logger.info("Received /start from user_id=%s", user_id)
     await message.answer(
-        "Бот подключен. Заявки будут приходить сюда.\n\n"
-        "Команды:\n"
-        "/leads [N] — последние заявки\n"
-        "/lead <id> — карточка заявки\n"
-        "/find <текст> — поиск по заявкам\n"
-        "/status <id> <статус> — сменить статус\n"
-        "/note <id> <текст> — заметка\n"
-        "/tags <id> <теги> — теги\n"
-        "/next <id> <YYYY-MM-DD> — следующий контакт\n"
-        "/stats — сводка статусов"
+        "👋 <b>Бот подключен</b>\n"
+        "Заявки будут приходить сюда.\n\n"
+        "<b>Быстрые команды</b>\n"
+        "• /leads <code>N</code> — последние заявки\n"
+        "• /lead <code>&lt;id&gt;</code> — карточка заявки\n"
+        "• /find <code>&lt;текст&gt;</code> — поиск\n"
+        "• /status <code>&lt;id&gt; &lt;статус&gt;</code> — сменить статус\n"
+        "• /note <code>&lt;id&gt; &lt;текст&gt;</code> — заметка\n"
+        "• /tags <code>&lt;id&gt; &lt;теги&gt;</code> — теги\n"
+        "• /next <code>&lt;id&gt; &lt;YYYY-MM-DD&gt;</code> — следующий контакт\n"
+        "• /stats — сводка статусов\n"
+        "• /help — подробная справка"
     )
 
 
@@ -330,16 +419,20 @@ async def _help(message: Message) -> None:
     if user_id not in current_whitelist():
         return
     await message.answer(
-        "Доступные команды:\n"
-        "/leads [N] — последние заявки\n"
-        "/lead <id> — карточка заявки\n"
-        "/find <текст> — поиск по заявкам\n"
-        "/status <id> <статус> — сменить статус\n"
-        "/note <id> <текст> — заметка\n"
-        "/tags <id> <теги> — теги\n"
-        "/next <id> <YYYY-MM-DD> — следующий контакт\n"
-        "/stats — сводка статусов\n\n"
-        "Статусы: new, contacted, qualified, call_scheduled, paid, lost, in_progress, closed, archived, auto"
+        "🧭 <b>Справка по боту</b>\n\n"
+        "<b>Заявки</b>\n"
+        "• /leads <code>N</code> — последние заявки\n"
+        "• /lead <code>&lt;id&gt;</code> — карточка заявки\n"
+        "• /find <code>&lt;текст&gt;</code> — поиск по заявкам\n\n"
+        "<b>Работа с заявкой</b>\n"
+        "• /status <code>&lt;id&gt; &lt;статус&gt;</code> — сменить статус\n"
+        "• /note <code>&lt;id&gt; &lt;текст&gt;</code> — заметка\n"
+        "• /tags <code>&lt;id&gt; &lt;теги&gt;</code> — теги\n"
+        "• /next <code>&lt;id&gt; &lt;YYYY-MM-DD&gt;</code> — следующий контакт\n\n"
+        "<b>Сводка</b>\n"
+        "• /stats — статистика по статусам\n\n"
+        "<b>Статусы</b>\n"
+        "<code>new, contacted, qualified, call_scheduled, paid, lost, in_progress, closed, archived, auto</code>"
     )
 
 
@@ -362,9 +455,10 @@ async def _leads(message: Message) -> None:
     for lead in leads:
         file_name = str(lead.get("_file") or "")
         status_key, _ = status_from_item(lead)
+        admin_url = build_admin_url(lead)
         await message.answer(
             build_lead_text(lead),
-            reply_markup=build_status_keyboard(file_name, status_key),
+            reply_markup=build_status_keyboard(file_name, status_key, admin_url),
             disable_web_page_preview=True,
         )
 
@@ -375,7 +469,7 @@ async def _lead(message: Message) -> None:
         return
     parts = message.text.split(maxsplit=1) if message.text else []
     if len(parts) < 2:
-        await message.answer("Использование: /lead <id>")
+        await message.answer("Использование: /lead &lt;id&gt;")
         return
     token = parts[1].strip()
     path = find_lead_file(token)
@@ -385,9 +479,10 @@ async def _lead(message: Message) -> None:
     lead = load_json(path, {})
     lead["_file"] = path.name
     status_key, _ = status_from_item(lead)
+    admin_url = build_admin_url(lead)
     await message.answer(
         build_lead_text(lead),
-        reply_markup=build_status_keyboard(path.name, status_key),
+        reply_markup=build_status_keyboard(path.name, status_key, admin_url),
         disable_web_page_preview=True,
     )
 
@@ -398,7 +493,7 @@ async def _find(message: Message) -> None:
         return
     parts = message.text.split(maxsplit=1) if message.text else []
     if len(parts) < 2:
-        await message.answer("Использование: /find <текст>")
+        await message.answer("Использование: /find &lt;текст&gt;")
         return
     query = parts[1].strip().lower()
     results = []
@@ -418,14 +513,15 @@ async def _find(message: Message) -> None:
     if not results:
         await message.answer("Ничего не найдено.")
         return
-    lines = ["Найденные заявки:"]
+    lines = ["🔎 <b>Найденные заявки</b>"]
     for lead in results:
         lead_id = lead_short_id(str(lead.get("_file") or ""))
         status_key, status_label = status_from_item(lead)
-        name = str(lead.get("name") or "—")
-        contact = str(lead.get("contact") or "—")
-        lines.append(f"• <code>{lead_id}</code> — {name} ({contact}) — {status_label}")
-    lines.append("\nОткрыть карточку: /lead <id>")
+        name = html.escape(str(lead.get("name") or "—"))
+        contact = html.escape(str(lead.get("contact") or "—"))
+        emoji = STATUS_EMOJI.get(status_key, "📌")
+        lines.append(f"{emoji} <code>{lead_id}</code> — {name} ({contact}) — {status_label}")
+    lines.append("\nОткрыть карточку: /lead <code>&lt;id&gt;</code>")
     await message.answer("\n".join(lines))
 
 
@@ -435,7 +531,7 @@ async def _status(message: Message) -> None:
         return
     parts = message.text.split(maxsplit=2) if message.text else []
     if len(parts) < 3:
-        await message.answer("Использование: /status <id> <статус>")
+        await message.answer("Использование: /status &lt;id&gt; &lt;статус&gt;")
         return
     token = parts[1].strip()
     status_key = parts[2].strip().lower()
@@ -461,7 +557,7 @@ async def _note(message: Message) -> None:
         return
     parts = message.text.split(maxsplit=2) if message.text else []
     if len(parts) < 3:
-        await message.answer("Использование: /note <id> <текст>")
+        await message.answer("Использование: /note &lt;id&gt; &lt;текст&gt;")
         return
     path = find_lead_file(parts[1].strip())
     if not path:
@@ -480,7 +576,7 @@ async def _tags(message: Message) -> None:
         return
     parts = message.text.split(maxsplit=2) if message.text else []
     if len(parts) < 3:
-        await message.answer("Использование: /tags <id> <теги через запятую>")
+        await message.answer("Использование: /tags &lt;id&gt; &lt;теги через запятую&gt;")
         return
     path = find_lead_file(parts[1].strip())
     if not path:
@@ -499,7 +595,7 @@ async def _next(message: Message) -> None:
         return
     parts = message.text.split(maxsplit=2) if message.text else []
     if len(parts) < 3:
-        await message.answer("Использование: /next <id> <YYYY-MM-DD>")
+        await message.answer("Использование: /next &lt;id&gt; &lt;YYYY-MM-DD&gt;")
         return
     path = find_lead_file(parts[1].strip())
     if not path:
@@ -524,9 +620,10 @@ async def _stats(message: Message) -> None:
     for lead in leads:
         status_key, _ = status_from_item(lead)
         counts[status_key] = counts.get(status_key, 0) + 1
-    lines = [f"Всего заявок: {len(leads)}"]
+    lines = ["📊 <b>Статусы заявок</b>", f"Всего: <b>{len(leads)}</b>", ""]
     for key, label in STATUS_META.items():
-        lines.append(f"{label}: {counts.get(key, 0)}")
+        emoji = STATUS_EMOJI.get(key, "•")
+        lines.append(f"{emoji} {label}: <b>{counts.get(key, 0)}</b>")
     await message.answer("\n".join(lines))
 
 
@@ -551,9 +648,21 @@ async def _status_callback(callback: CallbackQuery) -> None:
         return
     label = "Авто" if not status_value else STATUS_META[status_value]
     try:
-        await callback.message.edit_reply_markup(
-            reply_markup=build_status_keyboard(lead_file, status_key)
-        )
+        lead_path = LEADS_DIR / lead_file
+        if lead_path.exists():
+            lead = load_json(lead_path, {})
+            lead["_file"] = lead_file
+            status_key, _ = status_from_item(lead)
+            await callback.message.edit_text(
+                build_lead_text(lead),
+                reply_markup=build_status_keyboard(lead_file, status_key, build_admin_url(lead)),
+                disable_web_page_preview=True,
+                parse_mode=ParseMode.HTML,
+            )
+        else:
+            await callback.message.edit_reply_markup(
+                reply_markup=build_status_keyboard(lead_file, status_key)
+            )
     except Exception:
         pass
     await callback.answer(f"Статус обновлён: {label}")
