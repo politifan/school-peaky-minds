@@ -2426,6 +2426,11 @@ select:focus {
   transform: translateY(0);
 }
 
+html[amp] .reveal {
+  opacity: 1;
+  transform: none;
+}
+
 @media (max-width: 1024px) {
   .hero-grid,
   .cta-box,
