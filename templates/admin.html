@@ -51,60 +51,27 @@
 
         {% if view == 'overview' %}
         <section class="panel" id="admin-overview" style="margin-top: 24px;">
-      <div class="admin-section-head">
-        <h2 class="section-title">Обзор</h2>
-        <div class="admin-section-actions">
-          <span class="admin-badge">Заявки: {{ metrics.funnel.apply }}</span>
-          <span class="admin-badge">Покупки: {{ metrics.funnel.enroll }}</span>
-        </div>
-      </div>
-      <div class="admin-kpi-grid">
-        {% for kpi in kpis %}
-        <div class="card kpi-card">
-          <div class="kpi-label">{{ kpi.label }}</div>
-          <div class="kpi-value">{{ kpi.value }}</div>
-          <div class="kpi-note">{{ kpi.note }}</div>
-        </div>
-        {% endfor %}
-      </div>
-      <div class="admin-grid two" style="margin-top: 18px;">
-        <div class="card">
-          <div class="course-meta">Заявки за 7 дней</div>
-          <div class="admin-chart">
-            {% for point in lead_chart %}
-            <div class="admin-chart__row">
-              <span>{{ point.label }}</span>
-              <div class="admin-chart__bar">
-                <div style="width: {{ point.pct }}%;"></div>
-              </div>
-              <strong>{{ point.count }}</strong>
+          <div class="admin-section-head">
+            <h2 class="section-title">Обзор</h2>
+            <div class="admin-section-actions">
+              <span class="admin-badge">Заявки: {{ metrics.funnel.apply }}</span>
+              <span class="admin-badge">Покупки: {{ metrics.funnel.enroll }}</span>
+            </div>
+          </div>
+          <div class="admin-kpi-grid">
+            {% for kpi in kpis %}
+            <div class="card kpi-card">
+              <div class="kpi-label">{{ kpi.label }}</div>
+              <div class="kpi-value">{{ kpi.value }}</div>
+              <div class="kpi-note">{{ kpi.note }}</div>
             </div>
             {% endfor %}
           </div>
-        </div>
-        <div class="card">
-          <div class="course-meta">Покупки за 7 дней</div>
-          <div class="admin-chart">
-            {% for point in enroll_chart %}
-            <div class="admin-chart__row">
-              <span>{{ point.label }}</span>
-              <div class="admin-chart__bar">
-                <div style="width: {{ point.pct }}%;"></div>
-              </div>
-              <strong>{{ point.count }}</strong>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-      <div class="admin-grid two" style="margin-top: 18px;">
-        <div class="card">
-          <div class="course-meta">Недели (8 недель)</div>
-          <div class="admin-grid" style="margin-top: 12px;">
-            <div>
-              <div class="course-meta">Заявки</div>
+          <div class="admin-grid two" style="margin-top: 18px;">
+            <div class="card">
+              <div class="course-meta">Заявки за 7 дней</div>
               <div class="admin-chart">
-                {% for point in weekly_leads %}
+                {% for point in lead_chart %}
                 <div class="admin-chart__row">
                   <span>{{ point.label }}</span>
                   <div class="admin-chart__bar">
@@ -115,10 +82,10 @@
                 {% endfor %}
               </div>
             </div>
-            <div>
-              <div class="course-meta">Покупки</div>
+            <div class="card">
+              <div class="course-meta">Покупки за 7 дней</div>
               <div class="admin-chart">
-                {% for point in weekly_enrolls %}
+                {% for point in enroll_chart %}
                 <div class="admin-chart__row">
                   <span>{{ point.label }}</span>
                   <div class="admin-chart__bar">
@@ -130,195 +97,82 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="card">
-          <div class="course-meta">Месяцы (6 месяцев)</div>
-          <div class="admin-grid" style="margin-top: 12px;">
-            <div>
-              <div class="course-meta">Заявки</div>
-              <div class="admin-chart">
-                {% for point in monthly_leads %}
-                <div class="admin-chart__row">
-                  <span>{{ point.label }}</span>
-                  <div class="admin-chart__bar">
-                    <div style="width: {{ point.pct }}%;"></div>
+          <div class="admin-grid two" style="margin-top: 18px;">
+            <div class="card">
+              <div class="course-meta">Воронка</div>
+              <div class="funnel-list">
+                {% for step in funnel_steps %}
+                <div class="funnel-item">
+                  <div>
+                    <div class="funnel-title">{{ step.label }}</div>
+                    <div class="funnel-meta">{{ step.count }} · {{ step.rate }}</div>
                   </div>
-                  <strong>{{ point.count }}</strong>
+                  <div class="funnel-bar">
+                    <div style="width: {{ step.pct }}%;"></div>
+                  </div>
                 </div>
                 {% endfor %}
               </div>
             </div>
-            <div>
-              <div class="course-meta">Покупки</div>
-              <div class="admin-chart">
-                {% for point in monthly_enrolls %}
-                <div class="admin-chart__row">
-                  <span>{{ point.label }}</span>
-                  <div class="admin-chart__bar">
-                    <div style="width: {{ point.pct }}%;"></div>
+            <div class="card">
+              <div class="course-meta">Pipeline продаж</div>
+              <div class="funnel-list">
+                {% for step in pipeline_steps %}
+                <div class="funnel-item">
+                  <div>
+                    <div class="funnel-title">{{ step.label }}</div>
+                    <div class="funnel-meta">{{ step.count }}</div>
                   </div>
-                  <strong>{{ point.count }}</strong>
+                  <div class="funnel-bar">
+                    <div style="width: {{ step.pct }}%;"></div>
+                  </div>
                 </div>
                 {% endfor %}
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="admin-grid two" style="margin-top: 18px;">
-        <div class="card">
-          <div class="course-meta">Воронка</div>
-          <div class="funnel-list">
-            {% for step in funnel_steps %}
-            <div class="funnel-item">
-              <div>
-                <div class="funnel-title">{{ step.label }}</div>
-                <div class="funnel-meta">{{ step.count }} · {{ step.rate }}</div>
+          <div class="admin-grid two" style="margin-top: 18px;">
+            <div class="card">
+              <div class="course-meta">SLA и просрочки</div>
+              <div class="admin-list">
+                <li><span>Среднее время ответа</span><strong>{% if avg_response %}{{ avg_response }} мин{% else %}—{% endif %}</strong></li>
+                <li><span>Просроченные лиды</span><strong>{{ stale_leads|length }}</strong></li>
               </div>
-              <div class="funnel-bar">
-                <div style="width: {{ step.pct }}%;"></div>
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-        <div class="card">
-          <div class="course-meta">Источники заявок</div>
-          {% if sources_sorted %}
-            <ul class="admin-list">
-              {% for source, count in sources_sorted %}
-              <li><span class="admin-truncate" title="{{ source }}">{{ source }}</span><strong>{{ count }}</strong></li>
-              {% endfor %}
-            </ul>
-          {% else %}
-            <p>Пока нет данных.</p>
-          {% endif %}
-          <div style="height: 12px;"></div>
-          <div class="course-meta">Последние заявки</div>
-          {% if recent_leads %}
-          <ul class="admin-list">
-            {% for lead in recent_leads %}
-            <li>
-              <span class="admin-truncate" title="{{ lead.name }}">{{ lead.name }}</span>
-              <span class="admin-status {{ lead.status_class }}">{{ lead.status_label }}</span>
-            </li>
-            {% endfor %}
-          </ul>
-          {% else %}
-          <p>Пока нет данных.</p>
-          {% endif %}
-        </div>
-      </div>
-      <div class="admin-grid two" style="margin-top: 18px;">
-        <div class="card">
-          <div class="course-meta">Pipeline продаж</div>
-          <div class="funnel-list">
-            {% for step in pipeline_steps %}
-            <div class="funnel-item">
-              <div>
-                <div class="funnel-title">{{ step.label }}</div>
-                <div class="funnel-meta">{{ step.count }}</div>
-              </div>
-              <div class="funnel-bar">
-                <div style="width: {{ step.pct }}%;"></div>
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-        <div class="card">
-          <div class="course-meta">SLA и просрочки</div>
-          <div class="admin-list">
-            <li><span>Среднее время ответа</span><strong>{% if avg_response %}{{ avg_response }} мин{% else %}—{% endif %}</strong></li>
-            <li><span>Просроченные лиды</span><strong>{{ stale_leads|length }}</strong></li>
-          </div>
-          <div style="height: 12px;"></div>
-          <div class="course-meta">Просроченные лиды</div>
-          {% if stale_leads %}
-          <ul class="admin-list">
-            {% for lead in stale_leads %}
-            <li>
-              <span class="admin-truncate" title="{{ lead.name }}">{{ lead.name }}</span>
-              <strong>{{ lead.age }}ч</strong>
-            </li>
-            {% endfor %}
-          </ul>
-          {% else %}
-          <p>Нет просроченных лидов.</p>
-          {% endif %}
-        </div>
-      </div>
-      <div class="admin-grid two" style="margin-top: 18px;">
-        <div class="card">
-          <div class="course-meta">UTM источники</div>
-          {% if utm_sources %}
-          <ul class="admin-list">
-            {% for label, count in utm_sources %}
-            <li><span class="admin-truncate" title="{{ label }}">{{ label }}</span><strong>{{ count }}</strong></li>
-            {% endfor %}
-          </ul>
-          {% else %}
-          <p>Пока нет UTM-источников.</p>
-          {% endif %}
-        </div>
-        <div class="card">
-          <div class="course-meta">UTM кампании</div>
-          {% if utm_campaigns %}
-          <ul class="admin-list">
-            {% for label, count in utm_campaigns %}
-            <li><span class="admin-truncate" title="{{ label }}">{{ label }}</span><strong>{{ count }}</strong></li>
-            {% endfor %}
-          </ul>
-          {% else %}
-          <p>Пока нет UTM-кампаний.</p>
-          {% endif %}
-          <div style="height: 12px;"></div>
-          <div class="course-meta">UTM medium</div>
-          {% if utm_mediums %}
-          <ul class="admin-list">
-            {% for label, count in utm_mediums %}
-            <li><span class="admin-truncate" title="{{ label }}">{{ label }}</span><strong>{{ count }}</strong></li>
-            {% endfor %}
-          </ul>
-          {% else %}
-          <p>Пока нет UTM-medium.</p>
-          {% endif %}
-        </div>
-      </div>
-      <div class="admin-grid two" style="margin-top: 18px;">
-        <div class="card">
-          <div class="course-meta">Топ страниц</div>
-          {% if path_counts_sorted %}
-            <ul class="admin-list">
-              {% for path, count in path_counts_sorted[:6] %}
-              <li><span class="admin-truncate" title="{{ path }}">{{ path }}</span><strong>{{ count }}</strong></li>
-              {% endfor %}
-            </ul>
-          {% else %}
-            <p>Пока нет данных.</p>
-          {% endif %}
-        </div>
-        <div class="card">
-          <div class="course-meta">Топ курсов</div>
-          <div class="admin-grid two" style="margin-top: 12px;">
-            <div>
-              <div class="course-meta">Заявки</div>
-              {% if top_courses %}
+              <div style="height: 12px;"></div>
+              <div class="course-meta">Просроченные лиды</div>
+              {% if stale_leads %}
               <ul class="admin-list">
-                {% for course_name, count in top_courses %}
-                <li><span class="admin-truncate" title="{{ course_name }}">{{ course_name }}</span><strong>{{ count }}</strong></li>
+                {% for lead in stale_leads %}
+                <li>
+                  <span class="admin-truncate" title="{{ lead.name }}">{{ lead.name }}</span>
+                  <strong>{{ lead.age }}ч</strong>
+                </li>
                 {% endfor %}
               </ul>
               {% else %}
-              <p>Пока нет данных.</p>
+              <p>Нет просроченных лидов.</p>
               {% endif %}
             </div>
-            <div>
-              <div class="course-meta">Покупки</div>
-              {% if top_agreements %}
+            <div class="card">
+              <div class="course-meta">Источники заявок</div>
+              {% if sources_sorted %}
+                <ul class="admin-list">
+                  {% for source, count in sources_sorted %}
+                  <li><span class="admin-truncate" title="{{ source }}">{{ source }}</span><strong>{{ count }}</strong></li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <p>Пока нет данных.</p>
+              {% endif %}
+              <div style="height: 12px;"></div>
+              <div class="course-meta">Последние заявки</div>
+              {% if recent_leads %}
               <ul class="admin-list">
-                {% for course_name, count in top_agreements %}
-                <li><span class="admin-truncate" title="{{ course_name }}">{{ course_name }}</span><strong>{{ count }}</strong></li>
+                {% for lead in recent_leads %}
+                <li>
+                  <span class="admin-truncate" title="{{ lead.name }}">{{ lead.name }}</span>
+                  <span class="admin-status {{ lead.status_class }}">{{ lead.status_label }}</span>
+                </li>
                 {% endfor %}
               </ul>
               {% else %}
@@ -326,9 +180,160 @@
               {% endif %}
             </div>
           </div>
-        </div>
-      </div>
-    </section>
+          <details class="admin-collapse" style="margin-top: 18px;">
+            <summary>Дополнительная аналитика</summary>
+            <div class="admin-collapse__body">
+              <div class="admin-grid two">
+                <div class="card">
+                  <div class="course-meta">Недели (8 недель)</div>
+                  <div class="admin-grid" style="margin-top: 12px;">
+                    <div>
+                      <div class="course-meta">Заявки</div>
+                      <div class="admin-chart">
+                        {% for point in weekly_leads %}
+                        <div class="admin-chart__row">
+                          <span>{{ point.label }}</span>
+                          <div class="admin-chart__bar">
+                            <div style="width: {{ point.pct }}%;"></div>
+                          </div>
+                          <strong>{{ point.count }}</strong>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    <div>
+                      <div class="course-meta">Покупки</div>
+                      <div class="admin-chart">
+                        {% for point in weekly_enrolls %}
+                        <div class="admin-chart__row">
+                          <span>{{ point.label }}</span>
+                          <div class="admin-chart__bar">
+                            <div style="width: {{ point.pct }}%;"></div>
+                          </div>
+                          <strong>{{ point.count }}</strong>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="course-meta">Месяцы (6 месяцев)</div>
+                  <div class="admin-grid" style="margin-top: 12px;">
+                    <div>
+                      <div class="course-meta">Заявки</div>
+                      <div class="admin-chart">
+                        {% for point in monthly_leads %}
+                        <div class="admin-chart__row">
+                          <span>{{ point.label }}</span>
+                          <div class="admin-chart__bar">
+                            <div style="width: {{ point.pct }}%;"></div>
+                          </div>
+                          <strong>{{ point.count }}</strong>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    <div>
+                      <div class="course-meta">Покупки</div>
+                      <div class="admin-chart">
+                        {% for point in monthly_enrolls %}
+                        <div class="admin-chart__row">
+                          <span>{{ point.label }}</span>
+                          <div class="admin-chart__bar">
+                            <div style="width: {{ point.pct }}%;"></div>
+                          </div>
+                          <strong>{{ point.count }}</strong>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="admin-grid two">
+                <div class="card">
+                  <div class="course-meta">UTM источники</div>
+                  {% if utm_sources %}
+                  <ul class="admin-list">
+                    {% for label, count in utm_sources %}
+                    <li><span class="admin-truncate" title="{{ label }}">{{ label }}</span><strong>{{ count }}</strong></li>
+                    {% endfor %}
+                  </ul>
+                  {% else %}
+                  <p>Пока нет UTM-источников.</p>
+                  {% endif %}
+                </div>
+                <div class="card">
+                  <div class="course-meta">UTM кампании</div>
+                  {% if utm_campaigns %}
+                  <ul class="admin-list">
+                    {% for label, count in utm_campaigns %}
+                    <li><span class="admin-truncate" title="{{ label }}">{{ label }}</span><strong>{{ count }}</strong></li>
+                    {% endfor %}
+                  </ul>
+                  {% else %}
+                  <p>Пока нет UTM-кампаний.</p>
+                  {% endif %}
+                  <div style="height: 12px;"></div>
+                  <div class="course-meta">UTM medium</div>
+                  {% if utm_mediums %}
+                  <ul class="admin-list">
+                    {% for label, count in utm_mediums %}
+                    <li><span class="admin-truncate" title="{{ label }}">{{ label }}</span><strong>{{ count }}</strong></li>
+                    {% endfor %}
+                  </ul>
+                  {% else %}
+                  <p>Пока нет UTM-medium.</p>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="admin-grid two">
+                <div class="card">
+                  <div class="course-meta">Топ страниц</div>
+                  {% if path_counts_sorted %}
+                    <ul class="admin-list">
+                      {% for path, count in path_counts_sorted[:6] %}
+                      <li><span class="admin-truncate" title="{{ path }}">{{ path }}</span><strong>{{ count }}</strong></li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <p>Пока нет данных.</p>
+                  {% endif %}
+                </div>
+                <div class="card">
+                  <div class="course-meta">Топ курсов</div>
+                  <div class="admin-grid two" style="margin-top: 12px;">
+                    <div>
+                      <div class="course-meta">Заявки</div>
+                      {% if top_courses %}
+                      <ul class="admin-list">
+                        {% for course_name, count in top_courses %}
+                        <li><span class="admin-truncate" title="{{ course_name }}">{{ course_name }}</span><strong>{{ count }}</strong></li>
+                        {% endfor %}
+                      </ul>
+                      {% else %}
+                      <p>Пока нет данных.</p>
+                      {% endif %}
+                    </div>
+                    <div>
+                      <div class="course-meta">Покупки</div>
+                      {% if top_agreements %}
+                      <ul class="admin-list">
+                        {% for course_name, count in top_agreements %}
+                        <li><span class="admin-truncate" title="{{ course_name }}">{{ course_name }}</span><strong>{{ count }}</strong></li>
+                        {% endfor %}
+                      </ul>
+                      {% else %}
+                      <p>Пока нет данных.</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+        </section>
         {% endif %}
 
         {% if view == 'leads' %}

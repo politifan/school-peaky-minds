@@ -1735,6 +1735,8 @@ select:focus {
   display: grid;
   gap: 14px;
   padding: 18px;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
 }
 
 .admin-sidebar__title {
@@ -1773,6 +1775,44 @@ select:focus {
 .admin-content {
   display: grid;
   gap: 24px;
+}
+
+.admin-collapse {
+  border: 1px solid var(--stroke);
+  border-radius: 18px;
+  background: rgba(11, 20, 18, 0.55);
+  overflow: hidden;
+}
+
+.admin-collapse > summary {
+  cursor: pointer;
+  padding: 16px 20px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-collapse > summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-collapse > summary::after {
+  content: "▾";
+  font-size: 1.1rem;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.admin-collapse[open] > summary::after {
+  transform: rotate(-180deg);
+}
+
+.admin-collapse__body {
+  padding: 0 20px 20px;
+  display: grid;
+  gap: 18px;
 }
 
 .admin-hero__content {
@@ -2215,7 +2255,8 @@ select:focus {
   }
 
   .admin-sidebar {
-    position: static;
+    top: 12px;
+    max-height: unset;
   }
 
   .admin-sidebar__nav {
