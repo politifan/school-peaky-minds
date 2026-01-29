@@ -95,7 +95,7 @@ CONTRACT_KEY_POINTS = [
 ]
 
 CONTRACT_DOCUMENTS = [
-    ("Договор", "/documents/course_agreement.pdf"),
+    ("Договор", "/documents/dogovor.html"),
     ("Согласие на обработку данных", "/documents/personal_data_consent.pdf"),
 ]
 
