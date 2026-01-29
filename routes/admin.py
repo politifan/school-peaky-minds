@@ -1093,7 +1093,35 @@ async def admin_update_whitelist(request: Request):
     if ids:
         core.WHITELIST_IDS = ids
         save_whitelist(ids)
-    return RedirectResponse("/admin", status_code=HTTP_302_FOUND)
+    return RedirectResponse("/admin?view=whitelist", status_code=HTTP_302_FOUND)
+
+
+@router.post("/admin/whitelist/add", include_in_schema=False)
+async def admin_add_whitelist(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    raw_id = str(form.get("id") or "").strip()
+    role = str(form.get("role") or "admin").strip().lower()
+    try:
+        new_id = int(raw_id)
+    except Exception:
+        return RedirectResponse("/admin?view=whitelist", status_code=HTTP_302_FOUND)
+
+    ids = [item for item in core.WHITELIST_IDS if item != new_id]
+    if role == "broadcast":
+        ids.append(new_id)
+    else:
+        if len(ids) >= 2:
+            last = ids[-1]
+            ids = ids[:-1] + [new_id, last]
+        else:
+            ids.append(new_id)
+
+    core.WHITELIST_IDS = ids
+    save_whitelist(ids)
+    return RedirectResponse("/admin?view=whitelist", status_code=HTTP_302_FOUND)
 
 
 @router.post("/admin/whitelist/remove", include_in_schema=False)
@@ -1110,7 +1138,7 @@ async def admin_remove_whitelist(request: Request):
     if ids:
         core.WHITELIST_IDS = ids
         save_whitelist(ids)
-    return RedirectResponse("/admin", status_code=HTTP_302_FOUND)
+    return RedirectResponse("/admin?view=whitelist", status_code=HTTP_302_FOUND)
 
 
 @router.get("/admin/export/leads.csv", include_in_schema=False)
