@@ -112,7 +112,10 @@ def clear_user(request: Request) -> None:
 def load_whitelist() -> List[int]:
     default_ids = [980343575, 1065558838, 1547353132]
     if not WHITELIST_FILE.exists():
-        save_json(WHITELIST_FILE, default_ids)
+        try:
+            save_json(WHITELIST_FILE, default_ids)
+        except Exception:
+            logging.getLogger("core").warning("Failed to create whitelist file", exc_info=True)
     data = load_json(WHITELIST_FILE, default_ids)
     if not isinstance(data, list):
         data = default_ids
@@ -131,11 +134,17 @@ def load_whitelist() -> List[int]:
             cleaned = cleaned[:-1] + [target_admin_id, last]
         else:
             cleaned.append(target_admin_id)
-        save_whitelist(cleaned)
+        try:
+            save_whitelist(cleaned)
+        except Exception:
+            logging.getLogger("core").warning("Failed to persist whitelist update", exc_info=True)
     elif len(cleaned) >= 2 and cleaned[-1] == target_admin_id:
         last = cleaned[-2]
         cleaned = cleaned[:-2] + [target_admin_id, last]
-        save_whitelist(cleaned)
+        try:
+            save_whitelist(cleaned)
+        except Exception:
+            logging.getLogger("core").warning("Failed to persist whitelist reorder", exc_info=True)
     return cleaned
 
 
