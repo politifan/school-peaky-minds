@@ -61,6 +61,8 @@
   <script async custom-element="amp-form" src="https://cdn.ampproject.org/v0/amp-form-0.1.js"></script>
   <script async custom-element="amp-accordion" src="https://cdn.ampproject.org/v0/amp-accordion-0.1.js"></script>
   <script async custom-element="amp-carousel" src="https://cdn.ampproject.org/v0/amp-carousel-0.1.js"></script>
+  <script async custom-element="amp-lightbox" src="https://cdn.ampproject.org/v0/amp-lightbox-0.1.js"></script>
+  <script async custom-element="amp-bind" src="https://cdn.ampproject.org/v0/amp-bind-0.1.js"></script>
   <script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>
   <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style>
   <noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
@@ -119,6 +121,124 @@
       </div>
     </div>
   </footer>
+
+  <amp-state id="applyPanel">
+    <script type="application/json">
+      { "value": "choice" }
+    </script>
+  </amp-state>
+  <amp-lightbox id="apply-modal" layout="nodisplay">
+    <div class="modal open" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <button class="modal-close" on="tap:apply-modal.close,AMP.setState({applyPanel: {value: 'choice'}})" aria-label="Закрыть">×</button>
+        <div class="modal-panels">
+          <div class="modal-panel" [class]="applyPanel.value == 'choice' ? 'modal-panel active' : 'modal-panel'">
+            <h3>Что вы хотите?</h3>
+            <p>Выберите вариант — мы покажем нужную форму.</p>
+            <div class="choice-grid">
+              <button class="choice-card" type="button" on="tap:AMP.setState({applyPanel: {value: 'consult'}})">
+                <span class="choice-title">Хочу проконсультироваться</span>
+                <span class="choice-text">Подумаем вместе и подберём план обучения.</span>
+              </button>
+              <button class="choice-card" type="button" on="tap:AMP.setState({applyPanel: {value: 'enroll'}})">
+                <span class="choice-title">Хочу записаться</span>
+                <span class="choice-text">Подписываем документы и фиксируем место на курсе.</span>
+              </button>
+              <button class="choice-card" type="button" on="tap:AMP.setState({applyPanel: {value: 'contact'}})">
+                <span class="choice-title">Хочу связаться сам</span>
+                <span class="choice-text">Телефон, Telegram и VK автора курса.</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="modal-panel" [class]="applyPanel.value == 'consult' ? 'modal-panel active' : 'modal-panel'">
+            <button class="modal-back" type="button" on="tap:AMP.setState({applyPanel: {value: 'choice'}})">← Назад</button>
+            <h3>Консультация</h3>
+            <p>Оставьте контакт — ответим в течение дня.</p>
+            <form class="modal-form" action="/apply" method="post" target="_top">
+              <input type="text" name="name" placeholder="Ваше имя">
+              <div class="input-wrap">
+                <input type="tel" name="phone" placeholder="Телефон или Telegram (@username)" data-phone="flex">
+                <div class="input-hint">Пример: +7 999 000‑00‑00 или @politifan</div>
+                <div class="input-error" aria-live="polite"></div>
+              </div>
+              <select name="course">
+                <option value="" disabled {% if not course_slug %}selected{% endif %}>Выберите курс</option>
+                <option value="Full-stack разработчик" {% if course_slug == "Full-stack" or course_slug == "Full-stack разработчик" %}selected{% endif %}>Full‑stack разработчик</option>
+                <option value="Python для новичков" {% if course_slug == "Python для новичков" %}selected{% endif %}>Python для новичков</option>
+                <option value="Data Science / ML" {% if course_slug == "Data Science" %}selected{% endif %}>Data Science / ML</option>
+                <option value="Программирование для бизнеса" {% if course_slug == "Business" %}selected{% endif %}>Программирование для бизнеса</option>
+              </select>
+              <button class="btn btn-primary" type="submit">Отправить заявку</button>
+            </form>
+          </div>
+
+          <div class="modal-panel" [class]="applyPanel.value == 'enroll' ? 'modal-panel active' : 'modal-panel'">
+            <button class="modal-back" type="button" on="tap:AMP.setState({applyPanel: {value: 'choice'}})">← Назад</button>
+            <h3>Запись на курс</h3>
+            <p>Подписываем документы и фиксируем место в группе.</p>
+            {% if user %}
+            <form class="modal-form" action="/enroll" method="post" target="_top">
+              <select name="course" required>
+                <option value="" disabled {% if not course_slug %}selected{% endif %}>Выберите курс</option>
+                <option value="Full-stack разработчик" {% if course_slug == "Full-stack" or course_slug == "Full-stack разработчик" %}selected{% endif %}>Full‑stack разработчик</option>
+                <option value="Python для новичков" {% if course_slug == "Python для новичков" %}selected{% endif %}>Python для новичков</option>
+                <option value="Data Science / ML" {% if course_slug == "Data Science" %}selected{% endif %}>Data Science / ML</option>
+                <option value="Программирование для бизнеса" {% if course_slug == "Business" %}selected{% endif %}>Программирование для бизнеса</option>
+              </select>
+              <input type="text" name="full_name" placeholder="ФИО" required>
+              <div class="input-wrap">
+                <input type="tel" name="phone" placeholder="Телефон" data-phone="strict" required>
+                <div class="input-hint">Пример: +7 999 000‑00‑00</div>
+                <div class="input-error" aria-live="polite"></div>
+              </div>
+              <input type="email" name="email" placeholder="Email" value="{{ user.email or '' }}" required>
+              <div class="input-wrap">
+                <input type="text" name="telegram" placeholder="Telegram (@username)" data-telegram>
+                <div class="input-hint">Пример: @politifan</div>
+                <div class="input-error" aria-live="polite"></div>
+                <div class="input-status" aria-live="polite"></div>
+              </div>
+              <label class="form-check">
+                <input type="checkbox" name="agreement" required>
+                Я принимаю <a href="/documents/dogovor.html" target="_blank" rel="noopener">договор и пользовательское соглашение</a>
+              </label>
+              <label class="form-check">
+                <input type="checkbox" name="consent" required>
+                Согласен на <a href="/documents/personal_data_consent.pdf" target="_blank" rel="noopener">обработку персональных данных</a>
+              </label>
+              <button class="btn btn-primary" type="submit">Подписать и отправить</button>
+            </form>
+            {% else %}
+            <div class="modal-note">Чтобы подписать документы и записаться, войдите в аккаунт.</div>
+            <a class="btn btn-primary" href="/login">Войти</a>
+            {% endif %}
+          </div>
+
+          <div class="modal-panel" [class]="applyPanel.value == 'contact' ? 'modal-panel active' : 'modal-panel'">
+            <button class="modal-back" type="button" on="tap:AMP.setState({applyPanel: {value: 'choice'}})">← Назад</button>
+            <h3>Связаться напрямую</h3>
+            <p>Если хотите обсудить детали напрямую с автором курса.</p>
+            {% if contact_phone or contact_telegram or contact_vk %}
+            <div class="contact-list">
+              {% if contact_phone and contact_phone_link %}
+                <a class="contact-item" href="{{ contact_phone_link }}">Телефон: {{ contact_phone }}</a>
+              {% endif %}
+              {% if contact_telegram and contact_telegram_link %}
+                <a class="contact-item" href="{{ contact_telegram_link }}" target="_blank" rel="noopener">Telegram: {{ contact_telegram }}</a>
+              {% endif %}
+              {% if contact_vk and contact_vk_link %}
+                <a class="contact-item" href="{{ contact_vk_link }}" target="_blank" rel="noopener">VK: {{ contact_vk }}</a>
+              {% endif %}
+            </div>
+            {% else %}
+            <div class="modal-note">Контакты будут добавлены в ближайшее время.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </amp-lightbox>
   {% if yandex_metrika_id %}
   <amp-analytics type="metrika">
     <script type="application/json">
