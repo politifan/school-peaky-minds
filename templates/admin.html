@@ -56,6 +56,9 @@
             <div class="admin-section-actions">
               <span class="admin-badge">Заявки: {{ metrics.funnel.apply }}</span>
               <span class="admin-badge">Покупки: {{ metrics.funnel.enroll }}</span>
+              <form method="post" action="/admin/metrics/reset" onsubmit="return confirm('Сбросить всю статистику?')">
+                <button class="btn btn-secondary btn-danger" type="submit">Сбросить статистику</button>
+              </form>
             </div>
           </div>
           <div class="admin-kpi-grid">
@@ -343,6 +346,9 @@
         <div class="admin-section-actions">
           <span class="admin-badge">Показано {{ leads_count }} из {{ leads_total }}</span>
           <a class="btn btn-secondary" href="/admin/export/leads.csv{{ export_query }}">Экспорт CSV</a>
+          <form method="post" action="/admin/leads/clear" onsubmit="return confirm('Удалить все заявки? Это действие необратимо.')">
+            <button class="btn btn-secondary btn-danger" type="submit">Удалить заявки</button>
+          </form>
         </div>
       </div>
       <form class="admin-filter" method="get" action="/admin">
@@ -522,6 +528,9 @@
         <div class="admin-section-actions">
           <span class="admin-badge">Показано {{ agreements_count }} из {{ agreements_total }}</span>
           <a class="btn btn-secondary" href="/admin/export/agreements.csv{{ export_query }}">Экспорт CSV</a>
+          <form method="post" action="/admin/agreements/clear" onsubmit="return confirm('Удалить все договоры? Это действие необратимо.')">
+            <button class="btn btn-secondary btn-danger" type="submit">Удалить договоры</button>
+          </form>
         </div>
       </div>
       {% if agreements %}

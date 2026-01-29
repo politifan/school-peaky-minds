@@ -1182,6 +1182,17 @@ section {
   box-shadow: 0 14px 30px rgba(255, 179, 71, 0.35), 0 0 30px rgba(99, 247, 211, 0.25);
 }
 
+.btn-danger {
+  background: rgba(255, 86, 86, 0.16);
+  border-color: rgba(255, 86, 86, 0.45);
+  color: #ffd6d6;
+}
+
+.btn-danger:hover {
+  box-shadow: 0 12px 24px rgba(255, 86, 86, 0.25);
+  transform: translateY(-1px);
+}
+
 .btn-primary:hover {
   transform: translateY(-2px);
 }
@@ -1902,6 +1913,17 @@ select:focus {
   gap: 16px;
   margin-bottom: 18px;
   flex-wrap: wrap;
+}
+
+.admin-section-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-section-actions form {
+  margin: 0;
 }
 
 .admin-kpi-grid {

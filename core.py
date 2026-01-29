@@ -383,6 +383,7 @@ def load_metrics() -> dict:
     default = {
         "total_visits": 0,
         "unique_visits": 0,
+        "unique_ids": {},
         "path_counts": {},
         "funnel": {"home": 0, "login": 0, "apply": 0, "enroll": 0},
     }
@@ -394,6 +395,8 @@ def load_metrics() -> dict:
             data[key] = 0
     if not isinstance(data.get("path_counts"), dict):
         data["path_counts"] = {}
+    if not isinstance(data.get("unique_ids"), dict):
+        data["unique_ids"] = {}
     if not isinstance(data.get("funnel"), dict):
         data["funnel"] = {"home": 0, "login": 0, "apply": 0, "enroll": 0}
     return data

@@ -94,9 +94,31 @@ async def track_metrics(request: Request, call_next):
 
     metrics = load_metrics()
     metrics["total_visits"] += 1
-    if "visit_id" not in request.session:
-        request.session["visit_id"] = secrets.token_hex(8)
+    visit_id = request.session.get("visit_id") or request.cookies.get("visit_id")
+    if not visit_id:
+        visit_id = secrets.token_hex(8)
+        request.session["visit_id"] = visit_id
+        response.set_cookie(
+            "visit_id",
+            visit_id,
+            max_age=60 * 60 * 24 * 365,
+            httponly=True,
+            samesite="lax",
+            secure=bool(CANONICAL_SCHEME == "https"),
+            domain=SESSION_DOMAIN,
+        )
+    unique_ids = metrics.get("unique_ids")
+    if not isinstance(unique_ids, dict):
+        unique_ids = {}
+        metrics["unique_ids"] = unique_ids
+    if visit_id not in unique_ids:
         metrics["unique_visits"] += 1
+        unique_ids[visit_id] = int(time.time())
+    if len(unique_ids) > 20000:
+        cutoff = int(time.time() - 60 * 60 * 24 * 120)
+        for key, ts in list(unique_ids.items()):
+            if ts < cutoff:
+                unique_ids.pop(key, None)
     metrics["path_counts"][path] = metrics["path_counts"].get(path, 0) + 1
 
     if path == "/":

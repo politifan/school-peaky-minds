@@ -1015,6 +1015,48 @@ def _admin_panel_impl(request: Request):
     )
 
 
+@router.post("/admin/metrics/reset", include_in_schema=False)
+def admin_reset_metrics(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    metrics = {
+        "total_visits": 0,
+        "unique_visits": 0,
+        "unique_ids": {},
+        "path_counts": {},
+        "funnel": {"home": 0, "login": 0, "apply": 0, "enroll": 0},
+    }
+    core.save_metrics(metrics)
+    return RedirectResponse("/admin?view=overview", status_code=HTTP_302_FOUND)
+
+
+@router.post("/admin/leads/clear", include_in_schema=False)
+def admin_clear_leads(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    for path in core.LEADS_DIR.glob("lead_*.json"):
+        try:
+            path.unlink()
+        except Exception:
+            continue
+    return RedirectResponse("/admin?view=leads", status_code=HTTP_302_FOUND)
+
+
+@router.post("/admin/agreements/clear", include_in_schema=False)
+def admin_clear_agreements(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    for path in core.AGREEMENTS_DIR.glob("agreement_*.json"):
+        try:
+            path.unlink()
+        except Exception:
+            continue
+    return RedirectResponse("/admin?view=agreements", status_code=HTTP_302_FOUND)
+
+
 @router.post("/admin/leads/status", include_in_schema=False)
 async def admin_update_lead_status(request: Request):
     guard = admin_required(request)
