@@ -13,6 +13,8 @@ from core import (
     OAuthError,
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
+    CONTRACT_KEY_POINTS,
+    CONTRACT_DOCUMENTS,
     TELEGRAM_BOT_TOKEN,
     TELEGRAM_USERNAME_RE,
     TELETHON_AUTO_LOGIN,
@@ -22,11 +24,16 @@ from core import (
     UsernameInvalidError,
     UsernameNotOccupiedError,
     build_redirect_uri,
+    build_contract_url,
     clear_user,
+    contract_channel_label,
+    contract_status_from_item,
     ensure_telethon_login,
     get_current_user,
     get_telethon_client,
+    load_agreements,
     load_json,
+    normalize_materials,
     login_context,
     oauth,
     providers,
@@ -361,4 +368,56 @@ def account(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse("/login", status_code=HTTP_302_FOUND)
-    return render(request, "account.html")
+    agreements_all = load_agreements()
+    user_id = user.get("id")
+    user_email = (user.get("email") or "").strip().lower()
+    def safe_int(value: Any) -> Optional[int]:
+        try:
+            return int(value)
+        except Exception:
+            return None
+
+    agreements_view = []
+    for item in agreements_all:
+        item_user = item.get("user") or {}
+        matches = False
+        if user_id and item_user.get("id") == user_id:
+            matches = True
+        elif user_email and (item.get("email") or "").strip().lower() == user_email:
+            matches = True
+        # Fallbacks are intentionally strict to avoid leaking agreements.
+        if not matches:
+            continue
+
+        status_key, status_label, status_class = contract_status_from_item(item)
+        total_lessons = safe_int(item.get("total_lessons"))
+        paid_lessons = safe_int(item.get("paid_lessons"))
+        remaining = None
+        if total_lessons is not None and paid_lessons is not None:
+            remaining = max(total_lessons - paid_lessons, 0)
+        materials = normalize_materials(item.get("materials"))
+        agreements_view.append(
+            {
+                **item,
+                "contract_url": build_contract_url(item.get("contract_token"), request),
+                "contract_status_key": status_key,
+                "contract_status_label": status_label,
+                "contract_status_class": status_class,
+                "contract_channel_label": contract_channel_label(item.get("contract_channel")),
+                "total_lessons": total_lessons,
+                "paid_lessons": paid_lessons,
+                "remaining_lessons": remaining,
+                "current_module": item.get("current_module") or "—",
+                "materials": materials,
+            }
+        )
+
+    return render(
+        request,
+        "account.html",
+        {
+            "agreements": agreements_view,
+            "contract_key_points": CONTRACT_KEY_POINTS,
+            "contract_documents": CONTRACT_DOCUMENTS,
+        },
+    )

@@ -2077,7 +2077,7 @@ select:focus {
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1200px;
+  min-width: 1600px;
   font-size: 0.9rem;
 }
 
@@ -2136,6 +2136,18 @@ select:focus {
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-1);
   font-size: 0.78rem;
+}
+
+.admin-textarea {
+  min-width: 220px;
+  min-height: 58px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-1);
+  font-size: 0.78rem;
+  resize: vertical;
 }
 
 .admin-status-form select {

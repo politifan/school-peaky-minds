@@ -535,6 +535,8 @@
               <th>Телефон</th>
               <th>Email</th>
               <th>Telegram</th>
+              <th>Договор</th>
+              <th>Прогресс</th>
               <th>Сумма</th>
               <th>Статус</th>
             </tr>
@@ -548,6 +550,44 @@
               <td>{{ item.phone or "—" }}</td>
               <td>{{ item.email or "—" }}</td>
               <td>{{ item.telegram or "—" }}</td>
+              <td>
+                <div class="admin-cell">
+                  <span class="admin-status {{ item.contract_status_class }}">{{ item.contract_status_label }}</span>
+                  {% if item.contract_url %}
+                  <a class="admin-copy" href="{{ item.contract_url }}" target="_blank" rel="noopener">Ссылка</a>
+                  {% endif %}
+                </div>
+                <form class="admin-status-form" action="/admin/agreements/contract-status" method="post">
+                  <input type="hidden" name="file" value="{{ item._file }}">
+                  <input type="hidden" name="next" value="{{ next_url }}">
+                  <select name="contract_status">
+                    {% for key, label in contract_status_options %}
+                    <option value="{{ key }}" {% if key == item.contract_status_key %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                  <button class="admin-copy" type="submit">OK</button>
+                </form>
+                <div class="admin-subtext">
+                  {% if item.contract_channel_label and item.contract_channel_label != '—' %}{{ item.contract_channel_label }}{% else %}Канал не выбран{% endif %}
+                  {% if item.contract_sent_at and item.contract_sent_at != '—' %} · {{ item.contract_sent_at }}{% endif %}
+                  {% if item.contract_signed_at and item.contract_signed_at != '—' %} · Подписан {{ item.contract_signed_at }}{% endif %}
+                </div>
+              </td>
+              <td>
+                <form class="admin-meta-form" action="/admin/agreements/progress" method="post">
+                  <input type="hidden" name="file" value="{{ item._file }}">
+                  <input type="hidden" name="next" value="{{ next_url }}">
+                  <input class="admin-input" type="text" name="total_lessons" placeholder="Всего" value="{{ item.total_lessons if item.total_lessons is not none else '' }}">
+                  <input class="admin-input" type="text" name="paid_lessons" placeholder="Оплачено" value="{{ item.paid_lessons if item.paid_lessons is not none else '' }}">
+                  <input class="admin-input" type="text" name="current_module" placeholder="Модуль" value="{{ item.current_module }}">
+                  <textarea class="admin-textarea" name="materials" rows="2" placeholder="Название | ссылка">{{ item.materials_text }}</textarea>
+                  <button class="admin-copy" type="submit">OK</button>
+                </form>
+                <div class="admin-subtext">
+                  Осталось: {{ item.remaining_lessons if item.remaining_lessons is not none else '—' }}
+                  · Материалов: {{ item.materials_count }}
+                </div>
+              </td>
               <td>
                 <form class="admin-meta-form" action="/admin/agreements/amount" method="post">
                   <input type="hidden" name="file" value="{{ item._file }}">

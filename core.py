@@ -16,6 +16,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 from urllib.parse import urlparse
 
+import httpx
+
 from fastapi import Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
@@ -82,6 +84,110 @@ LOGS_DIR = BASE_DIR / "logs"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 SESSION_SECRET = os.getenv("SESSION_SECRET", "dev-secret-key")
+
+CONTRACT_KEY_POINTS = [
+    "Предоставление образовательных услуг по выбранному курсу.",
+    "Фиксированная стоимость и порядок оплаты занятий.",
+    "Права и обязанности сторон (ученик и исполнитель).",
+    "Политика возвратов и переносов занятий.",
+    "Обработка персональных данных и согласие.",
+    "Формат и сроки обучения по программе курса.",
+]
+
+CONTRACT_DOCUMENTS = [
+    ("Договор", "/documents/course_agreement.pdf"),
+    ("Согласие на обработку данных", "/documents/personal_data_consent.pdf"),
+]
+
+CONTRACT_STATUS_META = {
+    "draft": ("Черновик", "status-muted"),
+    "sent": ("Отправлен", "status-warm"),
+    "signed": ("Подписан", "status-good"),
+}
+
+
+def generate_contract_token() -> str:
+    return secrets.token_urlsafe(24)
+
+
+def ensure_contract_fields(data: Dict[str, Any], path: Optional[Path] = None) -> Dict[str, Any]:
+    changed = False
+    token = (data.get("contract_token") or "").strip()
+    if not token:
+        data["contract_token"] = generate_contract_token()
+        changed = True
+    status = (data.get("contract_status") or "").strip()
+    if status not in CONTRACT_STATUS_META:
+        data["contract_status"] = "draft"
+        changed = True
+    if changed and path:
+        save_json(path, data)
+    return data
+
+
+def contract_status_from_item(item: Dict[str, Any]) -> Tuple[str, str, str]:
+    status = (item.get("contract_status") or "").strip()
+    if status not in CONTRACT_STATUS_META:
+        status = "draft"
+    label, cls = CONTRACT_STATUS_META[status]
+    return status, label, cls
+
+
+def build_contract_url(token: str, request: Optional[Request] = None) -> str:
+    if not token:
+        return ""
+    if APP_BASE_URL:
+        return f"{APP_BASE_URL.rstrip('/')}/contract/{token}"
+    if request:
+        base = str(request.base_url).rstrip("/")
+        return f"{base}/contract/{token}"
+    return f"/contract/{token}"
+
+
+def normalize_materials(value: Any) -> List[Dict[str, str]]:
+    materials: List[Dict[str, str]] = []
+    if not value:
+        return materials
+    if isinstance(value, str):
+        raw_lines = value.splitlines()
+    elif isinstance(value, list):
+        raw_lines = value
+    else:
+        raw_lines = [value]
+    for item in raw_lines:
+        if isinstance(item, dict):
+            url = str(item.get("url") or item.get("link") or item.get("href") or "").strip()
+            title = str(item.get("title") or item.get("label") or "").strip()
+        else:
+            text = str(item).strip()
+            if not text:
+                continue
+            if "|" in text:
+                title, url = text.split("|", 1)
+                title = title.strip()
+                url = url.strip()
+            else:
+                title = ""
+                url = text
+        if not url:
+            continue
+        materials.append({"title": title, "url": url})
+    return materials
+
+
+def materials_to_text(materials: Any) -> str:
+    normalized = normalize_materials(materials)
+    lines = []
+    for item in normalized:
+        title = (item.get("title") or "").strip()
+        url = (item.get("url") or "").strip()
+        if not url:
+            continue
+        if title:
+            lines.append(f"{title} | {url}")
+        else:
+            lines.append(url)
+    return "\n".join(lines)
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -230,14 +336,47 @@ def update_agreement_status(file_name: str, status: str) -> bool:
     return True
 
 
+def update_agreement_contract_status(file_name: str, status: str) -> bool:
+    if not file_name:
+        return False
+    path = AGREEMENTS_DIR / file_name
+    if not path.exists():
+        return False
+    data = load_json(path, {})
+    if not isinstance(data, dict):
+        return False
+    if status and status in CONTRACT_STATUS_META:
+        data["contract_status"] = status
+    else:
+        data["contract_status"] = "draft"
+    save_json(path, data)
+    return True
+
+
 def load_agreements() -> List[Dict[str, Any]]:
     items = []
     for path in sorted(AGREEMENTS_DIR.glob("agreement_*.json")):
         data = load_json(path, {})
         if isinstance(data, dict):
+            ensure_contract_fields(data, path)
             data["_file"] = path.name
             items.append(data)
     return sorted(items, key=lambda item: item.get("timestamp", 0), reverse=True)
+
+
+def find_agreement_by_token(token: str) -> Tuple[Optional[Dict[str, Any]], Optional[Path]]:
+    value = (token or "").strip()
+    if not value:
+        return None, None
+    for path in AGREEMENTS_DIR.glob("agreement_*.json"):
+        data = load_json(path, {})
+        if not isinstance(data, dict):
+            continue
+        if data.get("contract_token") == value:
+            ensure_contract_fields(data, path)
+            data["_file"] = path.name
+            return data, path
+    return None, None
 
 
 def load_metrics() -> dict:
@@ -328,12 +467,36 @@ def send_email_code(recipient: str, code: str) -> None:
         server.send_message(msg)
 
 
+def send_email_message(recipient: str, subject: str, body: str) -> None:
+    smtp_host = os.getenv("SMTP_HOST")
+    smtp_port = int(os.getenv("SMTP_PORT", "587"))
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_password = os.getenv("SMTP_PASSWORD")
+    smtp_from = os.getenv("SMTP_FROM", smtp_user or "no-reply@example.com")
+
+    if not smtp_host or not smtp_user or not smtp_password:
+        raise RuntimeError("SMTP не настроен для отправки письма")
+
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = smtp_from
+    msg["To"] = recipient
+    msg.set_content(body)
+
+    with smtplib.SMTP(smtp_host, smtp_port) as server:
+        server.starttls()
+        server.login(smtp_user, smtp_password)
+        server.send_message(msg)
+
+
 # OAuth setup
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 VK_CLIENT_ID = os.getenv("VK_CLIENT_ID")
 VK_CLIENT_SECRET = os.getenv("VK_CLIENT_SECRET")
 VK_SCOPE = os.getenv("VK_SCOPE", "")
+VK_MESSAGE_TOKEN = os.getenv("VK_MESSAGE_TOKEN")
+VK_API_VERSION = os.getenv("VK_API_VERSION", "5.131")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_BOT_USERNAME = os.getenv("TELEGRAM_BOT_USERNAME")
 APP_BASE_URL = os.getenv("APP_BASE_URL")
@@ -391,6 +554,104 @@ def build_redirect_uri(request: Request, route_name: str) -> str:
     if APP_BASE_URL:
         return f"{APP_BASE_URL.rstrip('/')}{url.path}"
     return str(url)
+
+
+def contract_channel_label(channel: Optional[str]) -> str:
+    mapping = {"email": "Email", "telegram": "Telegram", "vk": "VK"}
+    return mapping.get(channel or "", "—")
+
+
+def default_contract_channel(user: Optional[Dict[str, Any]]) -> str:
+    provider = (user or {}).get("provider") or ""
+    if provider in {"email", "google"}:
+        return "email"
+    if provider == "telegram":
+        return "telegram"
+    if provider == "vk":
+        return "vk"
+    return "email"
+
+
+def resolve_contact_email(user: Optional[Dict[str, Any]], agreement: Optional[Dict[str, Any]], override: str = "") -> Optional[str]:
+    if override:
+        return override.strip()
+    if agreement:
+        email = (agreement.get("email") or "").strip()
+        if email:
+            return email
+    if user:
+        email = (user.get("email") or "").strip()
+        if email:
+            return email
+    return None
+
+
+def extract_telegram_chat_id(user: Optional[Dict[str, Any]], agreement: Optional[Dict[str, Any]] = None) -> Optional[str]:
+    if user and user.get("provider") == "telegram":
+        raw = str(user.get("id") or "")
+        if raw.startswith("telegram:"):
+            return raw.split("telegram:", 1)[1]
+    if agreement:
+        handle = str(agreement.get("telegram") or "").strip()
+        if handle:
+            handle = handle.replace("https://t.me/", "").replace("http://t.me/", "")
+            handle = handle.lstrip("@")
+            if handle:
+                return f"@{handle}"
+    return None
+
+
+def extract_vk_user_id(user: Optional[Dict[str, Any]]) -> Optional[str]:
+    if not user or user.get("provider") != "vk":
+        return None
+    raw = str(user.get("id") or "")
+    if raw.startswith("vk:"):
+        return raw.split("vk:", 1)[1]
+    return None
+
+
+async def send_telegram_message(chat_id: str, text: str) -> bool:
+    if not TELEGRAM_BOT_TOKEN:
+        raise RuntimeError("Telegram бот не настроен")
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": text,
+        "disable_web_page_preview": True,
+    }
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.post(url, data=payload)
+    data = {}
+    try:
+        data = resp.json()
+    except Exception:
+        data = {}
+    if not resp.is_success or not data.get("ok"):
+        error = data.get("description") or resp.text
+        raise RuntimeError(f"Telegram send failed: {error}")
+    return True
+
+
+async def send_vk_message(user_id: str, text: str) -> bool:
+    if not VK_MESSAGE_TOKEN:
+        raise RuntimeError("VK отправка не настроена")
+    params = {
+        "access_token": VK_MESSAGE_TOKEN,
+        "v": VK_API_VERSION,
+        "user_id": user_id,
+        "message": text,
+        "random_id": secrets.randbelow(1_000_000_000),
+    }
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.post("https://api.vk.com/method/messages.send", params=params)
+    data = {}
+    try:
+        data = resp.json()
+    except Exception:
+        data = {}
+    if "error" in data:
+        raise RuntimeError(data["error"].get("error_msg") or "VK send failed")
+    return True
 
 
 oauth = OAuth() if OAuth else None
@@ -566,7 +827,12 @@ def build_vk_link(handle: Optional[str]) -> Optional[str]:
 def save_agreement(payload: Dict[str, Any]) -> Path:
     file_name = f"agreement_{int(time.time())}_{secrets.token_hex(4)}.json"
     path = AGREEMENTS_DIR / file_name
-    save_json(path, payload)
+    data = dict(payload)
+    if not data.get("contract_token"):
+        data["contract_token"] = generate_contract_token()
+    if (data.get("contract_status") or "").strip() not in CONTRACT_STATUS_META:
+        data["contract_status"] = "draft"
+    save_json(path, data)
     return path
 
 

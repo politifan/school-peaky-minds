@@ -17,16 +17,22 @@ import core
 from core import (
     USERS_FILE,
     admin_required,
+    build_contract_url,
+    contract_channel_label,
+    contract_status_from_item,
     filter_items,
     get_admin_ids,
     load_agreements,
     load_json,
     load_leads,
     load_metrics,
+    materials_to_text,
+    normalize_materials,
     parse_date,
     render,
     save_whitelist,
     update_agreement_status,
+    update_agreement_contract_status,
     update_lead_status,
 )
 
@@ -70,6 +76,12 @@ AGREEMENT_STATUS_OPTIONS = [
     ("paid", "Оплачен"),
     ("review", "На проверке"),
     ("canceled", "Отменён"),
+]
+
+CONTRACT_STATUS_OPTIONS = [
+    ("draft", "Черновик"),
+    ("sent", "Отправлен"),
+    ("signed", "Подписан"),
 ]
 
 
@@ -575,8 +587,15 @@ def _admin_panel_impl(request: Request):
     agreements_view = []
     for item in agreements_display:
         status_key, status_label, status_class = agreement_status_from_item(item)
+        contract_key, contract_label, contract_class = contract_status_from_item(item)
         manual_status = (item.get("status") or "").strip()
         amount_display = format_amount(item.get("amount"))
+        total_lessons = safe_int(item.get("total_lessons"), 0) if item.get("total_lessons") is not None else None
+        paid_lessons = safe_int(item.get("paid_lessons"), 0) if item.get("paid_lessons") is not None else None
+        remaining_lessons = None
+        if total_lessons is not None and paid_lessons is not None:
+            remaining_lessons = max(total_lessons - paid_lessons, 0)
+        materials = normalize_materials(item.get("materials"))
         agreements_view.append(
             {
                 **item,
@@ -586,6 +605,19 @@ def _admin_panel_impl(request: Request):
                 "status_key": status_key,
                 "manual_status": manual_status,
                 "amount_display": amount_display,
+                "contract_status_key": contract_key,
+                "contract_status_label": contract_label,
+                "contract_status_class": contract_class,
+                "contract_channel_label": contract_channel_label(item.get("contract_channel")),
+                "contract_url": build_contract_url(item.get("contract_token"), request),
+                "contract_sent_at": format_ts(item.get("contract_sent_at")),
+                "contract_signed_at": format_ts(item.get("contract_signed_at")),
+                "total_lessons": total_lessons,
+                "paid_lessons": paid_lessons,
+                "remaining_lessons": remaining_lessons,
+                "current_module": item.get("current_module") or "",
+                "materials_text": materials_to_text(materials),
+                "materials_count": len(materials),
             }
         )
 
@@ -967,6 +999,7 @@ def _admin_panel_impl(request: Request):
             "sources_sorted": sources_sorted,
             "status_options": STATUS_OPTIONS,
             "agreement_status_options": AGREEMENT_STATUS_OPTIONS,
+            "contract_status_options": CONTRACT_STATUS_OPTIONS,
             "status_filters": status_filters,
             "source_filters": source_filters,
             "leads_pagination": leads_pagination,
@@ -1044,6 +1077,74 @@ async def admin_update_agreement_status(request: Request):
     if status == "auto":
         status = ""
     update_agreement_status(file_name, status)
+    return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+
+
+@router.post("/admin/agreements/contract-status", include_in_schema=False)
+async def admin_update_agreement_contract_status(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    file_name = str(form.get("file") or "").strip()
+    status = str(form.get("contract_status") or "").strip()
+    next_url = str(form.get("next") or "/admin")
+    update_agreement_contract_status(file_name, status)
+    return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+
+
+@router.post("/admin/agreements/progress", include_in_schema=False)
+async def admin_update_agreement_progress(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    file_name = str(form.get("file") or "").strip()
+    next_url = str(form.get("next") or "/admin")
+    total_lessons_raw = str(form.get("total_lessons") or "").strip()
+    paid_lessons_raw = str(form.get("paid_lessons") or "").strip()
+    current_module = str(form.get("current_module") or "").strip()
+    materials_raw = str(form.get("materials") or "").strip()
+    if not file_name:
+        return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+    path = core.AGREEMENTS_DIR / file_name
+    if not path.exists():
+        return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+    data = load_json(path, {})
+    if not isinstance(data, dict):
+        return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+
+    try:
+        total_lessons = int(total_lessons_raw) if total_lessons_raw else None
+    except Exception:
+        total_lessons = None
+    try:
+        paid_lessons = int(paid_lessons_raw) if paid_lessons_raw else None
+    except Exception:
+        paid_lessons = None
+
+    if total_lessons is not None:
+        data["total_lessons"] = total_lessons
+    else:
+        data.pop("total_lessons", None)
+
+    if paid_lessons is not None:
+        data["paid_lessons"] = paid_lessons
+    else:
+        data.pop("paid_lessons", None)
+
+    if current_module:
+        data["current_module"] = current_module
+    else:
+        data.pop("current_module", None)
+
+    materials = normalize_materials(materials_raw)
+    if materials:
+        data["materials"] = materials
+    else:
+        data.pop("materials", None)
+
+    save_json(path, data)
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
@@ -1230,7 +1331,27 @@ def export_agreements(request: Request):
 
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["timestamp", "course", "full_name", "phone", "email", "telegram", "amount", "status"])
+    writer.writerow(
+        [
+            "timestamp",
+            "course",
+            "full_name",
+            "phone",
+            "email",
+            "telegram",
+            "amount",
+            "status",
+            "contract_token",
+            "contract_status",
+            "contract_channel",
+            "contract_sent_at",
+            "contract_signed_at",
+            "total_lessons",
+            "paid_lessons",
+            "current_module",
+            "materials",
+        ]
+    )
     for item in agreements:
         _, status_label, _ = agreement_status_from_item(item)
         writer.writerow([
@@ -1242,6 +1363,15 @@ def export_agreements(request: Request):
             item.get("telegram"),
             item.get("amount"),
             status_label,
+            item.get("contract_token"),
+            item.get("contract_status"),
+            item.get("contract_channel"),
+            item.get("contract_sent_at"),
+            item.get("contract_signed_at"),
+            item.get("total_lessons"),
+            item.get("paid_lessons"),
+            item.get("current_module"),
+            materials_to_text(item.get("materials")),
         ])
     return Response(
         content=output.getvalue(),

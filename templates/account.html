@@ -21,7 +21,7 @@
         <h1>Личный кабинет</h1>
         {% if user %}
         <p>Вы вошли как <strong>{{ user.name or user.email }}</strong>.</p>
-        <p>Проверьте доступные курсы и оформите запись.</p>
+        <p>Здесь собраны ваши договоры, прогресс обучения и материалы.</p>
         {% endif %}
       </div>
       <div class="auth-cta">
@@ -29,6 +29,84 @@
         <a class="btn btn-primary" href="/logout">Выйти</a>
       </div>
     </div>
+
+    <section class="panel" style="margin-top: 24px;">
+      <div class="admin-section-head">
+        <h2 class="section-title">Ключевые пункты договора</h2>
+        <div class="admin-section-actions">
+          <a class="btn btn-secondary" href="/documents/course_agreement.pdf" target="_blank" rel="noopener">Скачать договор</a>
+        </div>
+      </div>
+      <ul class="admin-list">
+        {% for point in contract_key_points %}
+        <li><span>{{ point }}</span></li>
+        {% endfor %}
+      </ul>
+      {% if contract_documents %}
+      <div style="height: 12px;"></div>
+      <div class="course-meta">Документы</div>
+      <ul class="admin-list">
+        {% for title, doc in contract_documents %}
+        <li>
+          <span>{{ title }}</span>
+          <a class="admin-copy" href="{{ doc }}" target="_blank" rel="noopener">Открыть</a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </section>
+
+    <section class="panel" style="margin-top: 24px;">
+      <div class="admin-section-head">
+        <h2 class="section-title">Мои курсы</h2>
+        <div class="admin-section-actions">
+          <span class="admin-badge">Всего: {{ agreements|length }}</span>
+        </div>
+      </div>
+      {% if agreements %}
+      <div class="admin-grid two" style="margin-top: 18px;">
+        {% for item in agreements %}
+        <div class="card">
+          <div class="course-meta">Курс</div>
+          <h3>{{ item.course or "—" }}</h3>
+          <div class="admin-cell" style="margin-top: 10px;">
+            <span class="admin-status {{ item.contract_status_class }}">{{ item.contract_status_label }}</span>
+            {% if item.contract_url %}
+            <a class="admin-copy" href="{{ item.contract_url }}" target="_blank" rel="noopener">Открыть договор</a>
+            {% endif %}
+          </div>
+          <div class="admin-subtext" style="margin-top: 8px;">
+            Канал отправки: {{ item.contract_channel_label }}
+          </div>
+          <div style="height: 12px;"></div>
+          <div class="course-meta">Прогресс</div>
+          <ul class="admin-list">
+            <li><span>Оплачено занятий</span><strong>{{ item.paid_lessons if item.paid_lessons is not none else "—" }}</strong></li>
+            <li><span>Всего занятий</span><strong>{{ item.total_lessons if item.total_lessons is not none else "—" }}</strong></li>
+            <li><span>Осталось занятий</span><strong>{{ item.remaining_lessons if item.remaining_lessons is not none else "—" }}</strong></li>
+            <li><span>Текущий модуль</span><strong>{{ item.current_module }}</strong></li>
+          </ul>
+          <div style="height: 12px;"></div>
+          <div class="course-meta">Материалы модуля</div>
+          {% if item.materials %}
+          <ul class="admin-list">
+            {% for material in item.materials %}
+            <li>
+              <span>{{ material.title or material.url }}</span>
+              <a class="admin-copy" href="{{ material.url }}" target="_blank" rel="noopener">Открыть</a>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p>Материалы будут доступны позже.</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p>Пока нет оформленных договоров. После записи на курс договор появится здесь.</p>
+      {% endif %}
+    </section>
   </main>
 </body>
 </html>
