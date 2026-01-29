@@ -271,9 +271,8 @@ links.forEach((link) => {
           <h2>Выберите направление</h2>
           <p>4 трека под разные цели и уровень подготовки.</p>
         </div>
-        <div class="course-carousel reveal" data-carousel>
-          <div class="course-carousel__viewport" data-carousel-viewport aria-label="Карточки курсов">
-            <div class="course-carousel__track" data-carousel-track>
+        <div class="course-carousel reveal">
+          <amp-carousel id="courses-carousel" class="course-carousel__viewport" layout="fixed-height" height="560" type="carousel" aria-label="Карточки курсов">
               <article class="course-card course-carousel__slide course-card--fullstack">
                 <div class="course-card__header">
                   <div class="course-card__tag">Full‑stack разработчик</div>
@@ -402,21 +401,19 @@ links.forEach((link) => {
                   <a class="btn btn-primary" href="#apply">Записаться</a>
                 </div>
               </article>
-            </div>
-          </div>
+          </amp-carousel>
           <div class="course-carousel__controls">
-            <button class="carousel-btn" type="button" data-carousel-prev aria-label="Предыдущий курс">
+            <button class="carousel-btn" type="button" on="tap:courses-carousel.prev" aria-label="Предыдущий курс">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M15 6l-6 6 6 6" />
               </svg>
             </button>
-            <button class="carousel-btn" type="button" data-carousel-next aria-label="Следующий курс">
+            <button class="carousel-btn" type="button" on="tap:courses-carousel.next" aria-label="Следующий курс">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M9 6l6 6-6 6" />
               </svg>
             </button>
           </div>
-          <div class="course-carousel__dots" data-carousel-dots></div>
         </div>
       </div>
     </section>
