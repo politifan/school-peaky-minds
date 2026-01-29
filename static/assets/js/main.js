@@ -56,11 +56,9 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-const faqButtons = document.querySelectorAll('.faq-item button');
-faqButtons.forEach((btn) => {
-  btn.addEventListener('click', () => {
-    const item = btn.closest('.faq-item');
-    if (!item) return;
+const faqItems = document.querySelectorAll('.faq-item');
+faqItems.forEach((item) => {
+  item.addEventListener('click', () => {
     item.classList.toggle('open');
   });
 });

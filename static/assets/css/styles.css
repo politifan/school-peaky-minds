@@ -332,6 +332,7 @@ section {
   .hero-copy h1 {
     background: linear-gradient(120deg, #ffffff 0%, rgba(99, 247, 211, 0.95) 40%, rgba(255, 179, 71, 0.95) 70%, #ffffff 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     color: transparent;
   }
 }
@@ -1559,6 +1560,11 @@ select:focus {
   display: block;
   margin-top: 8px;
   color: var(--text-2);
+}
+
+.footer-grid a.inline-link {
+  display: inline;
+  margin-top: 0;
 }
 
 .modal {

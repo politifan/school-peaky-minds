@@ -1,0 +1,18 @@
+{
+  "total_visits": 21,
+  "unique_visits": 1,
+  "unique_ids": {
+    "1b9b171a65cec8eb": 1769707636
+  },
+  "path_counts": {
+    "/": 17,
+    "/login": 3,
+    "/admin": 1
+  },
+  "funnel": {
+    "home": 17,
+    "login": 3,
+    "apply": 0,
+    "enroll": 0
+  }
+}
