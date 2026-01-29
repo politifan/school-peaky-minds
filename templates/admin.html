@@ -14,7 +14,7 @@
   <div class="bg-orb orb-2"></div>
   <div class="bg-orb orb-3"></div>
 
-  <main class="container admin-container">
+  <main class="container admin-container" id="admin-top">
     <header class="panel admin-hero">
       <div class="admin-hero__content">
         <a class="page-back" href="/">← На главную</a>
@@ -35,7 +35,16 @@
       </div>
     </header>
 
-    <section class="panel" style="margin-top: 24px;">
+    <nav class="panel admin-nav" aria-label="Навигация по админке">
+      <a href="#admin-overview">Обзор</a>
+      <a href="#admin-leads">Заявки</a>
+      <a href="#admin-agreements">Договоры</a>
+      <a href="#admin-users">Пользователи</a>
+      <a href="#admin-whitelist">Whitelist</a>
+      <a href="#admin-top">Наверх ↑</a>
+    </nav>
+
+    <section class="panel" id="admin-overview" style="margin-top: 24px;">
       <div class="admin-section-head">
         <h2 class="section-title">Обзор</h2>
         <div class="admin-section-actions">
@@ -315,7 +324,7 @@
       </div>
     </section>
 
-    <section class="panel" style="margin-top: 24px;">
+    <section class="panel" id="admin-leads" style="margin-top: 24px;">
       <div class="admin-section-head">
         <h2 class="section-title">Заявки</h2>
         <div class="admin-section-actions">
@@ -491,7 +500,7 @@
       {% endif %}
     </section>
 
-    <section class="panel" style="margin-top: 24px;">
+    <section class="panel" id="admin-agreements" style="margin-top: 24px;">
       <div class="admin-section-head">
         <h2 class="section-title">Покупки / договоры</h2>
         <div class="admin-section-actions">
@@ -569,7 +578,7 @@
       {% endif %}
     </section>
 
-    <section class="panel" style="margin-top: 24px;">
+    <section class="panel" id="admin-users" style="margin-top: 24px;">
       <div class="admin-section-head">
         <h2 class="section-title">Пользователи</h2>
         <div class="admin-section-actions">
@@ -605,7 +614,7 @@
       {% endif %}
     </section>
 
-    <section class="panel" style="margin-top: 24px; margin-bottom: 140px;">
+    <section class="panel" id="admin-whitelist" style="margin-top: 24px; margin-bottom: 140px;">
       <div class="admin-section-head">
         <h2 class="section-title">Whitelist Telegram</h2>
         <div class="admin-section-actions">
