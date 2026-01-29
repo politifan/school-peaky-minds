@@ -15,36 +15,42 @@
   <div class="bg-orb orb-3"></div>
 
   <main class="container admin-container" id="admin-top">
-    <header class="panel admin-hero">
-      <div class="admin-hero__content">
-        <a class="page-back" href="/">← На главную</a>
-        <div>
-          <h1>Админ панель</h1>
-          <p>Метрики, заявки, пользователи и whitelist Telegram.</p>
-        </div>
-        <div class="admin-meta">
-          <span class="admin-chip">Последняя активность: {{ last_activity }}</span>
-          <span class="admin-chip">Фильтр: {{ filters_label }}</span>
-          <span class="admin-chip">Пользователей: {{ users_total }}</span>
-        </div>
-      </div>
-      <div class="admin-hero__actions">
-        <a class="btn btn-secondary" href="/admin/export/leads.csv{{ export_query }}">CSV заявок</a>
-        <a class="btn btn-secondary" href="/admin/export/agreements.csv{{ export_query }}">CSV договоров</a>
-        <a class="btn btn-secondary" href="/admin/export/users.csv">CSV пользователей</a>
-      </div>
-    </header>
+    <div class="admin-layout">
+      <aside class="panel admin-sidebar" aria-label="Навигация по админке">
+        <div class="admin-sidebar__title">Админка</div>
+        <nav class="admin-sidebar__nav">
+          <a class="{% if view == 'overview' %}is-active{% endif %}" href="/admin">Обзор</a>
+          <a class="{% if view == 'leads' %}is-active{% endif %}" href="/admin?view=leads">Заявки</a>
+          <a class="{% if view == 'agreements' %}is-active{% endif %}" href="/admin?view=agreements">Договоры</a>
+          <a class="{% if view == 'users' %}is-active{% endif %}" href="/admin?view=users">Пользователи</a>
+          <a class="{% if view == 'whitelist' %}is-active{% endif %}" href="/admin?view=whitelist">Whitelist</a>
+          <a href="/">На главную</a>
+        </nav>
+      </aside>
 
-    <nav class="panel admin-nav" aria-label="Навигация по админке">
-      <a href="#admin-overview">Обзор</a>
-      <a href="#admin-leads">Заявки</a>
-      <a href="#admin-agreements">Договоры</a>
-      <a href="#admin-users">Пользователи</a>
-      <a href="#admin-whitelist">Whitelist</a>
-      <a href="#admin-top">Наверх ↑</a>
-    </nav>
+      <div class="admin-content">
+        <header class="panel admin-hero">
+          <div class="admin-hero__content">
+            <a class="page-back" href="/">← На главную</a>
+            <div>
+              <h1>Админ панель</h1>
+              <p>Метрики, заявки, пользователи и whitelist Telegram.</p>
+            </div>
+            <div class="admin-meta">
+              <span class="admin-chip">Последняя активность: {{ last_activity }}</span>
+              <span class="admin-chip">Фильтр: {{ filters_label }}</span>
+              <span class="admin-chip">Пользователей: {{ users_total }}</span>
+            </div>
+          </div>
+          <div class="admin-hero__actions">
+            <a class="btn btn-secondary" href="/admin/export/leads.csv{{ export_query }}">CSV заявок</a>
+            <a class="btn btn-secondary" href="/admin/export/agreements.csv{{ export_query }}">CSV договоров</a>
+            <a class="btn btn-secondary" href="/admin/export/users.csv">CSV пользователей</a>
+          </div>
+        </header>
 
-    <section class="panel" id="admin-overview" style="margin-top: 24px;">
+        {% if view == 'overview' %}
+        <section class="panel" id="admin-overview" style="margin-top: 24px;">
       <div class="admin-section-head">
         <h2 class="section-title">Обзор</h2>
         <div class="admin-section-actions">
@@ -323,8 +329,10 @@
         </div>
       </div>
     </section>
+        {% endif %}
 
-    <section class="panel" id="admin-leads" style="margin-top: 24px;">
+        {% if view == 'leads' %}
+        <section class="panel" id="admin-leads" style="margin-top: 24px;">
       <div class="admin-section-head">
         <h2 class="section-title">Заявки</h2>
         <div class="admin-section-actions">
@@ -333,6 +341,7 @@
         </div>
       </div>
       <form class="admin-filter" method="get" action="/admin">
+        <input type="hidden" name="view" value="leads">
         <input type="hidden" name="status" value="{{ filters.status }}">
         <input type="hidden" name="source" value="{{ filters.source }}">
         <div class="admin-filter__row">
@@ -499,8 +508,10 @@
       <p>Заявок пока нет.</p>
       {% endif %}
     </section>
+        {% endif %}
 
-    <section class="panel" id="admin-agreements" style="margin-top: 24px;">
+        {% if view == 'agreements' %}
+        <section class="panel" id="admin-agreements" style="margin-top: 24px;">
       <div class="admin-section-head">
         <h2 class="section-title">Покупки / договоры</h2>
         <div class="admin-section-actions">
@@ -577,8 +588,10 @@
       <p>Договоров пока нет.</p>
       {% endif %}
     </section>
+        {% endif %}
 
-    <section class="panel" id="admin-users" style="margin-top: 24px;">
+        {% if view == 'users' %}
+        <section class="panel" id="admin-users" style="margin-top: 24px;">
       <div class="admin-section-head">
         <h2 class="section-title">Пользователи</h2>
         <div class="admin-section-actions">
@@ -613,8 +626,10 @@
       <p>Пользователей пока нет.</p>
       {% endif %}
     </section>
+        {% endif %}
 
-    <section class="panel" id="admin-whitelist" style="margin-top: 24px; margin-bottom: 140px;">
+        {% if view == 'whitelist' %}
+        <section class="panel" id="admin-whitelist" style="margin-top: 24px; margin-bottom: 140px;">
       <div class="admin-section-head">
         <h2 class="section-title">Whitelist Telegram</h2>
         <div class="admin-section-actions">
@@ -636,6 +651,9 @@
         <button class="btn btn-primary" type="submit">Сохранить whitelist</button>
       </form>
     </section>
+        {% endif %}
+      </div>
+    </div>
   </main>
 
   <script>

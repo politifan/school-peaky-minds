@@ -374,6 +374,10 @@ def _admin_panel_impl(request: Request):
     if not isinstance(users_data, dict):
         users_data = {}
 
+    view = request.query_params.get("view") or "overview"
+    allowed_views = {"overview", "leads", "agreements", "users", "whitelist"}
+    if view not in allowed_views:
+        view = "overview"
     course = request.query_params.get("course") or ""
     date_from_value = request.query_params.get("date_from", "")
     date_to_value = request.query_params.get("date_to", "")
@@ -621,6 +625,8 @@ def _admin_panel_impl(request: Request):
     filters_label = " · ".join(filter_bits) if filter_bits else "Все данные"
 
     params = {}
+    if view != "overview":
+        params["view"] = view
     if course:
         params["course"] = course
     if date_from_value:
@@ -924,6 +930,7 @@ def _admin_panel_impl(request: Request):
             "path_counts_sorted": path_counts_sorted,
             "user": request.session.get("user"),
             "courses": courses,
+            "view": view,
             "filters": {
                 "course": course,
                 "date_from": date_from_value,
