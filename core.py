@@ -184,8 +184,10 @@ def update_lead_status(file_name: str, status: str) -> bool:
         return False
     if status:
         data["status"] = status
+        data["status_updated_at"] = int(time.time())
     else:
         data.pop("status", None)
+        data.pop("status_updated_at", None)
     save_json(path, data)
     return True
 

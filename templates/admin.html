@@ -196,6 +196,82 @@
       </div>
       <div class="admin-grid two" style="margin-top: 18px;">
         <div class="card">
+          <div class="course-meta">Pipeline продаж</div>
+          <div class="funnel-list">
+            {% for step in pipeline_steps %}
+            <div class="funnel-item">
+              <div>
+                <div class="funnel-title">{{ step.label }}</div>
+                <div class="funnel-meta">{{ step.count }}</div>
+              </div>
+              <div class="funnel-bar">
+                <div style="width: {{ step.pct }}%;"></div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="card">
+          <div class="course-meta">SLA и просрочки</div>
+          <div class="admin-list">
+            <li><span>Среднее время ответа</span><strong>{% if avg_response %}{{ avg_response }} мин{% else %}—{% endif %}</strong></li>
+            <li><span>Просроченные лиды</span><strong>{{ stale_leads|length }}</strong></li>
+          </div>
+          <div style="height: 12px;"></div>
+          <div class="course-meta">Просроченные лиды</div>
+          {% if stale_leads %}
+          <ul class="admin-list">
+            {% for lead in stale_leads %}
+            <li>
+              <span class="admin-truncate" title="{{ lead.name }}">{{ lead.name }}</span>
+              <strong>{{ lead.age }}ч</strong>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p>Нет просроченных лидов.</p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="admin-grid two" style="margin-top: 18px;">
+        <div class="card">
+          <div class="course-meta">UTM источники</div>
+          {% if utm_sources %}
+          <ul class="admin-list">
+            {% for label, count in utm_sources %}
+            <li><span class="admin-truncate" title="{{ label }}">{{ label }}</span><strong>{{ count }}</strong></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p>Пока нет UTM-источников.</p>
+          {% endif %}
+        </div>
+        <div class="card">
+          <div class="course-meta">UTM кампании</div>
+          {% if utm_campaigns %}
+          <ul class="admin-list">
+            {% for label, count in utm_campaigns %}
+            <li><span class="admin-truncate" title="{{ label }}">{{ label }}</span><strong>{{ count }}</strong></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p>Пока нет UTM-кампаний.</p>
+          {% endif %}
+          <div style="height: 12px;"></div>
+          <div class="course-meta">UTM medium</div>
+          {% if utm_mediums %}
+          <ul class="admin-list">
+            {% for label, count in utm_mediums %}
+            <li><span class="admin-truncate" title="{{ label }}">{{ label }}</span><strong>{{ count }}</strong></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p>Пока нет UTM-medium.</p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="admin-grid two" style="margin-top: 18px;">
+        <div class="card">
           <div class="course-meta">Топ страниц</div>
           {% if path_counts_sorted %}
             <ul class="admin-list">
@@ -344,6 +420,7 @@
               <th>Источник</th>
               <th>Страница</th>
               <th><button type="button" class="admin-sort" data-sort="status">Статус</button></th>
+              <th>CRM</th>
             </tr>
           </thead>
           <tbody>
@@ -379,6 +456,16 @@
                     </select>
                     <button class="admin-copy" type="submit">OK</button>
                   </div>
+                </form>
+              </td>
+              <td>
+                <form class="admin-meta-form" action="/admin/leads/meta" method="post">
+                  <input type="hidden" name="file" value="{{ lead._file }}">
+                  <input type="hidden" name="next" value="{{ next_url }}">
+                  <input class="admin-input" type="text" name="tags" placeholder="Теги" value="{{ lead.tags }}">
+                  <input class="admin-input" type="text" name="note" placeholder="Заметка" value="{{ lead.note }}">
+                  <input class="admin-input" type="date" name="next_contact" value="{{ lead.next_contact }}">
+                  <button class="admin-copy" type="submit">OK</button>
                 </form>
               </td>
             </tr>
@@ -423,6 +510,7 @@
               <th>Телефон</th>
               <th>Email</th>
               <th>Telegram</th>
+              <th>Сумма</th>
               <th>Статус</th>
             </tr>
           </thead>
@@ -435,6 +523,14 @@
               <td>{{ item.phone or "—" }}</td>
               <td>{{ item.email or "—" }}</td>
               <td>{{ item.telegram or "—" }}</td>
+              <td>
+                <form class="admin-meta-form" action="/admin/agreements/amount" method="post">
+                  <input type="hidden" name="file" value="{{ item._file }}">
+                  <input type="hidden" name="next" value="{{ next_url }}">
+                  <input class="admin-input" type="text" name="amount" placeholder="₽" value="{{ item.amount_display if item.amount_display != '—' else '' }}">
+                  <button class="admin-copy" type="submit">OK</button>
+                </form>
+              </td>
               <td>
                 <form class="admin-status-form" action="/admin/agreements/status" method="post">
                   <input type="hidden" name="file" value="{{ item._file }}">

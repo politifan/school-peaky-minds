@@ -34,6 +34,11 @@ router = APIRouter()
 
 STATUS_META = {
     "new": ("Новая", "status-new"),
+    "contacted": ("Связались", "status-warm"),
+    "qualified": ("Квалифицирован", "status-warm"),
+    "call_scheduled": ("Созвон", "status-new"),
+    "paid": ("Оплачен", "status-good"),
+    "lost": ("Потерян", "status-muted"),
     "in_progress": ("В работе", "status-warm"),
     "closed": ("Закрыта", "status-muted"),
     "archived": ("Архив", "status-muted"),
@@ -42,8 +47,14 @@ STATUS_META = {
 STATUS_OPTIONS = [
     ("auto", "Авто"),
     ("new", "Новая"),
+    ("contacted", "Связались"),
+    ("qualified", "Квалифицирован"),
+    ("call_scheduled", "Созвон"),
+    ("paid", "Оплачен"),
+    ("lost", "Потерян"),
     ("in_progress", "В работе"),
     ("closed", "Закрыта"),
+    ("archived", "Архив"),
 ]
 
 AGREEMENT_STATUS_META = {
@@ -76,6 +87,40 @@ def safe_int(value: Any, default: int = 0) -> int:
         return int(value)
     except Exception:
         return default
+
+
+def format_amount(value: Any) -> str:
+    amount = parse_amount(value)
+    if amount is None:
+        return "—"
+    if amount.is_integer():
+        return str(int(amount))
+    return f"{amount:.2f}".rstrip("0").rstrip(".")
+
+
+def normalize_tags(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, list):
+        raw = ",".join([str(item) for item in value])
+    else:
+        raw = str(value)
+    parts = [part.strip() for part in re.split(r"[,\n]+", raw) if part.strip()]
+    return ", ".join(parts)
+
+
+def format_date_input(value: Any) -> str:
+    if not value:
+        return ""
+    if isinstance(value, date):
+        return value.strftime("%Y-%m-%d")
+    text = str(value).strip()
+    if re.match(r"^\d{4}-\d{2}-\d{2}$", text):
+        return text
+    try:
+        return datetime.fromtimestamp(int(text)).strftime("%Y-%m-%d")
+    except Exception:
+        return ""
 
 
 def status_from_item(item: Dict[str, Any]) -> Tuple[str, str, str]:
@@ -162,6 +207,36 @@ def extract_source(page: str) -> str:
     if host:
         return host
     return "Прямой"
+
+
+def extract_utm(page: str) -> Dict[str, str]:
+    if not page:
+        return {}
+    try:
+        parsed = urlparse(page)
+        params = parse_qs(parsed.query)
+    except Exception:
+        return {}
+    result = {}
+    for key in ("utm_source", "utm_medium", "utm_campaign"):
+        if key in params and params[key]:
+            result[key] = params[key][0][:64]
+    return result
+
+
+def parse_amount(value: Any) -> Optional[float]:
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value).strip().replace(" ", "")
+    if not text:
+        return None
+    text = text.replace(",", ".")
+    try:
+        return float(text)
+    except Exception:
+        return None
 
 
 def build_query(params: Dict[str, str], *, exclude: Optional[List[str]] = None) -> str:
@@ -337,9 +412,94 @@ def _admin_panel_impl(request: Request):
     if source_filter:
         leads = [item for item in leads if item.get("_source") == source_filter]
 
+    pipeline_order = ["new", "contacted", "qualified", "call_scheduled", "paid", "lost", "archived"]
+    pipeline_labels = {
+        "new": "Новый",
+        "contacted": "Связались",
+        "qualified": "Квалифицирован",
+        "call_scheduled": "Созвон",
+        "paid": "Оплатил",
+        "lost": "Потерян",
+        "archived": "Архив",
+    }
+    pipeline_counts = {key: 0 for key in pipeline_order}
+    for item in leads:
+        status_key, _, _ = status_from_item(item)
+        if status_key == "in_progress":
+            status_key = "contacted"
+        if status_key == "closed":
+            status_key = "lost"
+        if status_key not in pipeline_counts:
+            status_key = "archived"
+        pipeline_counts[status_key] += 1
+    pipeline_max = max(pipeline_counts.values()) if pipeline_counts else 1
+    if pipeline_max == 0:
+        pipeline_max = 1
+    pipeline_steps = [
+        {
+            "key": key,
+            "label": pipeline_labels.get(key, key),
+            "count": pipeline_counts.get(key, 0),
+            "pct": round((pipeline_counts.get(key, 0) / pipeline_max) * 100, 1),
+        }
+        for key in pipeline_order
+    ]
+
+    utm_source_counts: Dict[str, int] = {}
+    utm_medium_counts: Dict[str, int] = {}
+    utm_campaign_counts: Dict[str, int] = {}
+    for item in leads:
+        utm = extract_utm(item.get("page", ""))
+        if utm.get("utm_source"):
+            utm_source_counts[utm["utm_source"]] = utm_source_counts.get(utm["utm_source"], 0) + 1
+        if utm.get("utm_medium"):
+            utm_medium_counts[utm["utm_medium"]] = utm_medium_counts.get(utm["utm_medium"], 0) + 1
+        if utm.get("utm_campaign"):
+            utm_campaign_counts[utm["utm_campaign"]] = utm_campaign_counts.get(utm["utm_campaign"], 0) + 1
+    utm_sources_sorted = sorted(utm_source_counts.items(), key=lambda item: item[1], reverse=True)[:6]
+    utm_mediums_sorted = sorted(utm_medium_counts.items(), key=lambda item: item[1], reverse=True)[:6]
+    utm_campaigns_sorted = sorted(utm_campaign_counts.items(), key=lambda item: item[1], reverse=True)[:6]
+
+    stale_leads = []
+    response_times = []
+    now_dt = datetime.now()
+    for item in leads_all:
+        ts = item.get("timestamp")
+        if not ts:
+            continue
+        created_at = datetime.fromtimestamp(safe_int(ts))
+        status_key, _, _ = status_from_item(item)
+        if status_key == "new":
+            age_hours = (now_dt - created_at).total_seconds() / 3600
+            if age_hours >= 24:
+                stale_leads.append(
+                    {
+                        "name": item.get("name") or "Без имени",
+                        "course": item.get("course") or "—",
+                        "age": round(age_hours),
+                    }
+                )
+        updated_at = item.get("status_updated_at")
+        if updated_at:
+            delta_minutes = (datetime.fromtimestamp(safe_int(updated_at)) - created_at).total_seconds() / 60
+            if delta_minutes >= 0:
+                response_times.append(delta_minutes)
+    stale_leads = sorted(stale_leads, key=lambda item: item.get("age", 0), reverse=True)[:6]
+    avg_response = round(sum(response_times) / len(response_times), 1) if response_times else 0
+
     def lead_sort_key(item: Dict[str, Any]):
         status_key, _, _ = status_from_item(item)
-        order_map = {"new": 0, "in_progress": 1, "closed": 2, "archived": 3}
+        order_map = {
+            "new": 0,
+            "contacted": 1,
+            "qualified": 2,
+            "call_scheduled": 3,
+            "paid": 4,
+            "lost": 5,
+            "in_progress": 2,
+            "closed": 6,
+            "archived": 7,
+        }
         return (order_map.get(status_key, 3), safe_int(item.get("timestamp", 0)))
 
     lead_key_map = {
@@ -390,6 +550,9 @@ def _admin_panel_impl(request: Request):
     for item in leads_display:
         status_key, status_label, status_class = status_from_item(item)
         manual_status = (item.get("status") or "").strip()
+        tags = normalize_tags(item.get("tags"))
+        note = str(item.get("note") or "").strip()
+        next_contact = format_date_input(item.get("next_contact"))
         leads_view.append(
             {
                 **item,
@@ -399,6 +562,9 @@ def _admin_panel_impl(request: Request):
                 "status_key": status_key,
                 "manual_status": manual_status,
                 "source": item.get("_source") or extract_source(item.get("page", "")),
+                "tags": tags,
+                "note": note,
+                "next_contact": next_contact,
             }
         )
 
@@ -406,6 +572,7 @@ def _admin_panel_impl(request: Request):
     for item in agreements_display:
         status_key, status_label, status_class = agreement_status_from_item(item)
         manual_status = (item.get("status") or "").strip()
+        amount_display = format_amount(item.get("amount"))
         agreements_view.append(
             {
                 **item,
@@ -414,6 +581,7 @@ def _admin_panel_impl(request: Request):
                 "status_class": status_class,
                 "status_key": status_key,
                 "manual_status": manual_status,
+                "amount_display": amount_display,
             }
         )
 
@@ -655,6 +823,17 @@ def _admin_panel_impl(request: Request):
     leads_7d = sum(lead_counts.values())
     enroll_7d = sum(enroll_counts.values())
 
+    agreement_amounts = []
+    paid_count = 0
+    for item in agreements_all:
+        amount = parse_amount(item.get("amount"))
+        if amount is not None:
+            agreement_amounts.append(amount)
+        if agreement_status_from_item(item)[0] == "paid":
+            paid_count += 1
+    revenue_total = round(sum(agreement_amounts), 2) if agreement_amounts else 0
+    revenue_avg = round((revenue_total / len(agreement_amounts)), 2) if agreement_amounts else 0
+
     kpis = [
         {
             "label": "Посещения",
@@ -675,6 +854,16 @@ def _admin_panel_impl(request: Request):
             "label": "Покупки",
             "value": funnel_enroll,
             "note": f"За 24ч: {enroll_24h} · 7 дней: {enroll_7d}",
+        },
+        {
+            "label": "Ответ на лид",
+            "value": f"{avg_response} мин" if avg_response else "—",
+            "note": f"Просрочено (>24ч): {len(stale_leads)}",
+        },
+        {
+            "label": "Выручка",
+            "value": f"{format_amount(revenue_total)} ₽" if revenue_total else "—",
+            "note": f"Средний чек: {format_amount(revenue_avg)} ₽ · Оплат: {paid_count}",
         },
         {
             "label": "Конверсия в заявку",
@@ -755,6 +944,7 @@ def _admin_panel_impl(request: Request):
             "monthly_leads": monthly_leads,
             "monthly_enrolls": monthly_enrolls,
             "funnel_steps": funnel_steps,
+            "pipeline_steps": pipeline_steps,
             "kpis": kpis,
             "filters_label": filters_label,
             "filters_query": filters_query,
@@ -776,6 +966,11 @@ def _admin_panel_impl(request: Request):
             "agreements_pagination": agreements_pagination,
             "next_url": next_url,
             "recent_leads": recent_leads,
+            "utm_sources": utm_sources_sorted,
+            "utm_mediums": utm_mediums_sorted,
+            "utm_campaigns": utm_campaigns_sorted,
+            "stale_leads": stale_leads,
+            "avg_response": avg_response,
         },
     )
 
@@ -795,6 +990,41 @@ async def admin_update_lead_status(request: Request):
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
+@router.post("/admin/leads/meta", include_in_schema=False)
+async def admin_update_lead_meta(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    file_name = str(form.get("file") or "").strip()
+    next_url = str(form.get("next") or "/admin")
+    tags = normalize_tags(form.get("tags"))
+    note = str(form.get("note") or "").strip()
+    next_contact = str(form.get("next_contact") or "").strip()
+    if not file_name:
+        return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+    path = core.LEADS_DIR / file_name
+    if not path.exists():
+        return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+    data = load_json(path, {})
+    if not isinstance(data, dict):
+        return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+    if tags:
+        data["tags"] = tags
+    else:
+        data.pop("tags", None)
+    if note:
+        data["note"] = note
+    else:
+        data.pop("note", None)
+    if next_contact and re.match(r"^\d{4}-\d{2}-\d{2}$", next_contact):
+        data["next_contact"] = next_contact
+    else:
+        data.pop("next_contact", None)
+    save_json(path, data)
+    return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+
+
 @router.post("/admin/agreements/status", include_in_schema=False)
 async def admin_update_agreement_status(request: Request):
     guard = admin_required(request)
@@ -807,6 +1037,32 @@ async def admin_update_agreement_status(request: Request):
     if status == "auto":
         status = ""
     update_agreement_status(file_name, status)
+    return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+
+
+@router.post("/admin/agreements/amount", include_in_schema=False)
+async def admin_update_agreement_amount(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    file_name = str(form.get("file") or "").strip()
+    next_url = str(form.get("next") or "/admin")
+    amount_raw = str(form.get("amount") or "").strip()
+    if not file_name:
+        return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+    path = core.AGREEMENTS_DIR / file_name
+    if not path.exists():
+        return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+    data = load_json(path, {})
+    if not isinstance(data, dict):
+        return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+    amount = parse_amount(amount_raw)
+    if amount is not None:
+        data["amount"] = amount
+    else:
+        data.pop("amount", None)
+    save_json(path, data)
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
@@ -874,11 +1130,21 @@ def export_leads(request: Request):
 
     def lead_sort_key(item: Dict[str, Any]):
         status_key, _, _ = status_from_item(item)
-        order_map = {"new": 0, "in_progress": 1, "closed": 2, "archived": 3}
-        return (order_map.get(status_key, 3), int(item.get("timestamp", 0)))
+        order_map = {
+            "new": 0,
+            "contacted": 1,
+            "qualified": 2,
+            "call_scheduled": 3,
+            "paid": 4,
+            "lost": 5,
+            "in_progress": 2,
+            "closed": 6,
+            "archived": 7,
+        }
+        return (order_map.get(status_key, 3), safe_int(item.get("timestamp", 0)))
 
     lead_key_map = {
-        "date": lambda item: int(item.get("timestamp", 0)),
+        "date": lambda item: safe_int(item.get("timestamp", 0)),
         "name": lambda item: (item.get("name") or "").lower(),
         "course": lambda item: (item.get("course") or "").lower(),
         "status": lead_sort_key,
@@ -921,7 +1187,7 @@ def export_agreements(request: Request):
     agreements = apply_search(agreements, query, ["full_name", "phone", "email", "telegram", "course"])
 
     agreement_key_map = {
-        "date": lambda item: int(item.get("timestamp", 0)),
+        "date": lambda item: safe_int(item.get("timestamp", 0)),
         "name": lambda item: (item.get("full_name") or "").lower(),
         "course": lambda item: (item.get("course") or "").lower(),
     }
@@ -929,7 +1195,7 @@ def export_agreements(request: Request):
 
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["timestamp", "course", "full_name", "phone", "email", "telegram", "status"])
+    writer.writerow(["timestamp", "course", "full_name", "phone", "email", "telegram", "amount", "status"])
     for item in agreements:
         _, status_label, _ = agreement_status_from_item(item)
         writer.writerow([
@@ -939,6 +1205,7 @@ def export_agreements(request: Request):
             item.get("phone"),
             item.get("email"),
             item.get("telegram"),
+            item.get("amount"),
             status_label,
         ])
     return Response(

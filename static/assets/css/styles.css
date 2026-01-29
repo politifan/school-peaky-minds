@@ -1979,7 +1979,7 @@ select:focus {
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 980px;
+  min-width: 1200px;
   font-size: 0.9rem;
 }
 
@@ -2021,6 +2021,23 @@ select:focus {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.admin-meta-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-input {
+  min-width: 110px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-1);
+  font-size: 0.78rem;
 }
 
 .admin-status-form select {
@@ -2155,7 +2172,7 @@ select:focus {
   }
 
   .admin-table {
-    min-width: 620px;
+    min-width: 780px;
   }
 }
 
