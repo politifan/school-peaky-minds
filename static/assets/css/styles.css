@@ -219,16 +219,34 @@ section {
   font-weight: 600;
 }
 
-.logo img {
+.logo img,
+.logo amp-img {
   width: 82px;
   height: 82px;
   object-fit: cover;
   border-radius: 999px;
 }
 
-.logo.small img {
+.logo.small img,
+.logo.small amp-img {
   width: 34px;
   height: 34px;
+}
+
+.logo-title {
+  font-size: 26px;
+}
+
+.card-icon.accent-1 {
+  color: var(--accent-1);
+}
+
+.card-icon.accent-2 {
+  color: var(--accent-2);
+}
+
+.card-icon.accent-3 {
+  color: var(--accent-3);
 }
 
 .nav-links {
@@ -1105,6 +1123,31 @@ section {
   content: "–";
 }
 
+.faq-item > h3 {
+  margin: 0;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text-1);
+  font-family: sans-serif;
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.faq-item > h3::after {
+  content: "+";
+  font-size: 1.2rem;
+  color: var(--accent-2);
+}
+
+.faq-item[expanded] > h3::after {
+  content: "–";
+}
+
 .faq-answer {
   max-height: 0;
   overflow: hidden;
@@ -1113,8 +1156,10 @@ section {
   margin-top: 8px;
 }
 
-.faq-item.open .faq-answer {
-  max-height: 200px;
+.faq-item.open .faq-answer,
+.faq-item[expanded] .faq-answer {
+  max-height: 1000px;
+  overflow: visible;
 }
 
 .btn {
@@ -2072,12 +2117,14 @@ select:focus {
   border-radius: 18px;
   border: 1px solid var(--stroke);
   background: rgba(8, 12, 12, 0.55);
+  max-width: 100%;
 }
 
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1600px;
+  min-width: 1100px;
+  table-layout: fixed;
   font-size: 0.9rem;
 }
 
@@ -2086,6 +2133,9 @@ select:focus {
   padding: 12px 14px;
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  vertical-align: top;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .admin-table th {
@@ -2136,6 +2186,7 @@ select:focus {
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-1);
   font-size: 0.78rem;
+  max-width: 180px;
 }
 
 .admin-textarea {
@@ -2148,6 +2199,7 @@ select:focus {
   color: var(--text-1);
   font-size: 0.78rem;
   resize: vertical;
+  max-width: 320px;
 }
 
 .admin-status-form select {
@@ -2281,6 +2333,20 @@ select:focus {
 
   .admin-grid.two {
     grid-template-columns: 1fr;
+  }
+
+  .admin-status-form,
+  .admin-meta-form,
+  .admin-cell {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-input,
+  .admin-textarea,
+  .admin-status-form select {
+    width: 100%;
+    max-width: 100%;
   }
 }
 

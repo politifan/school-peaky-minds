@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_amp.html" %}
 
 {% block title %}Курс Программирование для бизнеса{% endblock %}
 {% block description %}Курс программирование для бизнеса в IT‑школе Peaky Minds: автоматизация, боты, парсинг и отчёты на Python.{% endblock %}
@@ -104,7 +104,7 @@
           <h1>Программирование для бизнеса: автоматизация и быстрый выход на заработок</h1>
           <p class="lead">С нуля учим Python и доводим до реальных задач: парсинг, боты, отчёты, интеграции, автоматизация таблиц и процессов.</p>
           <div class="hero-actions">
-            <button class="btn btn-primary" data-open-modal="apply">Записаться на курс</button>
+            <a class="btn btn-primary" href="#enroll">Записаться на курс</a>
             <a class="btn btn-secondary" href="#program">Смотреть программу</a>
           </div>
           <div class="archive-stack reveal">
@@ -153,7 +153,7 @@ pe.save_as(records=summary, dest_file_name="report.xlsx")
         <h2 class="section-title reveal">Для кого курс</h2>
         <div class="card-grid three reveal">
           <div class="card">
-            <div class="card-icon" style="color: var(--accent-2);">
+            <div class="card-icon accent-2">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 7h16v10H4z"></path>
                 <path d="M8 7V5h8v2"></path>
@@ -164,7 +164,7 @@ pe.save_as(records=summary, dest_file_name="report.xlsx")
             <p>Практический Python для задач бизнеса.</p>
           </div>
           <div class="card">
-            <div class="card-icon" style="color: var(--accent-1);">
+            <div class="card-icon accent-1">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 6h16"></path>
                 <path d="M4 12h16"></path>
@@ -176,7 +176,7 @@ pe.save_as(records=summary, dest_file_name="report.xlsx")
             <p>Автоматизация рутины и отчетности.</p>
           </div>
           <div class="card">
-            <div class="card-icon" style="color: var(--accent-3);">
+            <div class="card-icon accent-3">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="12" r="7"></circle>
                 <circle cx="12" cy="12" r="2"></circle>
@@ -347,43 +347,43 @@ pe.save_as(records=summary, dest_file_name="report.xlsx")
       </div>
     </section>
 
-    <section class="faq" id="faq">
+        <section class="faq" id="faq">
       <div class="container">
-        <h2 class="section-title reveal">FAQ по курсу</h2>
-        <div class="faq-list reveal">
-          <div class="faq-item">
-            <button type="button">Нужен ли опыт в программировании?</button>
+        <h2 class="section-title reveal">FAQ</h2>
+        <amp-accordion class="faq-list reveal">
+          <section class="faq-item">
+            <h3>Нужен ли опыт в программировании?</h3>
             <div class="faq-answer">Нет. Курс рассчитан на новичков и быстрый практический старт.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Можно ли начать зарабатывать быстро?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Можно ли начать зарабатывать быстро?</h3>
             <div class="faq-answer">Да, фриланс‑блок заложен в программу, мы учим искать заказы и оформлять отклики.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Какие проекты будут в портфолио?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Какие проекты будут в портфолио?</h3>
             <div class="faq-answer">Парсеры, боты, отчеты и интеграции для бизнеса — реальные кейсы, а не учебные «демки».</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Будут ли Telegram‑боты и парсинг?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Будут ли Telegram‑боты и парсинг?</h3>
             <div class="faq-answer">Да. Эти блоки — ядро программы, их можно быстро монетизировать.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Можно ли автоматизировать свой бизнес?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Можно ли автоматизировать свой бизнес?</h3>
             <div class="faq-answer">Да. Мы поможем разобрать ваши процессы и собрать инструмент под вашу задачу.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Как проходит практика?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Как проходит практика?</h3>
             <div class="faq-answer">Каждый модуль завершается задачей с реальными данными и разбором кода.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Сколько времени нужно в неделю?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Сколько времени нужно в неделю?</h3>
             <div class="faq-answer">2–4 занятия + самостоятельные задачи. График можно подстроить.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Помогаете ли с фрилансом?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Помогаете ли с фрилансом?</h3>
             <div class="faq-answer">Да. Учим искать заказы, формировать портфолио и вести переговоры.</div>
-          </div>
-        </div>
+          </section>
+        </amp-accordion>
       </div>
     </section>
 
@@ -399,17 +399,17 @@ pe.save_as(records=summary, dest_file_name="report.xlsx")
             </div>
           </div>
           {% if user %}
-          <form class="cta-form" action="/enroll" method="post" data-validate-phone>
+          <form class="cta-form" action="/enroll" method="post" target="_top">
             <input type="hidden" name="course" value="Business">
             <input type="text" name="full_name" placeholder="ФИО" value="{{ user.name or "" }}" required>
             <div class="input-wrap">
-              <input type="tel" name="phone" placeholder="Телефон" data-phone="strict" required>
+              <input type="tel" name="phone" placeholder="Телефон" required>
               <div class="input-hint">Пример: +7 999 000‑00‑00</div>
               <div class="input-error" aria-live="polite"></div>
             </div>
             <input type="email" name="email" placeholder="Email" value="{{ user.email or "" }}" required>
             <div class="input-wrap">
-              <input type="text" name="telegram" placeholder="Telegram (@username)" data-telegram>
+              <input type="text" name="telegram" placeholder="Telegram (@username)">
               <div class="input-hint">Пример: @politifan</div>
               <div class="input-error" aria-live="polite"></div>
               <div class="input-status" aria-live="polite"></div>

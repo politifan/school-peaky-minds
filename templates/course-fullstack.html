@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_amp.html" %}
 
 {% block title %}Курс Full‑stack разработчик{% endblock %}
 {% block description %}Курс Full‑stack разработчик в IT‑школе Peaky Minds: FastAPI, SQLAlchemy, проекты, портфолио и трудоустройство.{% endblock %}
@@ -104,7 +104,7 @@
           <h1>Full‑stack разработчик: от нуля до реальной backend‑разработки</h1>
           <p class="lead">Вы освоите Python, ООП, базы данных и backend на FastAPI. В процессе курса собираем портфолио и выходим на реальные задачи и работу.</p>
           <div class="hero-actions">
-            <button class="btn btn-primary" data-open-modal="apply">Записаться на курс</button>
+            <a class="btn btn-primary" href="#enroll">Записаться на курс</a>
             <a class="btn btn-secondary" href="#program">Смотреть программу</a>
           </div>
           <div class="archive-stack reveal">
@@ -156,7 +156,7 @@ def course(slug: str):
         <h2 class="section-title reveal">Для кого курс</h2>
         <div class="card-grid three reveal">
           <div class="card">
-            <div class="card-icon" style="color: var(--accent-2);">
+            <div class="card-icon accent-2">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="8" r="3"></circle>
                 <path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"></path>
@@ -166,7 +166,7 @@ def course(slug: str):
             <p>Выстраиваем фундамент и идём в боевые задачи.</p>
           </div>
           <div class="card">
-            <div class="card-icon" style="color: var(--accent-1);">
+            <div class="card-icon accent-1">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M6 12h12"></path>
                 <path d="M12 6v12"></path>
@@ -177,7 +177,7 @@ def course(slug: str):
             <p>Нужна структура и сильный проект.</p>
           </div>
           <div class="card">
-            <div class="card-icon" style="color: var(--accent-3);">
+            <div class="card-icon accent-3">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 7h16v10H4z"></path>
                 <path d="M8 7V5h8v2"></path>
@@ -350,43 +350,43 @@ def course(slug: str):
       </div>
     </section>
 
-    <section class="faq" id="faq">
+        <section class="faq" id="faq">
       <div class="container">
-        <h2 class="section-title reveal">FAQ по курсу</h2>
-        <div class="faq-list reveal">
-          <div class="faq-item">
-            <button type="button">Нужно ли знание Python?</button>
+        <h2 class="section-title reveal">FAQ</h2>
+        <amp-accordion class="faq-list reveal">
+          <section class="faq-item">
+            <h3>Нужно ли знание Python?</h3>
             <div class="faq-answer">Нет. Мы начинаем с базы и постепенно выстраиваем уверенный уровень для backend‑задач.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Как быстро появится первый проект?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Как быстро появится первый проект?</h3>
             <div class="faq-answer">Первый проект появляется уже на ранних модулях — обычно в первые 4–6 недель.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Будет ли портфолио?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Будет ли портфолио?</h3>
             <div class="faq-answer">Да, вы соберёте портфолио из нескольких API‑сервисов с документацией и деплоем.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Какие темы по backend будут точно?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Какие темы по backend будут точно?</h3>
             <div class="faq-answer">REST API, авторизация, роли, базы данных, миграции, тестирование, деплой и базовый DevOps.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Будет ли практика с базами данных?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Будет ли практика с базами данных?</h3>
             <div class="faq-answer">Да. Мы проектируем схемы, пишем SQL, работаем с ORM и оптимизацией запросов.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Будет ли деплой в прод?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Будет ли деплой в прод?</h3>
             <div class="faq-answer">Да. Мы учимся упаковывать проект в Docker и выкатывать на сервер.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Как проходит код‑ревью?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Как проходит код‑ревью?</h3>
             <div class="faq-answer">Каждую задачу проверяем и дорабатываем до качества, близкого к рабочему.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Помогаете ли с трудоустройством?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Помогаете ли с трудоустройством?</h3>
             <div class="faq-answer">Да. Есть отдельный блок по резюме, GitHub и тестовым заданиям.</div>
-          </div>
-        </div>
+          </section>
+        </amp-accordion>
       </div>
     </section>
 
@@ -402,17 +402,17 @@ def course(slug: str):
             </div>
           </div>
           {% if user %}
-          <form class="cta-form" action="/enroll" method="post" data-validate-phone>
+          <form class="cta-form" action="/enroll" method="post" target="_top">
             <input type="hidden" name="course" value="Full-stack">
             <input type="text" name="full_name" placeholder="ФИО" value="{{ user.name or "" }}" required>
             <div class="input-wrap">
-              <input type="tel" name="phone" placeholder="Телефон" data-phone="strict" required>
+              <input type="tel" name="phone" placeholder="Телефон" required>
               <div class="input-hint">Пример: +7 999 000‑00‑00</div>
               <div class="input-error" aria-live="polite"></div>
             </div>
             <input type="email" name="email" placeholder="Email" value="{{ user.email or "" }}" required>
             <div class="input-wrap">
-              <input type="text" name="telegram" placeholder="Telegram (@username)" data-telegram>
+              <input type="text" name="telegram" placeholder="Telegram (@username)">
               <div class="input-hint">Пример: @politifan</div>
               <div class="input-error" aria-live="polite"></div>
               <div class="input-status" aria-live="polite"></div>

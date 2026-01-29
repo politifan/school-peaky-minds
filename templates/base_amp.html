@@ -1,0 +1,121 @@
+<!doctype html>
+<html amp lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+  <title>{% block title %}IT‑школа Peaky Minds{% endblock %}</title>
+  <meta name="description" content="{% block description %}IT‑школа Peaky Minds — онлайн обучение программированию с упором на практику, портфолио и первые деньги в профессии.{% endblock %}">
+  <meta name="keywords" content="{% block meta_keywords %}IT школа, курсы программирования, обучение Python, FastAPI, Data Science, ML, фриланс, стажировка, портфолио разработчика{% endblock %}">
+  <meta name="author" content="IT‑школа Peaky Minds">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="application-name" content="IT‑школа Peaky Minds">
+  <meta name="theme-color" content="#0b1110">
+  <link rel="canonical" href="{{ request.base_url }}{{ request.url.path[1:] }}">
+  <meta property="og:site_name" content="IT‑школа Peaky Minds">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:title" content="{{ self.title() | striptags | trim }}">
+  <meta property="og:description" content="{{ self.description() | striptags | trim }}">
+  <meta property="og:url" content="{{ request.base_url }}{{ request.url.path[1:] }}">
+  <meta property="og:image" content="{{ request.base_url }}assets/img/logo.png">
+  <meta property="og:image:alt" content="Логотип IT‑школы Peaky Minds">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ self.title() | striptags | trim }}">
+  <meta name="twitter:description" content="{{ self.description() | striptags | trim }}">
+  <meta name="twitter:image" content="{{ request.base_url }}assets/img/logo.png">
+  <meta name="twitter:image:alt" content="Логотип IT‑школы Peaky Minds">
+  <link rel="alternate" hreflang="ru" href="{{ request.base_url }}{{ request.url.path[1:] }}">
+  <link rel="alternate" hreflang="x-default" href="{{ request.base_url }}{{ request.url.path[1:] }}">
+  {% if seo_google_verification %}
+  <meta name="google-site-verification" content="{{ seo_google_verification }}">
+  {% endif %}
+  {% if seo_yandex_verification %}
+  <meta name="yandex-verification" content="{{ seo_yandex_verification }}">
+  {% endif %}
+  {% if seo_bing_verification %}
+  <meta name="msvalidate.01" content="{{ seo_bing_verification }}">
+  {% endif %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Prata&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "IT‑школа Peaky Minds",
+      "url": "{{ request.base_url }}",
+      "logo": "{{ request.base_url }}assets/img/logo.png"
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "IT‑школа Peaky Minds",
+      "url": "{{ request.base_url }}"
+    }
+  </script>
+  {% block extra_head %}{% endblock %}
+  <script async src="https://cdn.ampproject.org/v0.js"></script>
+  <script async custom-element="amp-form" src="https://cdn.ampproject.org/v0/amp-form-0.1.js"></script>
+  <script async custom-element="amp-accordion" src="https://cdn.ampproject.org/v0/amp-accordion-0.1.js"></script>
+  <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style>
+  <noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+  <style amp-custom>
+{{ amp_css | safe }}
+  </style>
+</head>
+<body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="logo" href="/#top">
+        <amp-img src="/assets/img/logo.png" alt="Логотип IT‑школы Peaky Minds" width="82" height="82" layout="fixed"></amp-img>
+        <span class="logo-title">IT‑школа Peaky Minds</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/#courses">Курсы</a>
+        <a href="/#method">Метод</a>
+        <a href="/#portfolio">Портфолио</a>
+        <a href="/#faq">FAQ</a>
+      </nav>
+      {% if user %}
+        <a class="btn btn-secondary" href="/account">Кабинет</a>
+      {% else %}
+        <a class="btn btn-secondary" href="/login">Войти</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <main id="top">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="logo small">
+          <amp-img src="/assets/img/logo.png" alt="Логотип IT‑школы Peaky Minds" width="34" height="34" layout="fixed"></amp-img>
+          <span>IT‑школа Peaky Minds</span>
+        </div>
+        <p>Онлайн IT‑обучение с фокусом на практике и первые деньги в профессии.</p>
+      </div>
+      <div>
+        <h4>Контакты</h4>
+        <p>График: 16:00–21:00</p>
+        <p>Связь: Telegram / WhatsApp / Email</p>
+      </div>
+      <div>
+        <h4>Навигация</h4>
+        <a href="/#courses">Курсы</a>
+        <a href="/#method">Метод</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

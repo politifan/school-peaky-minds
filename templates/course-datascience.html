@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_amp.html" %}
 
 {% block title %}Курс Data Science / ML{% endblock %}
 {% block description %}Курс Data Science в IT‑школе Peaky Minds: PyTorch, NLP, CV, ML‑сервисы и портфолио.{% endblock %}
@@ -104,7 +104,7 @@
           <h1>Data Science / ML Engineer: обучение с практикой, моделями и API</h1>
           <p class="lead">Вы освоите Python, анализ данных, PyTorch, Hugging Face, CV2 и научитесь разворачивать ML‑модели как сервисы через FastAPI.</p>
           <div class="hero-actions">
-            <button class="btn btn-primary" data-open-modal="apply">Записаться на курс</button>
+            <a class="btn btn-primary" href="#enroll">Записаться на курс</a>
             <a class="btn btn-secondary" href="#program">Смотреть программу</a>
           </div>
           <div class="archive-stack reveal">
@@ -158,7 +158,7 @@ logits = model(batch)
         <h2 class="section-title reveal">Для кого курс</h2>
         <div class="card-grid three reveal">
           <div class="card">
-            <div class="card-icon" style="color: var(--accent-2);">
+            <div class="card-icon accent-2">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="8" r="3"></circle>
                 <path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"></path>
@@ -168,7 +168,7 @@ logits = model(batch)
             <p>Строим базу и идём в реальные модели.</p>
           </div>
           <div class="card">
-            <div class="card-icon" style="color: var(--accent-1);">
+            <div class="card-icon accent-1">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 8h16"></path>
                 <path d="M4 12h16"></path>
@@ -180,7 +180,7 @@ logits = model(batch)
             <p>Переходим на уровень выше.</p>
           </div>
           <div class="card">
-            <div class="card-icon" style="color: var(--accent-3);">
+            <div class="card-icon accent-3">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 7h16v10H4z"></path>
                 <path d="M8 7V5h8v2"></path>
@@ -351,43 +351,43 @@ logits = model(batch)
       </div>
     </section>
 
-    <section class="faq" id="faq">
+        <section class="faq" id="faq">
       <div class="container">
-        <h2 class="section-title reveal">FAQ по курсу</h2>
-        <div class="faq-list reveal">
-          <div class="faq-item">
-            <button type="button">Нужна ли математика?</button>
+        <h2 class="section-title reveal">FAQ</h2>
+        <amp-accordion class="faq-list reveal">
+          <section class="faq-item">
+            <h3>Нужна ли математика?</h3>
             <div class="faq-answer">Достаточно базовых основ. Сложную математику объясняем в момент, когда она реально нужна.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Будет ли практика с данными?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Будет ли практика с данными?</h3>
             <div class="faq-answer">Да, мы работаем с реальными датасетами и задачами бизнеса, а не только с учебными примерами.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Сколько проектов в портфолио?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Сколько проектов в портфолио?</h3>
             <div class="faq-answer">Минимум 3 серьёзных проекта: NLP, CV и табличные данные.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Будет ли обучение моделей на PyTorch?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Будет ли обучение моделей на PyTorch?</h3>
             <div class="faq-answer">Да, от базовых нейросетей до трансформеров и fine‑tuning.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Будет ли деплой моделей?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Будет ли деплой моделей?</h3>
             <div class="faq-answer">Да, разворачиваем inference‑сервисы через FastAPI и учим выкатывать в прод.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Нужна ли мощная видеокарта?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Нужна ли мощная видеокарта?</h3>
             <div class="faq-answer">Нет. Мы поможем настроить облачную среду, если локальной мощности не хватает.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Есть ли подготовка к стажировке?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Есть ли подготовка к стажировке?</h3>
             <div class="faq-answer">Да, отдельный блок по резюме, портфолио и интервью.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Сколько времени нужно в неделю?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Сколько времени нужно в неделю?</h3>
             <div class="faq-answer">В среднем 2–4 занятия в неделю + самостоятельная практика по задачам.</div>
-          </div>
-        </div>
+          </section>
+        </amp-accordion>
       </div>
     </section>
 
@@ -403,17 +403,17 @@ logits = model(batch)
             </div>
           </div>
           {% if user %}
-          <form class="cta-form" action="/enroll" method="post" data-validate-phone>
+          <form class="cta-form" action="/enroll" method="post" target="_top">
             <input type="hidden" name="course" value="Data Science">
             <input type="text" name="full_name" placeholder="ФИО" value="{{ user.name or "" }}" required>
             <div class="input-wrap">
-              <input type="tel" name="phone" placeholder="Телефон" data-phone="strict" required>
+              <input type="tel" name="phone" placeholder="Телефон" required>
               <div class="input-hint">Пример: +7 999 000‑00‑00</div>
               <div class="input-error" aria-live="polite"></div>
             </div>
             <input type="email" name="email" placeholder="Email" value="{{ user.email or "" }}" required>
             <div class="input-wrap">
-              <input type="text" name="telegram" placeholder="Telegram (@username)" data-telegram>
+              <input type="text" name="telegram" placeholder="Telegram (@username)">
               <div class="input-hint">Пример: @politifan</div>
               <div class="input-error" aria-live="polite"></div>
               <div class="input-status" aria-live="polite"></div>

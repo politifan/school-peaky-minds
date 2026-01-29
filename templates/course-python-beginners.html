@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_amp.html" %}
 
 {% block title %}Курс Python для новичков{% endblock %}
 {% block description %}Python для новичков в IT‑школе Peaky Minds: основы, практика, первые проекты и уверенный старт в программировании.{% endblock %}
@@ -88,7 +88,7 @@
           <h1>Python для новичков: быстрый старт в программировании</h1>
           <p class="lead">Осваиваем Python с нуля и сразу закрепляем на практике. Уже во время обучения собираете первые проекты, портфолио и опыт решения реальных задач.</p>
           <div class="hero-actions">
-            <button class="btn btn-primary" data-open-modal="apply">Записаться на курс</button>
+            <a class="btn btn-primary" href="#enroll">Записаться на курс</a>
             <a class="btn btn-secondary" href="#program">Смотреть программу</a>
           </div>
           <div class="archive-stack reveal">
@@ -137,7 +137,7 @@ print("Средняя цена:", sum(prices) / len(prices))
         <h2 class="section-title reveal">Для кого курс</h2>
         <div class="card-grid three reveal">
           <div class="card">
-            <div class="card-icon" style="color: var(--accent-2);">
+            <div class="card-icon accent-2">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="8" r="3"></circle>
                 <path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"></path>
@@ -147,7 +147,7 @@ print("Средняя цена:", sum(prices) / len(prices))
             <p>Получите базу и понимание, как устроен код.</p>
           </div>
           <div class="card">
-            <div class="card-icon" style="color: var(--accent-1);">
+            <div class="card-icon accent-1">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M6 12h12"></path>
                 <path d="M12 6v12"></path>
@@ -158,7 +158,7 @@ print("Средняя цена:", sum(prices) / len(prices))
             <p>Системно освоите Python и практику.</p>
           </div>
           <div class="card">
-            <div class="card-icon" style="color: var(--accent-3);">
+            <div class="card-icon accent-3">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 7h16v10H4z"></path>
                 <path d="M8 7V5h8v2"></path>
@@ -309,23 +309,23 @@ print("Средняя цена:", sum(prices) / len(prices))
       </div>
     </section>
 
-    <section class="faq" id="faq">
+        <section class="faq" id="faq">
       <div class="container">
-        <h2 class="section-title reveal">FAQ по курсу</h2>
-        <div class="faq-list reveal">
-          <div class="faq-item">
-            <button type="button">Нужен ли опыт программирования?</button>
+        <h2 class="section-title reveal">FAQ</h2>
+        <amp-accordion class="faq-list reveal">
+          <section class="faq-item">
+            <h3>Нужен ли опыт программирования?</h3>
             <div class="faq-answer">Нет, курс рассчитан на полный ноль.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Подойдёт ли курс школьникам или студентам?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Подойдёт ли курс школьникам или студентам?</h3>
             <div class="faq-answer">Да, если есть интерес к IT и готовность практиковаться.</div>
-          </div>
-          <div class="faq-item">
-            <button type="button">Будут ли проекты?</button>
+          </section>
+          <section class="faq-item">
+            <h3>Будут ли проекты?</h3>
             <div class="faq-answer">Да, 2–3 проекта с разбором и публикацией на GitHub.</div>
-          </div>
-        </div>
+          </section>
+        </amp-accordion>
       </div>
     </section>
 
@@ -341,17 +341,17 @@ print("Средняя цена:", sum(prices) / len(prices))
             </div>
           </div>
           {% if user %}
-          <form class="cta-form" action="/enroll" method="post" data-validate-phone>
+          <form class="cta-form" action="/enroll" method="post" target="_top">
             <input type="hidden" name="course" value="Python для новичков">
             <input type="text" name="full_name" placeholder="ФИО" value="{{ user.name or "" }}" required>
             <div class="input-wrap">
-              <input type="tel" name="phone" placeholder="Телефон" data-phone="strict" required>
+              <input type="tel" name="phone" placeholder="Телефон" required>
               <div class="input-hint">Пример: +7 999 000‑00‑00</div>
               <div class="input-error" aria-live="polite"></div>
             </div>
             <input type="email" name="email" placeholder="Email" value="{{ user.email or "" }}" required>
             <div class="input-wrap">
-              <input type="text" name="telegram" placeholder="Telegram (@username)" data-telegram>
+              <input type="text" name="telegram" placeholder="Telegram (@username)">
               <div class="input-hint">Пример: @politifan</div>
               <div class="input-error" aria-live="polite"></div>
               <div class="input-status" aria-live="polite"></div>
