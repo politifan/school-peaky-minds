@@ -412,12 +412,25 @@ def account(request: Request):
             }
         )
 
+    total_courses = len(agreements_view)
+    signed_contracts = sum(
+        1 for item in agreements_view if item.get("contract_status_key") == "signed"
+    )
+    remaining_lessons_total = 0
+    for item in agreements_view:
+        remaining_value = item.get("remaining_lessons")
+        if isinstance(remaining_value, int):
+            remaining_lessons_total += remaining_value
+
     return render(
         request,
         "account.html",
         {
             "agreements": agreements_view,
-            "contract_key_points": CONTRACT_KEY_POINTS,
-            "contract_documents": CONTRACT_DOCUMENTS,
+            "account_stats": {
+                "total_courses": total_courses,
+                "signed_contracts": signed_contracts,
+                "remaining_lessons": remaining_lessons_total,
+            },
         },
     )

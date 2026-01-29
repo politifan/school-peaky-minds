@@ -29,11 +29,9 @@
         <li><span>Участник</span><strong>{{ agreement.full_name or agreement.user.name or "—" }}</strong></li>
         <li><span>Канал отправки</span><strong>{{ contract_channel_label }}</strong></li>
       </ul>
-      {% if contract_url %}
       <div style="margin-top: 14px;">
-        <a class="btn btn-secondary" href="{{ contract_url }}" target="_blank" rel="noopener">Открыть ссылку</a>
+        <a class="btn btn-secondary" href="/documents/dogovor.html" target="_blank" rel="noopener">Открыть договор</a>
       </div>
-      {% endif %}
     </section>
 
     {% if message %}
@@ -46,29 +44,6 @@
       <strong>{{ error }}</strong>
     </section>
     {% endif %}
-
-    <section class="panel" style="margin-top: 24px;">
-      <div class="admin-section-head">
-        <h2 class="section-title">Ключевые пункты</h2>
-      </div>
-      <ul class="admin-list">
-        {% for point in contract_key_points %}
-        <li><span>{{ point }}</span></li>
-        {% endfor %}
-      </ul>
-      {% if contract_documents %}
-      <div style="height: 12px;"></div>
-      <div class="course-meta">Документы</div>
-      <ul class="admin-list">
-        {% for title, doc in contract_documents %}
-        <li>
-          <span>{{ title }}</span>
-          <a class="admin-copy" href="{{ doc }}" target="_blank" rel="noopener">Открыть</a>
-        </li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-    </section>
 
     <section class="panel" style="margin-top: 24px;">
       <div class="admin-section-head">

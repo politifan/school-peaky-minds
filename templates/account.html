@@ -16,45 +16,54 @@
 
   <main class="container" style="padding: 120px 0;">
     <a class="page-back" href="/">← На главную</a>
-    <div class="cta-box" style="grid-template-columns: 1fr;">
-      <div>
-        <h1>Личный кабинет</h1>
-        {% if user %}
-        <p>Вы вошли как <strong>{{ user.name or user.email }}</strong>.</p>
-        <p>Здесь собраны ваши договоры, прогресс обучения и материалы.</p>
-        {% endif %}
+    <section class="panel admin-hero">
+      <div class="admin-hero__content">
+        <div>
+          <h1>Личный кабинет</h1>
+          {% if user %}
+          <p>Вы вошли как <strong>{{ user.name or user.email }}</strong>.</p>
+          <p>Здесь собраны ваши договоры, прогресс обучения и материалы.</p>
+          {% endif %}
+        </div>
+        <div class="admin-meta">
+          <span class="admin-chip">Курсов: {{ account_stats.total_courses }}</span>
+          <span class="admin-chip">Подписано: {{ account_stats.signed_contracts }}</span>
+          <span class="admin-chip">Осталось занятий: {{ account_stats.remaining_lessons }}</span>
+        </div>
       </div>
-      <div class="auth-cta">
+      <div class="admin-hero__actions">
         <a class="btn btn-secondary" href="/">На главную</a>
         <a class="btn btn-primary" href="/logout">Выйти</a>
       </div>
-    </div>
+    </section>
 
+    {% if agreements %}
     <section class="panel" style="margin-top: 24px;">
       <div class="admin-section-head">
-        <h2 class="section-title">Ключевые пункты договора</h2>
+        <h2 class="section-title">Мои договоры</h2>
         <div class="admin-section-actions">
-          <a class="btn btn-secondary" href="/documents/dogovor.docx" target="_blank" rel="noopener">Скачать договор</a>
+          <span class="admin-badge">Всего: {{ agreements|length }}</span>
         </div>
       </div>
-      <ul class="admin-list">
-        {% for point in contract_key_points %}
-        <li><span>{{ point }}</span></li>
+      <div class="admin-grid two" style="margin-top: 18px;">
+        {% for item in agreements %}
+        <div class="card">
+          <div class="course-meta">Договор по курсу</div>
+          <h3>{{ item.course or "—" }}</h3>
+          <div class="admin-cell" style="margin-top: 10px;">
+            <span class="admin-status {{ item.contract_status_class }}">{{ item.contract_status_label }}</span>
+            {% if item.contract_url %}
+            <a class="admin-copy" href="{{ item.contract_url }}" target="_blank" rel="noopener">Открыть договор</a>
+            {% endif %}
+          </div>
+          <div class="admin-subtext" style="margin-top: 8px;">
+            Канал отправки: {{ item.contract_channel_label }}
+          </div>
+        </div>
         {% endfor %}
-      </ul>
-      {% if contract_documents %}
-      <div style="height: 12px;"></div>
-      <div class="course-meta">Документы</div>
-      <ul class="admin-list">
-        {% for title, doc in contract_documents %}
-        <li>
-          <span>{{ title }}</span>
-          <a class="admin-copy" href="{{ doc }}" target="_blank" rel="noopener">Открыть</a>
-        </li>
-        {% endfor %}
-      </ul>
-      {% endif %}
+      </div>
     </section>
+    {% endif %}
 
     <section class="panel" style="margin-top: 24px;">
       <div class="admin-section-head">
