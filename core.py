@@ -509,6 +509,8 @@ CONTACT_VK = os.getenv("CONTACT_VK", "")
 SEO_GOOGLE_VERIFICATION = os.getenv("SEO_GOOGLE_VERIFICATION", "")
 SEO_YANDEX_VERIFICATION = os.getenv("SEO_YANDEX_VERIFICATION", "")
 SEO_BING_VERIFICATION = os.getenv("SEO_BING_VERIFICATION", "")
+GA_MEASUREMENT_ID = os.getenv("GA_MEASUREMENT_ID", "")
+YANDEX_METRIKA_ID = os.getenv("YANDEX_METRIKA_ID", "")
 TELETHON_API_ID = os.getenv("TG_API_ID") or os.getenv("TELETHON_API_ID")
 TELETHON_API_HASH = os.getenv("TG_API_HASH") or os.getenv("TELETHON_API_HASH")
 TELETHON_PASSWORD = os.getenv("TG_PASSWORD") or os.getenv("TELETHON_PASSWORD")
@@ -872,6 +874,8 @@ def render(request: Request, template_name: str, context: Optional[Dict[str, Any
         "seo_google_verification": SEO_GOOGLE_VERIFICATION,
         "seo_yandex_verification": SEO_YANDEX_VERIFICATION,
         "seo_bing_verification": SEO_BING_VERIFICATION,
+        "ga_measurement_id": GA_MEASUREMENT_ID,
+        "yandex_metrika_id": YANDEX_METRIKA_ID,
     }
     if context:
         ctx.update(context)
