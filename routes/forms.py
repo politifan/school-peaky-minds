@@ -28,7 +28,7 @@ async def apply(request: Request):
         "page": page,
         "user": get_current_user(request),
     }
-    save_lead(lead_payload)
+    lead_path = save_lead(lead_payload)
     metrics = load_metrics()
     metrics["funnel"]["apply"] = metrics["funnel"].get("apply", 0) + 1
     save_metrics(metrics)
@@ -42,7 +42,7 @@ async def apply(request: Request):
             f"🔗 <b>Страница:</b> {page or '—'}"
         )
         try:
-            sent = await send_lead_message(text)
+            sent = await send_lead_message(text, lead_file=lead_path.name)
             if not sent:
                 logging.getLogger("app.telegram").warning("Telegram lead message not delivered.")
         except Exception as exc:
