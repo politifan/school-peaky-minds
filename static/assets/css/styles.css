@@ -1576,19 +1576,10 @@ select:focus {
 }
 
 .footer-brand {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
+  text-align: left;
+  display: block;
 }
 
-.footer-brand-logo {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-}
 
 .modal {
   position: fixed;
