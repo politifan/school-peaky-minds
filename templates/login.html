@@ -29,7 +29,7 @@
       <form class="auth-form" action="/login/email" method="post">
         <input type="hidden" name="next" value="{{ next }}">
         <label class="auth-label">Email</label>
-        <input type="email" name="email" placeholder="you@example.com" required>
+        <input type="email" name="email" placeholder="you@example.com" required maxlength="254">
         <button class="btn btn-primary" type="submit">Получить код</button>
         <p class="auth-hint">Код действует 10 минут.</p>
       </form>

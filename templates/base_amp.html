@@ -169,7 +169,7 @@
             <form class="modal-form" action="/apply" method="post" target="_top">
               <input type="text" name="name" placeholder="Ваше имя">
               <div class="input-wrap">
-                <input type="tel" name="phone" placeholder="Телефон или Telegram (@username)" data-phone="flex">
+                <input type="tel" name="phone" placeholder="Телефон или Telegram (@username)" data-phone="flex" pattern="(@[A-Za-z0-9_]{3,32}|\\+?[0-9\\s\\-()]{7,20})" maxlength="32">
                 <div class="input-hint">Пример: +7 999 000‑00‑00 или @username</div>
                 <div class="input-error" aria-live="polite"></div>
               </div>
@@ -197,13 +197,13 @@
                 <option value="Data Science / ML" {% if course_slug == "Data Science" %}selected{% endif %}>Data Science / ML</option>
                 <option value="Программирование для бизнеса" {% if course_slug == "Business" %}selected{% endif %}>Программирование для бизнеса</option>
               </select>
-              <input type="text" name="full_name" placeholder="ФИО" required>
+              <input type="text" name="full_name" placeholder="ФИО" required minlength="2" maxlength="120">
               <div class="input-wrap">
-                <input type="tel" name="phone" placeholder="Телефон" data-phone="strict" required>
+                <input type="tel" name="phone" placeholder="Телефон" data-phone="strict" required pattern="\\+?[0-9\\s\\-()]{7,20}" maxlength="20">
                 <div class="input-hint">Пример: +7 999 000‑00‑00</div>
                 <div class="input-error" aria-live="polite"></div>
               </div>
-              <input type="email" name="email" placeholder="Email" value="{{ user.email or '' }}" required>
+              <input type="email" name="email" placeholder="Email" value="{{ user.email or '' }}" required maxlength="254">
               <div class="input-wrap">
                 <input type="text" name="telegram" placeholder="Telegram (@username)" data-telegram>
                 <div class="input-hint">Пример: @username</div>

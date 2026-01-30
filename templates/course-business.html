@@ -400,13 +400,13 @@ pe.save_as(records=summary, dest_file_name="report.xlsx")
           {% if user %}
           <form class="cta-form" action="/enroll" method="post" target="_top">
             <input type="hidden" name="course" value="Business">
-            <input type="text" name="full_name" placeholder="ФИО" value="{{ user.name or "" }}" required>
+            <input type="text" name="full_name" placeholder="ФИО" value="{{ user.name or "" }}" required minlength="2" maxlength="120">
             <div class="input-wrap">
-              <input type="tel" name="phone" placeholder="Телефон" required>
+              <input type="tel" name="phone" placeholder="Телефон" required pattern="\\+?[0-9\\s\\-()]{7,20}" maxlength="20">
               <div class="input-hint">Пример: +7 999 000‑00‑00</div>
               <div class="input-error" aria-live="polite"></div>
             </div>
-            <input type="email" name="email" placeholder="Email" value="{{ user.email or "" }}" required>
+            <input type="email" name="email" placeholder="Email" value="{{ user.email or "" }}" required maxlength="254">
             <div class="input-wrap">
               <input type="text" name="telegram" placeholder="Telegram (@username)">
               <div class="input-hint">Пример: @politifan</div>
