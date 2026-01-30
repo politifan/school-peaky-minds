@@ -57,6 +57,7 @@
     }
   </script>
   <link rel="stylesheet" href="/assets/css/styles.css">
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
   {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -251,6 +252,11 @@
     gtag('config', '{{ ga_measurement_id }}');
   </script>
   {% endif %}
+  <script>
+    if (window.vkBridge && typeof window.vkBridge.send === "function") {
+      window.vkBridge.send("VKWebAppInit").catch(function () {});
+    }
+  </script>
   <script src="/assets/js/main.js"></script>
   {% block extra_scripts %}{% endblock %}
 </body>
