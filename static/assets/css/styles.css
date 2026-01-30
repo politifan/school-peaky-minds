@@ -1584,8 +1584,10 @@ select:focus {
 }
 
 .footer-brand-logo {
-  width: 64px;
-  height: 64px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .modal {
