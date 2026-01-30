@@ -1556,7 +1556,7 @@ select:focus {
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.4fr repeat(4, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 24px;
 }
 
@@ -1573,6 +1573,19 @@ select:focus {
 .footer-grid a.inline-link {
   display: inline;
   margin-top: 0;
+}
+
+.footer-brand {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-brand-logo {
+  width: 64px;
+  height: 64px;
 }
 
 .modal {
