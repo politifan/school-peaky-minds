@@ -337,7 +337,6 @@ print("Средняя цена:", sum(prices) / len(prices))
             <p>Подпишите договор и оставьте контакты — мы свяжемся для старта обучения.</p>
             <div class="doc-links">
               <a href="/documents/dogovor.html" target="_blank" rel="noopener">Договор и пользовательское соглашение</a>
-              <a href="/documents/personal_data_consent.pdf" target="_blank" rel="noopener">Согласие на обработку данных (PDF)</a>
             </div>
           </div>
           {% if user %}
@@ -359,10 +358,6 @@ print("Средняя цена:", sum(prices) / len(prices))
             <label class="form-check">
               <input type="checkbox" name="agreement" required>
               <span>Я ознакомился с договором и согласен с условиями.</span>
-            </label>
-            <label class="form-check">
-              <input type="checkbox" name="consent" required>
-              <span>Даю согласие на обработку персональных данных.</span>
             </label>
             <button class="btn btn-primary" type="submit">Подписать и отправить</button>
           </form>
