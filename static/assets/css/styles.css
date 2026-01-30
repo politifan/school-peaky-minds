@@ -1556,8 +1556,8 @@ select:focus {
 
 .footer-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 24px;
+  grid-template-columns: 1.25fr 1.15fr 1.25fr 1.15fr 0.7fr;
+  gap: 32px;
 }
 
 .footer-muted {
