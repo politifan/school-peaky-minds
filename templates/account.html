@@ -55,6 +55,9 @@
             {% if item.contract_url %}
             <a class="admin-copy" href="{{ item.contract_url }}" target="_blank" rel="noopener">Открыть договор</a>
             {% endif %}
+            {% if item.contract_pdf_url %}
+            <a class="admin-copy" href="{{ item.contract_pdf_url }}" target="_blank" rel="noopener">PDF</a>
+            {% endif %}
           </div>
           <div class="admin-subtext" style="margin-top: 8px;">
             Канал отправки: {{ item.contract_channel_label }}
@@ -82,6 +85,9 @@
             <span class="admin-status {{ item.contract_status_class }}">{{ item.contract_status_label }}</span>
             {% if item.contract_url %}
             <a class="admin-copy" href="{{ item.contract_url }}" target="_blank" rel="noopener">Открыть договор</a>
+            {% endif %}
+            {% if item.contract_pdf_url %}
+            <a class="admin-copy" href="{{ item.contract_pdf_url }}" target="_blank" rel="noopener">PDF</a>
             {% endif %}
           </div>
           <div class="admin-subtext" style="margin-top: 8px;">

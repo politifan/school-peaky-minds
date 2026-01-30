@@ -565,6 +565,9 @@
                   {% if item.contract_url %}
                   <a class="admin-copy" href="{{ item.contract_url }}" target="_blank" rel="noopener">Ссылка</a>
                   {% endif %}
+                  {% if item.contract_pdf_url %}
+                  <a class="admin-copy" href="{{ item.contract_pdf_url }}" target="_blank" rel="noopener">PDF</a>
+                  {% endif %}
                 </div>
                 <form class="admin-status-form" action="/admin/agreements/contract-status" method="post">
                   <input type="hidden" name="file" value="{{ item._file }}">

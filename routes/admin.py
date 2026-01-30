@@ -610,6 +610,7 @@ def _admin_panel_impl(request: Request):
                 "contract_status_class": contract_class,
                 "contract_channel_label": contract_channel_label(item.get("contract_channel")),
                 "contract_url": build_contract_url(item.get("contract_token"), request),
+                "contract_pdf_url": item.get("contract_pdf_url"),
                 "contract_sent_at": format_ts(item.get("contract_sent_at")),
                 "contract_signed_at": format_ts(item.get("contract_signed_at")),
                 "total_lessons": total_lessons,

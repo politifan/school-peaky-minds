@@ -212,3 +212,4 @@ __marimo__/
 # Data artifacts
 /data/*.json
 /data/**/*.json
+/static/documents/contracts/*.pdf

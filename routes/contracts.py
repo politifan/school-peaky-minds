@@ -1,6 +1,7 @@
 import logging
 import time
 from typing import Any, Dict, List, Optional
+from urllib.parse import quote
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -44,6 +45,9 @@ def _build_contract_text(agreement: Dict[str, Any], request: Optional[Request], 
         lines.append("Документы:")
         for title, doc_path in CONTRACT_DOCUMENTS:
             lines.append(f"- {title}: {_abs_url(doc_path, request)}")
+    pdf_url = agreement.get("contract_pdf_url")
+    if pdf_url:
+        lines.append(f"- Подписанный PDF: {_abs_url(str(pdf_url), request)}")
     return "\n".join(lines)
 
 
@@ -88,6 +92,7 @@ def contract_view(request: Request, token: str):
 
     message = request.query_params.get("message")
     error = request.query_params.get("error")
+    contract_fields = core.resolve_contract_fields(agreement)
 
     return render(
         request,
@@ -95,6 +100,10 @@ def contract_view(request: Request, token: str):
         {
             "agreement": agreement,
             "contract_url": contract_url,
+            "contract_number": agreement.get("contract_number") or "—",
+            "contract_date": agreement.get("contract_date") or core.format_moscow_date(),
+            "contract_pdf_url": agreement.get("contract_pdf_url"),
+            "contract_fields": contract_fields,
             "contract_status_key": status_key,
             "contract_status_label": status_label,
             "contract_status_class": status_class,
@@ -110,6 +119,27 @@ def contract_view(request: Request, token: str):
             "manual_email": agreement.get("contract_email_override") or "",
         },
     )
+
+
+@router.post("/contract/{token}/save", include_in_schema=False)
+async def contract_save(request: Request, token: str):
+    agreement, path = core.find_agreement_by_token(token)
+    if not agreement or not path:
+        return HTMLResponse("Ссылка недействительна или договор не найден.", status_code=404)
+
+    form = await request.form()
+    fields = {
+        "city": str(form.get("city") or "").strip(),
+        "customer_name": str(form.get("customer_name") or "").strip(),
+        "customer_passport": str(form.get("customer_passport") or "").strip(),
+        "customer_address": str(form.get("customer_address") or "").strip(),
+        "customer_phone": str(form.get("customer_phone") or "").strip(),
+        "customer_email": str(form.get("customer_email") or "").strip(),
+    }
+    agreement["contract_fields"] = fields
+    agreement.pop("_file", None)
+    core.save_json(path, agreement)
+    return RedirectResponse(f"/contract/{token}?message=Данные+сохранены", status_code=HTTP_302_FOUND)
 
 
 @router.post("/contract/{token}/send", include_in_schema=False)
@@ -164,6 +194,24 @@ async def contract_sign(request: Request, token: str):
     agreement, path = core.find_agreement_by_token(token)
     if not agreement or not path:
         return HTMLResponse("Ссылка недействительна или договор не найден.", status_code=404)
+
+    missing = core.contract_missing_fields(agreement)
+    if missing:
+        missing_text = ", ".join(missing)
+        return RedirectResponse(
+            f"/contract/{token}?error={quote('Заполните: ' + missing_text)}",
+            status_code=HTTP_302_FOUND,
+        )
+
+    if not agreement.get("contract_number"):
+        agreement["contract_number"] = core.count_signed_contracts() + 1
+    if not agreement.get("contract_date"):
+        agreement["contract_date"] = core.format_moscow_date()
+    pdf_url = core.generate_contract_pdf(agreement)
+    if not pdf_url:
+        return RedirectResponse(f"/contract/{token}?error=PDF+не+создан", status_code=HTTP_302_FOUND)
+
+    agreement["contract_pdf_url"] = pdf_url
     agreement["contract_status"] = "signed"
     agreement["contract_signed_at"] = int(time.time())
     agreement.pop("_file", None)

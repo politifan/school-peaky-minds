@@ -2,6 +2,7 @@ import asyncio
 import getpass
 import hashlib
 import hmac
+import html as html_lib
 import json
 import logging
 import os
@@ -10,7 +11,7 @@ import secrets
 import smtplib
 import sys
 import time
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -67,6 +68,7 @@ DATA_DIR = BASE_DIR / "data"
 STATIC_DIR = BASE_DIR / "static"
 ASSETS_DIR = STATIC_DIR / "assets"
 DOCUMENTS_DIR = STATIC_DIR / "documents"
+CONTRACTS_DIR = DOCUMENTS_DIR / "contracts"
 TEMPLATES_DIR = BASE_DIR / "templates"
 DATA_DIR.mkdir(exist_ok=True)
 
@@ -80,6 +82,7 @@ METRICS_FILE = DATA_DIR / "metrics.json"
 WHITELIST_FILE = DATA_DIR / "telegram_whitelist.json"
 
 DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
+CONTRACTS_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR = BASE_DIR / "logs"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -96,7 +99,6 @@ CONTRACT_KEY_POINTS = [
 
 CONTRACT_DOCUMENTS = [
     ("Договор", "/documents/dogovor.html"),
-    ("Согласие на обработку данных", "/documents/personal_data_consent.pdf"),
 ]
 
 CONTRACT_STATUS_META = {
@@ -104,6 +106,21 @@ CONTRACT_STATUS_META = {
     "sent": ("Отправлен", "status-warm"),
     "signed": ("Подписан", "status-good"),
 }
+MOSCOW_TZ = timezone(timedelta(hours=3))
+MONTHS_RU = (
+    "января",
+    "февраля",
+    "марта",
+    "апреля",
+    "мая",
+    "июня",
+    "июля",
+    "августа",
+    "сентября",
+    "октября",
+    "ноября",
+    "декабря",
+)
 
 
 def generate_contract_token() -> str:
@@ -142,6 +159,200 @@ def build_contract_url(token: str, request: Optional[Request] = None) -> str:
         base = str(request.base_url).rstrip("/")
         return f"{base}/contract/{token}"
     return f"/contract/{token}"
+
+
+def moscow_now() -> datetime:
+    return datetime.now(MOSCOW_TZ)
+
+
+def format_moscow_date(dt: Optional[datetime] = None) -> str:
+    value = dt or moscow_now()
+    month_name = MONTHS_RU[value.month - 1]
+    return f"«{value.day:02d}» {month_name} {value.year} г."
+
+
+def course_rate(course: Optional[str]) -> Optional[int]:
+    value = (course or "").strip().lower()
+    if not value:
+        return None
+    if "full" in value:
+        return 1500
+    if "data" in value or "science" in value or "аналитик" in value:
+        return 2000
+    if "business" in value or "бизнес" in value or "автоматизац" in value:
+        return 2000
+    if "python" in value:
+        return 1000
+    return None
+
+
+def resolve_contract_fields(agreement: Dict[str, Any]) -> Dict[str, str]:
+    fields = agreement.get("contract_fields") or {}
+    user = agreement.get("user") or {}
+    return {
+        "city": str(fields.get("city") or "Москва").strip(),
+        "customer_name": str(
+            fields.get("customer_name")
+            or agreement.get("full_name")
+            or user.get("name")
+            or ""
+        ).strip(),
+        "customer_passport": str(fields.get("customer_passport") or "").strip(),
+        "customer_address": str(fields.get("customer_address") or "").strip(),
+        "customer_phone": str(
+            fields.get("customer_phone") or agreement.get("phone") or ""
+        ).strip(),
+        "customer_email": str(
+            fields.get("customer_email") or agreement.get("email") or user.get("email") or ""
+        ).strip(),
+    }
+
+
+def contract_missing_fields(agreement: Dict[str, Any]) -> List[str]:
+    fields = resolve_contract_fields(agreement)
+    required = {
+        "city": "Город договора",
+        "customer_name": "ФИО заказчика",
+        "customer_passport": "Паспорт заказчика",
+        "customer_address": "Адрес заказчика",
+        "customer_phone": "Телефон заказчика",
+        "customer_email": "Email заказчика",
+    }
+    missing = []
+    for key, label in required.items():
+        if not fields.get(key):
+            missing.append(label)
+    return missing
+
+
+def count_signed_contracts() -> int:
+    total = 0
+    for item in load_agreements():
+        if (item.get("contract_status") or "").strip() == "signed":
+            total += 1
+    return total
+
+
+def build_contract_document_text(agreement: Dict[str, Any]) -> str:
+    template_path = DOCUMENTS_DIR / "dogovor.html"
+    html = template_path.read_text(encoding="utf-8") if template_path.exists() else ""
+    text = re.sub(r"<br\\s*/?>", "\n", html, flags=re.IGNORECASE)
+    text = re.sub(r"</p>", "\n", text, flags=re.IGNORECASE)
+    text = re.sub(r"<[^>]+>", "", text)
+    text = html_lib.unescape(text)
+
+    fields = resolve_contract_fields(agreement)
+    contract_number = str(agreement.get("contract_number") or "").strip() or "—"
+    contract_date = str(agreement.get("contract_date") or "").strip() or format_moscow_date()
+    course = str(agreement.get("course") or "—").strip()
+    rate = course_rate(course)
+    rate_text = f"{rate} руб./час" if rate else "—"
+
+    text = text.replace("ДОГОВОР № ___", f"ДОГОВОР № {contract_number}")
+    text = re.sub(
+        r"г\\.\\s*____________\\s+«__»\\s+____________\\s+\\d{4} г\\.",
+        f"г. {fields['city']}    {contract_date}",
+        text,
+    )
+    text = text.replace(
+        "Исполнитель: _____________________________ (ФИО), ИНН ____________, применяющий(ая) специальный налоговый режим «Налог на профессиональный доход» (самозанятый), далее — «Исполнитель», с одной стороны, и",
+        "Исполнитель: "
+        f"{EXECUTOR_FULL_NAME} (ФИО), ИНН {EXECUTOR_INN}, "
+        "применяющий(ая) специальный налоговый режим «Налог на профессиональный доход» (самозанятый), далее — «Исполнитель», с одной стороны, и",
+    )
+    text = text.replace(
+        "Заказчик: _____________________________ (ФИО), паспорт: _____________________________, далее — «Заказчик», с другой стороны, вместе именуемые «Стороны», заключили настоящий Договор о нижеследующем.",
+        "Заказчик: "
+        f"{fields['customer_name']} (ФИО), паспорт: {fields['customer_passport']}, "
+        "далее — «Заказчик», с другой стороны, вместе именуемые «Стороны», заключили настоящий Договор о нижеследующем.",
+    )
+    text = text.replace("1) Выбранная Программа: ___________________________", f"1) Выбранная Программа: {course}")
+    text = text.replace("2) Ставка: ______ руб./час", f"2) Ставка: {rate_text}")
+
+    def replace_once(source: str, old: str, new: str) -> str:
+        return source.replace(old, new, 1)
+
+    text = replace_once(text, "Получатель: ____________________________", f"Получатель: {EXECUTOR_RECIPIENT}")
+    text = replace_once(text, "ИНН: ____________________________", f"ИНН: {EXECUTOR_INN}")
+    text = replace_once(text, "Банк: ____________________________", f"Банк: {EXECUTOR_BANK}")
+    text = replace_once(text, "Счёт / карта: ______________________", f"Счёт / карта: {EXECUTOR_ACCOUNT}")
+    text = text.replace(
+        f"Счёт / карта: {EXECUTOR_ACCOUNT}",
+        f"Счёт / карта: {EXECUTOR_ACCOUNT}\nСБП: {EXECUTOR_SBP_PHONE}",
+    )
+    text = replace_once(
+        text,
+        "Назначение платежа: Оплата услуг по договору № ____",
+        f"Назначение платежа: Оплата услуг по договору № {contract_number}",
+    )
+
+    text = replace_once(text, "ФИО: _______________________", f"ФИО: {EXECUTOR_FULL_NAME}")
+    text = replace_once(text, "ИНН: _______________________", f"ИНН: {EXECUTOR_INN}")
+    text = replace_once(text, "Паспорт: ___________________", f"Паспорт: {EXECUTOR_PASSPORT}")
+    text = replace_once(text, "Адрес: _____________________", f"Адрес: {EXECUTOR_ADDRESS or '—'}")
+    text = replace_once(text, "Тел.: _______________________", f"Тел.: {EXECUTOR_PHONE}")
+    text = replace_once(text, "E-mail: _____________________", f"E-mail: {EXECUTOR_EMAIL}")
+
+    text = replace_once(text, "Заказчик: ФИО: _______________________", f"Заказчик: ФИО: {fields['customer_name']}")
+    text = replace_once(text, "Паспорт: ___________________", f"Паспорт: {fields['customer_passport']}")
+    text = replace_once(text, "Адрес: _____________________", f"Адрес: {fields['customer_address'] or '—'}")
+    text = replace_once(text, "Тел.: _______________________", f"Тел.: {fields['customer_phone'] or '—'}")
+    text = replace_once(text, "E-mail: _____________________", f"E-mail: {fields['customer_email'] or '—'}")
+    text = replace_once(
+        text,
+        "Подпись: _____________ /__________/",
+        f"Подпись: _____________ /{EXECUTOR_FULL_NAME}/",
+    )
+    text = replace_once(
+        text,
+        "Подпись: _____________ /__________/",
+        f"Подпись: _____________ /{fields['customer_name']}/",
+    )
+
+    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+    return text
+
+
+def _find_font_path() -> Optional[Path]:
+    candidates = [
+        Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+        Path("/usr/share/fonts/dejavu/DejaVuSans.ttf"),
+        Path("/usr/share/fonts/truetype/freefont/FreeSans.ttf"),
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def generate_contract_pdf(agreement: Dict[str, Any]) -> Optional[str]:
+    try:
+        from fpdf import FPDF
+    except Exception:
+        return None
+
+    contract_number = str(agreement.get("contract_number") or "draft")
+    token = str(agreement.get("contract_token") or secrets.token_hex(8))
+    file_name = f"contract_{contract_number}_{token}.pdf"
+    file_path = CONTRACTS_DIR / file_name
+
+    text = build_contract_document_text(agreement)
+    pdf = FPDF(format="A4")
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    font_path = _find_font_path()
+    if font_path:
+        pdf.add_font("DejaVu", "", str(font_path), uni=True)
+        pdf.set_font("DejaVu", size=11)
+    else:
+        pdf.set_font("Helvetica", size=11)
+    for line in text.split("\n"):
+        if not line.strip():
+            pdf.ln(4)
+        else:
+            pdf.multi_cell(0, 6, line)
+    pdf.output(str(file_path))
+    return f"/documents/contracts/{file_name}"
 
 
 def normalize_materials(value: Any) -> List[Dict[str, str]]:
@@ -506,6 +717,16 @@ APP_BASE_URL = os.getenv("APP_BASE_URL")
 CONTACT_PHONE = os.getenv("CONTACT_PHONE", "")
 CONTACT_TELEGRAM = os.getenv("CONTACT_TELEGRAM", "")
 CONTACT_VK = os.getenv("CONTACT_VK", "")
+EXECUTOR_FULL_NAME = os.getenv("EXECUTOR_FULL_NAME", "Павлов Михаил Александрович")
+EXECUTOR_INN = os.getenv("EXECUTOR_INN", "344597209940")
+EXECUTOR_PASSPORT = os.getenv("EXECUTOR_PASSPORT", "1820699537")
+EXECUTOR_PHONE = os.getenv("EXECUTOR_PHONE", "7 995 028 29 40")
+EXECUTOR_EMAIL = os.getenv("EXECUTOR_EMAIL", "mihailpavlov042006@gmail.com")
+EXECUTOR_RECIPIENT = os.getenv("EXECUTOR_RECIPIENT", "Исполнитель")
+EXECUTOR_BANK = os.getenv("EXECUTOR_BANK", "Ozon")
+EXECUTOR_ACCOUNT = os.getenv("EXECUTOR_ACCOUNT", "2204320674292448")
+EXECUTOR_SBP_PHONE = os.getenv("EXECUTOR_SBP_PHONE", "7 968 287 29 40")
+EXECUTOR_ADDRESS = os.getenv("EXECUTOR_ADDRESS", "")
 SEO_GOOGLE_VERIFICATION = os.getenv("SEO_GOOGLE_VERIFICATION", "")
 SEO_YANDEX_VERIFICATION = os.getenv("SEO_YANDEX_VERIFICATION", "")
 SEO_BING_VERIFICATION = os.getenv("SEO_BING_VERIFICATION", "")

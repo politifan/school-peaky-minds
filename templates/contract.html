@@ -30,7 +30,62 @@
         <li><span>Канал отправки</span><strong>{{ contract_channel_label }}</strong></li>
       </ul>
       <div style="margin-top: 14px;">
+        {% if contract_pdf_url %}
+        <a class="btn btn-secondary" href="{{ contract_pdf_url }}" target="_blank" rel="noopener">Открыть PDF договора</a>
+        {% else %}
         <a class="btn btn-secondary" href="/documents/dogovor.html" target="_blank" rel="noopener">Открыть договор</a>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 24px;">
+      <div class="admin-section-head">
+        <h2 class="section-title">Данные для договора</h2>
+        <div class="admin-section-actions">
+          <span class="admin-badge">№ {{ contract_number }}</span>
+          <span class="admin-badge">{{ contract_date }}</span>
+          {% if contract_pdf_url %}
+          <a class="btn btn-secondary" href="{{ contract_pdf_url }}" target="_blank" rel="noopener">Скачать PDF</a>
+          {% endif %}
+        </div>
+      </div>
+      <form class="admin-filter" method="post" action="/contract/{{ agreement.contract_token }}/save">
+        <div class="admin-filter__row">
+          <div class="input-wrap">
+            <label class="auth-label">Город</label>
+            <input type="text" name="city" value="{{ contract_fields.city }}" required>
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">ФИО заказчика</label>
+            <input type="text" name="customer_name" value="{{ contract_fields.customer_name }}" required>
+          </div>
+        </div>
+        <div class="admin-filter__row">
+          <div class="input-wrap">
+            <label class="auth-label">Паспорт</label>
+            <input type="text" name="customer_passport" value="{{ contract_fields.customer_passport }}" required>
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">Адрес</label>
+            <input type="text" name="customer_address" value="{{ contract_fields.customer_address }}" required>
+          </div>
+        </div>
+        <div class="admin-filter__row">
+          <div class="input-wrap">
+            <label class="auth-label">Телефон</label>
+            <input type="text" name="customer_phone" value="{{ contract_fields.customer_phone }}" required>
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">Email</label>
+            <input type="email" name="customer_email" value="{{ contract_fields.customer_email }}" required>
+          </div>
+        </div>
+        <div class="admin-filter__actions">
+          <button class="btn btn-primary" type="submit">Сохранить данные</button>
+        </div>
+      </form>
+      <div class="admin-subtext" style="margin-top: 8px;">
+        Дата договора заполняется автоматически по МСК при подписании.
       </div>
     </section>
 
@@ -81,7 +136,7 @@
         <h2 class="section-title">Подтверждение</h2>
       </div>
       <form method="post" action="/contract/{{ agreement.contract_token }}/sign">
-        <button class="btn btn-secondary" type="submit">Подтвердить ознакомление с договором</button>
+        <button class="btn btn-secondary" type="submit">Подписать и сформировать PDF</button>
       </form>
     </section>
     {% endif %}

@@ -400,6 +400,7 @@ def account(request: Request):
             {
                 **item,
                 "contract_url": build_contract_url(item.get("contract_token"), request),
+                "contract_pdf_url": item.get("contract_pdf_url"),
                 "contract_status_key": status_key,
                 "contract_status_label": status_label,
                 "contract_status_class": status_class,
