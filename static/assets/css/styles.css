@@ -2677,6 +2677,44 @@ html[amp] .reveal {
     display: none;
   }
 
+  .home-hero .hero-copy h1 {
+    font-size: clamp(1.6rem, 6.2vw, 2.1rem);
+  }
+
+  .home-hero .lead {
+    font-size: 0.95rem;
+    margin: 14px 0 20px;
+  }
+
+  .home-hero .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .home-hero .hero-actions .btn {
+    width: 100%;
+  }
+
+  .home-hero .archive-stack {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .home-hero .archive-stack .visual-card {
+    width: 100%;
+    padding: 12px 14px;
+  }
+
+  .home-hero .hero-visual {
+    min-height: 260px;
+  }
+
+  .home-hero .hero-visual .code-card {
+    display: none;
+  }
+
   .card-grid,
   .card-grid.three {
     grid-template-columns: 1fr;
