@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Страница не найдена — IT‑школа Peaky Minds{% endblock %}
+{% block description %}Запрошенная страница не найдена. Перейдите на главную страницу IT‑школы Peaky Minds.{% endblock %}
+
+{% block content %}
+<section class="error-404">
+  <div class="container error-404__wrap">
+    <div class="error-404__code">404</div>
+    <h1 class="error-404__title">Страница не найдена.</h1>
+    <p class="error-404__text">
+      Но вы можете перейти на <a class="error-404__link" href="/">главную</a>.
+    </p>
+  </div>
+</section>
+{% endblock %}

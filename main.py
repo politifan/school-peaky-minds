@@ -6,6 +6,8 @@ import time
 
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.exception_handlers import http_exception_handler as default_http_exception_handler
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.status import HTTP_302_FOUND
@@ -23,6 +25,7 @@ from core import (
     SESSION_DOMAIN,
     SESSION_SECRET,
     load_metrics,
+    render,
     save_metrics,
     telethon_login_cli,
 )
@@ -155,6 +158,15 @@ app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(forms_router)
 app.include_router(contracts_router)
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    if exc.status_code == 404:
+        response = render(request, "404.html")
+        response.status_code = 404
+        return response
+    return await default_http_exception_handler(request, exc)
 
  
 if __name__ == "__main__":
