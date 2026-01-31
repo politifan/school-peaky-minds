@@ -2708,7 +2708,7 @@ html[amp] .reveal {
   }
 
   .home-hero .hero-visual {
-    min-height: 260px;
+    display: none;
   }
 
   .home-hero .hero-visual .code-card {
