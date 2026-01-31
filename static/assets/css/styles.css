@@ -2285,6 +2285,17 @@ select:focus {
   cursor: pointer;
 }
 
+.admin-delete {
+  background: rgba(255, 86, 86, 0.18);
+  border-color: rgba(255, 86, 86, 0.5);
+  color: #ffd6d6;
+}
+
+.admin-delete-form {
+  display: flex;
+  align-items: center;
+}
+
 .admin-status {
   display: inline-flex;
   align-items: center;
@@ -2548,7 +2559,12 @@ select:focus {
   }
 
   .admin-sidebar__nav {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .admin-sidebar__nav a {
+    font-size: 0.8rem;
+    padding: 6px 10px;
   }
 
   .admin-hero {

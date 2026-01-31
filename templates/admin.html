@@ -450,6 +450,7 @@
               <th>Страница</th>
               <th><button type="button" class="admin-sort" data-sort="status">Статус</button></th>
               <th>CRM</th>
+              <th>Удалить</th>
             </tr>
           </thead>
           <tbody>
@@ -495,6 +496,13 @@
                   <input class="admin-input" type="text" name="note" placeholder="Заметка" value="{{ lead.note }}">
                   <input class="admin-input" type="date" name="next_contact" value="{{ lead.next_contact }}">
                   <button class="admin-copy" type="submit">OK</button>
+                </form>
+              </td>
+              <td data-label="Удалить">
+                <form class="admin-delete-form" action="/admin/leads/delete" method="post" onsubmit="return confirm('Удалить заявку?') && confirm('Точно удалить? Это действие необратимо.');">
+                  <input type="hidden" name="file" value="{{ lead._file }}">
+                  <input type="hidden" name="next" value="{{ next_url }}">
+                  <button class="admin-copy admin-delete" type="submit">Удалить</button>
                 </form>
               </td>
             </tr>
@@ -548,6 +556,7 @@
               <th>Прогресс</th>
               <th>Сумма</th>
               <th>Статус</th>
+              <th>Удалить</th>
             </tr>
           </thead>
           <tbody>
@@ -621,6 +630,13 @@
                     </select>
                     <button class="admin-copy" type="submit">OK</button>
                   </div>
+                </form>
+              </td>
+              <td data-label="Удалить">
+                <form class="admin-delete-form" action="/admin/agreements/delete" method="post" onsubmit="return confirm('Удалить договор?') && confirm('Точно удалить? Это действие необратимо.');">
+                  <input type="hidden" name="file" value="{{ item._file }}">
+                  <input type="hidden" name="next" value="{{ next_url }}">
+                  <button class="admin-copy admin-delete" type="submit">Удалить</button>
                 </form>
               </td>
             </tr>

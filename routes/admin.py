@@ -1045,6 +1045,25 @@ def admin_clear_leads(request: Request):
     return RedirectResponse("/admin?view=leads", status_code=HTTP_302_FOUND)
 
 
+@router.post("/admin/leads/delete", include_in_schema=False)
+async def admin_delete_lead(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    file_name = str(form.get("file") or "").strip()
+    next_url = str(form.get("next") or "/admin?view=leads")
+    if not file_name:
+        return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+    path = core.LEADS_DIR / file_name
+    try:
+        if path.exists():
+            path.unlink()
+    except Exception:
+        pass
+    return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+
+
 @router.post("/admin/agreements/clear", include_in_schema=False)
 def admin_clear_agreements(request: Request):
     guard = admin_required(request)
@@ -1056,6 +1075,25 @@ def admin_clear_agreements(request: Request):
         except Exception:
             continue
     return RedirectResponse("/admin?view=agreements", status_code=HTTP_302_FOUND)
+
+
+@router.post("/admin/agreements/delete", include_in_schema=False)
+async def admin_delete_agreement(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    file_name = str(form.get("file") or "").strip()
+    next_url = str(form.get("next") or "/admin?view=agreements")
+    if not file_name:
+        return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
+    path = core.AGREEMENTS_DIR / file_name
+    try:
+        if path.exists():
+            path.unlink()
+    except Exception:
+        pass
+    return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
 @router.post("/admin/leads/status", include_in_schema=False)
