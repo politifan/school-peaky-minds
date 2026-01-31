@@ -455,13 +455,13 @@
           <tbody>
             {% for lead in leads %}
             <tr>
-              <td>{{ lead.display_time }}</td>
-              <td>
+              <td data-label="Дата">{{ lead.display_time }}</td>
+              <td data-label="Имя">
                 <div class="admin-cell">
                   <strong>{{ lead.name or "Без имени" }}</strong>
                 </div>
               </td>
-              <td>
+              <td data-label="Контакт">
                 <div class="admin-cell">
                   <span>{{ lead.contact or "—" }}</span>
                   {% if lead.contact %}
@@ -469,10 +469,10 @@
                   {% endif %}
                 </div>
               </td>
-              <td>{{ lead.course or "—" }}</td>
-              <td><span class="admin-chip">{{ lead.source }}</span></td>
-              <td><span class="admin-truncate" title="{{ lead.page }}">{{ lead.page or "—" }}</span></td>
-              <td>
+              <td data-label="Курс">{{ lead.course or "—" }}</td>
+              <td data-label="Источник"><span class="admin-chip">{{ lead.source }}</span></td>
+              <td data-label="Страница"><span class="admin-truncate" title="{{ lead.page }}">{{ lead.page or "—" }}</span></td>
+              <td data-label="Статус">
                 <form class="admin-status-form" action="/admin/leads/status" method="post">
                   <input type="hidden" name="file" value="{{ lead._file }}">
                   <input type="hidden" name="next" value="{{ next_url }}">
@@ -487,7 +487,7 @@
                   </div>
                 </form>
               </td>
-              <td>
+              <td data-label="CRM">
                 <form class="admin-meta-form" action="/admin/leads/meta" method="post">
                   <input type="hidden" name="file" value="{{ lead._file }}">
                   <input type="hidden" name="next" value="{{ next_url }}">
@@ -553,13 +553,13 @@
           <tbody>
             {% for item in agreements %}
             <tr>
-              <td>{{ item.display_time }}</td>
-              <td><strong>{{ item.full_name or "Без имени" }}</strong></td>
-              <td>{{ item.course or "—" }}</td>
-              <td>{{ item.phone or "—" }}</td>
-              <td>{{ item.email or "—" }}</td>
-              <td>{{ item.telegram or "—" }}</td>
-              <td>
+              <td data-label="Дата">{{ item.display_time }}</td>
+              <td data-label="ФИО"><strong>{{ item.full_name or "Без имени" }}</strong></td>
+              <td data-label="Курс">{{ item.course or "—" }}</td>
+              <td data-label="Телефон">{{ item.phone or "—" }}</td>
+              <td data-label="Email">{{ item.email or "—" }}</td>
+              <td data-label="Telegram">{{ item.telegram or "—" }}</td>
+              <td data-label="Договор">
                 <div class="admin-cell">
                   <span class="admin-status {{ item.contract_status_class }}">{{ item.contract_status_label }}</span>
                   {% if item.contract_url %}
@@ -585,7 +585,7 @@
                   {% if item.contract_signed_at and item.contract_signed_at != '—' %} · Подписан {{ item.contract_signed_at }}{% endif %}
                 </div>
               </td>
-              <td>
+              <td data-label="Прогресс">
                 <form class="admin-meta-form" action="/admin/agreements/progress" method="post">
                   <input type="hidden" name="file" value="{{ item._file }}">
                   <input type="hidden" name="next" value="{{ next_url }}">
@@ -600,7 +600,7 @@
                   · Материалов: {{ item.materials_count }}
                 </div>
               </td>
-              <td>
+              <td data-label="Сумма">
                 <form class="admin-meta-form" action="/admin/agreements/amount" method="post">
                   <input type="hidden" name="file" value="{{ item._file }}">
                   <input type="hidden" name="next" value="{{ next_url }}">
@@ -608,7 +608,7 @@
                   <button class="admin-copy" type="submit">OK</button>
                 </form>
               </td>
-              <td>
+              <td data-label="Статус">
                 <form class="admin-status-form" action="/admin/agreements/status" method="post">
                   <input type="hidden" name="file" value="{{ item._file }}">
                   <input type="hidden" name="next" value="{{ next_url }}">
@@ -670,10 +670,10 @@
           <tbody>
             {% for user in users %}
             <tr>
-              <td>{{ user.id }}</td>
-              <td><strong>{{ user.name }}</strong></td>
-              <td>{{ user.email }}</td>
-              <td><span class="admin-chip">{{ user.provider }}</span></td>
+              <td data-label="ID">{{ user.id }}</td>
+              <td data-label="Имя"><strong>{{ user.name }}</strong></td>
+              <td data-label="Email">{{ user.email }}</td>
+              <td data-label="Провайдер"><span class="admin-chip">{{ user.provider }}</span></td>
             </tr>
             {% endfor %}
           </tbody>
