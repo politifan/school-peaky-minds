@@ -2530,6 +2530,10 @@ select:focus {
   gap: 18px;
 }
 
+.testimonial-grid.collapsed .testimonial-card:nth-child(n + 7) {
+  display: none;
+}
+
 .testimonial-card {
   padding: 20px;
   border-radius: 20px;
@@ -3152,6 +3156,10 @@ html[amp] .reveal {
     border: 1px solid rgba(255, 255, 255, 0.12);
     font-size: 0.92rem;
     line-height: 1.4;
+  }
+
+  .testimonial-grid.collapsed .testimonial-card:nth-child(n + 4) {
+    display: none;
   }
 
   .portfolio-grid.collapsed .project-card:nth-child(n + 4) {
