@@ -2617,7 +2617,9 @@ select:focus {
   background: rgba(255, 179, 71, 0.15);
   border: 1px solid rgba(255, 179, 71, 0.4);
   color: #ffd27b;
-  white-space: nowrap;
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
 }
 
 .testimonial-quote {
