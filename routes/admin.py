@@ -1142,11 +1142,18 @@ async def admin_clear_leads(request: Request):
     guard = admin_required(request)
     if guard:
         return guard
+    deleted = 0
     for path in core.LEADS_DIR.glob("lead_*.json"):
         try:
             path.unlink()
+            deleted += 1
         except Exception:
             continue
+    if telegram_is_configured():
+        try:
+            await send_lead_message(f"🗑 Удалены все заявки: {deleted}")
+        except Exception:
+            logging.getLogger("app.telegram").warning("Telegram lead clear sync failed.", exc_info=True)
     return RedirectResponse("/admin?view=leads", status_code=HTTP_302_FOUND)
 
 
@@ -1161,11 +1168,25 @@ async def admin_delete_lead(request: Request):
     if not file_name:
         return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
     path = core.LEADS_DIR / file_name
+    lead_name = ""
+    lead_contact = ""
+    if path.exists():
+        data = load_json(path, {})
+        if isinstance(data, dict):
+            lead_name = str(data.get("name") or "").strip()
+            lead_contact = str(data.get("contact") or "").strip()
     try:
         if path.exists():
             path.unlink()
     except Exception:
         pass
+    if telegram_is_configured():
+        try:
+            label = lead_name or file_name
+            contact = f" ({lead_contact})" if lead_contact else ""
+            await send_lead_message(f"🗑 Заявка удалена: {label}{contact}")
+        except Exception:
+            logging.getLogger("app.telegram").warning("Telegram lead delete sync failed.", exc_info=True)
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
@@ -1174,11 +1195,18 @@ async def admin_clear_agreements(request: Request):
     guard = admin_required(request)
     if guard:
         return guard
+    deleted = 0
     for path in core.AGREEMENTS_DIR.glob("agreement_*.json"):
         try:
             path.unlink()
+            deleted += 1
         except Exception:
             continue
+    if telegram_is_configured():
+        try:
+            await send_lead_message(f"🗑 Удалены все договоры: {deleted}")
+        except Exception:
+            logging.getLogger("app.telegram").warning("Telegram agreements clear sync failed.", exc_info=True)
     return RedirectResponse("/admin?view=agreements", status_code=HTTP_302_FOUND)
 
 
@@ -1193,11 +1221,25 @@ async def admin_delete_agreement(request: Request):
     if not file_name:
         return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
     path = core.AGREEMENTS_DIR / file_name
+    agreement_name = ""
+    agreement_course = ""
+    if path.exists():
+        data = load_json(path, {})
+        if isinstance(data, dict):
+            agreement_name = str(data.get("full_name") or "").strip()
+            agreement_course = str(data.get("course") or "").strip()
     try:
         if path.exists():
             path.unlink()
     except Exception:
         pass
+    if telegram_is_configured():
+        try:
+            label = agreement_name or file_name
+            course = f" — {agreement_course}" if agreement_course else ""
+            await send_lead_message(f"🗑 Договор удалён: {label}{course}")
+        except Exception:
+            logging.getLogger("app.telegram").warning("Telegram agreement delete sync failed.", exc_info=True)
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
