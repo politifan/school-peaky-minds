@@ -643,7 +643,7 @@ links.forEach((link) => {
     <section class="testimonials">
       <div class="container">
         <h2 class="section-title reveal">Отзывы и рост в цифрах</h2>
-        <div class="testimonial-grid reveal collapsed">
+        <div class="testimonial-grid reveal collapsed" data-testimonial-grid>
           <article class="testimonial-card">
             <div class="testimonial-header">
               <div class="testimonial-person">
@@ -848,6 +848,11 @@ links.forEach((link) => {
               <span>Фокус: индивидуальные задачи</span>
             </div>
           </article>
+        </div>
+        <div class="portfolio-actions reveal">
+          <button class="btn btn-secondary testimonial-toggle" type="button" data-testimonial-toggle aria-expanded="false">
+            Показать все отзывы
+          </button>
         </div>
       </div>
     </section>

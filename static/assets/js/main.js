@@ -369,6 +369,17 @@ if (portfolioToggle && portfolioGrid) {
   });
 }
 
+const testimonialToggle = document.querySelector('[data-testimonial-toggle]');
+const testimonialGrid = document.querySelector('[data-testimonial-grid]');
+
+if (testimonialToggle && testimonialGrid) {
+  testimonialToggle.addEventListener('click', () => {
+    const isCollapsed = testimonialGrid.classList.toggle('collapsed');
+    testimonialToggle.textContent = isCollapsed ? 'Показать все отзывы' : 'Скрыть отзывы';
+    testimonialToggle.setAttribute('aria-expanded', String(!isCollapsed));
+  });
+}
+
 const reveals = document.querySelectorAll('.reveal');
 const observer = new IntersectionObserver(
   (entries) => {

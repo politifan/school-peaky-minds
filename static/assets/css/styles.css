@@ -2530,7 +2530,7 @@ select:focus {
   gap: 18px;
 }
 
-.testimonial-grid.collapsed .testimonial-card:nth-child(n + 7) {
+.testimonial-grid.collapsed .testimonial-card:nth-child(n + 8) {
   display: none;
 }
 
