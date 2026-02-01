@@ -196,7 +196,7 @@
               <div class="input-hint">Пример: +7 999 000‑00‑00 или @username</div>
               <div class="input-error" aria-live="polite"></div>
             </div>
-            <input type="email" name="email" placeholder="Email" value="{{ user.email or '' }}" required maxlength="254" data-email pattern="[^@\\s]+@[^@\\s\\.]+\\.[^@\\s\\.]+" title="Минимум 4 символа после @ и ровно одна точка">
+            <input type="email" name="email" placeholder="Email" value="{{ user.email or '' }}" required maxlength="254" data-email pattern="[^@ ]+@(?=[^@ ]{4,}$)[^@ .]+\\.[^@ .]+" title="Минимум 4 символа после @ и ровно одна точка">
             <div class="input-wrap">
               <input type="text" name="telegram" placeholder="Telegram (@username)" data-telegram>
               <div class="input-hint">Пример: @username</div>
