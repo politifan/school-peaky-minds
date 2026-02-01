@@ -81,10 +81,11 @@
         <a class="nav-user" href="/account">
           <span class="avatar {% if user_avatar.variant == 'email' %}avatar--email{% endif %}">
             {% if user_avatar.url %}
-            <img src="{{ user_avatar.url }}" alt="Аватар профиля" loading="lazy">
-            {% else %}
-            <span>{{ user_avatar.initial }}</span>
+            <img src="{{ user_avatar.url }}" alt="Аватар профиля" loading="lazy"
+              onload="this.parentElement.classList.add('has-image')"
+              onerror="this.parentElement.classList.remove('has-image'); this.style.display='none'">
             {% endif %}
+            <span class="avatar-initial">{{ user_avatar.initial }}</span>
           </span>
           <span class="nav-user__label">Кабинет</span>
         </a>

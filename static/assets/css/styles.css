@@ -2587,6 +2587,9 @@ select:focus {
 .avatar {
   width: 36px;
   height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -2596,7 +2599,18 @@ select:focus {
   overflow: hidden;
 }
 
+.avatar .avatar-initial {
+  position: relative;
+  z-index: 1;
+}
+
+.avatar.has-image .avatar-initial {
+  opacity: 0;
+}
+
 .avatar img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -2606,6 +2620,8 @@ select:focus {
 .avatar--large {
   width: 64px;
   height: 64px;
+  min-width: 64px;
+  min-height: 64px;
   font-size: 1.25rem;
 }
 
