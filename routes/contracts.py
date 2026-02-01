@@ -137,6 +137,9 @@ async def contract_save(request: Request, token: str):
         "customer_email": str(form.get("customer_email") or "").strip(),
     }
     agreement["contract_fields"] = fields
+    pdf_url = core.generate_contract_pdf(agreement)
+    if pdf_url:
+        agreement["contract_pdf_url"] = pdf_url
     agreement.pop("_file", None)
     core.save_json(path, agreement)
     return RedirectResponse(f"/contract/{token}?message=Данные+сохранены", status_code=HTTP_302_FOUND)

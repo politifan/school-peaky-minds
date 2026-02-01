@@ -98,7 +98,7 @@ CONTRACT_KEY_POINTS = [
 ]
 
 CONTRACT_DOCUMENTS = [
-    ("Договор", "/documents/dogovor.html"),
+    ("Договор", "/documents/dogovor.pdf"),
 ]
 
 CONTRACT_STATUS_META = {
@@ -225,6 +225,194 @@ def contract_missing_fields(agreement: Dict[str, Any]) -> List[str]:
     return missing
 
 
+def _contract_pdf_template_path() -> Path:
+    raw = os.getenv("CONTRACT_PDF_TEMPLATE", "").strip()
+    if raw:
+        path = Path(raw)
+        if not path.is_absolute():
+            path = BASE_DIR / raw
+        return path
+    return DOCUMENTS_DIR / "dogovor.pdf"
+
+
+def _normalize_pdf_field_name(name: str) -> str:
+    return re.sub(r"[^a-z0-9а-я]+", "", (name or "").lower())
+
+
+def _contract_pdf_values(agreement: Dict[str, Any]) -> Dict[str, str]:
+    fields = resolve_contract_fields(agreement)
+    contract_number = str(agreement.get("contract_number") or "").strip() or "—"
+    contract_date = str(agreement.get("contract_date") or "").strip() or format_moscow_date()
+    course = str(agreement.get("course") or "—").strip()
+    rate = course_rate(course)
+    rate_text = f"{rate} руб./час" if rate else "—"
+    return {
+        "contract_number": contract_number,
+        "contract_date": contract_date,
+        "city": fields["city"] or "—",
+        "course": course,
+        "rate": rate_text,
+        "customer_name": fields["customer_name"] or "—",
+        "customer_passport": fields["customer_passport"] or "—",
+        "customer_address": fields["customer_address"] or "—",
+        "customer_phone": fields["customer_phone"] or "—",
+        "customer_email": fields["customer_email"] or "—",
+        "executor_name": EXECUTOR_FULL_NAME,
+        "executor_inn": EXECUTOR_INN,
+        "executor_passport": EXECUTOR_PASSPORT,
+        "executor_address": EXECUTOR_ADDRESS or "—",
+        "executor_phone": EXECUTOR_PHONE,
+        "executor_email": EXECUTOR_EMAIL,
+        "executor_recipient": EXECUTOR_RECIPIENT,
+        "executor_bank": EXECUTOR_BANK,
+        "executor_account": EXECUTOR_ACCOUNT,
+        "executor_sbp_phone": EXECUTOR_SBP_PHONE,
+    }
+
+
+def _contract_pdf_field_map(values: Dict[str, str]) -> Dict[str, str]:
+    raw = os.getenv("CONTRACT_PDF_FIELD_MAP", "").strip()
+    if not raw:
+        return {}
+    try:
+        data = json.loads(raw)
+    except Exception:
+        logging.getLogger("app.contract").warning("Invalid CONTRACT_PDF_FIELD_MAP JSON.")
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    known_keys = set(values)
+    if set(data.keys()) & known_keys:
+        return {str(field_name): values[key] for key, field_name in data.items() if key in values}
+    return {str(field_name): values[key] for field_name, key in data.items() if key in values}
+
+
+def _match_contract_pdf_key(field_name: str, values: Dict[str, str]) -> Optional[str]:
+    name = _normalize_pdf_field_name(field_name)
+    if not name:
+        return None
+
+    if "contractnumber" in name or "номердоговора" in name or "номердог" in name or name == "номер":
+        return "contract_number"
+    if "contractdate" in name or "датадоговора" in name or name == "дата":
+        return "contract_date"
+    if "city" in name or "город" in name:
+        return "city"
+    if "program" in name or "course" in name or "программа" in name:
+        return "course"
+    if "rate" in name or "ставка" in name:
+        return "rate"
+
+    if "executor" in name or "исполнитель" in name:
+        if "inn" in name or "инн" in name:
+            return "executor_inn"
+        if "passport" in name or "паспорт" in name:
+            return "executor_passport"
+        if "address" in name or "адрес" in name:
+            return "executor_address"
+        if "phone" in name or "тел" in name:
+            return "executor_phone"
+        if "email" in name or "почт" in name:
+            return "executor_email"
+        if "bank" in name or "банк" in name:
+            return "executor_bank"
+        if "account" in name or "счет" in name or "счёт" in name or "карта" in name:
+            return "executor_account"
+        if "recipient" in name or "получатель" in name:
+            return "executor_recipient"
+        if "sbp" in name or "сбп" in name:
+            return "executor_sbp_phone"
+        if "fio" in name or "фио" in name or "name" in name:
+            return "executor_name"
+
+    if "customer" in name or "заказчик" in name or "client" in name:
+        if "passport" in name or "паспорт" in name:
+            return "customer_passport"
+        if "address" in name or "адрес" in name:
+            return "customer_address"
+        if "phone" in name or "тел" in name:
+            return "customer_phone"
+        if "email" in name or "почт" in name:
+            return "customer_email"
+        if "fio" in name or "фио" in name or "name" in name:
+            return "customer_name"
+
+    if "passport" in name or "паспорт" in name:
+        return "customer_passport"
+    if "address" in name or "адрес" in name:
+        return "customer_address"
+    if "phone" in name or "тел" in name:
+        return "customer_phone"
+    if "email" in name or "почт" in name:
+        return "customer_email"
+    if "fio" in name or "фио" in name or "name" in name:
+        return "customer_name"
+    return None
+
+
+def _fill_contract_pdf_template(agreement: Dict[str, Any]) -> Optional[str]:
+    template_path = _contract_pdf_template_path()
+    if not template_path.exists():
+        return None
+
+    try:
+        try:
+            from pypdf import PdfReader, PdfWriter
+        except Exception:  # pragma: no cover - fallback for older installs
+            from PyPDF2 import PdfReader, PdfWriter
+    except Exception:
+        return None
+
+    try:
+        reader = PdfReader(str(template_path))
+    except Exception:
+        logging.getLogger("app.contract").warning("Failed to read contract PDF template.", exc_info=True)
+        return None
+
+    fields = reader.get_fields() or {}
+    if not fields:
+        return None
+
+    values = _contract_pdf_values(agreement)
+    field_values: Dict[str, str] = {}
+    field_values.update(_contract_pdf_field_map(values))
+    for field_name in fields.keys():
+        if field_name in field_values:
+            continue
+        key = _match_contract_pdf_key(field_name, values)
+        if key and key in values:
+            field_values[field_name] = values[key]
+
+    writer = PdfWriter()
+    writer.append_pages_from_reader(reader)
+    for page in writer.pages:
+        try:
+            writer.update_page_form_field_values(page, field_values)
+        except Exception:
+            pass
+    try:
+        writer.set_need_appearances_writer()
+    except Exception:
+        try:
+            from PyPDF2.generic import BooleanObject, NameObject
+
+            writer._root_object.update({NameObject("/NeedAppearances"): BooleanObject(True)})
+        except Exception:
+            pass
+
+    contract_number = str(agreement.get("contract_number") or "draft")
+    token = str(agreement.get("contract_token") or secrets.token_hex(8))
+    file_name = f"contract_{contract_number}_{token}.pdf"
+    file_path = CONTRACTS_DIR / file_name
+    try:
+        with open(file_path, "wb") as handle:
+            writer.write(handle)
+    except Exception:
+        logging.getLogger("app.contract").warning("Failed to write filled contract PDF.", exc_info=True)
+        return None
+    return f"/documents/contracts/{file_name}"
+
+
 def count_signed_contracts() -> int:
     total = 0
     for item in load_agreements():
@@ -326,6 +514,9 @@ def _find_font_path() -> Optional[Path]:
 
 
 def generate_contract_pdf(agreement: Dict[str, Any]) -> Optional[str]:
+    pdf_url = _fill_contract_pdf_template(agreement)
+    if pdf_url:
+        return pdf_url
     try:
         from fpdf import FPDF
     except Exception:
