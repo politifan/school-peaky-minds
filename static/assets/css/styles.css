@@ -2610,9 +2610,7 @@ select:focus {
 
 .avatar img {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  height: 65px;
   object-fit: cover;
   border-radius: 50%;
 }
