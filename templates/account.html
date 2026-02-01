@@ -18,12 +18,21 @@
     <a class="page-back" href="/">← На главную</a>
     <section class="panel admin-hero">
       <div class="admin-hero__content">
-        <div>
-          <h1>Личный кабинет</h1>
-          {% if user %}
-          <p>Вы вошли как <strong>{{ user.name or user.email }}</strong>.</p>
-          <p>Здесь собраны ваши договоры, прогресс обучения и материалы.</p>
-          {% endif %}
+        <div class="account-profile">
+          <div class="avatar avatar--large {% if user_avatar.variant == 'email' %}avatar--email{% endif %}">
+            {% if user_avatar.url %}
+            <img src="{{ user_avatar.url }}" alt="Аватар профиля" loading="lazy">
+            {% else %}
+            <span>{{ user_avatar.initial }}</span>
+            {% endif %}
+          </div>
+          <div>
+            <h1>Личный кабинет</h1>
+            {% if user %}
+            <p>Вы вошли как <strong>{{ user.name or user.email }}</strong>.</p>
+            <p>Здесь собраны ваши договоры, прогресс обучения и материалы.</p>
+            {% endif %}
+          </div>
         </div>
         <div class="admin-meta">
           <span class="admin-chip">Курсов: {{ account_stats.total_courses }}</span>

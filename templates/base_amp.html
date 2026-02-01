@@ -87,7 +87,16 @@
         <a href="/#faq">FAQ</a>
       </nav>
       {% if user %}
-        <a class="btn btn-secondary" href="/account">Кабинет</a>
+        <a class="nav-user" href="/account">
+          <span class="avatar {% if user_avatar.variant == 'email' %}avatar--email{% endif %}">
+            {% if user_avatar.url %}
+            <amp-img src="{{ user_avatar.url }}" alt="Аватар профиля" width="36" height="36" layout="fixed"></amp-img>
+            {% else %}
+            <span>{{ user_avatar.initial }}</span>
+            {% endif %}
+          </span>
+          <span class="nav-user__label">Кабинет</span>
+        </a>
       {% else %}
         <a class="btn btn-secondary" href="/login">Войти</a>
       {% endif %}

@@ -1083,9 +1083,36 @@ def render(request: Request, template_name: str, context: Optional[Dict[str, Any
     else:
         vk_display = vk_value
 
+    user = get_current_user(request)
+    avatar_url = ""
+    avatar_initial = ""
+    avatar_variant = "default"
+    if user:
+        raw_url = (user.get("avatar_url") or user.get("photo_url") or "").strip()
+        avatar_url = raw_url
+        provider = user.get("provider") or ""
+        if provider == "email":
+            avatar_variant = "email"
+            email = (user.get("email") or "").strip()
+            if email:
+                avatar_initial = email[0].upper()
+        if not avatar_initial:
+            name = (user.get("name") or "").strip()
+            if name:
+                avatar_initial = name[0].upper()
+        if not avatar_initial and user.get("email"):
+            avatar_initial = str(user.get("email"))[0].upper()
+    if not avatar_initial:
+        avatar_initial = "?"
+
     ctx = {
         "request": request,
-        "user": get_current_user(request),
+        "user": user,
+        "user_avatar": {
+            "url": avatar_url,
+            "initial": avatar_initial,
+            "variant": avatar_variant,
+        },
         "contact_phone": phone,
         "contact_phone_link": phone_link,
         "contact_telegram": telegram_display,

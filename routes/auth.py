@@ -88,7 +88,13 @@ async def login_verify(request: Request):
 
     users = load_json(USERS_FILE, {})
     user_id = f"email:{email}"
-    user = users.get(user_id) or {"id": user_id, "email": email, "name": email, "provider": "email"}
+    user = users.get(user_id) or {
+        "id": user_id,
+        "email": email,
+        "name": email,
+        "provider": "email",
+        "avatar_url": None,
+    }
     users[user_id] = user
     save_json(USERS_FILE, users)
 
@@ -251,6 +257,7 @@ async def auth_google(request: Request):
         "email": userinfo.get("email"),
         "name": userinfo.get("name") or userinfo.get("given_name") or userinfo.get("email"),
         "provider": "google",
+        "avatar_url": userinfo.get("picture"),
     }
     users[user_id] = user
     save_json(USERS_FILE, users)
@@ -285,6 +292,7 @@ async def auth_vk(request: Request):
         "email": token.get("email"),
         "name": f"{profile.get('first_name', '')} {profile.get('last_name', '')}".strip(),
         "provider": "vk",
+        "avatar_url": profile.get("photo_200"),
     }
     users[user_id] = user
     save_json(USERS_FILE, users)
@@ -308,6 +316,7 @@ async def login_telegram(request: Request):
         "email": None,
         "name": data.get("first_name") or data.get("username") or "Telegram",
         "provider": "telegram",
+        "avatar_url": data.get("photo_url"),
     }
     users[user_id] = user
     save_json(USERS_FILE, users)
