@@ -64,6 +64,10 @@ access_logger = logging.getLogger("app.access")
 access_logger.setLevel(logging.INFO)
 access_logger.addHandler(file_handler)
 access_logger.propagate = False
+error_logger = logging.getLogger("app.errors")
+error_logger.setLevel(logging.INFO)
+error_logger.addHandler(file_handler)
+error_logger.propagate = False
 logging.getLogger(__name__).info("Logging initialized. Writing to %s", log_path)
 
 app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
@@ -136,7 +140,13 @@ async def track_metrics(request: Request, call_next):
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start = time.time()
-    response = await call_next(request)
+    try:
+        response = await call_next(request)
+    except Exception:
+        error_logger.exception(
+            "Unhandled error on %s %s", request.method, request.url.path
+        )
+        raise
     duration = (time.time() - start) * 1000
     access_logger.info(
         "%s %s -> %s (%.1f ms)",
@@ -145,6 +155,14 @@ async def log_requests(request: Request, call_next):
         response.status_code,
         duration,
     )
+    if response.status_code >= 500:
+        error_logger.error(
+            "HTTP %s on %s %s (%.1f ms)",
+            response.status_code,
+            request.method,
+            request.url.path,
+            duration,
+        )
     return response
 
 
