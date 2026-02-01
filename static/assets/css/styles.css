@@ -3119,8 +3119,9 @@ html[amp] .reveal {
   .comparison .compare-row div:first-child {
     grid-column: 1 / -1;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
-    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    font-size: 0.95rem;
+    font-weight: 700;
     color: var(--muted);
   }
 
