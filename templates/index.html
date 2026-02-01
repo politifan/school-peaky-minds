@@ -162,11 +162,12 @@ links.forEach((link) => {
           <div class="card">
             <div class="card-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="7" cy="8" r="3"></circle>
-                <circle cx="17" cy="8" r="3"></circle>
-                <path d="M2 20c0-3 3-5 5-5"></path>
-                <path d="M22 20c0-3-3-5-5-5"></path>
-                <path d="M9 20h6"></path>
+                <circle cx="12" cy="6.5" r="2.5"></circle>
+                <circle cx="5.5" cy="9" r="2.25"></circle>
+                <circle cx="18.5" cy="9" r="2.25"></circle>
+                <path d="M6.5 20c0-3 2.6-5.5 5.5-5.5s5.5 2.5 5.5 5.5"></path>
+                <path d="M2 20c0-2.2 1.8-4 4-4"></path>
+                <path d="M22 20c0-2.2-1.8-4-4-4"></path>
               </svg>
             </div>
             <h3>Мини‑группа</h3>
@@ -790,9 +791,9 @@ links.forEach((link) => {
             <p>Подберём курс, оценим уровень и скажем, как быстрее выйти на проекты, фриланс или работу.</p>
           </div>
           <form class="cta-form" action="/apply" method="post" target="_top">
-            <input type="text" name="name" placeholder="Ваше имя">
+            <input type="text" name="name" placeholder="Ваше имя" maxlength="60">
             <div class="input-wrap">
-              <input type="tel" name="phone" placeholder="Телефон или Telegram (@username)" pattern="(@[A-Za-z0-9_]{3,32}|\\+?[0-9\\s\\-()]{7,20})" maxlength="32">
+              <input type="text" name="phone" placeholder="Телефон или Telegram (@username)" data-phone="flex" pattern="(@[A-Za-z0-9_]{3,32}|\\+?[0-9\\s\\-()]{7,20})" maxlength="32">
               <div class="input-hint">Пример: +7 900 123‑45‑67 или @username</div>
               <div class="input-error" aria-live="polite"></div>
             </div>

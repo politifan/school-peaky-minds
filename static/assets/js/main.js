@@ -110,6 +110,20 @@ const validatePhoneInput = (input, showError = false) => {
   return isValid;
 };
 
+const isValidEmailValue = (value) => {
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  const parts = trimmed.split('@');
+  if (parts.length !== 2) return false;
+  const local = parts[0];
+  const domain = parts[1];
+  if (!local || !domain) return false;
+  if (domain.length < 4) return false;
+  if (!domain.includes('.')) return false;
+  if (domain.startsWith('.') || domain.endsWith('.')) return false;
+  return true;
+};
+
 phoneInputs.forEach((input) => {
   input.addEventListener('input', () => validatePhoneInput(input, false));
   input.addEventListener('blur', () => validatePhoneInput(input, true));
@@ -223,6 +237,12 @@ applyForms.forEach((form) => {
       form.dataset.sending = 'false';
       return;
     }
+    const emailField = form.querySelector('input[data-email], input[type="email"]');
+    if (emailField && !isValidEmailValue(emailField.value)) {
+      showFormMessage(form, 'Введите корректный email (минимум 4 символа после @ и точка).', true);
+      form.dataset.sending = 'false';
+      return;
+    }
 
     const submitBtn = form.querySelector('button[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
@@ -258,7 +278,13 @@ validatedForms.forEach((form) => {
     const phoneField = form.querySelector('input[data-phone]');
     if (phoneField && !validatePhoneInput(phoneField, true)) {
       event.preventDefault();
-      showFormMessage(form, 'Проверьте номер телефона.', true);
+      showFormMessage(form, 'Проверьте номер телефона или Telegram.', true);
+      return;
+    }
+    const emailField = form.querySelector('input[data-email], input[type="email"]');
+    if (emailField && !isValidEmailValue(emailField.value)) {
+      event.preventDefault();
+      showFormMessage(form, 'Введите корректный email (минимум 4 символа после @ и точка).', true);
       return;
     }
     const telegramField = form.querySelector('input[data-telegram]');

@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import parse_qs, urlencode, urlparse
 
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from starlette.status import HTTP_302_FOUND
 
 import core
@@ -83,6 +83,7 @@ CONTRACT_STATUS_OPTIONS = [
     ("sent", "Отправлен"),
     ("signed", "Подписан"),
 ]
+CONTRACT_STATUS_LABELS = {key: label for key, label in CONTRACT_STATUS_OPTIONS}
 
 
 def format_ts(value: Optional[int]) -> str:
@@ -396,6 +397,8 @@ def _admin_panel_impl(request: Request):
     query = (request.query_params.get("q") or "").strip()
     status_filter = request.query_params.get("status") or ""
     source_filter = request.query_params.get("source") or ""
+    agreement_status_filter = request.query_params.get("agreement_status") or ""
+    contract_status_filter = request.query_params.get("contract_status") or ""
     sort = request.query_params.get("sort") or "date"
     order = request.query_params.get("order") or "desc"
     limit_raw = request.query_params.get("limit") or "20"
@@ -412,6 +415,7 @@ def _admin_panel_impl(request: Request):
 
     leads = [{**item, "_source": extract_source(item.get("page", ""))} for item in leads]
     leads_base_count = len(leads)
+    agreements_base_count = len(agreements)
 
     status_counts = {key: 0 for key in STATUS_META}
     source_counts: Dict[str, int] = {}
@@ -421,12 +425,29 @@ def _admin_panel_impl(request: Request):
         source = item.get("_source") or "Прямой"
         source_counts[source] = source_counts.get(source, 0) + 1
 
+    agreement_status_counts = {key: 0 for key in AGREEMENT_STATUS_META}
+    contract_status_counts = {key: 0 for key in core.CONTRACT_STATUS_META}
+    for item in agreements:
+        agreement_key, _, _ = agreement_status_from_item(item)
+        agreement_status_counts[agreement_key] = agreement_status_counts.get(agreement_key, 0) + 1
+        contract_key, _, _ = contract_status_from_item(item)
+        contract_status_counts[contract_key] = contract_status_counts.get(contract_key, 0) + 1
+
     if status_filter and status_filter not in STATUS_META:
         status_filter = ""
     if status_filter:
         leads = [item for item in leads if status_from_item(item)[0] == status_filter]
     if source_filter:
         leads = [item for item in leads if item.get("_source") == source_filter]
+
+    if agreement_status_filter and agreement_status_filter not in AGREEMENT_STATUS_META:
+        agreement_status_filter = ""
+    if contract_status_filter and contract_status_filter not in core.CONTRACT_STATUS_META:
+        contract_status_filter = ""
+    if agreement_status_filter:
+        agreements = [item for item in agreements if agreement_status_from_item(item)[0] == agreement_status_filter]
+    if contract_status_filter:
+        agreements = [item for item in agreements if contract_status_from_item(item)[0] == contract_status_filter]
 
     pipeline_order = ["new", "contacted", "qualified", "call_scheduled", "paid", "lost", "archived"]
     pipeline_labels = {
@@ -518,6 +539,25 @@ def _admin_panel_impl(request: Request):
         }
         return (order_map.get(status_key, 3), safe_int(item.get("timestamp", 0)))
 
+    def agreement_status_sort_key(item: Dict[str, Any]):
+        status_key, _, _ = agreement_status_from_item(item)
+        order_map = {
+            "signed": 0,
+            "paid": 1,
+            "review": 2,
+            "canceled": 3,
+        }
+        return (order_map.get(status_key, 4), safe_int(item.get("timestamp", 0)))
+
+    def contract_status_sort_key(item: Dict[str, Any]):
+        status_key, _, _ = contract_status_from_item(item)
+        order_map = {
+            "draft": 0,
+            "sent": 1,
+            "signed": 2,
+        }
+        return (order_map.get(status_key, 3), safe_int(item.get("timestamp", 0)))
+
     lead_key_map = {
         "date": lambda item: safe_int(item.get("timestamp", 0)),
         "name": lambda item: (item.get("name") or "").lower(),
@@ -528,6 +568,8 @@ def _admin_panel_impl(request: Request):
         "date": lambda item: safe_int(item.get("timestamp", 0)),
         "name": lambda item: (item.get("full_name") or "").lower(),
         "course": lambda item: (item.get("course") or "").lower(),
+        "status": agreement_status_sort_key,
+        "contract": contract_status_sort_key,
     }
 
     leads = sort_items(leads, sort, order, lead_key_map)
@@ -605,6 +647,7 @@ def _admin_panel_impl(request: Request):
                 "status_key": status_key,
                 "manual_status": manual_status,
                 "amount_display": amount_display,
+                "contract_number": item.get("contract_number") or "—",
                 "contract_status_key": contract_key,
                 "contract_status_label": contract_label,
                 "contract_status_class": contract_class,
@@ -644,6 +687,12 @@ def _admin_panel_impl(request: Request):
         filter_bits.append(f"Статус: {status_label}")
     if source_filter:
         filter_bits.append(f"Источник: {source_filter}")
+    if agreement_status_filter:
+        agreement_label = AGREEMENT_STATUS_META.get(agreement_status_filter, (agreement_status_filter, ""))[0]
+        filter_bits.append(f"Статус покупки: {agreement_label}")
+    if contract_status_filter:
+        contract_label = CONTRACT_STATUS_LABELS.get(contract_status_filter, contract_status_filter)
+        filter_bits.append(f"Статус договора: {contract_label}")
     if query:
         filter_bits.append(f"Поиск: {query}")
     if date_from_value or date_to_value:
@@ -672,6 +721,10 @@ def _admin_panel_impl(request: Request):
         params["status"] = status_filter
     if source_filter:
         params["source"] = source_filter
+    if agreement_status_filter:
+        params["agreement_status"] = agreement_status_filter
+    if contract_status_filter:
+        params["contract_status"] = contract_status_filter
     if sort:
         params["sort"] = sort
     if order:
@@ -695,6 +748,14 @@ def _admin_panel_impl(request: Request):
     for source, count in source_items:
         source_filter_options.append((source, source, count))
 
+    agreement_status_filter_options = [("", "Все", agreements_base_count)]
+    for key, (label, _) in AGREEMENT_STATUS_META.items():
+        agreement_status_filter_options.append((key, label, agreement_status_counts.get(key, 0)))
+
+    contract_status_filter_options = [("", "Все", agreements_base_count)]
+    for key, label in CONTRACT_STATUS_OPTIONS:
+        contract_status_filter_options.append((key, label, contract_status_counts.get(key, 0)))
+
     def build_filter_links(options, param_name: str, active_value: str):
         links = []
         for key, label, count in options:
@@ -705,6 +766,8 @@ def _admin_panel_impl(request: Request):
                 link_params.pop(param_name, None)
             if param_name in {"status", "source"}:
                 link_params.pop("leads_page", None)
+            if param_name in {"agreement_status", "contract_status"}:
+                link_params.pop("agreements_page", None)
             url = f"/admin{build_query(link_params)}"
             links.append(
                 {
@@ -718,6 +781,12 @@ def _admin_panel_impl(request: Request):
 
     status_filters = build_filter_links(status_filter_options, "status", status_filter)
     source_filters = build_filter_links(source_filter_options, "source", source_filter)
+    agreement_status_filters = build_filter_links(
+        agreement_status_filter_options, "agreement_status", agreement_status_filter
+    )
+    contract_status_filters = build_filter_links(
+        contract_status_filter_options, "contract_status", contract_status_filter
+    )
 
     def build_pagination(current_page: int, total_pages: int, page_param: str):
         if total_pages <= 1:
@@ -971,6 +1040,8 @@ def _admin_panel_impl(request: Request):
                 "query": query,
                 "status": status_filter,
                 "source": source_filter,
+                "agreement_status": agreement_status_filter,
+                "contract_status": contract_status_filter,
                 "sort": sort,
                 "order": order,
                 "limit": limit_raw,
@@ -1003,6 +1074,8 @@ def _admin_panel_impl(request: Request):
             "contract_status_options": CONTRACT_STATUS_OPTIONS,
             "status_filters": status_filters,
             "source_filters": source_filters,
+            "agreement_status_filters": agreement_status_filters,
+            "contract_status_filters": contract_status_filters,
             "leads_pagination": leads_pagination,
             "agreements_pagination": agreements_pagination,
             "next_url": next_url,
@@ -1014,6 +1087,35 @@ def _admin_panel_impl(request: Request):
             "avg_response": avg_response,
         },
     )
+
+
+@router.get("/admin/leads/statuses", include_in_schema=False)
+def admin_lead_statuses(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    files_raw = request.query_params.get("files") or ""
+    files = [item.strip() for item in files_raw.split(",") if item.strip()]
+    items = []
+    for file_name in files:
+        path = core.LEADS_DIR / file_name
+        if not path.exists():
+            continue
+        data = load_json(path, {})
+        if not isinstance(data, dict):
+            continue
+        status_key, status_label, status_class = status_from_item(data)
+        manual_status = (data.get("status") or "").strip()
+        items.append(
+            {
+                "file": file_name,
+                "status_key": status_key,
+                "status_label": status_label,
+                "status_class": status_class,
+                "manual_status": manual_status,
+            }
+        )
+    return JSONResponse({"items": items})
 
 
 @router.post("/admin/metrics/reset", include_in_schema=False)
@@ -1397,16 +1499,43 @@ def export_agreements(request: Request):
     date_from = parse_date(request.query_params.get("date_from"))
     date_to = parse_date(request.query_params.get("date_to"))
     query = (request.query_params.get("q") or "").strip()
+    agreement_status_filter = request.query_params.get("agreement_status") or ""
+    contract_status_filter = request.query_params.get("contract_status") or ""
     sort = request.query_params.get("sort") or "date"
     order = request.query_params.get("order") or "desc"
 
     agreements = filter_items(load_agreements(), course, date_from, date_to)
     agreements = apply_search(agreements, query, ["full_name", "phone", "email", "telegram", "course"])
+    if agreement_status_filter and agreement_status_filter in AGREEMENT_STATUS_META:
+        agreements = [item for item in agreements if agreement_status_from_item(item)[0] == agreement_status_filter]
+    if contract_status_filter and contract_status_filter in core.CONTRACT_STATUS_META:
+        agreements = [item for item in agreements if contract_status_from_item(item)[0] == contract_status_filter]
+
+    def agreement_status_sort_key(item: Dict[str, Any]):
+        status_key, _, _ = agreement_status_from_item(item)
+        order_map = {
+            "signed": 0,
+            "paid": 1,
+            "review": 2,
+            "canceled": 3,
+        }
+        return (order_map.get(status_key, 4), safe_int(item.get("timestamp", 0)))
+
+    def contract_status_sort_key(item: Dict[str, Any]):
+        status_key, _, _ = contract_status_from_item(item)
+        order_map = {
+            "draft": 0,
+            "sent": 1,
+            "signed": 2,
+        }
+        return (order_map.get(status_key, 3), safe_int(item.get("timestamp", 0)))
 
     agreement_key_map = {
         "date": lambda item: safe_int(item.get("timestamp", 0)),
         "name": lambda item: (item.get("full_name") or "").lower(),
         "course": lambda item: (item.get("course") or "").lower(),
+        "status": agreement_status_sort_key,
+        "contract": contract_status_sort_key,
     }
     agreements = sort_items(agreements, sort, order, agreement_key_map)
 
@@ -1417,6 +1546,7 @@ def export_agreements(request: Request):
             "timestamp",
             "course",
             "full_name",
+            "contract_number",
             "phone",
             "email",
             "telegram",
@@ -1439,6 +1569,7 @@ def export_agreements(request: Request):
             item.get("timestamp"),
             item.get("course"),
             item.get("full_name"),
+            item.get("contract_number"),
             item.get("phone"),
             item.get("email"),
             item.get("telegram"),

@@ -455,7 +455,7 @@
           </thead>
           <tbody>
             {% for lead in leads %}
-            <tr>
+            <tr data-lead-file="{{ lead._file }}">
               <td data-label="Дата">{{ lead.display_time }}</td>
               <td data-label="Имя">
                 <div class="admin-cell">
@@ -541,21 +541,111 @@
           </form>
         </div>
       </div>
+      <form class="admin-filter" method="get" action="/admin">
+        <input type="hidden" name="view" value="agreements">
+        <input type="hidden" name="agreement_status" value="{{ filters.agreement_status }}">
+        <input type="hidden" name="contract_status" value="{{ filters.contract_status }}">
+        <div class="admin-filter__row">
+          <div class="input-wrap">
+            <label class="auth-label">Курс</label>
+            <select name="course">
+              <option value="">Все курсы</option>
+              {% for item in courses %}
+              <option value="{{ item }}" {% if filters.course == item %}selected{% endif %}>{{ item }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">Дата от</label>
+            <input type="date" name="date_from" value="{{ filters.date_from }}">
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">Дата до</label>
+            <input type="date" name="date_to" value="{{ filters.date_to }}">
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">Поиск</label>
+            <input type="text" name="q" placeholder="ФИО, контакт, курс" value="{{ filters.query }}">
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">Сортировка</label>
+            <select name="sort">
+              <option value="date" {% if filters.sort == "date" %}selected{% endif %}>По дате</option>
+              <option value="name" {% if filters.sort == "name" %}selected{% endif %}>По имени</option>
+              <option value="course" {% if filters.sort == "course" %}selected{% endif %}>По курсу</option>
+              <option value="status" {% if filters.sort == "status" %}selected{% endif %}>По статусу</option>
+              <option value="contract" {% if filters.sort == "contract" %}selected{% endif %}>По договору</option>
+            </select>
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">Порядок</label>
+            <select name="order">
+              <option value="desc" {% if filters.order == "desc" %}selected{% endif %}>По убыванию</option>
+              <option value="asc" {% if filters.order == "asc" %}selected{% endif %}>По возрастанию</option>
+            </select>
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">На странице</label>
+            <select name="limit">
+              <option value="20" {% if filters.limit == "20" %}selected{% endif %}>20</option>
+              <option value="50" {% if filters.limit == "50" %}selected{% endif %}>50</option>
+              <option value="100" {% if filters.limit == "100" %}selected{% endif %}>100</option>
+              <option value="all" {% if filters.limit == "all" %}selected{% endif %}>Все</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-filter__actions">
+          <button class="btn btn-primary" type="submit">Применить</button>
+          <a class="btn btn-secondary" href="/admin?view=agreements">Сбросить</a>
+          <div class="admin-filter__presets">
+            <button type="button" data-range="7">7 дней</button>
+            <button type="button" data-range="30">30 дней</button>
+            <button type="button" data-range="90">90 дней</button>
+          </div>
+        </div>
+      </form>
+      {% if agreement_status_filters or contract_status_filters %}
+      <div class="admin-filter-chips">
+        {% if agreement_status_filters %}
+        <div class="admin-chip-group">
+          <span class="admin-chip-label">Статус</span>
+          {% for item in agreement_status_filters %}
+          <a class="admin-chip-link {% if item.active %}is-active{% endif %}" href="{{ item.url }}">
+            {{ item.label }}
+            <span class="admin-chip-count">{{ item.count }}</span>
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if contract_status_filters %}
+        <div class="admin-chip-group">
+          <span class="admin-chip-label">Договор</span>
+          {% for item in contract_status_filters %}
+          <a class="admin-chip-link {% if item.active %}is-active{% endif %}" href="{{ item.url }}">
+            {{ item.label }}
+            <span class="admin-chip-count">{{ item.count }}</span>
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
       {% if agreements %}
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead>
             <tr>
-              <th>Дата</th>
-              <th>ФИО</th>
-              <th>Курс</th>
+              <th><button type="button" class="admin-sort" data-sort="date">Дата</button></th>
+              <th><button type="button" class="admin-sort" data-sort="name">ФИО</button></th>
+              <th>Номер договора</th>
+              <th><button type="button" class="admin-sort" data-sort="course">Курс</button></th>
               <th>Телефон</th>
               <th>Email</th>
               <th>Telegram</th>
-              <th>Договор</th>
+              <th><button type="button" class="admin-sort" data-sort="contract">Договор</button></th>
               <th>Прогресс</th>
               <th>Сумма</th>
-              <th>Статус</th>
+              <th><button type="button" class="admin-sort" data-sort="status">Статус</button></th>
               <th>Удалить</th>
             </tr>
           </thead>
@@ -564,6 +654,7 @@
             <tr>
               <td data-label="Дата">{{ item.display_time }}</td>
               <td data-label="ФИО"><strong>{{ item.full_name or "Без имени" }}</strong></td>
+              <td data-label="Номер договора">{{ item.contract_number }}</td>
               <td data-label="Курс">{{ item.course or "—" }}</td>
               <td data-label="Телефон">{{ item.phone or "—" }}</td>
               <td data-label="Email">{{ item.email or "—" }}</td>
@@ -820,6 +911,44 @@
           window.location.href = url.toString();
         });
       });
+
+      const leadRows = Array.from(document.querySelectorAll("[data-lead-file]"));
+      if (leadRows.length) {
+        const leadRowMap = new Map(leadRows.map((row) => [row.dataset.leadFile, row]));
+        const fetchLeadStatuses = async () => {
+          const files = Array.from(leadRowMap.keys()).filter(Boolean);
+          if (!files.length) return;
+          try {
+            const response = await fetch(`/admin/leads/statuses?files=${encodeURIComponent(files.join(","))}`, {
+              headers: { Accept: "application/json" },
+            });
+            if (!response.ok) return;
+            const data = await response.json();
+            if (!data || !Array.isArray(data.items)) return;
+            data.items.forEach((item) => {
+              const row = leadRowMap.get(item.file);
+              if (!row) return;
+              const badge = row.querySelector(".admin-status");
+              if (badge && item.status_label && item.status_class) {
+                badge.textContent = item.status_label;
+                badge.className = `admin-status ${item.status_class}`;
+              }
+              const select = row.querySelector('select[name="status"]');
+              if (select) {
+                const nextValue = item.manual_status || "auto";
+                if (select.value !== nextValue) select.value = nextValue;
+              }
+            });
+          } catch (err) {
+            /* ignore */
+          }
+        };
+        fetchLeadStatuses();
+        setInterval(fetchLeadStatuses, 20000);
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden) fetchLeadStatuses();
+        });
+      }
     })();
   </script>
 </body>
