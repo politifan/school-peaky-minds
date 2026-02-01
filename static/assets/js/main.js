@@ -119,7 +119,7 @@ const isValidEmailValue = (value) => {
   const domain = parts[1];
   if (!local || !domain) return false;
   if (domain.length < 4) return false;
-  if (!domain.includes('.')) return false;
+  if ((domain.match(/\./g) || []).length !== 1) return false;
   if (domain.startsWith('.') || domain.endsWith('.')) return false;
   return true;
 };

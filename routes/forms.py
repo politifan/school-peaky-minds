@@ -34,7 +34,7 @@ def is_valid_email(value: object) -> bool:
         return False
     if len(domain) < 4:
         return False
-    if "." not in domain:
+    if domain.count(".") != 1:
         return False
     if domain.startswith(".") or domain.endswith("."):
         return False

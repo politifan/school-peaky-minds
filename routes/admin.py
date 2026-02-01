@@ -13,6 +13,9 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from starlette.status import HTTP_302_FOUND
 
+from telegram_bot import is_configured as telegram_is_configured
+from telegram_bot import send_lead_message
+
 import core
 from core import (
     USERS_FILE,
@@ -1210,6 +1213,11 @@ async def admin_update_lead_status(request: Request):
     if status == "auto":
         status = ""
     update_lead_status(file_name, status)
+    if telegram_is_configured():
+        try:
+            await send_lead_message("Обновление статуса", lead_file=file_name)
+        except Exception:
+            logging.getLogger("app.telegram").warning("Telegram status sync failed.", exc_info=True)
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 

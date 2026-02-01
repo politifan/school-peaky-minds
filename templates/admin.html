@@ -637,6 +637,7 @@
             <tr>
               <th><button type="button" class="admin-sort" data-sort="date">Дата</button></th>
               <th><button type="button" class="admin-sort" data-sort="name">ФИО</button></th>
+              <th>Номер договора</th>
               <th><button type="button" class="admin-sort" data-sort="course">Курс</button></th>
               <th>Телефон</th>
               <th>Email</th>
@@ -653,6 +654,7 @@
             <tr>
               <td data-label="Дата">{{ item.display_time }}</td>
               <td data-label="ФИО"><strong>{{ item.full_name or "Без имени" }}</strong></td>
+              <td data-label="Номер договора">{{ item.contract_number }}</td>
               <td data-label="Курс">{{ item.course or "—" }}</td>
               <td data-label="Телефон">{{ item.phone or "—" }}</td>
               <td data-label="Email">{{ item.email or "—" }}</td>
