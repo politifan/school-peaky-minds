@@ -93,8 +93,9 @@ async def login_verify(request: Request):
         "email": email,
         "name": email,
         "provider": "email",
-        "avatar_url": None,
     }
+    user.pop("avatar_url", None)
+    user.pop("photo_url", None)
     users[user_id] = user
     save_json(USERS_FILE, users)
 
@@ -257,12 +258,12 @@ async def auth_google(request: Request):
         "email": userinfo.get("email"),
         "name": userinfo.get("name") or userinfo.get("given_name") or userinfo.get("email"),
         "provider": "google",
-        "avatar_url": userinfo.get("picture"),
     }
-    users[user_id] = user
+    users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}
     save_json(USERS_FILE, users)
 
-    set_current_user(request, user)
+    session_user = {**user, "photo_url": userinfo.get("picture")}
+    set_current_user(request, session_user)
     return RedirectResponse("/", status_code=HTTP_302_FOUND)
 
 
@@ -292,12 +293,12 @@ async def auth_vk(request: Request):
         "email": token.get("email"),
         "name": f"{profile.get('first_name', '')} {profile.get('last_name', '')}".strip(),
         "provider": "vk",
-        "avatar_url": profile.get("photo_200"),
     }
-    users[user_id] = user
+    users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}
     save_json(USERS_FILE, users)
 
-    set_current_user(request, user)
+    session_user = {**user, "photo_url": profile.get("photo_200")}
+    set_current_user(request, session_user)
     return RedirectResponse("/", status_code=HTTP_302_FOUND)
 
 
@@ -316,11 +317,11 @@ async def login_telegram(request: Request):
         "email": None,
         "name": data.get("first_name") or data.get("username") or "Telegram",
         "provider": "telegram",
-        "avatar_url": data.get("photo_url"),
     }
-    users[user_id] = user
+    users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}
     save_json(USERS_FILE, users)
-    set_current_user(request, user)
+    session_user = {**user, "photo_url": data.get("photo_url")}
+    set_current_user(request, session_user)
 
     return RedirectResponse("/", status_code=HTTP_302_FOUND)
 
