@@ -2542,7 +2542,7 @@ select:focus {
   gap: 18px;
 }
 
-.testimonial-grid.collapsed .testimonial-card:nth-child(n + 8) {
+.testimonial-grid.collapsed .testimonial-card:nth-child(n + 5) {
   display: none;
 }
 
