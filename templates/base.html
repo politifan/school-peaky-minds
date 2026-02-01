@@ -83,7 +83,7 @@
             {% if user_avatar.url %}
             <img src="{{ user_avatar.url }}" alt="Аватар профиля" loading="lazy"
               onload="this.parentElement.classList.add('has-image')"
-              onerror="this.parentElement.classList.remove('has-image'); this.style.display='none'">
+              onerror="this.parentElement.classList.remove('has-image'); this.style.display='none'" style="height: 40px;">
             {% endif %}
             <span class="avatar-initial">{{ user_avatar.initial }}</span>
           </span>
