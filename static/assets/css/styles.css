@@ -496,6 +496,18 @@ section {
   bottom: auto;
 }
 
+.course-hero .hero-visual .code-card {
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+
+.course-hero .hero-visual .glass-card.accent {
+  right: -10px;
+  bottom: 20px;
+  z-index: 1;
+}
+
 .visual-spark {
   position: absolute;
   width: 180px;
