@@ -2566,6 +2566,12 @@ select:focus {
   gap: 10px;
 }
 
+.testimonial-person .avatar {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
 .avatar {
   width: 36px;
   height: 36px;
