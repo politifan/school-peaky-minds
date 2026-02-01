@@ -48,7 +48,7 @@ router = APIRouter()
 
 
 @router.get("/login", include_in_schema=False)
-def login(request: Request):
+async def login(request: Request):
     next_url = request.query_params.get("next") or "/"
     return render(request, "login.html", login_context(request, next_url=next_url))
 
@@ -367,13 +367,13 @@ async def validate_telegram(username: str) -> dict:
 
 
 @router.get("/logout", include_in_schema=False)
-def logout(request: Request):
+async def logout(request: Request):
     clear_user(request)
     return RedirectResponse("/", status_code=HTTP_302_FOUND)
 
 
 @router.get("/account", include_in_schema=False)
-def account(request: Request):
+async def account(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse("/login", status_code=HTTP_302_FOUND)

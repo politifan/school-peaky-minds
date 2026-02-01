@@ -61,7 +61,7 @@ def _resolve_default_channel(channels: List[Dict[str, Any]], preferred: str) -> 
 
 
 @router.get("/contract/{token}", include_in_schema=False)
-def contract_view(request: Request, token: str):
+async def contract_view(request: Request, token: str):
     agreement, _ = core.find_agreement_by_token(token)
     if not agreement:
         return HTMLResponse("Ссылка недействительна или договор не найден.", status_code=404)

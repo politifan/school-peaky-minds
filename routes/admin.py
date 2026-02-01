@@ -369,7 +369,7 @@ def bucket_counts(items: List[Dict[str, Any]], bucket: str, periods: int) -> Lis
 
 
 @router.get("/admin", include_in_schema=False)
-def admin_panel(request: Request):
+async def admin_panel(request: Request):
     guard = admin_required(request)
     if guard:
         return guard
@@ -1090,7 +1090,7 @@ def _admin_panel_impl(request: Request):
 
 
 @router.get("/admin/leads/statuses", include_in_schema=False)
-def admin_lead_statuses(request: Request):
+async def admin_lead_statuses(request: Request):
     guard = admin_required(request)
     if guard:
         return guard
@@ -1119,7 +1119,7 @@ def admin_lead_statuses(request: Request):
 
 
 @router.post("/admin/metrics/reset", include_in_schema=False)
-def admin_reset_metrics(request: Request):
+async def admin_reset_metrics(request: Request):
     guard = admin_required(request)
     if guard:
         return guard
@@ -1135,7 +1135,7 @@ def admin_reset_metrics(request: Request):
 
 
 @router.post("/admin/leads/clear", include_in_schema=False)
-def admin_clear_leads(request: Request):
+async def admin_clear_leads(request: Request):
     guard = admin_required(request)
     if guard:
         return guard
@@ -1167,7 +1167,7 @@ async def admin_delete_lead(request: Request):
 
 
 @router.post("/admin/agreements/clear", include_in_schema=False)
-def admin_clear_agreements(request: Request):
+async def admin_clear_agreements(request: Request):
     guard = admin_required(request)
     if guard:
         return guard
@@ -1426,7 +1426,7 @@ async def admin_remove_whitelist(request: Request):
 
 
 @router.get("/admin/export/leads.csv", include_in_schema=False)
-def export_leads(request: Request):
+async def export_leads(request: Request):
     guard = admin_required(request)
     if guard:
         return guard
@@ -1491,7 +1491,7 @@ def export_leads(request: Request):
 
 
 @router.get("/admin/export/agreements.csv", include_in_schema=False)
-def export_agreements(request: Request):
+async def export_agreements(request: Request):
     guard = admin_required(request)
     if guard:
         return guard
@@ -1593,7 +1593,7 @@ def export_agreements(request: Request):
 
 
 @router.get("/admin/export/users.csv", include_in_schema=False)
-def export_users(request: Request):
+async def export_users(request: Request):
     guard = admin_required(request)
     if guard:
         return guard

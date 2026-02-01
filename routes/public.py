@@ -18,24 +18,24 @@ def _load_amp_css() -> str:
 
 
 @router.get("/", include_in_schema=False)
-def index(request: Request):
+async def index(request: Request):
     return render(request, "index.html", {"amp_css": _load_amp_css()})
 
 
 @router.get("/index.html", include_in_schema=False)
-def index_alias(request: Request):
+async def index_alias(request: Request):
     return render(request, "index.html", {"amp_css": _load_amp_css()})
 
 
 @router.get("/robots.txt", include_in_schema=False)
-def robots(request: Request):
+async def robots(request: Request):
     base_url = str(request.base_url)
     content = f"User-agent: *\nAllow: /\nSitemap: {base_url}sitemap.xml\n"
     return PlainTextResponse(content, media_type="text/plain")
 
 
 @router.get("/sitemap.xml", include_in_schema=False)
-def sitemap(request: Request):
+async def sitemap(request: Request):
     base_url = str(request.base_url)
     lastmod = date.today().isoformat()
     urls = [
@@ -64,13 +64,13 @@ def sitemap(request: Request):
 
 
 @router.get("/course-fullstack.html", include_in_schema=False)
-def course_fullstack_legacy(request: Request):
+async def course_fullstack_legacy(request: Request):
     return RedirectResponse("/courses/fullstack", status_code=HTTP_302_FOUND)
 
 
 @router.get("/courses/fullstack", include_in_schema=False)
 @router.get("/courses/fullstack/", include_in_schema=False)
-def course_fullstack(request: Request):
+async def course_fullstack(request: Request):
     return render(
         request,
         "course-fullstack.html",
@@ -79,13 +79,13 @@ def course_fullstack(request: Request):
 
 
 @router.get("/course-datascience.html", include_in_schema=False)
-def course_datascience_legacy(request: Request):
+async def course_datascience_legacy(request: Request):
     return RedirectResponse("/courses/data-science", status_code=HTTP_302_FOUND)
 
 
 @router.get("/courses/data-science", include_in_schema=False)
 @router.get("/courses/data-science/", include_in_schema=False)
-def course_datascience(request: Request):
+async def course_datascience(request: Request):
     return render(
         request,
         "course-datascience.html",
@@ -94,18 +94,18 @@ def course_datascience(request: Request):
 
 
 @router.get("/course-business.html", include_in_schema=False)
-def course_business_legacy(request: Request):
+async def course_business_legacy(request: Request):
     return RedirectResponse("/courses/business", status_code=HTTP_302_FOUND)
 
 
 @router.get("/course-python-beginners.html", include_in_schema=False)
-def course_python_beginners_legacy(request: Request):
+async def course_python_beginners_legacy(request: Request):
     return RedirectResponse("/courses/python-beginners", status_code=HTTP_302_FOUND)
 
 
 @router.get("/courses/business", include_in_schema=False)
 @router.get("/courses/business/", include_in_schema=False)
-def course_business(request: Request):
+async def course_business(request: Request):
     return render(
         request,
         "course-business.html",
@@ -115,7 +115,7 @@ def course_business(request: Request):
 
 @router.get("/courses/python-beginners", include_in_schema=False)
 @router.get("/courses/python-beginners/", include_in_schema=False)
-def course_python_beginners(request: Request):
+async def course_python_beginners(request: Request):
     return render(
         request,
         "course-python-beginners.html",
@@ -124,5 +124,5 @@ def course_python_beginners(request: Request):
 
 
 @router.get("/healthz", include_in_schema=False)
-def healthz() -> dict:
+async def healthz() -> dict:
     return {"status": "ok"}

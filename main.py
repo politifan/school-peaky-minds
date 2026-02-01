@@ -4,6 +4,7 @@ import secrets
 import sys
 import time
 
+from anyio import to_thread
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -168,6 +169,12 @@ async def log_requests(request: Request, call_next):
 
 @app.on_event("startup")
 async def log_startup():
+    try:
+        limiter = to_thread.current_default_thread_limiter()
+        limiter.total_tokens = 2
+        access_logger.info("Thread limiter set to %s tokens.", limiter.total_tokens)
+    except Exception:
+        logging.getLogger(__name__).warning("Failed to set thread limiter.")
     access_logger.info("App startup complete.")
 
 
