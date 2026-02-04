@@ -1,11 +1,28 @@
 import logging
 import time
+from typing import Optional
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.status import HTTP_302_FOUND
 
-from core import get_current_user, load_metrics, render, save_agreement, save_lead, save_metrics
+from core import (
+    EXECUTOR_EMAIL,
+    find_student_by_code,
+    find_student_by_phone,
+    load_metrics,
+    load_referrals,
+    normalize_phone,
+    normalize_referral_code,
+    render,
+    save_agreement,
+    save_lead,
+    save_metrics,
+    save_referrals,
+    next_student_id,
+    get_current_user,
+    send_email_message,
+)
 from telegram_bot import is_configured as telegram_is_configured
 from telegram_bot import send_lead_message
 
@@ -39,6 +56,44 @@ def is_valid_email(value: object) -> bool:
     if domain.startswith(".") or domain.endswith("."):
         return False
     return True
+
+
+def _upsert_student_from_enroll(payload: dict, referral_code: str, referrer_id: Optional[int]) -> int:
+    data = load_referrals()
+    students = data.get("students") or {}
+    phone = str(payload.get("phone") or "").strip()
+    existing = find_student_by_phone(students, phone)
+    now_ts = int(time.time())
+
+    if existing:
+        student = existing
+    else:
+        student_id = next_student_id(students)
+        student = {
+            "id": student_id,
+            "created_at": now_ts,
+            "months": {},
+            "discount_applied": [],
+        }
+        students[str(student_id)] = student
+
+    student["name"] = payload.get("full_name") or student.get("name") or ""
+    student["phone"] = phone
+    student["phone_norm"] = normalize_phone(phone)
+    student["email"] = payload.get("email") or student.get("email") or ""
+    student["telegram"] = payload.get("telegram") or student.get("telegram") or ""
+    student["course"] = payload.get("course") or student.get("course") or ""
+    student["updated_at"] = now_ts
+
+    if referral_code and referrer_id:
+        if not student.get("referrer_id"):
+            student["referrer_id"] = referrer_id
+            student["referrer_code"] = referral_code
+            student["referrer_assigned_at"] = now_ts
+
+    data["students"] = students
+    save_referrals(data)
+    return int(student.get("id") or 0)
 
 
 @router.post("/apply", include_in_schema=False)
@@ -90,6 +145,10 @@ async def enroll(request: Request):
     email = str(form.get("email") or "").strip().lower()
     if not is_valid_email(email):
         return HTMLResponse("Некорректный email", status_code=400)
+    referral_code_raw = str(form.get("referral_code") or "").strip()
+    referral_code = normalize_referral_code(referral_code_raw)
+    if referral_code and len(referral_code) > 16:
+        return HTMLResponse("Реферальный код слишком длинный", status_code=400)
     payload = {
         "timestamp": int(time.time()),
         "user": user,
@@ -101,6 +160,25 @@ async def enroll(request: Request):
         "agreement": form.get("agreement"),
         "consent": form.get("consent"),
     }
+
+    referrer = None
+    referrer_id = None
+    if referral_code:
+        referral_data = load_referrals()
+        students = referral_data.get("students") or {}
+        referrer = find_student_by_code(students, referral_code)
+        if not referrer:
+            return HTMLResponse("Неверный реферальный код", status_code=400)
+        referrer_id = referrer.get("id")
+        existing = find_student_by_phone(students, payload.get("phone"))
+        if existing and existing.get("referrer_id") and existing.get("referrer_id") != referrer_id:
+            return HTMLResponse("Реферальный код уже применён", status_code=400)
+        payload["referral_code"] = referral_code
+        payload["referrer_id"] = referrer_id
+
+    student_id = _upsert_student_from_enroll(payload, referral_code, referrer_id)
+    if student_id:
+        payload["student_id"] = student_id
 
     save_agreement(payload)
     metrics = load_metrics()
@@ -122,5 +200,24 @@ async def enroll(request: Request):
                 logging.getLogger("app.telegram").warning("Telegram enroll message not delivered.")
         except Exception as exc:
             logging.getLogger("app.telegram").error("Telegram enroll send failed: %s", exc)
+
+    if referral_code and referrer:
+        notify_text = (
+            "🤝 <b>Новый реферал</b>\n"
+            f"👤 <b>Реферал:</b> {payload.get('full_name') or '—'}\n"
+            f"📞 <b>Телефон:</b> {payload.get('phone') or '—'}\n"
+            f"🎯 <b>Курс:</b> {payload.get('course') or '—'}\n"
+            f"🔗 <b>Код:</b> {referral_code}\n"
+            f"🏷 <b>Участник:</b> {referrer.get('name') or '—'}"
+        )
+        try:
+            sent = await send_lead_message(notify_text)
+            if not sent and EXECUTOR_EMAIL:
+                try:
+                    send_email_message(EXECUTOR_EMAIL, "Новый реферал", notify_text.replace("<b>", "").replace("</b>", ""))
+                except Exception as exc:
+                    logging.getLogger("app.telegram").warning("Referral email notify failed: %s", exc)
+        except Exception as exc:
+            logging.getLogger("app.telegram").warning("Referral telegram notify failed: %s", exc)
 
     return render(request, "enroll_success.html", {"course": payload.get("course")})

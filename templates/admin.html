@@ -23,6 +23,7 @@
           <a class="{% if view == 'leads' %}is-active{% endif %}" href="/admin?view=leads">Заявки</a>
           <a class="{% if view == 'agreements' %}is-active{% endif %}" href="/admin?view=agreements">Договоры</a>
           <a class="{% if view == 'users' %}is-active{% endif %}" href="/admin?view=users">Пользователи</a>
+          <a class="{% if view == 'referrals' %}is-active{% endif %}" href="/admin?view=referrals">Рефералы</a>
           <a class="{% if view == 'whitelist' %}is-active{% endif %}" href="/admin?view=whitelist">Whitelist</a>
           <a href="/">На главную</a>
         </nav>
@@ -788,6 +789,222 @@
       </div>
       {% else %}
       <p>Пользователей пока нет.</p>
+      {% endif %}
+    </section>
+        {% endif %}
+
+        {% if view == 'referrals' %}
+        <section class="panel" id="admin-referrals" style="margin-top: 24px;">
+      <div class="admin-section-head">
+        <h2 class="section-title">Реферальная система</h2>
+        <div class="admin-section-actions">
+          <span class="admin-badge">Участники: {{ referral_stats.participants }}</span>
+          <span class="admin-badge">Рефералы: {{ referral_stats.referrals }}</span>
+          <a class="btn btn-secondary" href="/admin/export/referrers.csv">CSV участников</a>
+          <a class="btn btn-secondary" href="/admin/export/referrals.csv">CSV рефералов</a>
+        </div>
+      </div>
+
+      {% if referral_message %}
+      <div class="card" style="margin-top: 12px;">
+        <strong>{{ referral_message }}</strong>
+      </div>
+      {% endif %}
+      {% if referral_error %}
+      <div class="card" style="margin-top: 12px; border-color: rgba(255, 77, 77, 0.4);">
+        <strong>{{ referral_error }}</strong>
+      </div>
+      {% endif %}
+
+      <div class="admin-kpi-grid" style="margin-top: 14px;">
+        <div class="admin-kpi-card">
+          <div class="admin-kpi-label">Подтв. месяцы</div>
+          <div class="admin-kpi-value">{{ referral_stats.confirmed_months }}</div>
+        </div>
+        <div class="admin-kpi-card">
+          <div class="admin-kpi-label">Накоплено</div>
+          <div class="admin-kpi-value">{{ referral_stats.earned }}%</div>
+        </div>
+        <div class="admin-kpi-card">
+          <div class="admin-kpi-label">Применено</div>
+          <div class="admin-kpi-value">{{ referral_stats.applied }}%</div>
+        </div>
+        <div class="admin-kpi-card">
+          <div class="admin-kpi-label">Баланс</div>
+          <div class="admin-kpi-value">{{ referral_stats.balance }}%</div>
+        </div>
+        <div class="admin-kpi-card">
+          <div class="admin-kpi-label">Сгорело</div>
+          <div class="admin-kpi-value">{{ referral_stats.overflow }}%</div>
+        </div>
+      </div>
+
+      <div class="admin-grid two" style="margin-top: 18px;">
+        <div>
+          <div class="admin-section-head" style="margin-bottom: 6px;">
+            <h3 class="section-title" style="font-size: 1rem;">Создать код участника</h3>
+          </div>
+          <form class="admin-filter" action="/admin/referrals/code" method="post">
+            <div class="admin-filter__row">
+              <div class="input-wrap">
+                <label class="auth-label">Имя</label>
+                <input type="text" name="name" placeholder="Имя и фамилия" maxlength="60">
+              </div>
+              <div class="input-wrap">
+                <label class="auth-label">Телефон</label>
+                <input type="text" name="phone" placeholder="+7 999 000‑00‑00" required>
+              </div>
+            </div>
+            <div class="admin-filter__row">
+              <div class="input-wrap">
+                <label class="auth-label">Группа</label>
+                <input type="text" name="group" placeholder="Например, DS‑01">
+              </div>
+              <div class="input-wrap">
+                <label class="auth-label">Код (до 16)</label>
+                <input type="text" name="code" maxlength="16" required>
+              </div>
+            </div>
+            <div class="admin-filter__actions">
+              <button class="btn btn-primary" type="submit">Сохранить код</button>
+            </div>
+          </form>
+        </div>
+
+        <div>
+          <div class="admin-section-head" style="margin-bottom: 6px;">
+            <h3 class="section-title" style="font-size: 1rem;">Привязать реферала вручную</h3>
+          </div>
+          <form class="admin-filter" action="/admin/referrals/assign" method="post">
+            <div class="admin-filter__row">
+              <div class="input-wrap">
+                <label class="auth-label">ID ученика</label>
+                <input type="text" name="student_id" placeholder="Если известен">
+              </div>
+              <div class="input-wrap">
+                <label class="auth-label">Телефон</label>
+                <input type="text" name="phone" placeholder="+7 999 000‑00‑00">
+              </div>
+            </div>
+            <div class="admin-filter__row">
+              <div class="input-wrap">
+                <label class="auth-label">Код участника</label>
+                <input type="text" name="code" maxlength="16" required>
+              </div>
+            </div>
+            <div class="admin-filter__actions">
+              <button class="btn btn-secondary" type="submit">Привязать</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="admin-section-head" style="margin-top: 24px;">
+        <h3 class="section-title" style="font-size: 1.1rem;">Участники и скидки</h3>
+      </div>
+      {% if referral_participants %}
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Участник</th>
+              <th>Код</th>
+              <th>Рефералы</th>
+              <th>Подтв. месяцы</th>
+              <th>Накоплено</th>
+              <th>Списано</th>
+              <th>Баланс</th>
+              <th>Применить</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in referral_participants %}
+            <tr>
+              <td data-label="Участник">
+                <strong>{{ item.name }}</strong>
+                <div class="admin-subtext">{{ item.phone }}</div>
+              </td>
+              <td data-label="Код">
+                <span class="admin-chip">{{ item.code }}</span>
+                <button class="admin-copy" type="button" data-copy="{{ item.code }}">Коп.</button>
+              </td>
+              <td data-label="Рефералы">{{ item.referrals_count }}</td>
+              <td data-label="Подтв. месяцы">{{ item.confirmed_months }}</td>
+              <td data-label="Накоплено">{{ item.earned }}%</td>
+              <td data-label="Списано">{{ item.applied }}%</td>
+              <td data-label="Баланс">
+                <strong>{{ item.balance }}%</strong>
+                {% if item.overflow %}
+                <div class="admin-subtext">+{{ item.overflow }}% сгорело</div>
+                {% endif %}
+              </td>
+              <td data-label="Применить">
+                <form class="admin-meta-form" action="/admin/referrals/discount" method="post">
+                  <input type="hidden" name="student_id" value="{{ item.id }}">
+                  <input class="admin-input" type="text" name="percent" placeholder="{{ item.balance }}%" style="max-width: 90px;">
+                  <input class="admin-input" type="text" name="note" placeholder="Комментарий" style="max-width: 160px;">
+                  <button class="admin-copy" type="submit">OK</button>
+                </form>
+                <div class="admin-subtext">Последнее: {{ item.last_applied }}</div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p>Участников пока нет.</p>
+      {% endif %}
+
+      <div class="admin-section-head" style="margin-top: 24px;">
+        <h3 class="section-title" style="font-size: 1.1rem;">Рефералы</h3>
+      </div>
+      {% if referral_students %}
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Реферал</th>
+              <th>Участник</th>
+              <th>Подтв. месяцы</th>
+              <th>Группа и месяц</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in referral_students %}
+            <tr>
+              <td data-label="Реферал">
+                <strong>{{ item.name }}</strong>
+                <div class="admin-subtext">{{ item.phone }}</div>
+              </td>
+              <td data-label="Участник">
+                <div>{{ item.referrer_name }}</div>
+                <div class="admin-subtext">{{ item.referrer_code }}</div>
+              </td>
+              <td data-label="Подтв. месяцы">{{ item.confirmed_months }}</td>
+              <td data-label="Группа и месяц">
+                <form class="admin-meta-form" action="/admin/referrals/month" method="post">
+                  <input type="hidden" name="student_id" value="{{ item.id }}">
+                  <input class="admin-input" type="text" name="group" placeholder="Группа" value="{{ item.group }}" style="max-width: 120px;">
+                  <input class="admin-input" type="month" name="month" value="{{ referral_current_month }}" style="max-width: 150px;">
+                  <label class="form-check" style="margin-right: 8px;">
+                    <input type="checkbox" name="paid" {% if item.month_paid %}checked{% endif %}>
+                    Оплачено
+                  </label>
+                  <label class="form-check" style="margin-right: 8px;">
+                    <input type="checkbox" name="attended" {% if item.month_attended %}checked{% endif %}>
+                    100%
+                  </label>
+                  <button class="admin-copy" type="submit">OK</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p>Рефералов пока нет.</p>
       {% endif %}
     </section>
         {% endif %}

@@ -4,6 +4,7 @@ import io
 import logging
 import math
 import re
+import time
 import traceback
 from datetime import date, datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
@@ -18,22 +19,32 @@ from telegram_bot import send_lead_message
 
 import core
 from core import (
+    EXECUTOR_EMAIL,
     USERS_FILE,
     admin_required,
     build_contract_url,
     contract_channel_label,
     contract_status_from_item,
+    find_student_by_code,
+    find_student_by_phone,
     filter_items,
     get_admin_ids,
     load_agreements,
     load_json,
     load_leads,
     load_metrics,
+    load_referrals,
     materials_to_text,
+    moscow_now,
     normalize_materials,
+    normalize_phone,
+    normalize_referral_code,
     parse_date,
     render,
+    save_referrals,
+    send_email_message,
     save_whitelist,
+    next_student_id,
     update_agreement_status,
     update_agreement_contract_status,
     update_lead_status,
@@ -137,6 +148,96 @@ def format_date_input(value: Any) -> str:
         return datetime.fromtimestamp(int(text)).strftime("%Y-%m-%d")
     except Exception:
         return ""
+
+
+def referral_month_key(value: Optional[datetime] = None) -> str:
+    dt = value or moscow_now()
+    return dt.strftime("%Y-%m")
+
+
+def referral_month_status(student: Dict[str, Any], month_key: str) -> Tuple[bool, bool]:
+    months = student.get("months") or {}
+    if not isinstance(months, dict):
+        return False, False
+    entry = months.get(month_key) or {}
+    if not isinstance(entry, dict):
+        return False, False
+    return bool(entry.get("paid")), bool(entry.get("attended"))
+
+
+def referral_confirmed_months(student: Dict[str, Any]) -> int:
+    months = student.get("months") or {}
+    if not isinstance(months, dict):
+        return 0
+    total = 0
+    for entry in months.values():
+        if isinstance(entry, dict) and entry.get("paid") and entry.get("attended"):
+            total += 1
+    return total
+
+
+def referral_applied_total(student: Dict[str, Any]) -> int:
+    applied = student.get("discount_applied") or []
+    if not isinstance(applied, list):
+        return 0
+    total = 0
+    for item in applied:
+        if not isinstance(item, dict):
+            continue
+        try:
+            total += int(item.get("percent") or 0)
+        except Exception:
+            continue
+    return total
+
+
+def referral_stats_for_referrer(referrer: Dict[str, Any], students: Dict[str, Any]) -> Dict[str, Any]:
+    referrer_id = referrer.get("id")
+    referrals = []
+    confirmed = 0
+    for student in students.values():
+        if str(student.get("referrer_id")) == str(referrer_id):
+            referrals.append(student)
+            confirmed += referral_confirmed_months(student)
+    earned = confirmed * 10
+    applied = referral_applied_total(referrer)
+    balance = max(earned - applied, 0)
+    overflow = max(balance - 100, 0)
+    balance = min(balance, 100)
+    return {
+        "referrals": referrals,
+        "referrals_count": len(referrals),
+        "confirmed_months": confirmed,
+        "earned": earned,
+        "applied": applied,
+        "balance": balance,
+        "overflow": overflow,
+    }
+
+
+async def notify_admins(text: str, subject: str = "Реферальная программа") -> None:
+    if not text:
+        return
+    if telegram_is_configured():
+        try:
+            await send_lead_message(text)
+            return
+        except Exception as exc:
+            logging.getLogger("app.telegram").warning("Referral telegram notify failed: %s", exc)
+    if EXECUTOR_EMAIL:
+        try:
+            send_email_message(EXECUTOR_EMAIL, subject, re.sub(r"<[^>]+>", "", text))
+        except Exception as exc:
+            logging.getLogger("app.email").warning("Referral email notify failed: %s", exc)
+
+
+def referral_redirect(message: str = "", error: str = "") -> RedirectResponse:
+    params = {"view": "referrals"}
+    if message:
+        params["ref_message"] = message
+    if error:
+        params["ref_error"] = error
+    return RedirectResponse(f"/admin?{urlencode(params)}", status_code=HTTP_302_FOUND)
 
 
 def status_from_item(item: Dict[str, Any]) -> Tuple[str, str, str]:
@@ -391,7 +492,7 @@ def _admin_panel_impl(request: Request):
         users_data = {}
 
     view = request.query_params.get("view") or "overview"
-    allowed_views = {"overview", "leads", "agreements", "users", "whitelist"}
+    allowed_views = {"overview", "leads", "agreements", "users", "whitelist", "referrals"}
     if view not in allowed_views:
         view = "overview"
     course = request.query_params.get("course") or ""
@@ -1020,6 +1121,83 @@ def _admin_panel_impl(request: Request):
             }
         )
 
+    referral_message = request.query_params.get("ref_message") or ""
+    referral_error = request.query_params.get("ref_error") or ""
+    referral_current_month = referral_month_key()
+    referral_participants = []
+    referral_students = []
+    referral_top = []
+    referral_stats = {
+        "participants": 0,
+        "referrals": 0,
+        "confirmed_months": 0,
+        "earned": 0,
+        "applied": 0,
+        "balance": 0,
+        "overflow": 0,
+    }
+    if view == "referrals":
+        referrals_data = load_referrals()
+        students = referrals_data.get("students") or {}
+        if not isinstance(students, dict):
+            students = {}
+        participants = [
+            item for item in students.values()
+            if normalize_referral_code(item.get("referral_code", ""))
+        ]
+        for item in sorted(participants, key=lambda s: (s.get("name") or "", s.get("id") or 0)):
+            stats = referral_stats_for_referrer(item, students)
+            applied_list = item.get("discount_applied") if isinstance(item.get("discount_applied"), list) else []
+            last_applied = format_ts(applied_list[-1].get("ts")) if applied_list else "—"
+            referral_participants.append(
+                {
+                    "id": item.get("id"),
+                    "name": item.get("name") or "—",
+                    "phone": item.get("phone") or "—",
+                    "code": item.get("referral_code") or "—",
+                    "referrals_count": stats["referrals_count"],
+                    "confirmed_months": stats["confirmed_months"],
+                    "earned": stats["earned"],
+                    "applied": stats["applied"],
+                    "balance": stats["balance"],
+                    "overflow": stats["overflow"],
+                    "last_applied": last_applied,
+                }
+            )
+            referral_stats["participants"] += 1
+            referral_stats["referrals"] += stats["referrals_count"]
+            referral_stats["confirmed_months"] += stats["confirmed_months"]
+            referral_stats["earned"] += stats["earned"]
+            referral_stats["applied"] += stats["applied"]
+            referral_stats["balance"] += stats["balance"]
+            referral_stats["overflow"] += stats["overflow"]
+
+        referral_top = sorted(
+            referral_participants,
+            key=lambda item: (item.get("confirmed_months", 0), item.get("referrals_count", 0)),
+            reverse=True,
+        )[:6]
+
+        for item in sorted(students.values(), key=lambda s: (s.get("name") or "", s.get("id") or 0)):
+            if not item.get("referrer_id"):
+                continue
+            referrer = students.get(str(item.get("referrer_id"))) if students else None
+            month_paid, month_attended = referral_month_status(item, referral_current_month)
+            referral_students.append(
+                {
+                    "id": item.get("id"),
+                    "name": item.get("name") or "—",
+                    "phone": item.get("phone") or "—",
+                    "group": item.get("group") or "",
+                    "referrer_name": (referrer or {}).get("name") or "—",
+                    "referrer_code": (referrer or {}).get("referral_code") or "—",
+                    "referrer_id": (referrer or {}).get("id"),
+                    "confirmed_months": referral_confirmed_months(item),
+                    "month_paid": month_paid,
+                    "month_attended": month_attended,
+                }
+            )
+
     next_url = f"/admin{request.url.query and ('?' + request.url.query) or ''}"
 
     return render(
@@ -1088,6 +1266,13 @@ def _admin_panel_impl(request: Request):
             "utm_campaigns": utm_campaigns_sorted,
             "stale_leads": stale_leads,
             "avg_response": avg_response,
+            "referral_message": referral_message,
+            "referral_error": referral_error,
+            "referral_current_month": referral_current_month,
+            "referral_participants": referral_participants,
+            "referral_students": referral_students,
+            "referral_stats": referral_stats,
+            "referral_top": referral_top,
         },
     )
 
@@ -1475,6 +1660,287 @@ async def admin_remove_whitelist(request: Request):
     return RedirectResponse("/admin?view=whitelist", status_code=HTTP_302_FOUND)
 
 
+@router.post("/admin/referrals/code", include_in_schema=False)
+async def admin_referral_code(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    name = str(form.get("name") or "").strip()
+    phone = str(form.get("phone") or "").strip()
+    group = str(form.get("group") or "").strip()
+    code_raw = str(form.get("code") or "").strip()
+    code = normalize_referral_code(code_raw)
+    if not code:
+        return referral_redirect(error="Укажите реферальный код")
+    if len(code) > 16:
+        return referral_redirect(error="Код не должен превышать 16 символов")
+    if not phone:
+        return referral_redirect(error="Укажите телефон участника")
+
+    data = load_referrals()
+    students = data.get("students") or {}
+    if not isinstance(students, dict):
+        students = {}
+    code_owner = find_student_by_code(students, code)
+    if code_owner and normalize_phone(code_owner.get("phone", "")) != normalize_phone(phone):
+        return referral_redirect(error="Этот код уже занят")
+
+    student = find_student_by_phone(students, phone)
+    now_ts = int(time.time())
+    if not student:
+        student_id = next_student_id(students)
+        student = {
+            "id": student_id,
+            "created_at": now_ts,
+            "months": {},
+            "discount_applied": [],
+        }
+        students[str(student_id)] = student
+
+    if name:
+        student["name"] = name
+    if group:
+        student["group"] = group
+    student["phone"] = phone
+    student["phone_norm"] = normalize_phone(phone)
+    student["updated_at"] = now_ts
+    student["referral_code"] = code
+    student["referral_code_created_at"] = now_ts
+
+    audit = data.get("audit") if isinstance(data.get("audit"), list) else []
+    actor = (request.session.get("user") or {}).get("id") or ""
+    audit.append(
+        {
+            "ts": now_ts,
+            "action": "referral_code",
+            "student_id": student.get("id"),
+            "code": code,
+            "actor": actor,
+        }
+    )
+    data["students"] = students
+    data["audit"] = audit
+    save_referrals(data)
+
+    await notify_admins(
+        f"🏷 <b>Код участника</b>\n"
+        f"👤 <b>Участник:</b> {student.get('name') or '—'}\n"
+        f"📞 <b>Телефон:</b> {student.get('phone') or '—'}\n"
+        f"🔗 <b>Код:</b> {code}"
+    )
+    return referral_redirect(message="Код сохранён")
+
+
+@router.post("/admin/referrals/assign", include_in_schema=False)
+async def admin_referral_assign(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    student_id_raw = str(form.get("student_id") or "").strip()
+    phone = str(form.get("phone") or "").strip()
+    code_raw = str(form.get("code") or "").strip()
+    code = normalize_referral_code(code_raw)
+    if not code:
+        return referral_redirect(error="Укажите код участника")
+
+    data = load_referrals()
+    students = data.get("students") or {}
+    if not isinstance(students, dict):
+        students = {}
+    referrer = find_student_by_code(students, code)
+    if not referrer:
+        return referral_redirect(error="Код участника не найден")
+
+    student = None
+    if student_id_raw:
+        student = students.get(str(student_id_raw))
+    if not student and phone:
+        student = find_student_by_phone(students, phone)
+    if not student:
+        return referral_redirect(error="Ученик не найден")
+
+    if str(student.get("id")) == str(referrer.get("id")):
+        return referral_redirect(error="Нельзя назначить участника самому себе")
+
+    now_ts = int(time.time())
+    student["referrer_id"] = referrer.get("id")
+    student["referrer_code"] = code
+    student["referrer_assigned_at"] = now_ts
+    student["updated_at"] = now_ts
+
+    audit = data.get("audit") if isinstance(data.get("audit"), list) else []
+    actor = (request.session.get("user") or {}).get("id") or ""
+    audit.append(
+        {
+            "ts": now_ts,
+            "action": "referral_assign",
+            "student_id": student.get("id"),
+            "referrer_id": referrer.get("id"),
+            "code": code,
+            "actor": actor,
+        }
+    )
+    data["students"] = students
+    data["audit"] = audit
+    save_referrals(data)
+
+    await notify_admins(
+        f"🤝 <b>Назначен реферал</b>\n"
+        f"👤 <b>Реферал:</b> {student.get('name') or '—'}\n"
+        f"📞 <b>Телефон:</b> {student.get('phone') or '—'}\n"
+        f"🔗 <b>Код:</b> {code}\n"
+        f"🏷 <b>Участник:</b> {referrer.get('name') or '—'}"
+    )
+    return referral_redirect(message="Реферал привязан")
+
+
+@router.post("/admin/referrals/month", include_in_schema=False)
+async def admin_referral_month(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    student_id = str(form.get("student_id") or "").strip()
+    month = str(form.get("month") or "").strip()
+    group = str(form.get("group") or "").strip()
+    paid = bool(form.get("paid"))
+    attended = bool(form.get("attended"))
+    if not student_id:
+        return referral_redirect(error="Не указан ученик")
+    if not re.match(r"^\\d{4}-\\d{2}$", month):
+        return referral_redirect(error="Некорректный месяц")
+
+    data = load_referrals()
+    students = data.get("students") or {}
+    if not isinstance(students, dict):
+        students = {}
+    student = students.get(str(student_id))
+    if not student:
+        return referral_redirect(error="Ученик не найден")
+
+    months = student.get("months") if isinstance(student.get("months"), dict) else {}
+    entry = months.get(month) if isinstance(months.get(month), dict) else {}
+    was_confirmed = bool(entry.get("paid")) and bool(entry.get("attended"))
+    now_ts = int(time.time())
+    if paid or attended:
+        entry["paid"] = paid
+        entry["attended"] = attended
+        entry["updated_at"] = now_ts
+        months[month] = entry
+    else:
+        months.pop(month, None)
+    student["months"] = months
+    if group:
+        student["group"] = group
+    student["updated_at"] = now_ts
+
+    audit = data.get("audit") if isinstance(data.get("audit"), list) else []
+    actor = (request.session.get("user") or {}).get("id") or ""
+    audit.append(
+        {
+            "ts": now_ts,
+            "action": "referral_month",
+            "student_id": student.get("id"),
+            "month": month,
+            "paid": paid,
+            "attended": attended,
+            "actor": actor,
+        }
+    )
+    data["students"] = students
+    data["audit"] = audit
+    save_referrals(data)
+
+    is_confirmed = paid and attended
+    if is_confirmed and not was_confirmed:
+        referrer = students.get(str(student.get("referrer_id")))
+        balance_note = ""
+        if referrer:
+            stats = referral_stats_for_referrer(referrer, students)
+            balance_note = f"\n🧮 <b>Баланс:</b> {stats['balance']}%"
+        await notify_admins(
+            f"✅ <b>Месяц подтверждён</b>\n"
+            f"👤 <b>Реферал:</b> {student.get('name') or '—'}\n"
+            f"📞 <b>Телефон:</b> {student.get('phone') or '—'}\n"
+            f"📅 <b>Месяц:</b> {month}\n"
+            f"🏷 <b>Участник:</b> {(referrer or {}).get('name') or '—'}"
+            f"{balance_note}"
+        )
+
+    return referral_redirect(message="Данные обновлены")
+
+
+@router.post("/admin/referrals/discount", include_in_schema=False)
+async def admin_referral_discount(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    student_id = str(form.get("student_id") or "").strip()
+    percent_raw = str(form.get("percent") or "").strip()
+    note = str(form.get("note") or "").strip()
+    if not student_id:
+        return referral_redirect(error="Не указан участник")
+
+    data = load_referrals()
+    students = data.get("students") or {}
+    if not isinstance(students, dict):
+        students = {}
+    student = students.get(str(student_id))
+    if not student:
+        return referral_redirect(error="Участник не найден")
+
+    stats = referral_stats_for_referrer(student, students)
+    balance = stats["balance"]
+    if balance <= 0:
+        return referral_redirect(error="Нет доступной скидки")
+
+    percent = balance
+    if percent_raw:
+        try:
+            percent = int(percent_raw)
+        except Exception:
+            return referral_redirect(error="Некорректное значение скидки")
+    if percent <= 0:
+        return referral_redirect(error="Скидка должна быть больше 0")
+    if percent > balance:
+        percent = balance
+
+    applied_list = student.get("discount_applied") if isinstance(student.get("discount_applied"), list) else []
+    now_ts = int(time.time())
+    applied_list.append({"ts": now_ts, "percent": percent, "note": note})
+    student["discount_applied"] = applied_list
+    student["updated_at"] = now_ts
+
+    audit = data.get("audit") if isinstance(data.get("audit"), list) else []
+    actor = (request.session.get("user") or {}).get("id") or ""
+    audit.append(
+        {
+            "ts": now_ts,
+            "action": "referral_discount",
+            "student_id": student.get("id"),
+            "percent": percent,
+            "note": note,
+            "actor": actor,
+        }
+    )
+    data["students"] = students
+    data["audit"] = audit
+    save_referrals(data)
+
+    await notify_admins(
+        f"💸 <b>Скидка применена</b>\n"
+        f"👤 <b>Участник:</b> {student.get('name') or '—'}\n"
+        f"📞 <b>Телефон:</b> {student.get('phone') or '—'}\n"
+        f"🎯 <b>Скидка:</b> {percent}%\n"
+        f"🧮 <b>Баланс:</b> {max(stats['balance'] - percent, 0)}%"
+    )
+
+    return referral_redirect(message="Скидка применена")
+
+
 @router.get("/admin/export/leads.csv", include_in_schema=False)
 async def export_leads(request: Request):
     guard = admin_required(request)
@@ -1639,6 +2105,94 @@ async def export_agreements(request: Request):
         content=output.getvalue(),
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=agreements.csv"},
+    )
+
+
+@router.get("/admin/export/referrers.csv", include_in_schema=False)
+async def export_referrers(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    data = load_referrals()
+    students = data.get("students") or {}
+    if not isinstance(students, dict):
+        students = {}
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "participant_id",
+        "name",
+        "phone",
+        "code",
+        "referrals",
+        "confirmed_months",
+        "earned_percent",
+        "applied_percent",
+        "balance_percent",
+    ])
+    for item in students.values():
+        if not normalize_referral_code(item.get("referral_code", "")):
+            continue
+        stats = referral_stats_for_referrer(item, students)
+        writer.writerow([
+            item.get("id"),
+            item.get("name"),
+            item.get("phone"),
+            item.get("referral_code"),
+            stats["referrals_count"],
+            stats["confirmed_months"],
+            stats["earned"],
+            stats["applied"],
+            stats["balance"],
+        ])
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=referrers.csv"},
+    )
+
+
+@router.get("/admin/export/referrals.csv", include_in_schema=False)
+async def export_referrals(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    data = load_referrals()
+    students = data.get("students") or {}
+    if not isinstance(students, dict):
+        students = {}
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "student_id",
+        "name",
+        "phone",
+        "group",
+        "referrer_id",
+        "referrer_name",
+        "referrer_code",
+        "confirmed_months",
+    ])
+    for item in students.values():
+        if not item.get("referrer_id"):
+            continue
+        referrer = students.get(str(item.get("referrer_id"))) if students else None
+        writer.writerow([
+            item.get("id"),
+            item.get("name"),
+            item.get("phone"),
+            item.get("group"),
+            (referrer or {}).get("id"),
+            (referrer or {}).get("name"),
+            (referrer or {}).get("referral_code"),
+            referral_confirmed_months(item),
+        ])
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=referrals.csv"},
     )
 
 

@@ -80,6 +80,7 @@ LEADS_DIR = DATA_DIR / "leads"
 LEADS_DIR.mkdir(exist_ok=True)
 METRICS_FILE = DATA_DIR / "metrics.json"
 WHITELIST_FILE = DATA_DIR / "telegram_whitelist.json"
+REFERRALS_FILE = DATA_DIR / "referrals.json"
 
 DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
 CONTRACTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -603,6 +604,76 @@ def load_json(path: Path, default: Any) -> Any:
 
 def save_json(path: Path, data: Any) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def normalize_referral_code(value: str) -> str:
+    raw = re.sub(r"\s+", "", value or "")
+    return raw.upper()
+
+
+def load_referrals() -> Dict[str, Any]:
+    default = {"students": {}, "audit": []}
+    data = load_json(REFERRALS_FILE, default)
+    if not isinstance(data, dict):
+        return default
+    students = data.get("students")
+    if isinstance(students, list):
+        converted = {}
+        for item in students:
+            if not isinstance(item, dict):
+                continue
+            sid = item.get("id")
+            if sid is None:
+                continue
+            converted[str(sid)] = item
+        students = converted
+    if not isinstance(students, dict):
+        students = {}
+    audit = data.get("audit")
+    if not isinstance(audit, list):
+        audit = []
+    return {"students": students, "audit": audit}
+
+
+def save_referrals(data: Dict[str, Any]) -> None:
+    payload = {"students": {}, "audit": []}
+    if isinstance(data.get("students"), dict):
+        payload["students"] = data["students"]
+    if isinstance(data.get("audit"), list):
+        payload["audit"] = data["audit"]
+    save_json(REFERRALS_FILE, payload)
+
+
+def next_student_id(students: Dict[str, Any]) -> int:
+    max_id = 0
+    for key, item in students.items():
+        try:
+            value = int(item.get("id", key))
+        except Exception:
+            continue
+        if value > max_id:
+            max_id = value
+    return max_id + 1
+
+
+def find_student_by_phone(students: Dict[str, Any], phone: str) -> Optional[Dict[str, Any]]:
+    normalized = normalize_phone(phone)
+    if not normalized:
+        return None
+    for item in students.values():
+        if normalize_phone(item.get("phone", "")) == normalized:
+            return item
+    return None
+
+
+def find_student_by_code(students: Dict[str, Any], code: str) -> Optional[Dict[str, Any]]:
+    normalized = normalize_referral_code(code)
+    if not normalized:
+        return None
+    for item in students.values():
+        if normalize_referral_code(item.get("referral_code", "")) == normalized:
+            return item
+    return None
 
 
 def get_current_user(request: Request) -> Optional[Dict[str, Any]]:
