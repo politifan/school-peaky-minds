@@ -629,10 +629,18 @@ def load_referrals() -> Dict[str, Any]:
         students = converted
     if not isinstance(students, dict):
         students = {}
+    cleaned_students = {}
+    for key, item in students.items():
+        if not isinstance(item, dict):
+            continue
+        sid = item.get("id", key)
+        if sid is None:
+            continue
+        cleaned_students[str(sid)] = item
     audit = data.get("audit")
     if not isinstance(audit, list):
         audit = []
-    return {"students": students, "audit": audit}
+    return {"students": cleaned_students, "audit": audit}
 
 
 def save_referrals(data: Dict[str, Any]) -> None:
