@@ -1809,7 +1809,7 @@ async def admin_referral_month(request: Request):
     attended = bool(form.get("attended"))
     if not student_id:
         return referral_redirect(error="Не указан ученик")
-    if not re.match(r"^\\d{4}-\\d{2}$", month):
+    if not re.match(r"^\d{4}-\d{2}$", month):
         return referral_redirect(error="Некорректный месяц")
 
     data = load_referrals()
