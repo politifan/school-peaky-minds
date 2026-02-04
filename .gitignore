@@ -213,3 +213,4 @@ __marimo__/
 /data/*.json
 /data/**/*.json
 /static/documents/contracts/*.pdf
+data/telethon.session
