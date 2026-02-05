@@ -1233,6 +1233,17 @@ async def ensure_telethon_login(client: "TelegramClient", *, interactive: bool =
         return True
     if not interactive:
         return False
+    # Try QR login first (if supported by Telethon)
+    try:
+        qr_login = await client.qr_login()
+        if qr_login:
+            print("Отсканируйте QR-код в Telegram (Настройки -> Устройства -> Подключить устройство).")
+            _print_qr_ascii(qr_login.url)
+            await qr_login.wait()
+            if await client.is_user_authorized():
+                return True
+    except Exception:
+        pass
     phone = CONTACT_PHONE.strip()
     if not phone:
         phone = input("Введите телефон (+7999...): ").strip()
