@@ -513,12 +513,6 @@ async def account(request: Request):
     signed_contracts = sum(
         1 for item in agreements_view if item.get("contract_status_key") == "signed"
     )
-    remaining_lessons_total = 0
-    for item in agreements_view:
-        remaining_value = item.get("remaining_lessons")
-        if isinstance(remaining_value, int):
-            remaining_lessons_total += remaining_value
-
     return render(
         request,
         "account.html",
@@ -527,7 +521,6 @@ async def account(request: Request):
             "account_stats": {
                 "total_courses": total_courses,
                 "signed_contracts": signed_contracts,
-                "remaining_lessons": remaining_lessons_total,
             },
             "payments_enabled": YOOKASSA_ENABLED,
             "payment_status": request.query_params.get("payment"),

@@ -38,7 +38,6 @@
         <div class="admin-meta">
           <span class="admin-chip">Курсов: {{ account_stats.total_courses }}</span>
           <span class="admin-chip">Подписано: {{ account_stats.signed_contracts }}</span>
-          <span class="admin-chip">Осталось занятий: {{ account_stats.remaining_lessons }}</span>
         </div>
       </div>
       <div class="admin-hero__actions">
@@ -120,8 +119,6 @@
             <li><span>Оплачено занятий</span><strong>{{ item.paid_lessons if item.paid_lessons is not none else "—" }}</strong></li>
             <li><span>Проведено занятий</span><strong>{{ item.attended_lessons if item.attended_lessons is not none else "—" }}</strong></li>
             <li><span>Текущие оплаченные</span><strong>{{ item.current_paid_lessons if item.current_paid_lessons is not none else "—" }}</strong></li>
-            <li><span>Всего занятий</span><strong>{{ item.total_lessons if item.total_lessons is not none else "—" }}</strong></li>
-            <li><span>Осталось занятий</span><strong>{{ item.remaining_lessons if item.remaining_lessons is not none else "—" }}</strong></li>
             <li><span>Текущий модуль</span><strong>{{ item.current_module }}</strong></li>
           </ul>
           <div style="height: 12px;"></div>

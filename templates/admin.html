@@ -690,7 +690,6 @@
                 <form class="admin-meta-form" action="/admin/agreements/progress" method="post">
                   <input type="hidden" name="file" value="{{ item._file }}">
                   <input type="hidden" name="next" value="{{ next_url }}">
-                  <input class="admin-input" type="text" name="total_lessons" placeholder="Всего" value="{{ item.total_lessons if item.total_lessons is not none else '' }}">
                   <input class="admin-input" type="text" name="paid_lessons" placeholder="Оплачено" value="{{ item.paid_lessons if item.paid_lessons is not none else '' }}">
                   <input class="admin-input" type="text" name="attended_lessons" placeholder="Проведено" value="{{ item.attended_lessons if item.attended_lessons is not none else '' }}">
                   <input class="admin-input" type="text" name="current_module" placeholder="Модуль" value="{{ item.current_module }}">
@@ -698,8 +697,7 @@
                   <button class="admin-copy" type="submit">OK</button>
                 </form>
                 <div class="admin-subtext">
-                  Осталось: {{ item.remaining_lessons if item.remaining_lessons is not none else '—' }}
-                  · Материалов: {{ item.materials_count }}
+                  Материалов: {{ item.materials_count }}
                 </div>
               </td>
               <td data-label="Сумма">

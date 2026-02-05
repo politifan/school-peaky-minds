@@ -9,6 +9,8 @@ from starlette.status import HTTP_302_FOUND
 
 import core
 from core import CONTRACT_DOCUMENTS, CONTRACT_KEY_POINTS, render
+from telegram_bot import is_configured as telegram_is_configured
+from telegram_bot import send_lead_message
 
 router = APIRouter()
 
@@ -137,6 +139,8 @@ async def contract_save(request: Request, token: str):
         "customer_email": str(form.get("customer_email") or "").strip(),
     }
     agreement["contract_fields"] = fields
+    if not agreement.get("contract_date"):
+        agreement["contract_date"] = core.format_moscow_date()
     pdf_url = core.generate_contract_pdf(agreement)
     if pdf_url:
         agreement["contract_pdf_url"] = pdf_url
@@ -219,4 +223,16 @@ async def contract_sign(request: Request, token: str):
     agreement["contract_signed_at"] = int(time.time())
     agreement.pop("_file", None)
     core.save_json(path, agreement)
+    if telegram_is_configured():
+        try:
+            text = (
+                "📝 <b>Договор подписан</b>\n"
+                f"🎯 <b>Курс:</b> {agreement.get('course') or '—'}\n"
+                f"👤 <b>ФИО:</b> {agreement.get('full_name') or (agreement.get('user') or {}).get('name') or '—'}\n"
+                f"📞 <b>Телефон:</b> {agreement.get('phone') or '—'}\n"
+                f"✉️ <b>Email:</b> {agreement.get('email') or '—'}"
+            )
+            await send_lead_message(text)
+        except Exception:
+            pass
     return RedirectResponse(f"/contract/{token}?message=Договор+подтвержден", status_code=HTTP_302_FOUND)

@@ -1455,7 +1455,7 @@ async def admin_update_lead_meta(request: Request):
         data["next_contact"] = next_contact
     else:
         data.pop("next_contact", None)
-    save_json(path, data)
+    core.save_json(path, data)
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
@@ -1509,10 +1509,12 @@ async def admin_update_agreement_progress(request: Request):
     if not isinstance(data, dict):
         return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
-    try:
-        total_lessons = int(total_lessons_raw) if total_lessons_raw else None
-    except Exception:
-        total_lessons = None
+    total_lessons = None
+    if "total_lessons" in form:
+        try:
+            total_lessons = int(total_lessons_raw) if total_lessons_raw else None
+        except Exception:
+            total_lessons = None
     try:
         paid_lessons = int(paid_lessons_raw) if paid_lessons_raw else None
     except Exception:
@@ -1522,10 +1524,11 @@ async def admin_update_agreement_progress(request: Request):
     except Exception:
         attended_lessons = None
 
-    if total_lessons is not None:
-        data["total_lessons"] = total_lessons
-    else:
-        data.pop("total_lessons", None)
+    if "total_lessons" in form:
+        if total_lessons is not None:
+            data["total_lessons"] = total_lessons
+        else:
+            data.pop("total_lessons", None)
 
     if paid_lessons is not None:
         data["paid_lessons"] = paid_lessons
