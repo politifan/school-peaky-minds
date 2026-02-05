@@ -2267,7 +2267,7 @@ async def admin_lessons_update(request: Request):
     else:
         calendar_data[date_raw] = status_raw
     data["lesson_calendar"] = calendar_data
-    save_json(path, data)
+    core.save_json(path, data)
     return lesson_redirect(message="Статус сохранён")
 
 
