@@ -155,6 +155,15 @@ def referral_month_key(value: Optional[datetime] = None) -> str:
     return dt.strftime("%Y-%m")
 
 
+def normalize_month_input(value: str) -> str:
+    raw = (value or "").strip()
+    if re.match(r"^\d{4}-\d{2}$", raw):
+        return raw
+    if re.match(r"^\d{4}-\d{2}-\d{2}$", raw):
+        return raw[:7]
+    return ""
+
+
 def referral_month_status(student: Dict[str, Any], month_key: str) -> Tuple[bool, bool]:
     months = student.get("months") or {}
     if not isinstance(months, dict):
@@ -1803,13 +1812,14 @@ async def admin_referral_month(request: Request):
         return guard
     form = await request.form()
     student_id = str(form.get("student_id") or "").strip()
-    month = str(form.get("month") or "").strip()
+    month_raw = str(form.get("month") or "").strip()
+    month = normalize_month_input(month_raw)
     group = str(form.get("group") or "").strip()
     paid = bool(form.get("paid"))
     attended = bool(form.get("attended"))
     if not student_id:
         return referral_redirect(error="Не указан ученик")
-    if not re.match(r"^\d{4}-\d{2}$", month):
+    if not month:
         return referral_redirect(error="Некорректный месяц")
 
     data = load_referrals()
