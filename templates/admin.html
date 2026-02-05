@@ -645,7 +645,7 @@
               <th>Telegram</th>
               <th><button type="button" class="admin-sort" data-sort="contract">Договор</button></th>
               <th>Прогресс</th>
-              <th>Сумма</th>
+              <th>Стоимость</th>
               <th><button type="button" class="admin-sort" data-sort="status">Статус</button></th>
               <th>Удалить</th>
             </tr>
@@ -700,13 +700,11 @@
                   Материалов: {{ item.materials_count }}
                 </div>
               </td>
-              <td data-label="Сумма">
-                <form class="admin-meta-form" action="/admin/agreements/amount" method="post">
-                  <input type="hidden" name="file" value="{{ item._file }}">
-                  <input type="hidden" name="next" value="{{ next_url }}">
-                  <input class="admin-input" type="text" name="amount" placeholder="₽" value="{{ item.amount_display if item.amount_display != '—' else '' }}">
-                  <button class="admin-copy" type="submit">OK</button>
-                </form>
+              <td data-label="Стоимость">
+                <div class="admin-cell">
+                  <strong>{{ item.cost_display }}</strong>
+                  <div class="admin-subtext">₽ за занятие</div>
+                </div>
               </td>
               <td data-label="Статус">
                 <form class="admin-status-form" action="/admin/agreements/status" method="post">

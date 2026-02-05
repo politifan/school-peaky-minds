@@ -708,6 +708,8 @@ def _admin_panel_impl(request: Request):
         contract_key, contract_label, contract_class = contract_status_from_item(item)
         manual_status = (item.get("status") or "").strip()
         amount_display = format_amount(item.get("amount"))
+        price_per_lesson = course_rate(item.get("course"))
+        cost_display = format_amount(price_per_lesson) if price_per_lesson is not None else "—"
         total_lessons = safe_int(item.get("total_lessons"), 0) if item.get("total_lessons") is not None else None
         paid_lessons = safe_int(item.get("paid_lessons"), 0) if item.get("paid_lessons") is not None else None
         attended_lessons = safe_int(item.get("attended_lessons"), 0) if item.get("attended_lessons") is not None else None
@@ -724,6 +726,7 @@ def _admin_panel_impl(request: Request):
                 "status_key": status_key,
                 "manual_status": manual_status,
                 "amount_display": amount_display,
+                "cost_display": cost_display,
                 "contract_number": item.get("contract_number") or "—",
                 "contract_status_key": contract_key,
                 "contract_status_label": contract_label,
