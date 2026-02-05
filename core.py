@@ -543,7 +543,16 @@ def generate_contract_pdf(agreement: Dict[str, Any]) -> Optional[str]:
         if not line.strip():
             pdf.ln(4)
         else:
-            pdf.multi_cell(0, 6, line)
+            tokens = line.split(" ")
+            safe_parts = []
+            for token in tokens:
+                if len(token) > 40:
+                    chunks = [token[i : i + 40] for i in range(0, len(token), 40)]
+                    safe_parts.append(" ".join(chunks))
+                else:
+                    safe_parts.append(token)
+            safe_line = " ".join(safe_parts)
+            pdf.multi_cell(0, 6, safe_line)
     pdf.output(str(file_path))
     return f"/documents/contracts/{file_name}"
 
