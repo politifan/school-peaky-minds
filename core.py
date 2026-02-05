@@ -730,7 +730,7 @@ def _parse_month_key(value: str) -> Optional[Tuple[int, int]]:
     return year, month
 
 
-def build_month_calendar(month: str, statuses: Optional[Dict[str, str]] = None) -> List[List[Optional[Dict[str, Any]]]]:
+def build_month_calendar(month: str, statuses: Optional[Dict[str, Any]] = None) -> List[List[Optional[Dict[str, Any]]]]:
     if not month or not re.match(r"^\d{4}-\d{2}$", month):
         return []
     try:
@@ -748,11 +748,31 @@ def build_month_calendar(month: str, statuses: Optional[Dict[str, str]] = None) 
         week.append(None)
     for day in range(1, days_in_month + 1):
         date_str = f"{year:04d}-{month_num:02d}-{day:02d}"
+        entry = statuses.get(date_str, "")
+        if isinstance(entry, dict):
+            status = str(entry.get("status") or "")
+            time_value = str(entry.get("time") or "")
+        else:
+            status = str(entry or "")
+            time_value = ""
+        time_end = ""
+        if time_value and re.match(r"^\d{2}:\d{2}$", time_value):
+            try:
+                hour = int(time_value[:2])
+                minute = int(time_value[3:5])
+                total = (hour * 60 + minute + 60) % (24 * 60)
+                end_hour = total // 60
+                end_min = total % 60
+                time_end = f"{end_hour:02d}:{end_min:02d}"
+            except Exception:
+                time_end = ""
         week.append(
             {
                 "date": date_str,
                 "day": day,
-                "status": statuses.get(date_str, ""),
+                "status": status,
+                "time": time_value,
+                "time_end": time_end,
             }
         )
         if len(week) == 7:

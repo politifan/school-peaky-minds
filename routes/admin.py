@@ -2250,9 +2250,12 @@ async def admin_lessons_update(request: Request):
     if not re.match(r"^\d{4}-\d{2}-\d{2}$", date_raw):
         return lesson_redirect(error="Некорректная дата")
 
+    time_raw = str(form.get("time") or "").strip()
     status_map = {"proposed", "approved", "missed", "excused", "clear", ""}
     if status_raw not in status_map:
         return lesson_redirect(error="Некорректный статус")
+    if time_raw and not re.match(r"^\\d{2}:\\d{2}$", time_raw):
+        return lesson_redirect(error="Некорректное время")
 
     path = core.AGREEMENTS_DIR / file_name
     if not path.exists():
@@ -2265,7 +2268,10 @@ async def admin_lessons_update(request: Request):
     if status_raw in {"", "clear"}:
         calendar_data.pop(date_raw, None)
     else:
-        calendar_data[date_raw] = status_raw
+        payload = {"status": status_raw}
+        if time_raw:
+            payload["time"] = time_raw
+        calendar_data[date_raw] = payload
     data["lesson_calendar"] = calendar_data
     core.save_json(path, data)
     return lesson_redirect(message="Статус сохранён")

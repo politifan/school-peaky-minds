@@ -2126,6 +2126,7 @@ select:focus {
   border: 1px solid var(--stroke);
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-1);
+  position: relative;
 }
 
 .lesson-day--empty {
@@ -2159,6 +2160,72 @@ select:focus {
 
 .lesson-emoji {
   font-size: 0.9rem;
+}
+
+.lesson-day[data-start]:hover::after {
+  content: attr(data-start) "–" attr(data-end);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--text-1);
+  background: rgba(11, 17, 16, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.month-picker {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.month-picker__year {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.month-picker__months {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.month-pill {
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-1);
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: transform 0.2s var(--ease-out), border-color 0.2s var(--ease-out), background 0.2s var(--ease-out);
+}
+
+.month-pill:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.month-pill.is-active {
+  border-color: rgba(99, 247, 211, 0.7);
+  background: rgba(99, 247, 211, 0.12);
+  color: var(--accent-2);
+}
+
+@media (max-width: 720px) {
+  .month-picker__months {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .admin-kpi-grid {

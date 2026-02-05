@@ -129,15 +129,28 @@
           </ul>
           <div style="height: 12px;"></div>
           <div class="course-meta">Календарь занятий</div>
-          <form class="admin-filter" method="get" action="/account" style="margin-top: 8px;">
-            <div class="admin-filter__row">
-              <div class="input-wrap">
-                <label class="auth-label">Месяц</label>
-                <input type="month" name="month" value="{{ item.lesson_month }}" required>
+          <form class="admin-filter" method="get" action="/account" style="margin-top: 8px;" data-month-picker>
+            <div class="month-picker">
+              {% set month_names = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] %}
+              {% set current_year = item.lesson_month[:4] %}
+              {% set current_month = item.lesson_month[5:7] %}
+              <div class="month-picker__year">
+                <label class="auth-label">Год</label>
+                <select name="year" data-month-year>
+                  <option value="{{ (current_year|int) - 1 }}">{{ (current_year|int) - 1 }}</option>
+                  <option value="{{ current_year }}" selected>{{ current_year }}</option>
+                  <option value="{{ (current_year|int) + 1 }}">{{ (current_year|int) + 1 }}</option>
+                </select>
               </div>
-            </div>
-            <div class="admin-filter__actions">
-              <button class="btn btn-secondary" type="submit">Показать</button>
+              <div class="month-picker__months">
+                {% for idx in range(1, 13) %}
+                  {% set value = "%02d"|format(idx) %}
+                  <button type="button" class="month-pill{% if value == current_month %} is-active{% endif %}" data-month="{{ value }}">
+                    {{ month_names[idx - 1] }}
+                  </button>
+                {% endfor %}
+              </div>
+              <input type="hidden" name="month" value="{{ item.lesson_month }}" data-month-input>
             </div>
           </form>
           <div class="lesson-legend">
@@ -160,7 +173,7 @@
               {% for week in item.lesson_calendar %}
                 {% for day in week %}
                   {% if day %}
-                  <div class="lesson-day{% if day.status %} lesson-day--{{ day.status }}{% endif %}">
+                  <div class="lesson-day{% if day.status %} lesson-day--{{ day.status }}{% endif %}"{% if day.time %} data-start="{{ day.time }}"{% endif %}{% if day.time_end %} data-end="{{ day.time_end }}"{% endif %}>
                     <span>{{ day.day }}</span>
                     {% if day.status == "excused" %}
                     <span class="lesson-emoji">🌡️</span>
@@ -260,6 +273,30 @@
         input.addEventListener("change", update);
       }
       update();
+    });
+
+    document.querySelectorAll("[data-month-picker]").forEach((form) => {
+      const yearSelect = form.querySelector("[data-month-year]");
+      const monthInput = form.querySelector("[data-month-input]");
+      const buttons = Array.from(form.querySelectorAll("[data-month]"));
+      if (!yearSelect || !monthInput || !buttons.length) return;
+      const submit = (monthValue) => {
+        const year = yearSelect.value;
+        monthInput.value = `${year}-${monthValue}`;
+        form.submit();
+      };
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          buttons.forEach((item) => item.classList.remove("is-active"));
+          btn.classList.add("is-active");
+          submit(btn.dataset.month);
+        });
+      });
+      yearSelect.addEventListener("change", () => {
+        const active = form.querySelector(".month-pill.is-active");
+        const monthValue = active ? active.dataset.month : "01";
+        submit(monthValue);
+      });
     });
   </script>
 </body>
