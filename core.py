@@ -81,6 +81,7 @@ LEADS_DIR.mkdir(exist_ok=True)
 METRICS_FILE = DATA_DIR / "metrics.json"
 WHITELIST_FILE = DATA_DIR / "telegram_whitelist.json"
 REFERRALS_FILE = DATA_DIR / "referrals.json"
+PAYMENTS_FILE = DATA_DIR / "payments.json"
 
 DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
 CONTRACTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -652,6 +653,79 @@ def save_referrals(data: Dict[str, Any]) -> None:
     save_json(REFERRALS_FILE, payload)
 
 
+def load_payments() -> Dict[str, Any]:
+    default = {"payments": {}, "events": []}
+    data = load_json(PAYMENTS_FILE, default)
+    if not isinstance(data, dict):
+        return default
+    payments = data.get("payments")
+    if not isinstance(payments, dict):
+        payments = {}
+    events = data.get("events")
+    if not isinstance(events, list):
+        events = []
+    return {"payments": payments, "events": events}
+
+
+def save_payments(data: Dict[str, Any]) -> None:
+    payload = {"payments": {}, "events": []}
+    if isinstance(data.get("payments"), dict):
+        payload["payments"] = data["payments"]
+    if isinstance(data.get("events"), list):
+        payload["events"] = data["events"]
+    save_json(PAYMENTS_FILE, payload)
+
+
+def referral_confirmed_months(student: Dict[str, Any]) -> int:
+    months = student.get("months") or {}
+    if not isinstance(months, dict):
+        return 0
+    total = 0
+    for entry in months.values():
+        if isinstance(entry, dict) and entry.get("paid") and entry.get("attended"):
+            total += 1
+    return total
+
+
+def referral_applied_total(student: Dict[str, Any]) -> int:
+    applied = student.get("discount_applied") or []
+    if not isinstance(applied, list):
+        return 0
+    total = 0
+    for item in applied:
+        if not isinstance(item, dict):
+            continue
+        try:
+            total += int(item.get("percent") or 0)
+        except Exception:
+            continue
+    return total
+
+
+def referral_stats_for_referrer(referrer: Dict[str, Any], students: Dict[str, Any]) -> Dict[str, Any]:
+    referrer_id = referrer.get("id")
+    referrals = []
+    confirmed = 0
+    for student in students.values():
+        if str(student.get("referrer_id")) == str(referrer_id):
+            referrals.append(student)
+            confirmed += referral_confirmed_months(student)
+    earned = confirmed * 10
+    applied = referral_applied_total(referrer)
+    balance = max(earned - applied, 0)
+    overflow = max(balance - 100, 0)
+    balance = min(balance, 100)
+    return {
+        "referrals": referrals,
+        "referrals_count": len(referrals),
+        "confirmed_months": confirmed,
+        "earned": earned,
+        "applied": applied,
+        "balance": balance,
+        "overflow": overflow,
+    }
+
+
 def next_student_id(students: Dict[str, Any]) -> int:
     max_id = 0
     for key, item in students.items():
@@ -1011,6 +1085,9 @@ TELETHON_SESSION_PATH = (
     or str((DATA_DIR / "telethon.session").resolve())
 )
 TELETHON_AUTO_LOGIN = os.getenv("TELETHON_AUTO_LOGIN", "").lower() in {"1", "true", "yes"}
+YOOKASSA_SHOP_ID = os.getenv("YOOKASSA_SHOP_ID")
+YOOKASSA_SECRET_KEY = os.getenv("YOOKASSA_SECRET_KEY")
+YOOKASSA_ENABLED = bool(YOOKASSA_SHOP_ID and YOOKASSA_SECRET_KEY)
 
 providers = {
     "google": bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET),

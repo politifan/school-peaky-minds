@@ -34,6 +34,7 @@ from routes.admin import router as admin_router
 from routes.auth import router as auth_router
 from routes.contracts import router as contracts_router
 from routes.forms import router as forms_router
+from routes.payments import router as payments_router
 from routes.public import router as public_router
 
 app = FastAPI(docs_url=None, redoc_url=None)
@@ -183,6 +184,7 @@ app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(forms_router)
 app.include_router(contracts_router)
+app.include_router(payments_router)
 
 
 @app.exception_handler(StarletteHTTPException)

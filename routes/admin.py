@@ -42,6 +42,9 @@ from core import (
     normalize_referral_code,
     parse_date,
     render,
+    referral_applied_total,
+    referral_confirmed_months,
+    referral_stats_for_referrer,
     save_referrals,
     send_email_message,
     save_whitelist,
@@ -173,56 +176,6 @@ def referral_month_status(student: Dict[str, Any], month_key: str) -> Tuple[bool
     if not isinstance(entry, dict):
         return False, False
     return bool(entry.get("paid")), bool(entry.get("attended"))
-
-
-def referral_confirmed_months(student: Dict[str, Any]) -> int:
-    months = student.get("months") or {}
-    if not isinstance(months, dict):
-        return 0
-    total = 0
-    for entry in months.values():
-        if isinstance(entry, dict) and entry.get("paid") and entry.get("attended"):
-            total += 1
-    return total
-
-
-def referral_applied_total(student: Dict[str, Any]) -> int:
-    applied = student.get("discount_applied") or []
-    if not isinstance(applied, list):
-        return 0
-    total = 0
-    for item in applied:
-        if not isinstance(item, dict):
-            continue
-        try:
-            total += int(item.get("percent") or 0)
-        except Exception:
-            continue
-    return total
-
-
-def referral_stats_for_referrer(referrer: Dict[str, Any], students: Dict[str, Any]) -> Dict[str, Any]:
-    referrer_id = referrer.get("id")
-    referrals = []
-    confirmed = 0
-    for student in students.values():
-        if str(student.get("referrer_id")) == str(referrer_id):
-            referrals.append(student)
-            confirmed += referral_confirmed_months(student)
-    earned = confirmed * 10
-    applied = referral_applied_total(referrer)
-    balance = max(earned - applied, 0)
-    overflow = max(balance - 100, 0)
-    balance = min(balance, 100)
-    return {
-        "referrals": referrals,
-        "referrals_count": len(referrals),
-        "confirmed_months": confirmed,
-        "earned": earned,
-        "applied": applied,
-        "balance": balance,
-        "overflow": overflow,
-    }
 
 
 def referral_discount_amount(student: Dict[str, Any], percent: int) -> Optional[int]:
@@ -757,6 +710,7 @@ def _admin_panel_impl(request: Request):
         amount_display = format_amount(item.get("amount"))
         total_lessons = safe_int(item.get("total_lessons"), 0) if item.get("total_lessons") is not None else None
         paid_lessons = safe_int(item.get("paid_lessons"), 0) if item.get("paid_lessons") is not None else None
+        attended_lessons = safe_int(item.get("attended_lessons"), 0) if item.get("attended_lessons") is not None else None
         remaining_lessons = None
         if total_lessons is not None and paid_lessons is not None:
             remaining_lessons = max(total_lessons - paid_lessons, 0)
@@ -781,6 +735,7 @@ def _admin_panel_impl(request: Request):
                 "contract_signed_at": format_ts(item.get("contract_signed_at")),
                 "total_lessons": total_lessons,
                 "paid_lessons": paid_lessons,
+                "attended_lessons": attended_lessons,
                 "remaining_lessons": remaining_lessons,
                 "current_module": item.get("current_module") or "",
                 "materials_text": materials_to_text(materials),
@@ -1542,6 +1497,7 @@ async def admin_update_agreement_progress(request: Request):
     next_url = str(form.get("next") or "/admin")
     total_lessons_raw = str(form.get("total_lessons") or "").strip()
     paid_lessons_raw = str(form.get("paid_lessons") or "").strip()
+    attended_lessons_raw = str(form.get("attended_lessons") or "").strip()
     current_module = str(form.get("current_module") or "").strip()
     materials_raw = str(form.get("materials") or "").strip()
     if not file_name:
@@ -1561,6 +1517,10 @@ async def admin_update_agreement_progress(request: Request):
         paid_lessons = int(paid_lessons_raw) if paid_lessons_raw else None
     except Exception:
         paid_lessons = None
+    try:
+        attended_lessons = int(attended_lessons_raw) if attended_lessons_raw else None
+    except Exception:
+        attended_lessons = None
 
     if total_lessons is not None:
         data["total_lessons"] = total_lessons
@@ -1571,6 +1531,11 @@ async def admin_update_agreement_progress(request: Request):
         data["paid_lessons"] = paid_lessons
     else:
         data.pop("paid_lessons", None)
+
+    if attended_lessons is not None:
+        data["attended_lessons"] = attended_lessons
+    else:
+        data.pop("attended_lessons", None)
 
     if current_module:
         data["current_module"] = current_module
@@ -2097,6 +2062,7 @@ async def export_agreements(request: Request):
             "contract_signed_at",
             "total_lessons",
             "paid_lessons",
+            "attended_lessons",
             "current_module",
             "materials",
         ]
@@ -2120,6 +2086,7 @@ async def export_agreements(request: Request):
             item.get("contract_signed_at"),
             item.get("total_lessons"),
             item.get("paid_lessons"),
+            item.get("attended_lessons"),
             item.get("current_module"),
             materials_to_text(item.get("materials")),
         ])

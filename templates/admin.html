@@ -692,6 +692,7 @@
                   <input type="hidden" name="next" value="{{ next_url }}">
                   <input class="admin-input" type="text" name="total_lessons" placeholder="Всего" value="{{ item.total_lessons if item.total_lessons is not none else '' }}">
                   <input class="admin-input" type="text" name="paid_lessons" placeholder="Оплачено" value="{{ item.paid_lessons if item.paid_lessons is not none else '' }}">
+                  <input class="admin-input" type="text" name="attended_lessons" placeholder="Проведено" value="{{ item.attended_lessons if item.attended_lessons is not none else '' }}">
                   <input class="admin-input" type="text" name="current_module" placeholder="Модуль" value="{{ item.current_module }}">
                   <textarea class="admin-textarea" name="materials" rows="2" placeholder="Название | ссылка">{{ item.materials_text }}</textarea>
                   <button class="admin-copy" type="submit">OK</button>

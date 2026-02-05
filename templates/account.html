@@ -47,6 +47,17 @@
       </div>
     </section>
 
+    {% if payment_error %}
+    <section class="card" style="margin-top: 18px; border-color: rgba(255, 77, 77, 0.4);">
+      <strong>{{ payment_error }}</strong>
+    </section>
+    {% endif %}
+    {% if payment_status %}
+    <section class="card" style="margin-top: 18px;">
+      <strong>Оплата принята. Статус обновится после подтверждения платежа.</strong>
+    </section>
+    {% endif %}
+
     {% if agreements %}
     <section class="panel" style="margin-top: 24px;">
       <div class="admin-section-head">
@@ -107,10 +118,57 @@
           <div class="course-meta">Прогресс</div>
           <ul class="admin-list">
             <li><span>Оплачено занятий</span><strong>{{ item.paid_lessons if item.paid_lessons is not none else "—" }}</strong></li>
+            <li><span>Проведено занятий</span><strong>{{ item.attended_lessons if item.attended_lessons is not none else "—" }}</strong></li>
+            <li><span>Текущие оплаченные</span><strong>{{ item.current_paid_lessons if item.current_paid_lessons is not none else "—" }}</strong></li>
             <li><span>Всего занятий</span><strong>{{ item.total_lessons if item.total_lessons is not none else "—" }}</strong></li>
             <li><span>Осталось занятий</span><strong>{{ item.remaining_lessons if item.remaining_lessons is not none else "—" }}</strong></li>
             <li><span>Текущий модуль</span><strong>{{ item.current_module }}</strong></li>
           </ul>
+          <div style="height: 12px;"></div>
+          <div class="course-meta">Оплата через СБП</div>
+          {% if payments_enabled %}
+          {% set price_value = item.discounted_price if item.discounted_price is not none else item.price_per_lesson %}
+          <ul class="admin-list">
+            <li><span>Цена занятия</span><strong>{{ item.price_per_lesson if item.price_per_lesson is not none else "—" }} ₽</strong></li>
+            <li><span>Скидка</span><strong>{{ item.discount_percent }}%</strong></li>
+            <li><span>Цена со скидкой</span><strong>{{ item.discounted_price if item.discounted_price is not none else item.price_per_lesson if item.price_per_lesson is not none else "—" }} ₽</strong></li>
+          </ul>
+          {% if item.active_payment %}
+          <div class="admin-subtext" style="margin-top: 8px;">
+            Есть незавершенный платёж.
+            {% if item.active_payment.confirmation_url %}
+            <a class="admin-copy" href="{{ item.active_payment.confirmation_url }}" target="_blank" rel="noopener">Продолжить</a>
+            {% endif %}
+          </div>
+          {% endif %}
+          <form class="admin-filter" action="/payments/create" method="post" style="margin-top: 10px;" data-payment-form data-price="{{ price_value if price_value is not none else '' }}">
+            <input type="hidden" name="agreement_file" value="{{ item.file }}">
+            <div class="admin-filter__row">
+              <div class="input-wrap">
+                <label class="auth-label">Кол-во занятий</label>
+                <input type="number" name="lessons" min="1" step="1" value="4" required>
+              </div>
+            </div>
+            <div class="admin-subtext" data-payment-total>Итого: —</div>
+            <div class="admin-filter__actions">
+              <button class="btn btn-primary" type="submit">Оплатить через СБП</button>
+            </div>
+          </form>
+          {% if item.payments %}
+          <div style="height: 8px;"></div>
+          <div class="course-meta">История платежей</div>
+          <ul class="admin-list">
+            {% for pay in item.payments %}
+            <li>
+              <span>{{ pay.created_at }} · {{ pay.status_label }}</span>
+              <strong>{{ pay.amount }} ₽</strong>
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          {% else %}
+          <p>Онлайн-оплата временно недоступна.</p>
+          {% endif %}
           <div style="height: 12px;"></div>
           <div class="course-meta">Материалы модуля</div>
           {% if item.materials %}
@@ -133,5 +191,28 @@
       {% endif %}
     </section>
   </main>
+  <script>
+    document.querySelectorAll("[data-payment-form]").forEach((form) => {
+      const priceRaw = form.getAttribute("data-price");
+      const price = Number(priceRaw || 0);
+      const input = form.querySelector("input[name='lessons']");
+      const total = form.querySelector("[data-payment-total]");
+      const update = () => {
+        if (!total) return;
+        const lessons = Number(input && input.value ? input.value : 0);
+        if (!price || !lessons) {
+          total.textContent = "Итого: —";
+          return;
+        }
+        const value = Math.round(price * lessons);
+        total.textContent = `Итого: ${value} ₽`;
+      };
+      if (input) {
+        input.addEventListener("input", update);
+        input.addEventListener("change", update);
+      }
+      update();
+    });
+  </script>
 </body>
 </html>

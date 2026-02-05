@@ -2,6 +2,7 @@ import logging
 import re
 import secrets
 import time
+from datetime import datetime
 from typing import Any, Dict, Optional, Tuple
 
 import httpx
@@ -25,6 +26,7 @@ from core import (
     UsernameNotOccupiedError,
     build_redirect_uri,
     build_contract_url,
+    course_rate,
     clear_user,
     contract_channel_label,
     contract_status_from_item,
@@ -32,16 +34,22 @@ from core import (
     get_current_user,
     get_telethon_client,
     load_agreements,
+    load_payments,
+    load_referrals,
     load_json,
+    find_student_by_phone,
+    normalize_phone,
     normalize_materials,
     login_context,
     oauth,
     providers,
+    referral_stats_for_referrer,
     render,
     save_json,
     send_email_code,
     set_current_user,
     verify_telegram_auth,
+    YOOKASSA_ENABLED,
 )
 
 router = APIRouter()
@@ -387,7 +395,23 @@ async def account(request: Request):
         except Exception:
             return None
 
+    def format_ts(value: Any) -> str:
+        if not value:
+            return "—"
+        try:
+            return datetime.fromtimestamp(int(value)).strftime("%d.%m.%Y %H:%M")
+        except Exception:
+            return "—"
+
     agreements_view = []
+    referrals_data = load_referrals()
+    referrals_students = referrals_data.get("students") if isinstance(referrals_data, dict) else {}
+    if not isinstance(referrals_students, dict):
+        referrals_students = {}
+    payments_data = load_payments()
+    payments = payments_data.get("payments") if isinstance(payments_data, dict) else {}
+    if not isinstance(payments, dict):
+        payments = {}
     for item in agreements_all:
         item_user = item.get("user") or {}
         matches = False
@@ -402,13 +426,67 @@ async def account(request: Request):
         status_key, status_label, status_class = contract_status_from_item(item)
         total_lessons = safe_int(item.get("total_lessons"))
         paid_lessons = safe_int(item.get("paid_lessons"))
+        attended_lessons = safe_int(item.get("attended_lessons"))
+        current_paid = None
+        if paid_lessons is not None and attended_lessons is not None:
+            current_paid = max(paid_lessons - attended_lessons, 0)
         remaining = None
         if total_lessons is not None and paid_lessons is not None:
             remaining = max(total_lessons - paid_lessons, 0)
         materials = normalize_materials(item.get("materials"))
+        price_per_lesson = course_rate(item.get("course"))
+        discount_percent = 0
+        discount_value = None
+        discounted_price = None
+        if price_per_lesson and referrals_students:
+            student = find_student_by_phone(referrals_students, item.get("phone") or "")
+            if student and student.get("referral_code"):
+                stats = referral_stats_for_referrer(student, referrals_students)
+                discount_percent = int(stats.get("balance") or 0)
+        if price_per_lesson and discount_percent:
+            discount_value = int(round(price_per_lesson * (discount_percent / 100)))
+            discounted_price = max(price_per_lesson - discount_value, 0)
+        payment_list = []
+        active_payment = None
+        item_phone = normalize_phone(item.get("phone") or "")
+        for payment in payments.values():
+            if not isinstance(payment, dict):
+                continue
+            if payment.get("agreement_file") != item.get("_file"):
+                continue
+            if user_id and str(payment.get("user_id") or "") != str(user_id):
+                if item_phone and normalize_phone(payment.get("phone") or "") != item_phone:
+                    continue
+            status = str(payment.get("status") or "")
+            status_labels = {
+                "pending": "Ожидает оплаты",
+                "waiting_for_capture": "Ожидает подтверждения",
+                "waiting_for_confirmation": "Ожидает подтверждения",
+                "succeeded": "Оплачен",
+                "canceled": "Отменён",
+            }
+            payment_item = {
+                "id": payment.get("id"),
+                "status": status,
+                "status_label": status_labels.get(status, status),
+                "amount": (payment.get("amount") or {}).get("value") or "—",
+                "lessons": payment.get("lessons"),
+                "discount_percent": payment.get("discount_percent") or 0,
+                "created_at": format_ts(payment.get("created_at")),
+                "created_at_ts": int(payment.get("created_at") or 0),
+                "confirmation_url": payment.get("confirmation_url"),
+                "test_mode": bool(payment.get("test_mode")),
+            }
+            payment_list.append(payment_item)
+            if not active_payment and status in {"pending", "waiting_for_capture", "waiting_for_confirmation"}:
+                active_payment = payment_item
+
+        payment_list.sort(key=lambda entry: entry.get("created_at_ts") or 0, reverse=True)
+
         agreements_view.append(
             {
                 **item,
+                "file": item.get("_file"),
                 "contract_url": build_contract_url(item.get("contract_token"), request),
                 "contract_pdf_url": item.get("contract_pdf_url"),
                 "contract_status_key": status_key,
@@ -417,9 +495,17 @@ async def account(request: Request):
                 "contract_channel_label": contract_channel_label(item.get("contract_channel")),
                 "total_lessons": total_lessons,
                 "paid_lessons": paid_lessons,
+                "attended_lessons": attended_lessons,
+                "current_paid_lessons": current_paid,
                 "remaining_lessons": remaining,
                 "current_module": item.get("current_module") or "—",
                 "materials": materials,
+                "price_per_lesson": price_per_lesson,
+                "discount_percent": discount_percent,
+                "discount_value": discount_value,
+                "discounted_price": discounted_price,
+                "payments": payment_list,
+                "active_payment": active_payment,
             }
         )
 
@@ -443,5 +529,8 @@ async def account(request: Request):
                 "signed_contracts": signed_contracts,
                 "remaining_lessons": remaining_lessons_total,
             },
+            "payments_enabled": YOOKASSA_ENABLED,
+            "payment_status": request.query_params.get("payment"),
+            "payment_error": request.query_params.get("payment_error"),
         },
     )

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Тестовая оплата</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Prata&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <main class="container" style="padding: 120px 0;">
+    <a class="page-back" href="/admin">← В админку</a>
+
+    <section class="panel">
+      <div class="admin-section-head">
+        <h1 class="section-title">Тестовая оплата СБП (1 ₽)</h1>
+      </div>
+      <p class="admin-subtext">Платёж проходит через YooKassa и не изменяет данные договора: мы сохраняем дебаг‑лог и статус.</p>
+      {% if payment_error %}
+      <div class="card" style="margin-top: 12px; border-color: rgba(255, 77, 77, 0.4);">
+        <strong>{{ payment_error }}</strong>
+      </div>
+      {% endif %}
+      {% if payment_status %}
+      <div class="card" style="margin-top: 12px;">
+        <strong>Оплата инициирована. Статус обновится после webhook.</strong>
+      </div>
+      {% endif %}
+      {% if not payments_enabled %}
+      <div class="card" style="margin-top: 12px; border-color: rgba(255, 77, 77, 0.4);">
+        <strong>YooKassa не настроена.</strong>
+      </div>
+      {% endif %}
+      <form class="admin-filter" action="/test_payment/create" method="post" style="margin-top: 14px;">
+        <div class="admin-filter__row">
+          <div class="input-wrap">
+            <label class="auth-label">Договор</label>
+            <select name="agreement_file" required>
+              <option value="" disabled selected>Выберите договор</option>
+              {% for item in agreements %}
+              <option value="{{ item.file }}">{{ item.course }} · {{ item.name }} · {{ item.phone }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="input-wrap">
+            <label class="auth-label">Кол-во занятий</label>
+            <input type="number" name="lessons" min="1" step="1" value="1" required>
+          </div>
+        </div>
+        <div class="admin-filter__actions">
+          <button class="btn btn-primary" type="submit" {% if not payments_enabled %}disabled{% endif %}>Оплатить 1 ₽</button>
+        </div>
+      </form>
+    </section>
+
+    {% if payment_check %}
+    <section class="panel" style="margin-top: 24px;">
+      <div class="admin-section-head">
+        <h2 class="section-title">Статус платежа {{ payment_id }}</h2>
+      </div>
+      <pre style="white-space: pre-wrap; font-size: 0.9rem;">{{ payment_check }}</pre>
+    </section>
+    {% endif %}
+
+    {% if last_debug %}
+    <section class="panel" style="margin-top: 24px;">
+      <div class="admin-section-head">
+        <h2 class="section-title">Последний debug</h2>
+      </div>
+      <pre style="white-space: pre-wrap; font-size: 0.9rem;">{{ last_debug }}</pre>
+    </section>
+    {% endif %}
+
+    <section class="panel" style="margin-top: 24px;">
+      <div class="admin-section-head">
+        <h2 class="section-title">Последние платежи</h2>
+      </div>
+      {% if payments %}
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Статус</th>
+              <th>Сумма</th>
+              <th>Занятий</th>
+              <th>Тестовый</th>
+              <th>Дата</th>
+              <th>Ссылка</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in payments %}
+            <tr>
+              <td data-label="ID">{{ item.id }}</td>
+              <td data-label="Статус">{{ item.status }}</td>
+              <td data-label="Сумма">{{ item.amount }}</td>
+              <td data-label="Занятий">{{ item.lessons }}</td>
+              <td data-label="Тестовый">{{ "Да" if item.test_mode else "Нет" }}</td>
+              <td data-label="Дата">{{ item.created_at }}</td>
+              <td data-label="Ссылка">
+                {% if item.confirmation_url %}
+                <a class="admin-copy" href="{{ item.confirmation_url }}" target="_blank" rel="noopener">Продолжить</a>
+                {% else %}
+                —
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p>Платежей пока нет.</p>
+      {% endif %}
+    </section>
+
+    <section class="panel" style="margin-top: 24px;">
+      <div class="admin-section-head">
+        <h2 class="section-title">События webhook</h2>
+      </div>
+      {% if events %}
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Время</th>
+              <th>Событие</th>
+              <th>ID</th>
+              <th>Статус</th>
+              <th>Тест</th>
+              <th>Применено</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in events %}
+            <tr>
+              <td data-label="Время">{{ item.ts_label }}</td>
+              <td data-label="Событие">{{ item.event }}</td>
+              <td data-label="ID">{{ item.payment_id }}</td>
+              <td data-label="Статус">{{ item.status }}</td>
+              <td data-label="Тест">{{ "Да" if item.test_mode else "Нет" }}</td>
+              <td data-label="Применено">{{ "Да" if item.applied else "Нет" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p>Webhook‑событий пока нет.</p>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>
