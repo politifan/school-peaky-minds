@@ -1247,6 +1247,7 @@ section {
   background: linear-gradient(120deg, var(--accent-2), var(--accent-1), var(--accent-3));
   color: #0b1110;
   box-shadow: 0 14px 30px rgba(255, 179, 71, 0.35), 0 0 30px rgba(99, 247, 211, 0.25);
+  border: none;
 }
 
 .btn-danger {
@@ -1999,6 +2000,10 @@ select:focus {
   flex-direction: column;
   align-items: flex-start;
   gap: 12px;
+}
+
+.account-page .admin-hero__actions {
+  align-items: flex-end;
 }
 
 .admin-meta {
@@ -2787,6 +2792,10 @@ select:focus {
   .admin-hero__actions {
     flex-direction: row;
     flex-wrap: wrap;
+  }
+
+  .account-page .admin-hero__actions {
+    align-items: center;
   }
 
   .admin-table td {
