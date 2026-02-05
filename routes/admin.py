@@ -1551,7 +1551,7 @@ async def admin_update_agreement_progress(request: Request):
     else:
         data.pop("materials", None)
 
-    save_json(path, data)
+    core.save_json(path, data)
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
@@ -1577,7 +1577,7 @@ async def admin_update_agreement_amount(request: Request):
         data["amount"] = amount
     else:
         data.pop("amount", None)
-    save_json(path, data)
+    core.save_json(path, data)
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
