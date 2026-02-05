@@ -29,6 +29,7 @@ from core import (
     find_student_by_phone,
     filter_items,
     get_admin_ids,
+    course_rate,
     load_agreements,
     load_json,
     load_leads,
@@ -222,6 +223,15 @@ def referral_stats_for_referrer(referrer: Dict[str, Any], students: Dict[str, An
         "balance": balance,
         "overflow": overflow,
     }
+
+
+def referral_discount_amount(student: Dict[str, Any], percent: int) -> Optional[int]:
+    if percent <= 0:
+        return None
+    rate = course_rate(student.get("course"))
+    if not rate:
+        return None
+    return int(round(rate * (percent / 100)))
 
 
 async def notify_admins(text: str, subject: str = "Реферальная программа") -> None:
@@ -1171,6 +1181,8 @@ def _admin_panel_impl(request: Request):
                     "balance": stats["balance"],
                     "overflow": stats["overflow"],
                     "last_applied": last_applied,
+                    "course": item.get("course") or "",
+                    "balance_amount": referral_discount_amount(item, stats["balance"]),
                 }
             )
             referral_stats["participants"] += 1

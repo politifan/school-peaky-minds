@@ -914,6 +914,7 @@
               <th>Накоплено</th>
               <th>Списано</th>
               <th>Баланс</th>
+              <th>Скидка за занятие</th>
               <th>Применить</th>
             </tr>
           </thead>
@@ -936,6 +937,16 @@
                 <strong>{{ item.balance }}%</strong>
                 {% if item.overflow %}
                 <div class="admin-subtext">+{{ item.overflow }}% сгорело</div>
+                {% endif %}
+              </td>
+              <td data-label="Скидка за занятие">
+                {% if item.balance_amount %}
+                  {{ item.balance_amount }} ₽
+                {% else %}
+                  —
+                {% endif %}
+                {% if item.course %}
+                <div class="admin-subtext">{{ item.course }}</div>
                 {% endif %}
               </td>
               <td data-label="Применить">
