@@ -2255,9 +2255,9 @@ async def admin_lessons_update(request: Request):
     if status_raw not in status_map:
         return lesson_redirect(error="Некорректный статус")
     if time_raw:
-        if re.match(r"^\\d{2}:\\d{2}:\\d{2}$", time_raw):
+        if re.match(r"^\d{2}:\d{2}:\d{2}$", time_raw):
             time_raw = time_raw[:5]
-        if not re.match(r"^\\d{2}:\\d{2}$", time_raw):
+        if not re.match(r"^\d{2}:\d{2}$", time_raw):
             return lesson_redirect(error="Некорректное время")
 
     path = core.AGREEMENTS_DIR / file_name
