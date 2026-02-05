@@ -539,21 +539,32 @@ def generate_contract_pdf(agreement: Dict[str, Any]) -> Optional[str]:
         pdf.set_font("DejaVu", size=11)
     else:
         pdf.set_font("Helvetica", size=11)
+    max_width = pdf.w - pdf.l_margin - pdf.r_margin
+
+    def _wrap_line(value: str) -> List[str]:
+        if not value:
+            return [""]
+        if pdf.get_string_width(value) <= max_width:
+            return [value]
+        lines: List[str] = []
+        current = ""
+        for ch in value:
+            candidate = f"{current}{ch}"
+            if pdf.get_string_width(candidate) <= max_width or not current:
+                current = candidate
+            else:
+                lines.append(current)
+                current = ch
+        if current:
+            lines.append(current)
+        return lines
+
     for line in text.split("\n"):
         if not line.strip():
             pdf.ln(4)
         else:
-            max_token = 20
-            tokens = line.split(" ")
-            safe_parts = []
-            for token in tokens:
-                if len(token) > max_token:
-                    chunks = [token[i : i + max_token] for i in range(0, len(token), max_token)]
-                    safe_parts.append(" ".join(chunks))
-                else:
-                    safe_parts.append(token)
-            safe_line = " ".join(safe_parts)
-            pdf.multi_cell(0, 6, safe_line)
+            for wrapped in _wrap_line(line):
+                pdf.multi_cell(0, 6, wrapped)
     pdf.output(str(file_path))
     return f"/documents/contracts/{file_name}"
 
