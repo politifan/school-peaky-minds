@@ -4,6 +4,7 @@ set -euo pipefail
 APP_DIR="/var/www/u3395358/data/www/school.peaky-minds.ru"
 VENV_ACTIVATE="/var/www/u3395358/data/www/school.peaky-minds.ru/venv/bin/activate"
 RESTART_FILE="${APP_DIR}/passenger_wsgi.py"
+RESTART_FILE2="${APP_DIR}/tmp/restart.txt"
 
 cd "$APP_DIR"
 
@@ -21,6 +22,7 @@ fi
 # 3) Триггерим перезапуск Passenger
 # Обычно Passenger реагирует на изменение файла WSGI entrypoint.
 touch "$RESTART_FILE"
+touch "$RESTART_FILE2"
 
 # 4) Быстрая диагностика путей (не валит деплой, но помогает понять, что на месте)
 python -c "import sys; print('Python:', sys.version)"
