@@ -44,7 +44,9 @@ from core import (
     render,
     referral_applied_total,
     referral_confirmed_months,
+    referral_effective_percent,
     referral_monthly_percent,
+    cleanup_monthly_discounts,
     referral_reserved_total,
     referral_stats_for_referrer,
     month_key,
@@ -465,10 +467,17 @@ def _admin_panel_impl(request: Request):
     if not isinstance(referrals_students, dict):
         referrals_students = {}
     referrals_by_phone = {}
+    referrals_changed = False
+    current_month_key = month_key()
     for student in referrals_students.values():
+        if cleanup_monthly_discounts(student, current_month_key):
+            referrals_changed = True
         phone_key = normalize_phone(student.get("phone") or "")
         if phone_key:
             referrals_by_phone[phone_key] = student
+    if referrals_changed:
+        referrals_data["students"] = referrals_students
+        save_referrals(referrals_data)
 
     view = request.query_params.get("view") or "overview"
     allowed_views = {"overview", "leads", "agreements", "users", "whitelist", "referrals"}
@@ -719,7 +728,7 @@ def _admin_panel_impl(request: Request):
         monthly_percent = 0
         student = referrals_by_phone.get(normalize_phone(item.get("phone") or ""))
         if student:
-            monthly_percent = referral_monthly_percent(student, month_key())
+            monthly_percent = referral_effective_percent(student, item.get("course") or "", month_key())
         discounted_rate = None
         if price_per_lesson is not None and monthly_percent:
             discounted_rate = max(int(round(price_per_lesson * (100 - monthly_percent) / 100)), 0)
@@ -1146,6 +1155,16 @@ def _admin_panel_impl(request: Request):
         for item in sorted(participants, key=lambda s: (s.get("name") or "", s.get("id") or 0)):
             stats = referral_stats_for_referrer(item, students)
             month_discount = referral_monthly_percent(item, referral_current_month)
+            monthly_discounts = item.get("monthly_discounts") if isinstance(item.get("monthly_discounts"), dict) else {}
+            monthly_view = []
+            for key, entry in monthly_discounts.items():
+                try:
+                    percent = int(entry.get("percent") if isinstance(entry, dict) else entry)
+                except Exception:
+                    percent = 0
+                if percent > 0:
+                    monthly_view.append({"month": key, "percent": percent})
+            monthly_view.sort(key=lambda m: m.get("month") or "")
             applied_list = item.get("discount_applied") if isinstance(item.get("discount_applied"), list) else []
             last_applied = format_ts(applied_list[-1].get("ts")) if applied_list else "—"
             referral_participants.append(
@@ -1165,6 +1184,8 @@ def _admin_panel_impl(request: Request):
                     "course": item.get("course") or "",
                     "balance_amount": referral_discount_amount(item, stats["balance"]),
                     "month_discount": month_discount,
+                    "primary_course": item.get("primary_course") or "",
+                    "monthly_discounts": monthly_view,
                 }
             )
             referral_stats["participants"] += 1
@@ -2007,6 +2028,89 @@ async def admin_referral_month_discount(request: Request):
     data["students"] = students
     save_referrals(data)
     return referral_redirect(message="Скидка на месяц сохранена")
+
+
+@router.post("/admin/referrals/primary-course", include_in_schema=False)
+async def admin_referral_primary_course(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    student_id = str(form.get("student_id") or "").strip()
+    course = str(form.get("course") or "").strip()
+    if not student_id:
+        return referral_redirect(error="Не указан участник")
+
+    data = load_referrals()
+    students = data.get("students") or {}
+    if not isinstance(students, dict):
+        students = {}
+    student = students.get(str(student_id))
+    if not student:
+        return referral_redirect(error="Участник не найден")
+
+    if course:
+        student["primary_course"] = course
+    else:
+        student.pop("primary_course", None)
+    student["updated_at"] = int(time.time())
+    data["students"] = students
+    save_referrals(data)
+    return referral_redirect(message="Основной курс сохранён")
+
+
+@router.post("/admin/referrals/month-discount-move", include_in_schema=False)
+async def admin_referral_month_discount_move(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    student_id = str(form.get("student_id") or "").strip()
+    from_raw = str(form.get("from_month") or "").strip()
+    to_raw = str(form.get("to_month") or "").strip()
+    confirm = bool(form.get("confirm"))
+    if not confirm:
+        return referral_redirect(error="Нужно подтвердить перенос")
+    if not student_id:
+        return referral_redirect(error="Не указан участник")
+
+    from_month = normalize_month_input(from_raw)
+    to_month = normalize_month_input(to_raw)
+    if not from_month or not to_month:
+        return referral_redirect(error="Некорректный месяц")
+    if from_month == to_month:
+        return referral_redirect(error="Месяцы должны отличаться")
+
+    data = load_referrals()
+    students = data.get("students") or {}
+    if not isinstance(students, dict):
+        students = {}
+    student = students.get(str(student_id))
+    if not student:
+        return referral_redirect(error="Участник не найден")
+
+    monthly = student.get("monthly_discounts") if isinstance(student.get("monthly_discounts"), dict) else {}
+    from_entry = monthly.get(from_month)
+    try:
+        from_percent = int(from_entry.get("percent") if isinstance(from_entry, dict) else from_entry)
+    except Exception:
+        from_percent = 0
+    if from_percent <= 0:
+        return referral_redirect(error="Нет скидки в исходном месяце")
+
+    to_entry = monthly.get(to_month)
+    try:
+        to_percent = int(to_entry.get("percent") if isinstance(to_entry, dict) else to_entry)
+    except Exception:
+        to_percent = 0
+
+    monthly[to_month] = {"percent": to_percent + from_percent, "ts": int(time.time())}
+    monthly.pop(from_month, None)
+    student["monthly_discounts"] = monthly
+    student["updated_at"] = int(time.time())
+    data["students"] = students
+    save_referrals(data)
+    return referral_redirect(message="Скидка перенесена")
 
 
 @router.get("/admin/export/leads.csv", include_in_schema=False)

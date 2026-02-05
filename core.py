@@ -735,6 +735,30 @@ def referral_monthly_discounts(student: Dict[str, Any]) -> Dict[str, Any]:
     return data
 
 
+def cleanup_monthly_discounts(student: Dict[str, Any], current_key: Optional[str] = None) -> bool:
+    current_key = current_key or month_key()
+    current_tuple = _parse_month_key(current_key)
+    if not current_tuple:
+        return False
+    data = referral_monthly_discounts(student)
+    if not data:
+        return False
+    changed = False
+    for key in list(data.keys()):
+        key_tuple = _parse_month_key(key)
+        if not key_tuple:
+            data.pop(key, None)
+            changed = True
+            continue
+        if key_tuple < current_tuple:
+            data.pop(key, None)
+            changed = True
+    if changed:
+        student["monthly_discounts"] = data
+        student["updated_at"] = int(time.time())
+    return changed
+
+
 def referral_monthly_percent(student: Dict[str, Any], key: str) -> int:
     data = referral_monthly_discounts(student)
     entry = data.get(key) or {}
@@ -747,6 +771,18 @@ def referral_monthly_percent(student: Dict[str, Any], key: str) -> int:
     except Exception:
         return 0
     return max(value, 0)
+
+
+def referral_effective_percent(student: Dict[str, Any], course: str, key: Optional[str] = None) -> int:
+    base = referral_monthly_percent(student, key or month_key())
+    if base <= 0:
+        return 0
+    primary = str(student.get("primary_course") or "").strip()
+    if not primary:
+        return base
+    if str(course or "").strip() == primary:
+        return base
+    return max(int(round(base * 0.5)), 0)
 
 
 def referral_reserved_total(student: Dict[str, Any], current_key: Optional[str] = None) -> int:

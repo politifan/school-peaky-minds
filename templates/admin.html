@@ -926,6 +926,16 @@
               <td data-label="Участник">
                 <strong>{{ item.name }}</strong>
                 <div class="admin-subtext">{{ item.phone }}</div>
+                <form class="admin-meta-form" action="/admin/referrals/primary-course" method="post" style="margin-top: 6px;">
+                  <input type="hidden" name="student_id" value="{{ item.id }}">
+                  <select name="course">
+                    <option value="">Основной курс</option>
+                    {% for course_name in courses %}
+                    <option value="{{ course_name }}" {% if course_name == item.primary_course %}selected{% endif %}>{{ course_name }}</option>
+                    {% endfor %}
+                  </select>
+                  <button class="admin-copy" type="submit">OK</button>
+                </form>
               </td>
               <td data-label="Код">
                 <span class="admin-chip">{{ item.code }}</span>
@@ -963,6 +973,23 @@
                 </form>
                 {% if item.month_discount %}
                 <div class="admin-subtext">Текущий месяц: {{ item.month_discount }}%</div>
+                {% endif %}
+                {% if item.monthly_discounts %}
+                <div class="admin-subtext" style="margin-top: 6px;">
+                  {% for entry in item.monthly_discounts %}
+                    <span class="admin-chip" style="margin-right: 6px;">{{ entry.month }} · {{ entry.percent }}%</span>
+                  {% endfor %}
+                </div>
+                <form class="admin-meta-form" action="/admin/referrals/month-discount-move" method="post" style="margin-top: 6px;">
+                  <input type="hidden" name="student_id" value="{{ item.id }}">
+                  <input class="admin-input" type="month" name="from_month" placeholder="С" style="max-width: 140px;">
+                  <input class="admin-input" type="month" name="to_month" placeholder="В" style="max-width: 140px;">
+                  <label class="form-check" style="margin-right: 8px;">
+                    <input type="checkbox" name="confirm">
+                    Перенести
+                  </label>
+                  <button class="admin-copy" type="submit">OK</button>
+                </form>
                 {% endif %}
               </td>
             </tr>

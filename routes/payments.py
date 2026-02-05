@@ -27,7 +27,7 @@ from core import (
     load_referrals,
     month_key,
     normalize_phone,
-    referral_monthly_percent,
+    referral_effective_percent,
     referral_stats_for_referrer,
     render,
     save_json,
@@ -158,7 +158,7 @@ async def create_payment(request: Request):
     students = referrals.get("students") or {}
     student = find_student_by_phone(students, agreement.get("phone") or "")
     if student and student.get("referral_code"):
-        discount_percent = referral_monthly_percent(student, month_key())
+        discount_percent = referral_effective_percent(student, course, month_key())
         if discount_percent > 100:
             discount_percent = 100
 
@@ -499,7 +499,7 @@ async def test_payment_create(request: Request):
     students = referrals.get("students") or {}
     student = find_student_by_phone(students, agreement.get("phone") or "")
     if student and student.get("referral_code"):
-        discount_percent = referral_monthly_percent(student, month_key())
+        discount_percent = referral_effective_percent(student, course, month_key())
         if discount_percent > 100:
             discount_percent = 100
 
