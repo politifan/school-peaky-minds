@@ -426,6 +426,8 @@ def count_signed_contracts() -> int:
 def build_contract_document_text(agreement: Dict[str, Any]) -> str:
     template_path = DOCUMENTS_DIR / "dogovor.html"
     html = template_path.read_text(encoding="utf-8") if template_path.exists() else ""
+    html = re.sub(r"<style[^>]*>.*?</style>", "", html, flags=re.IGNORECASE | re.DOTALL)
+    html = re.sub(r"<script[^>]*>.*?</script>", "", html, flags=re.IGNORECASE | re.DOTALL)
     text = re.sub(r"<br\\s*/?>", "\n", html, flags=re.IGNORECASE)
     text = re.sub(r"</p>", "\n", text, flags=re.IGNORECASE)
     text = re.sub(r"<[^>]+>", "", text)
