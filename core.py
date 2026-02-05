@@ -710,6 +710,71 @@ def referral_confirmed_months(student: Dict[str, Any]) -> int:
     return total
 
 
+def month_key(dt: Optional[datetime] = None) -> str:
+    value = dt or moscow_now()
+    return value.strftime("%Y-%m")
+
+
+def _parse_month_key(value: str) -> Optional[Tuple[int, int]]:
+    if not value or not re.match(r"^\d{4}-\d{2}$", value):
+        return None
+    try:
+        year = int(value[:4])
+        month = int(value[5:7])
+    except Exception:
+        return None
+    if month < 1 or month > 12:
+        return None
+    return year, month
+
+
+def referral_monthly_discounts(student: Dict[str, Any]) -> Dict[str, Any]:
+    data = student.get("monthly_discounts") or {}
+    if not isinstance(data, dict):
+        return {}
+    return data
+
+
+def referral_monthly_percent(student: Dict[str, Any], key: str) -> int:
+    data = referral_monthly_discounts(student)
+    entry = data.get(key) or {}
+    if isinstance(entry, dict):
+        raw = entry.get("percent")
+    else:
+        raw = entry
+    try:
+        value = int(raw or 0)
+    except Exception:
+        return 0
+    return max(value, 0)
+
+
+def referral_reserved_total(student: Dict[str, Any], current_key: Optional[str] = None) -> int:
+    data = referral_monthly_discounts(student)
+    if not data:
+        return 0
+    current_key = current_key or month_key()
+    current_tuple = _parse_month_key(current_key)
+    total = 0
+    for key, entry in data.items():
+        key_tuple = _parse_month_key(key)
+        if not key_tuple or not current_tuple:
+            continue
+        if key_tuple < current_tuple:
+            continue
+        if isinstance(entry, dict):
+            raw = entry.get("percent")
+        else:
+            raw = entry
+        try:
+            value = int(raw or 0)
+        except Exception:
+            continue
+        if value > 0:
+            total += value
+    return total
+
+
 def referral_applied_total(student: Dict[str, Any]) -> int:
     applied = student.get("discount_applied") or []
     if not isinstance(applied, list):
@@ -735,7 +800,9 @@ def referral_stats_for_referrer(referrer: Dict[str, Any], students: Dict[str, An
             confirmed += referral_confirmed_months(student)
     earned = confirmed * 10
     applied = referral_applied_total(referrer)
-    balance = max(earned - applied, 0)
+    reserved = referral_reserved_total(referrer)
+    raw_balance = earned - applied - reserved
+    balance = max(raw_balance, 0)
     overflow = max(balance - 100, 0)
     balance = min(balance, 100)
     return {
@@ -744,6 +811,7 @@ def referral_stats_for_referrer(referrer: Dict[str, Any], students: Dict[str, An
         "confirmed_months": confirmed,
         "earned": earned,
         "applied": applied,
+        "reserved": reserved,
         "balance": balance,
         "overflow": overflow,
     }

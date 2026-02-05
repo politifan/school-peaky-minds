@@ -44,7 +44,10 @@ from core import (
     render,
     referral_applied_total,
     referral_confirmed_months,
+    referral_monthly_percent,
+    referral_reserved_total,
     referral_stats_for_referrer,
+    month_key,
     save_referrals,
     send_email_message,
     save_whitelist,
@@ -152,11 +155,6 @@ def format_date_input(value: Any) -> str:
         return datetime.fromtimestamp(int(text)).strftime("%Y-%m-%d")
     except Exception:
         return ""
-
-
-def referral_month_key(value: Optional[datetime] = None) -> str:
-    dt = value or moscow_now()
-    return dt.strftime("%Y-%m")
 
 
 def normalize_month_input(value: str) -> str:
@@ -462,6 +460,15 @@ def _admin_panel_impl(request: Request):
     users_data = load_json(USERS_FILE, {})
     if not isinstance(users_data, dict):
         users_data = {}
+    referrals_data = load_referrals()
+    referrals_students = referrals_data.get("students") if isinstance(referrals_data, dict) else {}
+    if not isinstance(referrals_students, dict):
+        referrals_students = {}
+    referrals_by_phone = {}
+    for student in referrals_students.values():
+        phone_key = normalize_phone(student.get("phone") or "")
+        if phone_key:
+            referrals_by_phone[phone_key] = student
 
     view = request.query_params.get("view") or "overview"
     allowed_views = {"overview", "leads", "agreements", "users", "whitelist", "referrals"}
@@ -709,7 +716,20 @@ def _admin_panel_impl(request: Request):
         manual_status = (item.get("status") or "").strip()
         amount_display = format_amount(item.get("amount"))
         price_per_lesson = course_rate(item.get("course"))
-        cost_display = format_amount(price_per_lesson) if price_per_lesson is not None else "—"
+        monthly_percent = 0
+        student = referrals_by_phone.get(normalize_phone(item.get("phone") or ""))
+        if student:
+            monthly_percent = referral_monthly_percent(student, month_key())
+        discounted_rate = None
+        if price_per_lesson is not None and monthly_percent:
+            discounted_rate = max(int(round(price_per_lesson * (100 - monthly_percent) / 100)), 0)
+        cost_display = (
+            format_amount(discounted_rate)
+            if discounted_rate is not None
+            else format_amount(price_per_lesson)
+            if price_per_lesson is not None
+            else "—"
+        )
         total_lessons = safe_int(item.get("total_lessons"), 0) if item.get("total_lessons") is not None else None
         paid_lessons = safe_int(item.get("paid_lessons"), 0) if item.get("paid_lessons") is not None else None
         attended_lessons = safe_int(item.get("attended_lessons"), 0) if item.get("attended_lessons") is not None else None
@@ -727,6 +747,7 @@ def _admin_panel_impl(request: Request):
                 "manual_status": manual_status,
                 "amount_display": amount_display,
                 "cost_display": cost_display,
+                "cost_percent": monthly_percent,
                 "contract_number": item.get("contract_number") or "—",
                 "contract_status_key": contract_key,
                 "contract_status_label": contract_label,
@@ -1100,7 +1121,7 @@ def _admin_panel_impl(request: Request):
 
     referral_message = request.query_params.get("ref_message") or ""
     referral_error = request.query_params.get("ref_error") or ""
-    referral_current_month = referral_month_key()
+    referral_current_month = month_key()
     referral_participants = []
     referral_students = []
     referral_top = []
@@ -1124,6 +1145,7 @@ def _admin_panel_impl(request: Request):
         ]
         for item in sorted(participants, key=lambda s: (s.get("name") or "", s.get("id") or 0)):
             stats = referral_stats_for_referrer(item, students)
+            month_discount = referral_monthly_percent(item, referral_current_month)
             applied_list = item.get("discount_applied") if isinstance(item.get("discount_applied"), list) else []
             last_applied = format_ts(applied_list[-1].get("ts")) if applied_list else "—"
             referral_participants.append(
@@ -1136,11 +1158,13 @@ def _admin_panel_impl(request: Request):
                     "confirmed_months": stats["confirmed_months"],
                     "earned": stats["earned"],
                     "applied": stats["applied"],
+                    "reserved": stats.get("reserved", 0),
                     "balance": stats["balance"],
                     "overflow": stats["overflow"],
                     "last_applied": last_applied,
                     "course": item.get("course") or "",
                     "balance_amount": referral_discount_amount(item, stats["balance"]),
+                    "month_discount": month_discount,
                 }
             )
             referral_stats["participants"] += 1
@@ -1932,6 +1956,57 @@ async def admin_referral_discount(request: Request):
     )
 
     return referral_redirect(message="Скидка применена")
+
+
+@router.post("/admin/referrals/month-discount", include_in_schema=False)
+async def admin_referral_month_discount(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    student_id = str(form.get("student_id") or "").strip()
+    month_raw = str(form.get("month") or "").strip()
+    percent_raw = str(form.get("percent") or "").strip()
+    if not student_id:
+        return referral_redirect(error="Не указан участник")
+
+    month = normalize_month_input(month_raw)
+    if not month:
+        return referral_redirect(error="Некорректный месяц")
+
+    try:
+        requested = int(percent_raw)
+    except Exception:
+        requested = 0
+
+    data = load_referrals()
+    students = data.get("students") or {}
+    if not isinstance(students, dict):
+        students = {}
+    student = students.get(str(student_id))
+    if not student:
+        return referral_redirect(error="Участник не найден")
+
+    stats = referral_stats_for_referrer(student, students)
+    existing = referral_monthly_percent(student, month)
+    available = stats.get("balance", 0) + existing
+    if requested <= 0:
+        monthly = student.get("monthly_discounts") if isinstance(student.get("monthly_discounts"), dict) else {}
+        monthly.pop(month, None)
+        student["monthly_discounts"] = monthly
+        student["updated_at"] = int(time.time())
+        data["students"] = students
+        save_referrals(data)
+        return referral_redirect(message="Скидка месяца снята")
+
+    percent = min(requested, max(available, 0))
+    monthly = student.get("monthly_discounts") if isinstance(student.get("monthly_discounts"), dict) else {}
+    monthly[month] = {"percent": percent, "ts": int(time.time())}
+    student["monthly_discounts"] = monthly
+    student["updated_at"] = int(time.time())
+    data["students"] = students
+    save_referrals(data)
+    return referral_redirect(message="Скидка на месяц сохранена")
 
 
 @router.get("/admin/export/leads.csv", include_in_schema=False)

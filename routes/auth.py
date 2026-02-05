@@ -38,12 +38,13 @@ from core import (
     load_referrals,
     load_json,
     find_student_by_phone,
+    month_key,
     normalize_phone,
     normalize_materials,
     login_context,
     oauth,
     providers,
-    referral_stats_for_referrer,
+    referral_monthly_percent,
     render,
     save_json,
     send_email_code,
@@ -441,8 +442,7 @@ async def account(request: Request):
         if price_per_lesson and referrals_students:
             student = find_student_by_phone(referrals_students, item.get("phone") or "")
             if student and student.get("referral_code"):
-                stats = referral_stats_for_referrer(student, referrals_students)
-                discount_percent = int(stats.get("balance") or 0)
+                discount_percent = referral_monthly_percent(student, month_key())
         if price_per_lesson and discount_percent:
             discount_value = int(round(price_per_lesson * (discount_percent / 100)))
             discounted_price = max(price_per_lesson - discount_value, 0)

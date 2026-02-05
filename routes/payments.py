@@ -25,7 +25,9 @@ from core import (
     load_json,
     load_payments,
     load_referrals,
+    month_key,
     normalize_phone,
+    referral_monthly_percent,
     referral_stats_for_referrer,
     render,
     save_json,
@@ -156,8 +158,7 @@ async def create_payment(request: Request):
     students = referrals.get("students") or {}
     student = find_student_by_phone(students, agreement.get("phone") or "")
     if student and student.get("referral_code"):
-        stats = referral_stats_for_referrer(student, students)
-        discount_percent = int(stats.get("balance") or 0)
+        discount_percent = referral_monthly_percent(student, month_key())
         if discount_percent > 100:
             discount_percent = 100
 
@@ -190,6 +191,7 @@ async def create_payment(request: Request):
         "agreement_file": agreement_file,
         "lessons": str(lessons),
         "discount_percent": str(discount_percent),
+        "discount_source": "monthly" if discount_percent else "",
         "price_per_lesson": str(rate),
         "user_id": str(user.get("id") or ""),
         "course": course,
@@ -271,6 +273,7 @@ async def yookassa_webhook(request: Request):
     status = payment.get("status") or ""
     metadata = payment.get("metadata") or {}
     test_mode = str(metadata.get("test_mode") or "").lower() in {"1", "true", "yes"}
+    discount_source = str(metadata.get("discount_source") or "")
     lessons_raw = metadata.get("lessons") or ""
     try:
         lessons = int(lessons_raw)
@@ -333,7 +336,7 @@ async def yookassa_webhook(request: Request):
                             agreement["paid_lessons"] = current_paid + lessons
                             save_json(path, agreement)
 
-            if discount_percent > 0:
+            if discount_percent > 0 and discount_source != "monthly":
                 referrals = load_referrals()
                 students = referrals.get("students") or {}
                 phone = record.get("phone") or normalize_phone(metadata.get("phone") or "")
@@ -496,8 +499,7 @@ async def test_payment_create(request: Request):
     students = referrals.get("students") or {}
     student = find_student_by_phone(students, agreement.get("phone") or "")
     if student and student.get("referral_code"):
-        stats = referral_stats_for_referrer(student, students)
-        discount_percent = int(stats.get("balance") or 0)
+        discount_percent = referral_monthly_percent(student, month_key())
         if discount_percent > 100:
             discount_percent = 100
 
@@ -506,6 +508,7 @@ async def test_payment_create(request: Request):
         "agreement_file": agreement_file,
         "lessons": str(lessons),
         "discount_percent": str(discount_percent),
+        "discount_source": "monthly" if discount_percent else "",
         "price_per_lesson": str(rate),
         "course": course,
         "phone": normalize_phone(agreement.get("phone") or ""),

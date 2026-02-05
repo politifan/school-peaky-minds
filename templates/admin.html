@@ -703,7 +703,12 @@
               <td data-label="Стоимость">
                 <div class="admin-cell">
                   <strong>{{ item.cost_display }}</strong>
-                  <div class="admin-subtext">₽ за занятие</div>
+                  <div class="admin-subtext">
+                    ₽ за занятие
+                    {% if item.cost_percent %}
+                    · скидка {{ item.cost_percent }}%
+                    {% endif %}
+                  </div>
                 </div>
               </td>
               <td data-label="Статус">
@@ -912,7 +917,7 @@
               <th>Списано</th>
               <th>Баланс</th>
               <th>Скидка за занятие</th>
-              <th>Применить</th>
+              <th>Скидка на месяц</th>
             </tr>
           </thead>
           <tbody>
@@ -935,6 +940,9 @@
                 {% if item.overflow %}
                 <div class="admin-subtext">+{{ item.overflow }}% сгорело</div>
                 {% endif %}
+                {% if item.reserved %}
+                <div class="admin-subtext">Запланировано: {{ item.reserved }}%</div>
+                {% endif %}
               </td>
               <td data-label="Скидка за занятие">
                 {% if item.balance_amount %}
@@ -946,14 +954,16 @@
                 <div class="admin-subtext">{{ item.course }}</div>
                 {% endif %}
               </td>
-              <td data-label="Применить">
-                <form class="admin-meta-form" action="/admin/referrals/discount" method="post">
+              <td data-label="Скидка на месяц">
+                <form class="admin-meta-form" action="/admin/referrals/month-discount" method="post">
                   <input type="hidden" name="student_id" value="{{ item.id }}">
+                  <input class="admin-input" type="month" name="month" value="{{ referral_current_month }}" style="max-width: 150px;">
                   <input class="admin-input" type="text" name="percent" placeholder="{{ item.balance }}%" style="max-width: 90px;">
-                  <input class="admin-input" type="text" name="note" placeholder="Комментарий" style="max-width: 160px;">
                   <button class="admin-copy" type="submit">OK</button>
                 </form>
-                <div class="admin-subtext">Последнее: {{ item.last_applied }}</div>
+                {% if item.month_discount %}
+                <div class="admin-subtext">Текущий месяц: {{ item.month_discount }}%</div>
+                {% endif %}
               </td>
             </tr>
             {% endfor %}
