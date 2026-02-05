@@ -543,11 +543,12 @@ def generate_contract_pdf(agreement: Dict[str, Any]) -> Optional[str]:
         if not line.strip():
             pdf.ln(4)
         else:
+            max_token = 20
             tokens = line.split(" ")
             safe_parts = []
             for token in tokens:
-                if len(token) > 40:
-                    chunks = [token[i : i + 40] for i in range(0, len(token), 40)]
+                if len(token) > max_token:
+                    chunks = [token[i : i + max_token] for i in range(0, len(token), max_token)]
                     safe_parts.append(" ".join(chunks))
                 else:
                     safe_parts.append(token)
