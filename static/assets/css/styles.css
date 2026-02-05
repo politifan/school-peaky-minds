@@ -1616,9 +1616,37 @@ select:focus {
   background: rgba(11, 17, 16, 0.75);
 }
 
+.footer-head {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.footer-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.footer-logo img {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+}
+
+.footer-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.footer-subtitle {
+  color: var(--text-2);
+  margin-top: 6px;
+}
+
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.25fr 1.15fr 1.25fr 1.15fr 0.7fr;
+  grid-template-columns: 1.2fr 1.2fr 1fr;
   gap: 32px;
 }
 
@@ -1637,10 +1665,7 @@ select:focus {
   margin-top: 0;
 }
 
-.footer-brand {
-  text-align: left;
-  display: block;
-}
+ 
 
 
 .modal {
