@@ -1,4 +1,5 @@
 import asyncio
+import calendar
 import getpass
 import hashlib
 import hmac
@@ -727,6 +728,41 @@ def _parse_month_key(value: str) -> Optional[Tuple[int, int]]:
     if month < 1 or month > 12:
         return None
     return year, month
+
+
+def build_month_calendar(month: str, statuses: Optional[Dict[str, str]] = None) -> List[List[Optional[Dict[str, Any]]]]:
+    if not month or not re.match(r"^\d{4}-\d{2}$", month):
+        return []
+    try:
+        year = int(month[:4])
+        month_num = int(month[5:7])
+    except Exception:
+        return []
+    if month_num < 1 or month_num > 12:
+        return []
+    statuses = statuses or {}
+    first_weekday, days_in_month = calendar.monthrange(year, month_num)
+    weeks: List[List[Optional[Dict[str, Any]]]] = []
+    week: List[Optional[Dict[str, Any]]] = []
+    for _ in range(first_weekday):
+        week.append(None)
+    for day in range(1, days_in_month + 1):
+        date_str = f"{year:04d}-{month_num:02d}-{day:02d}"
+        week.append(
+            {
+                "date": date_str,
+                "day": day,
+                "status": statuses.get(date_str, ""),
+            }
+        )
+        if len(week) == 7:
+            weeks.append(week)
+            week = []
+    if week:
+        while len(week) < 7:
+            week.append(None)
+        weeks.append(week)
+    return weeks
 
 
 def referral_monthly_discounts(student: Dict[str, Any]) -> Dict[str, Any]:

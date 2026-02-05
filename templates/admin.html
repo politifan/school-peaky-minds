@@ -24,6 +24,7 @@
           <a class="{% if view == 'agreements' %}is-active{% endif %}" href="/admin?view=agreements">Договоры</a>
           <a class="{% if view == 'users' %}is-active{% endif %}" href="/admin?view=users">Пользователи</a>
           <a class="{% if view == 'referrals' %}is-active{% endif %}" href="/admin?view=referrals">Рефералы</a>
+          <a class="{% if view == 'lessons' %}is-active{% endif %}" href="/admin?view=lessons">Занятия</a>
           <a class="{% if view == 'whitelist' %}is-active{% endif %}" href="/admin?view=whitelist">Whitelist</a>
           <a href="/">На главную</a>
         </nav>
@@ -1070,6 +1071,98 @@
       <p>Рефералов пока нет.</p>
       {% endif %}
     </section>
+        {% endif %}
+
+        {% if view == 'lessons' %}
+        <section class="panel" id="admin-lessons" style="margin-top: 24px;">
+          <div class="admin-section-head">
+            <h2 class="section-title">Занятия (преподаватель)</h2>
+            <form class="admin-section-actions" method="get" action="/admin">
+              <input type="hidden" name="view" value="lessons">
+              <input class="admin-input" type="month" name="month" value="{{ lesson_month }}" style="max-width: 160px;">
+              <button class="btn btn-secondary" type="submit">Показать</button>
+            </form>
+          </div>
+          {% if lesson_error %}
+          <div class="card" style="margin-bottom: 12px; border-color: rgba(255, 86, 86, 0.4);">
+            <strong>{{ lesson_error }}</strong>
+          </div>
+          {% endif %}
+          {% if lesson_message %}
+          <div class="card" style="margin-bottom: 12px;">
+            <strong>{{ lesson_message }}</strong>
+          </div>
+          {% endif %}
+          <div class="lesson-legend">
+            <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--proposed"></span>Предложено</span>
+            <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--approved"></span>Согласовано</span>
+            <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--missed"></span>Пропуск</span>
+            <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--excused">🌡️</span>Уважительная причина</span>
+          </div>
+          {% if lesson_agreements %}
+          <div class="admin-grid two" style="margin-top: 16px;">
+            {% for item in lesson_agreements %}
+            <div class="card">
+              <div class="course-meta">Ученик</div>
+              <h3>{{ item.name }}</h3>
+              <div class="admin-subtext">{{ item.course }}</div>
+              <div class="admin-subtext">{{ item.phone }} · {{ item.email }}</div>
+              <div class="lesson-calendar" style="margin-top: 12px;">
+                <div class="lesson-calendar__grid lesson-calendar__grid--head">
+                  <div class="lesson-calendar__day">Пн</div>
+                  <div class="lesson-calendar__day">Вт</div>
+                  <div class="lesson-calendar__day">Ср</div>
+                  <div class="lesson-calendar__day">Чт</div>
+                  <div class="lesson-calendar__day">Пт</div>
+                  <div class="lesson-calendar__day">Сб</div>
+                  <div class="lesson-calendar__day">Вс</div>
+                </div>
+                <div class="lesson-calendar__grid">
+                  {% for week in item.lesson_calendar %}
+                    {% for day in week %}
+                      {% if day %}
+                      <div class="lesson-day{% if day.status %} lesson-day--{{ day.status }}{% endif %}">
+                        <span>{{ day.day }}</span>
+                        {% if day.status == "excused" %}
+                        <span class="lesson-emoji">🌡️</span>
+                        {% endif %}
+                      </div>
+                      {% else %}
+                      <div class="lesson-day lesson-day--empty"></div>
+                      {% endif %}
+                    {% endfor %}
+                  {% endfor %}
+                </div>
+              </div>
+              <form class="admin-filter" action="/admin/lessons/update" method="post" style="margin-top: 12px;">
+                <input type="hidden" name="file" value="{{ item.file }}">
+                <div class="admin-filter__row">
+                  <div class="input-wrap">
+                    <label class="auth-label">Дата</label>
+                    <input type="date" name="date" required>
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Статус</label>
+                    <select name="status">
+                      <option value="proposed">Предложено</option>
+                      <option value="approved">Согласовано</option>
+                      <option value="missed">Пропуск</option>
+                      <option value="excused">Уважительная причина</option>
+                      <option value="clear">Очистить</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="admin-filter__actions">
+                  <button class="btn btn-primary" type="submit">Сохранить</button>
+                </div>
+              </form>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p>Договоров пока нет.</p>
+          {% endif %}
+        </section>
         {% endif %}
 
         {% if view == 'whitelist' %}

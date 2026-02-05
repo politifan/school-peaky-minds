@@ -2046,6 +2046,121 @@ select:focus {
   margin: 0;
 }
 
+.lesson-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: 10px 0 8px;
+  color: var(--text-2);
+  font-size: 0.85rem;
+}
+
+.lesson-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lesson-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--stroke);
+}
+
+.lesson-dot--proposed {
+  background: rgba(255, 215, 64, 0.35);
+  border-color: rgba(255, 215, 64, 0.6);
+}
+
+.lesson-dot--approved {
+  background: rgba(99, 247, 211, 0.35);
+  border-color: rgba(99, 247, 211, 0.6);
+}
+
+.lesson-dot--missed {
+  background: rgba(255, 86, 86, 0.35);
+  border-color: rgba(255, 86, 86, 0.6);
+}
+
+.lesson-dot--excused {
+  background: rgba(90, 160, 255, 0.35);
+  border-color: rgba(90, 160, 255, 0.6);
+}
+
+.lesson-calendar {
+  margin-top: 8px;
+}
+
+.lesson-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.lesson-calendar__grid--head {
+  margin-bottom: 6px;
+}
+
+.lesson-calendar__day {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-2);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lesson-day {
+  min-height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-1);
+}
+
+.lesson-day--empty {
+  background: transparent;
+  border-color: transparent;
+}
+
+.lesson-day--proposed {
+  background: rgba(255, 215, 64, 0.2);
+  border-color: rgba(255, 215, 64, 0.6);
+  color: #fbe48e;
+}
+
+.lesson-day--approved {
+  background: rgba(99, 247, 211, 0.18);
+  border-color: rgba(99, 247, 211, 0.55);
+  color: var(--accent-2);
+}
+
+.lesson-day--missed {
+  background: rgba(255, 86, 86, 0.18);
+  border-color: rgba(255, 86, 86, 0.55);
+  color: #ffc1c1;
+}
+
+.lesson-day--excused {
+  background: rgba(90, 160, 255, 0.2);
+  border-color: rgba(90, 160, 255, 0.55);
+  color: #c7dfff;
+}
+
+.lesson-emoji {
+  font-size: 0.9rem;
+}
+
 .admin-kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

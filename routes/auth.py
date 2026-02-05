@@ -26,6 +26,7 @@ from core import (
     UsernameNotOccupiedError,
     build_redirect_uri,
     build_contract_url,
+    build_month_calendar,
     course_rate,
     clear_user,
     contract_channel_label,
@@ -405,6 +406,9 @@ async def account(request: Request):
             return "—"
 
     agreements_view = []
+    calendar_month = str(request.query_params.get("month") or "").strip()
+    if not re.match(r"^\d{4}-\d{2}$", calendar_month or ""):
+        calendar_month = month_key()
     referrals_data = load_referrals()
     referrals_students = referrals_data.get("students") if isinstance(referrals_data, dict) else {}
     if not isinstance(referrals_students, dict):
@@ -487,6 +491,8 @@ async def account(request: Request):
 
         payment_list.sort(key=lambda entry: entry.get("created_at_ts") or 0, reverse=True)
 
+        lesson_calendar = item.get("lesson_calendar") if isinstance(item.get("lesson_calendar"), dict) else {}
+        calendar_weeks = build_month_calendar(calendar_month, lesson_calendar)
         agreements_view.append(
             {
                 **item,
@@ -509,6 +515,8 @@ async def account(request: Request):
                 "discount_value": discount_value,
                 "discounted_price": discounted_price,
                 "primary_course": primary_course,
+                "lesson_month": calendar_month,
+                "lesson_calendar": calendar_weeks,
                 "payments": payment_list,
                 "active_payment": active_payment,
             }

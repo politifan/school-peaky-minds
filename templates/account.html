@@ -128,6 +128,52 @@
             <li><span>Основной курс</span><strong>{{ item.primary_course or "не выбран" }}</strong></li>
           </ul>
           <div style="height: 12px;"></div>
+          <div class="course-meta">Календарь занятий</div>
+          <form class="admin-filter" method="get" action="/account" style="margin-top: 8px;">
+            <div class="admin-filter__row">
+              <div class="input-wrap">
+                <label class="auth-label">Месяц</label>
+                <input type="month" name="month" value="{{ item.lesson_month }}" required>
+              </div>
+            </div>
+            <div class="admin-filter__actions">
+              <button class="btn btn-secondary" type="submit">Показать</button>
+            </div>
+          </form>
+          <div class="lesson-legend">
+            <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--proposed"></span>Предложено</span>
+            <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--approved"></span>Согласовано</span>
+            <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--missed"></span>Пропуск</span>
+            <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--excused">🌡️</span>Уважительная причина</span>
+          </div>
+          <div class="lesson-calendar">
+            <div class="lesson-calendar__grid lesson-calendar__grid--head">
+              <div class="lesson-calendar__day">Пн</div>
+              <div class="lesson-calendar__day">Вт</div>
+              <div class="lesson-calendar__day">Ср</div>
+              <div class="lesson-calendar__day">Чт</div>
+              <div class="lesson-calendar__day">Пт</div>
+              <div class="lesson-calendar__day">Сб</div>
+              <div class="lesson-calendar__day">Вс</div>
+            </div>
+            <div class="lesson-calendar__grid">
+              {% for week in item.lesson_calendar %}
+                {% for day in week %}
+                  {% if day %}
+                  <div class="lesson-day{% if day.status %} lesson-day--{{ day.status }}{% endif %}">
+                    <span>{{ day.day }}</span>
+                    {% if day.status == "excused" %}
+                    <span class="lesson-emoji">🌡️</span>
+                    {% endif %}
+                  </div>
+                  {% else %}
+                  <div class="lesson-day lesson-day--empty"></div>
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+            </div>
+          </div>
+          <div style="height: 12px;"></div>
           <div class="course-meta">Оплата через СБП</div>
           {% if payments_enabled %}
           {% set price_value = item.discounted_price if item.discounted_price is not none else item.price_per_lesson %}

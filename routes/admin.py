@@ -23,6 +23,7 @@ from core import (
     USERS_FILE,
     admin_required,
     build_contract_url,
+    build_month_calendar,
     contract_channel_label,
     contract_status_from_item,
     find_student_by_code,
@@ -209,6 +210,15 @@ def referral_redirect(message: str = "", error: str = "") -> RedirectResponse:
         params["ref_message"] = message
     if error:
         params["ref_error"] = error
+    return RedirectResponse(f"/admin?{urlencode(params)}", status_code=HTTP_302_FOUND)
+
+
+def lesson_redirect(message: str = "", error: str = "") -> RedirectResponse:
+    params = {"view": "lessons"}
+    if message:
+        params["lesson_message"] = message
+    if error:
+        params["lesson_error"] = error
     return RedirectResponse(f"/admin?{urlencode(params)}", status_code=HTTP_302_FOUND)
 
 
@@ -483,7 +493,7 @@ def _admin_panel_impl(request: Request):
         save_referrals(referrals_data)
 
     view = request.query_params.get("view") or "overview"
-    allowed_views = {"overview", "leads", "agreements", "users", "whitelist", "referrals"}
+    allowed_views = {"overview", "leads", "agreements", "users", "whitelist", "referrals", "lessons"}
     if view not in allowed_views:
         view = "overview"
     course = request.query_params.get("course") or ""
@@ -501,6 +511,8 @@ def _admin_panel_impl(request: Request):
     agreements_page = parse_page(request.query_params.get("agreements_page"))
     date_from = parse_date(date_from_value)
     date_to = parse_date(date_to_value)
+    lesson_month = normalize_month_input(request.query_params.get("month") or "") or month_key()
+    lesson_agreements = []
 
     leads = filter_items(leads_all, course, date_from, date_to)
     agreements = filter_items(agreements_all, course, date_from, date_to)
@@ -511,6 +523,22 @@ def _admin_panel_impl(request: Request):
     leads = [{**item, "_source": extract_source(item.get("page", ""))} for item in leads]
     leads_base_count = len(leads)
     agreements_base_count = len(agreements)
+
+    if view == "lessons":
+        for item in agreements_all:
+            lesson_calendar = item.get("lesson_calendar") if isinstance(item.get("lesson_calendar"), dict) else {}
+            calendar_weeks = build_month_calendar(lesson_month, lesson_calendar)
+            lesson_agreements.append(
+                {
+                    "file": item.get("_file"),
+                    "name": item.get("full_name") or item.get("name") or "—",
+                    "course": item.get("course") or "—",
+                    "phone": item.get("phone") or "—",
+                    "email": item.get("email") or "—",
+                    "lesson_month": lesson_month,
+                    "lesson_calendar": calendar_weeks,
+                }
+            )
 
     status_counts = {key: 0 for key in STATUS_META}
     source_counts: Dict[str, int] = {}
@@ -1133,6 +1161,8 @@ def _admin_panel_impl(request: Request):
 
     referral_message = request.query_params.get("ref_message") or ""
     referral_error = request.query_params.get("ref_error") or ""
+    lesson_message = request.query_params.get("lesson_message") or ""
+    lesson_error = request.query_params.get("lesson_error") or ""
     referral_current_month = month_key()
     referral_participants = []
     referral_students = []
@@ -1317,11 +1347,15 @@ def _admin_panel_impl(request: Request):
             "avg_response": avg_response,
             "referral_message": referral_message,
             "referral_error": referral_error,
+            "lesson_message": lesson_message,
+            "lesson_error": lesson_error,
             "referral_current_month": referral_current_month,
             "referral_participants": referral_participants,
             "referral_students": referral_students,
             "referral_stats": referral_stats,
             "referral_top": referral_top,
+            "lesson_month": lesson_month,
+            "lesson_agreements": lesson_agreements,
         },
     )
 
@@ -2199,6 +2233,42 @@ async def admin_referral_month_discount_move(request: Request):
     data["students"] = students
     save_referrals(data)
     return referral_redirect(message="Скидка перенесена")
+
+
+@router.post("/admin/lessons/update", include_in_schema=False)
+async def admin_lessons_update(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    file_name = str(form.get("file") or "").strip()
+    date_raw = str(form.get("date") or "").strip()
+    status_raw = str(form.get("status") or "").strip()
+
+    if not file_name:
+        return lesson_redirect(error="Не указан договор")
+    if not re.match(r"^\d{4}-\d{2}-\d{2}$", date_raw):
+        return lesson_redirect(error="Некорректная дата")
+
+    status_map = {"proposed", "approved", "missed", "excused", "clear", ""}
+    if status_raw not in status_map:
+        return lesson_redirect(error="Некорректный статус")
+
+    path = core.AGREEMENTS_DIR / file_name
+    if not path.exists():
+        return lesson_redirect(error="Договор не найден")
+    data = load_json(path, {})
+    if not isinstance(data, dict):
+        return lesson_redirect(error="Договор не найден")
+
+    calendar_data = data.get("lesson_calendar") if isinstance(data.get("lesson_calendar"), dict) else {}
+    if status_raw in {"", "clear"}:
+        calendar_data.pop(date_raw, None)
+    else:
+        calendar_data[date_raw] = status_raw
+    data["lesson_calendar"] = calendar_data
+    save_json(path, data)
+    return lesson_redirect(message="Статус сохранён")
 
 
 @router.get("/admin/export/leads.csv", include_in_schema=False)
