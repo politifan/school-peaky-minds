@@ -776,6 +776,7 @@ section {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: var(--text-2);
+  align-self: center;
 }
 
 .course-card__actions {
