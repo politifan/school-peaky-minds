@@ -566,6 +566,7 @@ def generate_contract_pdf(agreement: Dict[str, Any]) -> Optional[str]:
             pdf.ln(4)
         else:
             for wrapped in _wrap_line(line):
+                pdf.set_x(pdf.l_margin)
                 pdf.multi_cell(0, 6, wrapped)
     pdf.output(str(file_path))
     return f"/documents/contracts/{file_name}"
@@ -1197,7 +1198,7 @@ EXECUTOR_RECIPIENT = os.getenv("EXECUTOR_RECIPIENT", "Исполнитель")
 EXECUTOR_BANK = os.getenv("EXECUTOR_BANK", "Ozon")
 EXECUTOR_ACCOUNT = os.getenv("EXECUTOR_ACCOUNT", "2204320674292448")
 EXECUTOR_SBP_PHONE = os.getenv("EXECUTOR_SBP_PHONE", "7 968 287 29 40")
-EXECUTOR_ADDRESS = os.getenv("EXECUTOR_ADDRESS", "")
+EXECUTOR_ADDRESS = os.getenv("EXECUTOR_ADDRESS", "Волоград, Полоненко 10")
 SEO_GOOGLE_VERIFICATION = os.getenv("SEO_GOOGLE_VERIFICATION", "")
 SEO_YANDEX_VERIFICATION = os.getenv("SEO_YANDEX_VERIFICATION", "")
 SEO_BING_VERIFICATION = os.getenv("SEO_BING_VERIFICATION", "")

@@ -439,9 +439,13 @@ async def account(request: Request):
         discount_percent = 0
         discount_value = None
         discounted_price = None
-        if price_per_lesson and referrals_students:
+        student = None
+        primary_course = ""
+        if referrals_students:
             student = find_student_by_phone(referrals_students, item.get("phone") or "")
-            if student and student.get("referral_code"):
+        if student:
+            primary_course = student.get("primary_course") or ""
+            if price_per_lesson and student.get("referral_code"):
                 discount_percent = referral_effective_percent(student, item.get("course") or "", month_key())
         if price_per_lesson and discount_percent:
             discount_value = int(round(price_per_lesson * (discount_percent / 100)))
@@ -504,6 +508,7 @@ async def account(request: Request):
                 "discount_percent": discount_percent,
                 "discount_value": discount_value,
                 "discounted_price": discounted_price,
+                "primary_course": primary_course,
                 "payments": payment_list,
                 "active_payment": active_payment,
             }

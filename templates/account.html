@@ -122,12 +122,17 @@
             <li><span>Текущий модуль</span><strong>{{ item.current_module }}</strong></li>
           </ul>
           <div style="height: 12px;"></div>
+          <div class="course-meta">Скидка текущего месяца</div>
+          <ul class="admin-list">
+            <li><span>Скидка</span><strong>{{ item.discount_percent }}%</strong></li>
+            <li><span>Основной курс</span><strong>{{ item.primary_course or "не выбран" }}</strong></li>
+          </ul>
+          <div style="height: 12px;"></div>
           <div class="course-meta">Оплата через СБП</div>
           {% if payments_enabled %}
           {% set price_value = item.discounted_price if item.discounted_price is not none else item.price_per_lesson %}
           <ul class="admin-list">
             <li><span>Цена занятия</span><strong>{{ item.price_per_lesson if item.price_per_lesson is not none else "—" }} ₽</strong></li>
-            <li><span>Скидка</span><strong>{{ item.discount_percent }}%</strong></li>
             <li><span>Цена со скидкой</span><strong>{{ item.discounted_price if item.discounted_price is not none else item.price_per_lesson if item.price_per_lesson is not none else "—" }} ₽</strong></li>
           </ul>
           {% if item.active_payment %}

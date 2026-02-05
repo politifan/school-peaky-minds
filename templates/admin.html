@@ -991,6 +991,24 @@
                   <button class="admin-copy" type="submit">OK</button>
                 </form>
                 {% endif %}
+                {% if item.monthly_history %}
+                <div class="admin-subtext" style="margin-top: 8px;">
+                  {% for entry in item.monthly_history %}
+                  <div>
+                    {{ entry.ts }} ·
+                    {% if entry.action == "month_discount" %}
+                      Скидка {{ entry.percent }}% на {{ entry.month }}
+                    {% elif entry.action == "month_discount_move" %}
+                      Перенос {{ entry.percent }}%: {{ entry.from_month }} → {{ entry.to_month }}
+                    {% elif entry.action == "primary_course" %}
+                      Основной курс: {{ entry.course or "не выбран" }}
+                    {% else %}
+                      Изменение
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
               </td>
             </tr>
             {% endfor %}
