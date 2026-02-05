@@ -1630,7 +1630,8 @@ select:focus {
 .footer-logo img {
   width: 90px;
   height: 90px;
-  object-fit: contain;
+  object-fit: cover;
+  border-radius: 100px;
 }
 
 .footer-title {
