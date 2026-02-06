@@ -70,8 +70,6 @@ async def vk_app(request: Request):
 
 @router.post("/login/vk-bridge", include_in_schema=False)
 async def login_vk_bridge(request: Request):
-    if not providers.get("vk"):
-        return RedirectResponse("/login?error=VK+OAuth+не+настроен", status_code=HTTP_302_FOUND)
     try:
         payload = await request.json()
     except Exception:

@@ -30,11 +30,7 @@
         </div>
       </div>
       <div class="admin-hero__actions">
-        {% if providers.vk %}
         <button class="btn btn-primary" type="button" id="vk-bridge-login">Войти через VK</button>
-        {% else %}
-        <span class="btn btn-secondary">VK OAuth не настроен</span>
-        {% endif %}
         <a class="btn btn-secondary" href="/">На главную</a>
       </div>
     </section>
@@ -45,8 +41,12 @@
       window.vkBridge.send("VKWebAppInit").catch(function () {});
     }
     const loginButton = document.getElementById("vk-bridge-login");
-    if (loginButton && window.vkBridge) {
+    if (loginButton) {
       loginButton.addEventListener("click", function () {
+        if (!window.vkBridge || typeof window.vkBridge.send !== "function") {
+          alert("VK Bridge не доступен. Откройте приложение внутри VK.");
+          return;
+        }
         window.vkBridge.send("VKWebAppGetUserInfo")
           .then(function (data) {
             return fetch("/login/vk-bridge", {
