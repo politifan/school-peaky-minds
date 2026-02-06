@@ -31,7 +31,7 @@
       </div>
       <div class="admin-hero__actions">
         {% if providers.vk %}
-        <a class="btn btn-primary" href="/login/vk">Войти через VK ID</a>
+        <button class="btn btn-primary" type="button" id="vk-bridge-login">Войти через VK</button>
         {% else %}
         <span class="btn btn-secondary">VK OAuth не настроен</span>
         {% endif %}
@@ -43,6 +43,25 @@
   <script>
     if (window.vkBridge && typeof window.vkBridge.send === "function") {
       window.vkBridge.send("VKWebAppInit").catch(function () {});
+    }
+    const loginButton = document.getElementById("vk-bridge-login");
+    if (loginButton && window.vkBridge) {
+      loginButton.addEventListener("click", function () {
+        window.vkBridge.send("VKWebAppGetUserInfo")
+          .then(function (data) {
+            return fetch("/login/vk-bridge", {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify(data),
+            });
+          })
+          .then(function () {
+            window.location.href = "/";
+          })
+          .catch(function () {
+            alert("Не удалось авторизоваться через VK.");
+          });
+      });
     }
   </script>
 </body>

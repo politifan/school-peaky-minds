@@ -68,6 +68,36 @@ async def vk_app(request: Request):
     return render(request, "vk_app.html", {"providers": providers})
 
 
+@router.post("/login/vk-bridge", include_in_schema=False)
+async def login_vk_bridge(request: Request):
+    if not providers.get("vk"):
+        return RedirectResponse("/login?error=VK+OAuth+не+настроен", status_code=HTTP_302_FOUND)
+    try:
+        payload = await request.json()
+    except Exception:
+        return RedirectResponse("/login?error=Некорректные+данные", status_code=HTTP_302_FOUND)
+
+    vk_id = payload.get("id")
+    if not vk_id:
+        return RedirectResponse("/login?error=Нет+данных+VK", status_code=HTTP_302_FOUND)
+
+    users = load_json(USERS_FILE, {})
+    user_id = f"vk:{vk_id}"
+    name = f"{payload.get('first_name', '')} {payload.get('last_name', '')}".strip() or "VK User"
+    user = {
+        "id": user_id,
+        "email": None,
+        "name": name,
+        "provider": "vk",
+    }
+    users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}
+    save_json(USERS_FILE, users)
+
+    session_user = {**user, "photo_url": payload.get("photo_200") or payload.get("photo_100")}
+    set_current_user(request, session_user)
+    return RedirectResponse("/", status_code=HTTP_302_FOUND)
+
+
 @router.post("/login/email", include_in_schema=False)
 async def login_email(request: Request):
     form = await request.form()
