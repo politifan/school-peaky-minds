@@ -1,3 +1,7 @@
+import base64
+import hashlib
+import hmac
+import json
 import logging
 import re
 import secrets
@@ -7,7 +11,7 @@ from typing import Any, Dict, Optional, Tuple
 
 import httpx
 from fastapi import APIRouter, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.status import HTTP_302_FOUND
 
 from core import (
@@ -52,6 +56,7 @@ from core import (
     set_current_user,
     verify_telegram_auth,
     TINKOFF_ENABLED,
+    VK_BRIDGE_TOKEN_SECRET,
 )
 
 router = APIRouter()
@@ -91,7 +96,39 @@ async def login_vk_bridge(request: Request):
     users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}
     save_json(USERS_FILE, users)
 
-    session_user = {**user, "photo_url": payload.get("photo_200") or payload.get("photo_100")}
+    token_payload = {
+        "id": user_id,
+        "name": user.get("name"),
+        "photo_url": payload.get("photo_200") or payload.get("photo_100") or "",
+        "ts": int(time.time()),
+    }
+    encoded = base64.urlsafe_b64encode(json.dumps(token_payload, ensure_ascii=False).encode("utf-8")).decode("utf-8")
+    signature = hmac.new(VK_BRIDGE_TOKEN_SECRET.encode("utf-8"), encoded.encode("utf-8"), hashlib.sha256).hexdigest()
+    token = f"{encoded}.{signature}"
+    return JSONResponse({"token": token})
+
+
+@router.get("/vk-auth", include_in_schema=False)
+async def vk_auth(request: Request):
+    token = str(request.query_params.get("token") or "").strip()
+    if not token or "." not in token:
+        return RedirectResponse("/login?error=Некорректные+данные", status_code=HTTP_302_FOUND)
+    encoded, signature = token.rsplit(".", 1)
+    expected = hmac.new(VK_BRIDGE_TOKEN_SECRET.encode("utf-8"), encoded.encode("utf-8"), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(signature, expected):
+        return RedirectResponse("/login?error=Некорректные+данные", status_code=HTTP_302_FOUND)
+    try:
+        payload = json.loads(base64.urlsafe_b64decode(encoded.encode("utf-8")).decode("utf-8"))
+    except Exception:
+        return RedirectResponse("/login?error=Некорректные+данные", status_code=HTTP_302_FOUND)
+    if not payload.get("id"):
+        return RedirectResponse("/login?error=Некорректные+данные", status_code=HTTP_302_FOUND)
+    session_user = {
+        "id": payload.get("id"),
+        "name": payload.get("name"),
+        "provider": "vk",
+        "photo_url": payload.get("photo_url"),
+    }
     set_current_user(request, session_user)
     return RedirectResponse("/", status_code=HTTP_302_FOUND)
 

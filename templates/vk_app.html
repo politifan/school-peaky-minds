@@ -89,6 +89,17 @@
             body: JSON.stringify(data),
           });
         })
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (payload) {
+          if (!payload || !payload.token) {
+            throw new Error("no_token");
+          }
+          return window.vkBridge.send("VKWebAppOpenLink", {
+            url: `${window.location.origin}/vk-auth?token=${encodeURIComponent(payload.token)}`,
+          });
+        })
         .then(function () {
           window.location.href = "/";
         })
