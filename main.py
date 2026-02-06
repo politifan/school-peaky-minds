@@ -1,3 +1,4 @@
+
 import asyncio
 import logging
 import secrets
@@ -38,11 +39,12 @@ from routes.payments import router as payments_router
 from routes.public import router as public_router
 
 app = FastAPI(docs_url=None, redoc_url=None)
+SAMESITE = "none" if CANONICAL_SCHEME == "https" else "lax"
 app.add_middleware(
     SessionMiddleware,
     secret_key=SESSION_SECRET,
     max_age=60 * 60 * 24 * 14,
-    same_site="none",
+    same_site=SAMESITE,
     https_only=bool(CANONICAL_SCHEME == "https"),
     domain=SESSION_DOMAIN,
 )
@@ -195,7 +197,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         return response
     return await default_http_exception_handler(request, exc)
 
- 
+
 if __name__ == "__main__":
     if "--telethon-login" in sys.argv:
         asyncio.run(telethon_login_cli())

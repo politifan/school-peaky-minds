@@ -347,6 +347,7 @@ async def auth_vk(request: Request):
 
 @router.get("/login/telegram", include_in_schema=False)
 async def login_telegram(request: Request):
+    logging.getLogger("app.auth").info("Telegram login start: cookies=%s session_keys=%s", list(request.cookies.keys()), list(request.session.keys()))
     data = dict(request.query_params)
     if not data or "hash" not in data:
         return render(request, "login.html", login_context(request, error="Нажмите и подтвердите вход через Telegram"))
