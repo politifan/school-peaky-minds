@@ -2206,6 +2206,22 @@ select:focus {
   min-width: 220px;
 }
 
+.admin-danger-password {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-danger-password__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.admin-danger-password__row .admin-input {
+  min-width: 220px;
+}
+
 .wipe-alert {
   border-color: rgba(255, 179, 71, 0.4);
   box-shadow: 0 0 18px rgba(255, 179, 71, 0.2);

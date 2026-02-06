@@ -1,4 +1,5 @@
 import csv
+import json
 import html
 import io
 import logging
@@ -61,6 +62,9 @@ from core import (
 )
 
 router = APIRouter()
+
+DESTRUCTIVE_PASSWORD = "ГОЙДА"
+_LAST_DESTRUCTIVE_TS = 0.0
 
 STATUS_META = {
     "new": ("Новая", "status-new"),
@@ -229,6 +233,55 @@ def wipe_redirect(message: str = "", error: str = "") -> RedirectResponse:
     if error:
         params["wipe_error"] = error
     return RedirectResponse(f"/admin?{urlencode(params)}", status_code=HTTP_302_FOUND)
+
+
+def admin_notice_redirect(view: str, message: str = "", error: str = "") -> RedirectResponse:
+    params = {"view": view}
+    if message:
+        params["admin_message"] = message
+    if error:
+        params["admin_error"] = error
+    return RedirectResponse(f"/admin?{urlencode(params)}", status_code=HTTP_302_FOUND)
+
+
+def _destructive_guard(form: Any, view: str) -> Optional[RedirectResponse]:
+    global _LAST_DESTRUCTIVE_TS
+    password = str(form.get("admin_password") or "").strip()
+    if password != DESTRUCTIVE_PASSWORD:
+        return admin_notice_redirect(view, error="Неверный пароль для удаления")
+    now_ts = time.time()
+    if now_ts - _LAST_DESTRUCTIVE_TS < 60:
+        return admin_notice_redirect(view, error="Ограничение: не чаще 1 удаления в минуту")
+    return None
+
+
+def _destructive_mark() -> None:
+    global _LAST_DESTRUCTIVE_TS
+    _LAST_DESTRUCTIVE_TS = time.time()
+
+
+async def _send_destructive_report(text: str) -> None:
+    if not text or not telegram_is_configured():
+        return
+    lines = text.split("\n")
+    chunk = []
+    size = 0
+    for line in lines:
+        if size + len(line) + 1 > 3500:
+            try:
+                await send_lead_message("\n".join(chunk))
+            except Exception:
+                logging.getLogger("app.telegram").warning("Telegram destructive report failed.", exc_info=True)
+                return
+            chunk = []
+            size = 0
+        chunk.append(line)
+        size += len(line) + 1
+    if chunk:
+        try:
+            await send_lead_message("\n".join(chunk))
+        except Exception:
+            logging.getLogger("app.telegram").warning("Telegram destructive report failed.", exc_info=True)
 
 
 def status_from_item(item: Dict[str, Any]) -> Tuple[str, str, str]:
@@ -1174,6 +1227,8 @@ def _admin_panel_impl(request: Request):
     lesson_error = request.query_params.get("lesson_error") or ""
     wipe_message = request.query_params.get("wipe_message") or ""
     wipe_error = request.query_params.get("wipe_error") or ""
+    admin_message = request.query_params.get("admin_message") or ""
+    admin_error = request.query_params.get("admin_error") or ""
     referral_current_month = month_key()
     referral_participants = []
     referral_students = []
@@ -1362,6 +1417,8 @@ def _admin_panel_impl(request: Request):
             "lesson_error": lesson_error,
             "wipe_message": wipe_message,
             "wipe_error": wipe_error,
+            "admin_message": admin_message,
+            "admin_error": admin_error,
             "referral_current_month": referral_current_month,
             "referral_participants": referral_participants,
             "referral_students": referral_students,
@@ -1407,6 +1464,11 @@ async def admin_reset_metrics(request: Request):
     guard = admin_required(request)
     if guard:
         return guard
+    form = await request.form()
+    guard_resp = _destructive_guard(form, "overview")
+    if guard_resp:
+        return guard_resp
+    actor = (request.session.get("user") or {}).get("id") or ""
     metrics = {
         "total_visits": 0,
         "unique_visits": 0,
@@ -1415,7 +1477,13 @@ async def admin_reset_metrics(request: Request):
         "funnel": {"home": 0, "login": 0, "apply": 0, "enroll": 0},
     }
     core.save_metrics(metrics)
-    return RedirectResponse("/admin?view=overview", status_code=HTTP_302_FOUND)
+    _destructive_mark()
+    await _send_destructive_report(
+        "🧹 <b>Сброс статистики</b>\n"
+        f"👤 Админ: {actor or '—'}\n"
+        "Удалены: метрики, уникальные визиты, воронка"
+    )
+    return admin_notice_redirect("overview", message="Статистика сброшена")
 
 
 @router.post("/admin/wipe-all", include_in_schema=False)
@@ -1424,10 +1492,14 @@ async def admin_wipe_all(request: Request):
     if guard:
         return guard
     form = await request.form()
+    guard_resp = _destructive_guard(form, "overview")
+    if guard_resp:
+        return guard_resp
     confirm = bool(form.get("confirm"))
     confirm_text = str(form.get("confirm_text") or "").strip().upper()
     if not confirm or confirm_text != "УДАЛИТЬ":
         return wipe_redirect(error="Подтвердите удаление: поставьте галочку и введите УДАЛИТЬ")
+    actor = (request.session.get("user") or {}).get("id") or ""
 
     users_data = load_json(core.USERS_FILE, {})
     users_count = len(users_data) if isinstance(users_data, dict) else 0
@@ -1473,6 +1545,7 @@ async def admin_wipe_all(request: Request):
 
     report = (
         "🚨 <b>ПОЛНЫЙ СБРОС ДАННЫХ</b>\n"
+        f"👤 Админ: {actor or '—'}\n"
         f"👤 Пользователи: {users_count}\n"
         f"🔑 Коды входа: {codes_count}\n"
         f"🧾 Заявки: {leads_count}\n"
@@ -1482,6 +1555,7 @@ async def admin_wipe_all(request: Request):
         f"💳 Платежи: {payments_count}\n"
         "✅ WhiteList админов сохранён"
     )
+    _destructive_mark()
     await notify_admins(report, subject="ALERT: Полный сброс данных")
     return wipe_redirect(
         message=(
@@ -1496,19 +1570,35 @@ async def admin_clear_leads(request: Request):
     guard = admin_required(request)
     if guard:
         return guard
+    form = await request.form()
+    guard_resp = _destructive_guard(form, "leads")
+    if guard_resp:
+        return guard_resp
+    actor = (request.session.get("user") or {}).get("id") or ""
+    lead_details = []
     deleted = 0
     for path in core.LEADS_DIR.glob("lead_*.json"):
         try:
+            data = load_json(path, {})
+            if isinstance(data, dict):
+                lead_details.append(
+                    f"- {data.get('name') or '—'} | {data.get('contact') or '—'} | {data.get('course') or '—'} | {data.get('page') or '—'}"
+                )
             path.unlink()
             deleted += 1
         except Exception:
             continue
-    if telegram_is_configured():
-        try:
-            await send_lead_message(f"🗑 Удалены все заявки: {deleted}")
-        except Exception:
-            logging.getLogger("app.telegram").warning("Telegram lead clear sync failed.", exc_info=True)
-    return RedirectResponse("/admin?view=leads", status_code=HTTP_302_FOUND)
+    _destructive_mark()
+    report_lines = [
+        "🗑 <b>Удалены все заявки</b>",
+        f"👤 Админ: {actor or '—'}",
+        f"Количество: {deleted}",
+    ]
+    if lead_details:
+        report_lines.append("Данные:")
+        report_lines.extend(lead_details)
+    await _send_destructive_report("\n".join(report_lines))
+    return admin_notice_redirect("leads", message=f"Удалены все заявки: {deleted}")
 
 
 @router.post("/admin/leads/delete", include_in_schema=False)
@@ -1517,6 +1607,9 @@ async def admin_delete_lead(request: Request):
     if guard:
         return guard
     form = await request.form()
+    guard_resp = _destructive_guard(form, "leads")
+    if guard_resp:
+        return guard_resp
     file_name = str(form.get("file") or "").strip()
     next_url = str(form.get("next") or "/admin?view=leads")
     if not file_name:
@@ -1524,23 +1617,38 @@ async def admin_delete_lead(request: Request):
     path = core.LEADS_DIR / file_name
     lead_name = ""
     lead_contact = ""
+    lead_course = ""
+    lead_page = ""
+    lead_data: Dict[str, Any] = {}
     if path.exists():
         data = load_json(path, {})
         if isinstance(data, dict):
             lead_name = str(data.get("name") or "").strip()
             lead_contact = str(data.get("contact") or "").strip()
+            lead_course = str(data.get("course") or "").strip()
+            lead_page = str(data.get("page") or "").strip()
+            lead_data = data
     try:
         if path.exists():
             path.unlink()
     except Exception:
         pass
-    if telegram_is_configured():
-        try:
-            label = lead_name or file_name
-            contact = f" ({lead_contact})" if lead_contact else ""
-            await send_lead_message(f"🗑 Заявка удалена: {label}{contact}")
-        except Exception:
-            logging.getLogger("app.telegram").warning("Telegram lead delete sync failed.", exc_info=True)
+    _destructive_mark()
+    actor = (request.session.get("user") or {}).get("id") or ""
+    payload = json.dumps(lead_data, ensure_ascii=False) if lead_data else ""
+    if len(payload) > 1500:
+        payload = payload[:1500] + "…"
+    report = (
+        "🗑 <b>Удалена заявка</b>\n"
+        f"👤 Админ: {actor or '—'}\n"
+        f"Имя: {lead_name or '—'}\n"
+        f"Контакт: {lead_contact or '—'}\n"
+        f"Курс: {lead_course or '—'}\n"
+        f"Страница: {lead_page or '—'}\n"
+        f"Файл: {file_name}\n"
+        f"Данные: {payload or '—'}"
+    )
+    await _send_destructive_report(report)
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
@@ -1549,19 +1657,35 @@ async def admin_clear_agreements(request: Request):
     guard = admin_required(request)
     if guard:
         return guard
+    form = await request.form()
+    guard_resp = _destructive_guard(form, "agreements")
+    if guard_resp:
+        return guard_resp
+    actor = (request.session.get("user") or {}).get("id") or ""
+    agreement_details = []
     deleted = 0
     for path in core.AGREEMENTS_DIR.glob("agreement_*.json"):
         try:
+            data = load_json(path, {})
+            if isinstance(data, dict):
+                agreement_details.append(
+                    f"- {data.get('full_name') or '—'} | {data.get('phone') or '—'} | {data.get('course') or '—'}"
+                )
             path.unlink()
             deleted += 1
         except Exception:
             continue
-    if telegram_is_configured():
-        try:
-            await send_lead_message(f"🗑 Удалены все договоры: {deleted}")
-        except Exception:
-            logging.getLogger("app.telegram").warning("Telegram agreements clear sync failed.", exc_info=True)
-    return RedirectResponse("/admin?view=agreements", status_code=HTTP_302_FOUND)
+    _destructive_mark()
+    report_lines = [
+        "🗑 <b>Удалены все договоры</b>",
+        f"👤 Админ: {actor or '—'}",
+        f"Количество: {deleted}",
+    ]
+    if agreement_details:
+        report_lines.append("Данные:")
+        report_lines.extend(agreement_details)
+    await _send_destructive_report("\n".join(report_lines))
+    return admin_notice_redirect("agreements", message=f"Удалены все договоры: {deleted}")
 
 
 @router.post("/admin/agreements/delete", include_in_schema=False)
@@ -1570,6 +1694,9 @@ async def admin_delete_agreement(request: Request):
     if guard:
         return guard
     form = await request.form()
+    guard_resp = _destructive_guard(form, "agreements")
+    if guard_resp:
+        return guard_resp
     file_name = str(form.get("file") or "").strip()
     next_url = str(form.get("next") or "/admin?view=agreements")
     if not file_name:
@@ -1577,23 +1704,38 @@ async def admin_delete_agreement(request: Request):
     path = core.AGREEMENTS_DIR / file_name
     agreement_name = ""
     agreement_course = ""
+    agreement_phone = ""
+    agreement_email = ""
+    agreement_data: Dict[str, Any] = {}
     if path.exists():
         data = load_json(path, {})
         if isinstance(data, dict):
             agreement_name = str(data.get("full_name") or "").strip()
             agreement_course = str(data.get("course") or "").strip()
+            agreement_phone = str(data.get("phone") or "").strip()
+            agreement_email = str(data.get("email") or "").strip()
+            agreement_data = data
     try:
         if path.exists():
             path.unlink()
     except Exception:
         pass
-    if telegram_is_configured():
-        try:
-            label = agreement_name or file_name
-            course = f" — {agreement_course}" if agreement_course else ""
-            await send_lead_message(f"🗑 Договор удалён: {label}{course}")
-        except Exception:
-            logging.getLogger("app.telegram").warning("Telegram agreement delete sync failed.", exc_info=True)
+    _destructive_mark()
+    actor = (request.session.get("user") or {}).get("id") or ""
+    payload = json.dumps(agreement_data, ensure_ascii=False) if agreement_data else ""
+    if len(payload) > 1500:
+        payload = payload[:1500] + "…"
+    report = (
+        "🗑 <b>Удалён договор</b>\n"
+        f"👤 Админ: {actor or '—'}\n"
+        f"ФИО: {agreement_name or '—'}\n"
+        f"Телефон: {agreement_phone or '—'}\n"
+        f"Email: {agreement_email or '—'}\n"
+        f"Курс: {agreement_course or '—'}\n"
+        f"Файл: {file_name}\n"
+        f"Данные: {payload or '—'}"
+    )
+    await _send_destructive_report(report)
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
@@ -1831,15 +1973,25 @@ async def admin_remove_whitelist(request: Request):
     if guard:
         return guard
     form = await request.form()
+    guard_resp = _destructive_guard(form, "whitelist")
+    if guard_resp:
+        return guard_resp
     try:
         target = int(form.get("id"))
     except Exception:
-        return RedirectResponse("/admin", status_code=HTTP_302_FOUND)
+        return admin_notice_redirect("whitelist", error="Некорректный ID")
     ids = [item for item in core.WHITELIST_IDS if item != target]
     if ids:
         core.WHITELIST_IDS = ids
         save_whitelist(ids)
-    return RedirectResponse("/admin?view=whitelist", status_code=HTTP_302_FOUND)
+    _destructive_mark()
+    actor = (request.session.get("user") or {}).get("id") or ""
+    await _send_destructive_report(
+        "🗑 <b>Удалён из whitelist</b>\n"
+        f"👤 Админ: {actor or '—'}\n"
+        f"ID: {target}"
+    )
+    return admin_notice_redirect("whitelist", message=f"Удалён ID {target} из whitelist")
 
 
 @router.post("/admin/referrals/code", include_in_schema=False)
@@ -1920,6 +2072,9 @@ async def admin_referral_code_delete(request: Request):
     if guard:
         return guard
     form = await request.form()
+    guard_resp = _destructive_guard(form, "referrals")
+    if guard_resp:
+        return guard_resp
     student_id = str(form.get("student_id") or "").strip()
     if not student_id:
         return referral_redirect(error="Не указан участник")
@@ -1952,6 +2107,14 @@ async def admin_referral_code_delete(request: Request):
     data["students"] = students
     data["audit"] = audit
     save_referrals(data)
+    _destructive_mark()
+    await _send_destructive_report(
+        "🗑 <b>Удалён реферальный код</b>\n"
+        f"👤 Админ: {actor or '—'}\n"
+        f"Участник: {student.get('name') or '—'}\n"
+        f"Телефон: {student.get('phone') or '—'}\n"
+        f"Код: {removed_code or '—'}"
+    )
     return referral_redirect(message="Код удалён")
 
 

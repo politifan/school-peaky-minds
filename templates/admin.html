@@ -51,6 +51,25 @@
           </div>
         </header>
 
+        {% if admin_message %}
+        <div class="card wipe-alert" style="margin-top: 18px;">
+          <strong>{{ admin_message }}</strong>
+        </div>
+        {% endif %}
+        {% if admin_error %}
+        <div class="card wipe-alert wipe-alert--error" style="margin-top: 18px;">
+          <strong>{{ admin_error }}</strong>
+        </div>
+        {% endif %}
+
+        <div class="card admin-danger-password" style="margin-top: 18px;">
+          <label class="auth-label" for="admin-destructive-password">Пароль удаления</label>
+          <div class="admin-danger-password__row">
+            <input class="admin-input" type="password" id="admin-destructive-password" placeholder="ГОЙДА" autocomplete="off">
+            <span class="admin-subtext">Нужен для всех действий удаления</span>
+          </div>
+        </div>
+
         {% if view == 'overview' %}
         {% if wipe_message %}
         <div class="card wipe-alert" style="margin-top: 18px;">
@@ -69,6 +88,7 @@
               <span class="admin-badge">Заявки: {{ metrics.funnel.apply }}</span>
               <span class="admin-badge">Покупки: {{ metrics.funnel.enroll }}</span>
               <form method="post" action="/admin/metrics/reset" onsubmit="return confirm('Сбросить всю статистику?')">
+                <input type="hidden" name="admin_password" data-admin-password>
                 <button class="btn btn-secondary btn-danger" type="submit">Сбросить статистику</button>
               </form>
             </div>
@@ -365,6 +385,7 @@
                 Я понимаю последствия
               </label>
               <input class="admin-input" type="text" name="confirm_text" placeholder="Введите УДАЛИТЬ" required>
+              <input type="hidden" name="admin_password" data-admin-password>
               <button class="btn btn-danger btn-danger--big" type="submit">Нажми меня</button>
             </div>
           </form>
@@ -379,6 +400,7 @@
           <span class="admin-badge">Показано {{ leads_count }} из {{ leads_total }}</span>
           <a class="btn btn-secondary" href="/admin/export/leads.csv{{ export_query }}">Экспорт CSV</a>
           <form method="post" action="/admin/leads/clear" onsubmit="return confirm('Удалить все заявки? Это действие необратимо.')">
+            <input type="hidden" name="admin_password" data-admin-password>
             <button class="btn btn-secondary btn-danger" type="submit">Удалить заявки</button>
           </form>
         </div>
@@ -534,6 +556,7 @@
                 <form class="admin-delete-form" action="/admin/leads/delete" method="post" onsubmit="return confirm('Удалить заявку?') && confirm('Точно удалить? Это действие необратимо.');">
                   <input type="hidden" name="file" value="{{ lead._file }}">
                   <input type="hidden" name="next" value="{{ next_url }}">
+                  <input type="hidden" name="admin_password" data-admin-password>
                   <button class="admin-copy admin-delete" type="submit">Удалить</button>
                 </form>
               </td>
@@ -569,6 +592,7 @@
           <span class="admin-badge">Показано {{ agreements_count }} из {{ agreements_total }}</span>
           <a class="btn btn-secondary" href="/admin/export/agreements.csv{{ export_query }}">Экспорт CSV</a>
           <form method="post" action="/admin/agreements/clear" onsubmit="return confirm('Удалить все договоры? Это действие необратимо.')">
+            <input type="hidden" name="admin_password" data-admin-password>
             <button class="btn btn-secondary btn-danger" type="submit">Удалить договоры</button>
           </form>
         </div>
@@ -761,6 +785,7 @@
                 <form class="admin-delete-form" action="/admin/agreements/delete" method="post" onsubmit="return confirm('Удалить договор?') && confirm('Точно удалить? Это действие необратимо.');">
                   <input type="hidden" name="file" value="{{ item._file }}">
                   <input type="hidden" name="next" value="{{ next_url }}">
+                  <input type="hidden" name="admin_password" data-admin-password>
                   <button class="admin-copy admin-delete" type="submit">Удалить</button>
                 </form>
               </td>
@@ -973,6 +998,7 @@
                 <button class="admin-copy" type="button" data-copy="{{ item.code }}">Коп.</button>
                 <form class="admin-meta-form" action="/admin/referrals/code/delete" method="post" style="margin-top: 6px;" data-referral-code-delete>
                   <input type="hidden" name="student_id" value="{{ item.id }}">
+                  <input type="hidden" name="admin_password" data-admin-password>
                   <button class="admin-copy" type="submit">Удалить</button>
                 </form>
               </td>
@@ -1235,6 +1261,7 @@
         {% for item in whitelist %}
         <form action="/admin/whitelist/remove" method="post">
           <input type="hidden" name="id" value="{{ item }}">
+          <input type="hidden" name="admin_password" data-admin-password>
           <button class="tag" type="submit">{{ item }} ✕</button>
         </form>
         {% endfor %}
@@ -1349,9 +1376,35 @@
         });
       });
 
+      let adminWipeBypass = false;
+      window.addEventListener("keydown", (event) => {
+        if (event.ctrlKey && event.shiftKey && (event.key === "5" || event.code === "Digit5")) {
+          adminWipeBypass = true;
+        }
+      });
+
+      const adminPasswordInput = document.getElementById("admin-destructive-password");
+      document.querySelectorAll("[data-admin-password]").forEach((input) => {
+        const form = input.closest("form");
+        if (!form) return;
+        form.addEventListener("submit", (event) => {
+          const value = adminPasswordInput ? adminPasswordInput.value.trim() : "";
+          input.value = value;
+          if (!value) {
+            event.preventDefault();
+            window.alert("Введите пароль удаления.");
+          }
+        });
+      });
+
       const wipeForm = document.querySelector("[data-admin-wipe]");
       if (wipeForm) {
         wipeForm.addEventListener("submit", (event) => {
+          if (!adminWipeBypass) {
+            event.preventDefault();
+            window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+            return;
+          }
           const input = wipeForm.querySelector('input[name="confirm_text"]');
           const text = (input && input.value || "").trim().toUpperCase();
           const ok = window.confirm(
