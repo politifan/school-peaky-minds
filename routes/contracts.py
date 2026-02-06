@@ -139,8 +139,7 @@ async def contract_save(request: Request, token: str):
         "customer_email": str(form.get("customer_email") or "").strip(),
     }
     agreement["contract_fields"] = fields
-    if not agreement.get("contract_date"):
-        agreement["contract_date"] = core.format_moscow_date()
+    agreement["contract_date"] = core.format_moscow_date()
     pdf_url = core.generate_contract_pdf(agreement)
     if pdf_url:
         agreement["contract_pdf_url"] = pdf_url

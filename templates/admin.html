@@ -941,6 +941,10 @@
               <td data-label="Код">
                 <span class="admin-chip">{{ item.code }}</span>
                 <button class="admin-copy" type="button" data-copy="{{ item.code }}">Коп.</button>
+                <form class="admin-meta-form" action="/admin/referrals/code/delete" method="post" style="margin-top: 6px;" data-referral-code-delete>
+                  <input type="hidden" name="student_id" value="{{ item.id }}">
+                  <button class="admin-copy" type="submit">Удалить</button>
+                </form>
               </td>
               <td data-label="Рефералы">{{ item.referrals_count }}</td>
               <td data-label="Подтв. месяцы">{{ item.confirmed_months }}</td>
@@ -966,22 +970,38 @@
                 {% endif %}
               </td>
               <td data-label="Скидка на месяц">
-                <form class="admin-meta-form" action="/admin/referrals/month-discount" method="post">
+                <div class="referral-discount-panel" data-referral-panel data-balance="{{ item.balance }}" data-current-month="{{ referral_current_month }}" data-current-discount="{{ item.month_discount or 0 }}">
+                  <div class="referral-note">
+                    Текущий месяц: <strong>{{ referral_current_month }}</strong>
+                    {% if item.month_discount %}
+                      · уже назначено <strong>{{ item.month_discount }}%</strong>
+                    {% else %}
+                      · скидки нет
+                    {% endif %}
+                  </div>
+                  <div class="referral-note">
+                    Доступно к распределению: <strong>{{ item.balance }}%</strong>
+                  </div>
+                  <div class="referral-note" data-referral-after>
+                    Доступно после применения: —
+                  </div>
+                  <div class="referral-warning" data-referral-warning>
+                    Укажите месяц и процент. Если процент пустой или 0 — скидка за этот месяц будет снята.
+                  </div>
+                </div>
+                <form class="admin-meta-form" action="/admin/referrals/month-discount" method="post" data-referral-discount>
                   <input type="hidden" name="student_id" value="{{ item.id }}">
                   <input class="admin-input" type="month" name="month" value="{{ referral_current_month }}" style="max-width: 150px;">
                   <input class="admin-input" type="text" name="percent" placeholder="{{ item.balance }}%" style="max-width: 90px;">
                   <button class="admin-copy" type="submit">OK</button>
                 </form>
-                {% if item.month_discount %}
-                <div class="admin-subtext">Текущий месяц: {{ item.month_discount }}%</div>
-                {% endif %}
                 {% if item.monthly_discounts %}
                 <div class="admin-subtext" style="margin-top: 6px;">
                   {% for entry in item.monthly_discounts %}
-                    <span class="admin-chip" style="margin-right: 6px;">{{ entry.month }} · {{ entry.percent }}%</span>
+                    <span class="admin-chip {% if entry.month == referral_current_month %}admin-chip--accent{% endif %}" style="margin-right: 6px;">{{ entry.month }} · {{ entry.percent }}%</span>
                   {% endfor %}
                 </div>
-                <form class="admin-meta-form" action="/admin/referrals/month-discount-move" method="post" style="margin-top: 6px;">
+                <form class="admin-meta-form" action="/admin/referrals/month-discount-move" method="post" style="margin-top: 6px;" data-referral-move>
                   <input type="hidden" name="student_id" value="{{ item.id }}">
                   <input class="admin-input" type="month" name="from_month" placeholder="С" style="max-width: 140px;">
                   <input class="admin-input" type="month" name="to_month" placeholder="В" style="max-width: 140px;">
@@ -991,6 +1011,9 @@
                   </label>
                   <button class="admin-copy" type="submit">OK</button>
                 </form>
+                <div class="referral-warning referral-warning--muted" data-referral-move-warning>
+                  Перенос работает только для текущего или будущих месяцев и требует подтверждения. Скидка из «С» будет удалена и добавлена к «В».
+                </div>
                 {% endif %}
                 {% if item.monthly_history %}
                 <div class="admin-subtext" style="margin-top: 8px;">
@@ -1289,6 +1312,13 @@
         });
       });
 
+      document.querySelectorAll("[data-referral-code-delete]").forEach((form) => {
+        form.addEventListener("submit", (event) => {
+          const ok = window.confirm("Удалить реферальный код участника? Рефералы останутся привязаны.");
+          if (!ok) event.preventDefault();
+        });
+      });
+
       const leadRows = Array.from(document.querySelectorAll("[data-lead-file]"));
       if (leadRows.length) {
         const leadRowMap = new Map(leadRows.map((row) => [row.dataset.leadFile, row]));
@@ -1326,6 +1356,100 @@
           if (!document.hidden) fetchLeadStatuses();
         });
       }
+
+      const referralForms = document.querySelectorAll("[data-referral-discount]");
+      referralForms.forEach((form) => {
+        const panel = form.parentElement.querySelector("[data-referral-panel]");
+        const warning = panel ? panel.querySelector("[data-referral-warning]") : null;
+        const afterNote = panel ? panel.querySelector("[data-referral-after]") : null;
+        if (!panel || !warning) return;
+        const monthInput = form.querySelector('input[name="month"]');
+        const percentInput = form.querySelector('input[name="percent"]');
+        const balance = parseInt(panel.dataset.balance || "0", 10) || 0;
+        const currentMonth = panel.dataset.currentMonth || "";
+        const currentDiscount = parseInt(panel.dataset.currentDiscount || "0", 10) || 0;
+
+        const updateWarning = () => {
+          const month = (monthInput && monthInput.value) || currentMonth;
+          const percent = parseInt((percentInput && percentInput.value) || "0", 10) || 0;
+          if (!month) {
+            warning.textContent = "Укажите месяц и процент. Если процент пустой или 0 — скидка будет снята.";
+            if (afterNote) afterNote.textContent = "Доступно после применения: —";
+            return;
+          }
+          if (month < currentMonth) {
+            warning.textContent = `Нельзя назначить скидку на прошлый месяц (${month}).`;
+            if (afterNote) afterNote.textContent = "Доступно после применения: —";
+            return;
+          }
+          if (percent <= 0) {
+            warning.textContent = `Скидка за ${month} будет снята.`;
+            if (afterNote) afterNote.textContent = `Доступно после применения: ${balance + (month === currentMonth ? currentDiscount : 0)}%`;
+            return;
+          }
+          const extra = month === currentMonth ? currentDiscount : 0;
+          const available = balance + extra;
+          let text = `Будет установлена скидка ${percent}% на ${month}.`;
+          if (percent > available) {
+            text += ` Применится максимум ${available}%.`;
+          }
+          text += " Если в месяце уже есть скидка, она будет заменена.";
+          warning.textContent = text;
+          if (afterNote) {
+            const applied = Math.min(percent, Math.max(available, 0));
+            const remaining = Math.max(available - applied, 0);
+            afterNote.textContent = `Доступно после применения: ${remaining}%`;
+          }
+        };
+
+        if (monthInput) monthInput.addEventListener("change", updateWarning);
+        if (percentInput) percentInput.addEventListener("input", updateWarning);
+        updateWarning();
+
+        form.addEventListener("submit", (event) => {
+          const percent = parseInt((percentInput && percentInput.value) || "0", 10) || 0;
+          if (percent <= 0) {
+            const month = (monthInput && monthInput.value) || currentMonth || "месяц";
+            const ok = window.confirm(`Снять скидку за ${month}?`);
+            if (!ok) event.preventDefault();
+          }
+        });
+      });
+
+      const referralMoves = document.querySelectorAll("[data-referral-move]");
+      referralMoves.forEach((form) => {
+        const warning = form.parentElement.querySelector("[data-referral-move-warning]");
+        if (!warning) return;
+        const fromInput = form.querySelector('input[name="from_month"]');
+        const toInput = form.querySelector('input[name="to_month"]');
+        const confirmInput = form.querySelector('input[name="confirm"]');
+        const panel = document.querySelector("[data-referral-panel]");
+        const currentMonth = panel ? panel.dataset.currentMonth || "" : "";
+
+        const updateWarning = () => {
+          const fromMonth = fromInput ? fromInput.value : "";
+          const toMonth = toInput ? toInput.value : "";
+          let text = "Перенос работает только для текущего или будущих месяцев и требует подтверждения.";
+          if (fromMonth && toMonth) {
+            text = `Перенос: ${fromMonth} → ${toMonth}. Скидка из «${fromMonth}» будет удалена и добавлена к «${toMonth}».`;
+          }
+          if (fromMonth && currentMonth && fromMonth < currentMonth) {
+            text += " Нельзя переносить из закрытого месяца.";
+          }
+          if (toMonth && currentMonth && toMonth < currentMonth) {
+            text += " Нельзя переносить на прошлый месяц.";
+          }
+          if (confirmInput && !confirmInput.checked) {
+            text += " Поставьте галочку подтверждения.";
+          }
+          warning.textContent = text;
+        };
+
+        if (fromInput) fromInput.addEventListener("change", updateWarning);
+        if (toInput) toInput.addEventListener("change", updateWarning);
+        if (confirmInput) confirmInput.addEventListener("change", updateWarning);
+        updateWarning();
+      });
     })();
   </script>
 </body>

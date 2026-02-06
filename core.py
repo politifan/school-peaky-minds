@@ -1203,10 +1203,13 @@ def send_email_code(recipient: str, code: str) -> None:
     msg["To"] = recipient
     msg.set_content(f"Ваш код для входа: {code}\nКод действует 10 минут.")
 
-    with smtplib.SMTP(smtp_host, smtp_port) as server:
-        server.starttls()
-        server.login(smtp_user, smtp_password)
-        server.send_message(msg)
+    try:
+        with smtplib.SMTP(smtp_host, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_password)
+            server.send_message(msg)
+    except Exception:
+        logging.getLogger("core").exception("Failed to send login code email to %s", recipient)
 
 
 def send_email_message(recipient: str, subject: str, body: str) -> None:

@@ -1828,6 +1828,47 @@ async def admin_referral_code(request: Request):
     return referral_redirect(message="Код сохранён")
 
 
+@router.post("/admin/referrals/code/delete", include_in_schema=False)
+async def admin_referral_code_delete(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    student_id = str(form.get("student_id") or "").strip()
+    if not student_id:
+        return referral_redirect(error="Не указан участник")
+
+    data = load_referrals()
+    students = data.get("students") or {}
+    if not isinstance(students, dict):
+        students = {}
+    student = students.get(str(student_id))
+    if not student:
+        return referral_redirect(error="Участник не найден")
+
+    now_ts = int(time.time())
+    removed_code = student.get("referral_code")
+    student.pop("referral_code", None)
+    student.pop("referral_code_created_at", None)
+    student["updated_at"] = now_ts
+
+    audit = data.get("audit") if isinstance(data.get("audit"), list) else []
+    actor = (request.session.get("user") or {}).get("id") or ""
+    audit.append(
+        {
+            "ts": now_ts,
+            "action": "referral_code_delete",
+            "student_id": student.get("id"),
+            "code": removed_code,
+            "actor": actor,
+        }
+    )
+    data["students"] = students
+    data["audit"] = audit
+    save_referrals(data)
+    return referral_redirect(message="Код удалён")
+
+
 @router.post("/admin/referrals/assign", include_in_schema=False)
 async def admin_referral_assign(request: Request):
     guard = admin_required(request)
