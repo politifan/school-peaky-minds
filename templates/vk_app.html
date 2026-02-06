@@ -29,8 +29,8 @@
           <p>Это страница приложения VK. Откройте её внутри VK и нажмите кнопку входа.</p>
         </div>
       </div>
-      <div class="admin-hero__actions">
-        <button class="btn btn-primary" type="button" id="vk-bridge-login">Войти через VK</button>
+      <div class="admin-hero__actions vk-app-actions">
+        <button class="btn btn-primary vk-app-button" type="button" id="vk-bridge-login" onclick="vkAppLogin()">Войти через VK</button>
         <a class="btn btn-secondary" href="/">На главную</a>
       </div>
     </section>
@@ -40,28 +40,25 @@
     if (window.vkBridge && typeof window.vkBridge.send === "function") {
       window.vkBridge.send("VKWebAppInit").catch(function () {});
     }
-    const loginButton = document.getElementById("vk-bridge-login");
-    if (loginButton) {
-      loginButton.addEventListener("click", function () {
-        if (!window.vkBridge || typeof window.vkBridge.send !== "function") {
-          alert("VK Bridge не доступен. Откройте приложение внутри VK.");
-          return;
-        }
-        window.vkBridge.send("VKWebAppGetUserInfo")
-          .then(function (data) {
-            return fetch("/login/vk-bridge", {
-              method: "POST",
-              headers: {"Content-Type": "application/json"},
-              body: JSON.stringify(data),
-            });
-          })
-          .then(function () {
-            window.location.href = "/";
-          })
-          .catch(function () {
-            alert("Не удалось авторизоваться через VK.");
+    function vkAppLogin() {
+      if (!window.vkBridge || typeof window.vkBridge.send !== "function") {
+        alert("VK Bridge не доступен. Откройте приложение внутри VK.");
+        return;
+      }
+      window.vkBridge.send("VKWebAppGetUserInfo")
+        .then(function (data) {
+          return fetch("/login/vk-bridge", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(data),
           });
-      });
+        })
+        .then(function () {
+          window.location.href = "/";
+        })
+        .catch(function () {
+          alert("Не удалось авторизоваться через VK.");
+        });
     }
   </script>
 </body>

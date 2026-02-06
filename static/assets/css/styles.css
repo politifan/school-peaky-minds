@@ -2252,6 +2252,13 @@ select:focus {
   color: var(--accent-2);
 }
 
+.vk-app-actions,
+.vk-app-button {
+  position: relative;
+  z-index: 5;
+  pointer-events: auto;
+}
+
 @media (max-width: 720px) {
   .month-picker__months {
     grid-template-columns: repeat(4, minmax(0, 1fr));
