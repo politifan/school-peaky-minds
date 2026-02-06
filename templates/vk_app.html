@@ -34,54 +34,24 @@
         <a class="btn btn-secondary" href="/">На главную</a>
       </div>
     </section>
-    <section class="panel" style="margin-top: 18px;">
-      <div class="admin-section-head">
-        <h2 class="section-title">VK Bridge Debug</h2>
-      </div>
-      <pre id="vk-debug" style="white-space: pre-wrap; font-size: 0.85rem;">init...</pre>
-    </section>
   </main>
 
   <script>
-    const debug = document.getElementById("vk-debug");
-    const log = (msg) => {
-      if (debug) {
-        debug.textContent = `${debug.textContent}\n${msg}`;
-      }
-      console.log(msg);
-    };
     if (window.vkBridge && typeof window.vkBridge.send === "function") {
-      window.vkBridge.send("VKWebAppInit")
-        .then(function () {
-          log("VKWebAppInit: ok");
-        })
-        .catch(function (e) {
-          log("VKWebAppInit: failed " + JSON.stringify(e));
-        });
-      if (window.vkBridge.subscribe) {
-        window.vkBridge.subscribe(function (event) {
-          if (event && event.detail) {
-            log("event: " + JSON.stringify(event.detail));
-          }
-        });
-      }
+      window.vkBridge.send("VKWebAppInit").catch(function () {});
     } else {
-      log("vkBridge not available");
     }
     function vkAppLogin() {
       if (!window.vkBridge || typeof window.vkBridge.send !== "function") {
         alert("VK Bridge не доступен. Откройте приложение внутри VK.");
         return;
       }
-      log("VKWebAppGetUserInfo: send");
       const timer = setTimeout(function () {
-        log("VKWebAppGetUserInfo: timeout");
         alert("VK Bridge не отвечает. Проверьте, что страница открыта внутри VK Mini Apps.");
       }, 8000);
       window.vkBridge.send("VKWebAppGetUserInfo")
         .then(function (data) {
           clearTimeout(timer);
-          log("VKWebAppGetUserInfo: ok " + JSON.stringify(data));
           return fetch("/login/vk-bridge", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
@@ -94,7 +64,6 @@
         })
         .catch(function () {
           clearTimeout(timer);
-          log("VKWebAppGetUserInfo: failed");
           alert("Не удалось авторизоваться через VK.");
         });
     }
