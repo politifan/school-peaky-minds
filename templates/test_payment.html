@@ -21,7 +21,7 @@
       <div class="admin-section-head">
         <h1 class="section-title">Тестовая оплата СБП (1 ₽)</h1>
       </div>
-      <p class="admin-subtext">Платёж проходит через YooKassa и не изменяет данные договора: мы сохраняем дебаг‑лог и статус.</p>
+      <p class="admin-subtext">Платёж проходит через Тинькофф и не изменяет данные договора: мы сохраняем дебаг‑лог и статус.</p>
       {% if payment_error %}
       <div class="card" style="margin-top: 12px; border-color: rgba(255, 77, 77, 0.4);">
         <strong>{{ payment_error }}</strong>
@@ -34,7 +34,7 @@
       {% endif %}
       {% if not payments_enabled %}
       <div class="card" style="margin-top: 12px; border-color: rgba(255, 77, 77, 0.4);">
-        <strong>YooKassa не настроена.</strong>
+        <strong>Тинькофф не настроен.</strong>
       </div>
       {% endif %}
       <form class="admin-filter" action="/test_payment/create" method="post" style="margin-top: 14px;">

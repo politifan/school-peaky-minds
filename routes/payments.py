@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import secrets
 import time
@@ -15,9 +16,9 @@ from core import (
     AGREEMENTS_DIR,
     APP_BASE_URL,
     admin_required,
-    YOOKASSA_ENABLED,
-    YOOKASSA_SECRET_KEY,
-    YOOKASSA_SHOP_ID,
+    TINKOFF_ENABLED,
+    TINKOFF_PASSWORD,
+    TINKOFF_TERMINAL_KEY,
     course_rate,
     find_student_by_phone,
     get_current_user,
@@ -37,7 +38,7 @@ from core import (
 
 router = APIRouter()
 
-YOOKASSA_API_URL = "https://api.yookassa.ru/v3/payments"
+TINKOFF_API_URL = "https://securepay.tinkoff.ru/v2"
 
 
 def _amount_value(amount: Decimal) -> str:
@@ -81,44 +82,66 @@ def _agreement_matches_user(agreement: Dict[str, Any], user: Dict[str, Any]) -> 
     return bool(user_email and agreement_email and user_email == agreement_email)
 
 
-async def _yookassa_create_payment(payload: Dict[str, Any]) -> Dict[str, Any]:
-    headers = {"Idempotence-Key": secrets.token_hex(12)}
+def _tinkoff_token(payload: Dict[str, Any]) -> str:
+    values: Dict[str, str] = {}
+    for key, value in payload.items():
+        if key in {"Token", "Password"}:
+            continue
+        if isinstance(value, (dict, list)):
+            continue
+        values[str(key)] = str(value)
+    values["Password"] = TINKOFF_PASSWORD or ""
+    token_str = "".join(values[key] for key in sorted(values.keys()))
+    return hashlib.sha256(token_str.encode("utf-8")).hexdigest()
+
+
+async def _tinkoff_post(method: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    payload["TerminalKey"] = TINKOFF_TERMINAL_KEY
+    payload["Token"] = _tinkoff_token(payload)
     async with httpx.AsyncClient(timeout=15.0) as client:
-        response = await client.post(
-            YOOKASSA_API_URL,
-            json=payload,
-            auth=(YOOKASSA_SHOP_ID, YOOKASSA_SECRET_KEY),
-            headers=headers,
-        )
+        response = await client.post(f"{TINKOFF_API_URL}/{method}", json=payload)
     try:
         data = response.json()
     except Exception:
         data = {}
     if response.status_code >= 300:
-        detail = data.get("description") or data.get("type") or f"http_{response.status_code}"
-        raise RuntimeError(f"YooKassa error: {detail}")
+        detail = data.get("Message") or data.get("Details") or f"http_{response.status_code}"
+        raise RuntimeError(f"Tinkoff error: {detail}")
     if not isinstance(data, dict):
-        raise RuntimeError("YooKassa error: invalid response")
+        raise RuntimeError("Tinkoff error: invalid response")
     return data
 
 
-async def _yookassa_get_payment(payment_id: str) -> Optional[Dict[str, Any]]:
+async def _tinkoff_init(payload: Dict[str, Any]) -> Dict[str, Any]:
+    return await _tinkoff_post("Init", payload)
+
+
+async def _tinkoff_get_state(payment_id: str) -> Optional[Dict[str, Any]]:
     if not payment_id:
         return None
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        response = await client.get(
-            f"{YOOKASSA_API_URL}/{payment_id}",
-            auth=(YOOKASSA_SHOP_ID, YOOKASSA_SECRET_KEY),
-        )
-    if response.status_code >= 300:
-        return None
     try:
-        data = response.json()
+        data = await _tinkoff_post("GetState", {"PaymentId": payment_id})
     except Exception:
         return None
-    if not isinstance(data, dict):
+    return data if isinstance(data, dict) else None
+
+
+async def _tinkoff_get_qr(payment_id: str) -> Optional[Dict[str, Any]]:
+    if not payment_id:
         return None
-    return data
+    try:
+        data = await _tinkoff_post("GetQr", {"PaymentId": payment_id, "DataType": "PAYLOAD"})
+    except Exception:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _tinkoff_verify_token(payload: Dict[str, Any]) -> bool:
+    token = str(payload.get("Token") or "")
+    if not token:
+        return False
+    expected = _tinkoff_token(payload)
+    return token == expected
 
 
 @router.post("/payments/create", include_in_schema=False)
@@ -126,7 +149,7 @@ async def create_payment(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse("/login?next=/account", status_code=HTTP_302_FOUND)
-    if not YOOKASSA_ENABLED:
+    if not TINKOFF_ENABLED:
         return HTMLResponse("Оплата временно недоступна", status_code=503)
 
     form = await request.form()
@@ -171,7 +194,15 @@ async def create_payment(request: Request):
     payments_data = load_payments()
     payments = payments_data.get("payments") or {}
     now_ts = int(time.time())
-    active_statuses = {"pending", "waiting_for_capture", "waiting_for_confirmation"}
+    active_statuses = {
+        "NEW",
+        "FORM_SHOWED",
+        "AUTHORIZING",
+        "AUTHORIZED",
+        "pending",
+        "waiting_for_capture",
+        "waiting_for_confirmation",
+    }
     for record in payments.values():
         if not isinstance(record, dict):
             continue
@@ -197,36 +228,47 @@ async def create_payment(request: Request):
         "course": course,
         "phone": normalize_phone(agreement.get("phone") or ""),
     }
-    payload = {
-        "amount": {"value": _amount_value(amount), "currency": "RUB"},
-        "payment_method_data": {"type": "sbp"},
-        "confirmation": {"type": "redirect", "return_url": _build_test_return_url(request)},
-        "capture": True,
-        "description": f"Оплата занятий: {course}",
-        "metadata": metadata,
+    amount_rub = _amount_value(amount)
+    amount_kopeks = int((amount * 100).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+    order_id = f"{agreement_file}-{now_ts}-{secrets.token_hex(4)}"
+    init_payload = {
+        "Amount": amount_kopeks,
+        "OrderId": order_id,
+        "Description": f"Оплата занятий: {course}",
+        "NotificationURL": f"{(APP_BASE_URL or str(request.base_url)).rstrip('/')}/payments/tinkoff",
+        "SuccessURL": _build_return_url(request),
+        "FailURL": _build_return_url(request),
+        "DATA": metadata,
     }
 
     try:
-        payment = await _yookassa_create_payment(payload)
+        payment = await _tinkoff_init(init_payload)
     except Exception as exc:
-        logging.getLogger("app.payments").error("YooKassa create failed: %s", exc)
+        logging.getLogger("app.payments").error("Tinkoff init failed: %s", exc)
         return RedirectResponse("/account?payment_error=Ошибка+создания+платежа", status_code=HTTP_302_FOUND)
 
-    payment_id = str(payment.get("id") or "")
-    confirmation = payment.get("confirmation") or {}
-    confirmation_url = str(confirmation.get("confirmation_url") or "")
-    if not payment_id or not confirmation_url:
+    if not payment.get("Success"):
         return RedirectResponse("/account?payment_error=Ошибка+платежа", status_code=HTTP_302_FOUND)
+
+    payment_id = str(payment.get("PaymentId") or "")
+    if not payment_id:
+        return RedirectResponse("/account?payment_error=Ошибка+платежа", status_code=HTTP_302_FOUND)
+
+    qr = await _tinkoff_get_qr(payment_id)
+    confirmation_url = str((qr or {}).get("Data") or "")
+    if not confirmation_url:
+        return RedirectResponse("/account?payment_error=QR+не+получен", status_code=HTTP_302_FOUND)
 
     payments[payment_id] = {
         "id": payment_id,
-        "provider": "yookassa",
-        "status": payment.get("status") or "pending",
-        "amount": payment.get("amount") or {"value": _amount_value(amount), "currency": "RUB"},
+        "provider": "tinkoff",
+        "status": payment.get("Status") or "NEW",
+        "amount": {"value": amount_rub, "currency": "RUB"},
         "course": course,
         "lessons": lessons,
         "discount_percent": discount_percent,
         "agreement_file": agreement_file,
+        "order_id": order_id,
         "user_id": str(user.get("id") or ""),
         "phone": normalize_phone(agreement.get("phone") or ""),
         "created_at": now_ts,
@@ -242,8 +284,8 @@ async def create_payment(request: Request):
             "event": "payment_created",
             "payment_id": payment_id,
             "agreement_file": agreement_file,
-            "status": payment.get("status"),
-            "amount": payment.get("amount"),
+            "status": payment.get("Status"),
+            "amount": amount_rub,
         },
     )
     save_payments(payments_data)
@@ -251,27 +293,24 @@ async def create_payment(request: Request):
     return RedirectResponse(confirmation_url, status_code=HTTP_302_FOUND)
 
 
-@router.post("/payments/yookassa", include_in_schema=False)
-async def yookassa_webhook(request: Request):
-    if not YOOKASSA_ENABLED:
+@router.post("/payments/tinkoff", include_in_schema=False)
+async def tinkoff_webhook(request: Request):
+    if not TINKOFF_ENABLED:
         return Response(status_code=503)
     try:
         payload = await request.json()
     except Exception:
         return Response(status_code=400)
 
-    event = payload.get("event")
-    obj = payload.get("object") or {}
-    payment_id = str(obj.get("id") or "")
+    if not _tinkoff_verify_token(payload):
+        return Response(status_code=400)
+
+    payment_id = str(payload.get("PaymentId") or "")
     if not payment_id:
         return Response(status_code=400)
 
-    payment = await _yookassa_get_payment(payment_id)
-    if not payment:
-        return Response(status_code=400)
-
-    status = payment.get("status") or ""
-    metadata = payment.get("metadata") or {}
+    status = str(payload.get("Status") or "")
+    metadata = payload.get("DATA") if isinstance(payload.get("DATA"), dict) else {}
     test_mode = str(metadata.get("test_mode") or "").lower() in {"1", "true", "yes"}
     discount_source = str(metadata.get("discount_source") or "")
     lessons_raw = metadata.get("lessons") or ""
@@ -289,15 +328,22 @@ async def yookassa_webhook(request: Request):
     payments = payments_data.get("payments") or {}
     record = payments.get(payment_id)
     if not record:
+        amount_raw = payload.get("Amount")
+        amount_value = "—"
+        try:
+            amount_value = str(Decimal(amount_raw) / Decimal(100))
+        except Exception:
+            pass
         record = {
             "id": payment_id,
-            "provider": "yookassa",
+            "provider": "tinkoff",
             "agreement_file": metadata.get("agreement_file"),
             "course": metadata.get("course"),
             "lessons": lessons,
             "discount_percent": discount_percent,
             "status": status,
-            "amount": payment.get("amount"),
+            "amount": {"value": amount_value, "currency": "RUB"},
+            "order_id": payload.get("OrderId") or "",
             "created_at": int(time.time()),
             "updated_at": int(time.time()),
             "applied": False,
@@ -305,7 +351,10 @@ async def yookassa_webhook(request: Request):
             "test_mode": test_mode,
         }
 
-    if status == "succeeded" and not record.get("applied"):
+    record["status"] = status
+    record["updated_at"] = int(time.time())
+
+    if status == "CONFIRMED" and not record.get("applied"):
         agreement_file = record.get("agreement_file") or metadata.get("agreement_file")
         if test_mode:
             debug = {"agreement_file": agreement_file, "lessons": lessons, "discount_percent": discount_percent}
@@ -321,7 +370,6 @@ async def yookassa_webhook(request: Request):
                         debug["current_paid_lessons"] = current_paid
                         debug["would_paid_lessons"] = current_paid + max(lessons, 0)
             record["debug"] = debug
-            record["applied"] = True
         else:
             if agreement_file:
                 path = AGREEMENTS_DIR / str(agreement_file)
@@ -359,17 +407,15 @@ async def yookassa_webhook(request: Request):
                         referrals["students"] = students
                         save_referrals(referrals)
 
-            record["applied"] = True
+        record["applied"] = True
 
-    record["status"] = status or record.get("status") or "pending"
-    record["updated_at"] = int(time.time())
     payments[payment_id] = record
     payments_data["payments"] = payments
     _append_event(
         payments_data,
         {
             "ts": int(time.time()),
-            "event": event,
+            "event": "payment_update",
             "payment_id": payment_id,
             "status": status,
             "test_mode": test_mode,
@@ -377,11 +423,6 @@ async def yookassa_webhook(request: Request):
         },
     )
     save_payments(payments_data)
-
-    if event == "payment.canceled":
-        return Response(status_code=200)
-    if status == "succeeded":
-        return Response(status_code=200)
     return Response(status_code=200)
 
 
@@ -446,8 +487,8 @@ async def test_payment_page(request: Request):
 
     payment_id = request.query_params.get("payment_id") or ""
     payment_check = None
-    if payment_id and YOOKASSA_ENABLED:
-        payment_check = await _yookassa_get_payment(payment_id)
+    if payment_id and TINKOFF_ENABLED:
+        payment_check = await _tinkoff_get_state(payment_id)
 
     return render(
         request,
@@ -458,7 +499,7 @@ async def test_payment_page(request: Request):
             "events": events_view,
             "payment_check": payment_check,
             "payment_id": payment_id,
-            "payments_enabled": YOOKASSA_ENABLED,
+            "payments_enabled": TINKOFF_ENABLED,
             "payment_error": request.query_params.get("error"),
             "payment_status": request.query_params.get("payment"),
             "last_debug": last_debug,
@@ -471,7 +512,7 @@ async def test_payment_create(request: Request):
     guard = admin_required(request)
     if guard:
         return guard
-    if not YOOKASSA_ENABLED:
+    if not TINKOFF_ENABLED:
         return RedirectResponse("/test_payment?error=Оплата+не+настроена", status_code=HTTP_302_FOUND)
 
     form = await request.form()
@@ -514,39 +555,49 @@ async def test_payment_create(request: Request):
         "phone": normalize_phone(agreement.get("phone") or ""),
         "test_mode": "1",
     }
-    payload = {
-        "amount": {"value": _amount_value(amount), "currency": "RUB"},
-        "payment_method_data": {"type": "sbp"},
-        "confirmation": {"type": "redirect", "return_url": _build_return_url(request)},
-        "capture": True,
-        "description": f"Тестовый платеж 1 ₽ ({course})",
-        "metadata": metadata,
+    amount_kopeks = int((amount * 100).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+    order_id = f"{agreement_file}-test-{int(time.time())}-{secrets.token_hex(4)}"
+    init_payload = {
+        "Amount": amount_kopeks,
+        "OrderId": order_id,
+        "Description": f"Тестовый платеж 1 ₽ ({course})",
+        "NotificationURL": f"{(APP_BASE_URL or str(request.base_url)).rstrip('/')}/payments/tinkoff",
+        "SuccessURL": _build_test_return_url(request),
+        "FailURL": _build_test_return_url(request),
+        "DATA": metadata,
     }
 
     try:
-        payment = await _yookassa_create_payment(payload)
+        payment = await _tinkoff_init(init_payload)
     except Exception as exc:
         logging.getLogger("app.payments").error("Test payment create failed: %s", exc)
         return RedirectResponse("/test_payment?error=Ошибка+создания+платежа", status_code=HTTP_302_FOUND)
 
-    payment_id = str(payment.get("id") or "")
-    confirmation = payment.get("confirmation") or {}
-    confirmation_url = str(confirmation.get("confirmation_url") or "")
-    if not payment_id or not confirmation_url:
+    if not payment.get("Success"):
         return RedirectResponse("/test_payment?error=Ошибка+платежа", status_code=HTTP_302_FOUND)
+
+    payment_id = str(payment.get("PaymentId") or "")
+    if not payment_id:
+        return RedirectResponse("/test_payment?error=Ошибка+платежа", status_code=HTTP_302_FOUND)
+
+    qr = await _tinkoff_get_qr(payment_id)
+    confirmation_url = str((qr or {}).get("Data") or "")
+    if not confirmation_url:
+        return RedirectResponse("/test_payment?error=QR+не+получен", status_code=HTTP_302_FOUND)
 
     payments_data = load_payments()
     payments = payments_data.get("payments") or {}
     now_ts = int(time.time())
     payments[payment_id] = {
         "id": payment_id,
-        "provider": "yookassa",
-        "status": payment.get("status") or "pending",
-        "amount": payment.get("amount") or {"value": _amount_value(amount), "currency": "RUB"},
+        "provider": "tinkoff",
+        "status": payment.get("Status") or "NEW",
+        "amount": {"value": _amount_value(amount), "currency": "RUB"},
         "course": course,
         "lessons": lessons,
         "discount_percent": discount_percent,
         "agreement_file": agreement_file,
+        "order_id": order_id,
         "user_id": "",
         "phone": normalize_phone(agreement.get("phone") or ""),
         "created_at": now_ts,
@@ -563,8 +614,8 @@ async def test_payment_create(request: Request):
             "event": "test_payment_created",
             "payment_id": payment_id,
             "agreement_file": agreement_file,
-            "status": payment.get("status"),
-            "amount": payment.get("amount"),
+            "status": payment.get("Status"),
+            "amount": _amount_value(amount),
         },
     )
     save_payments(payments_data)

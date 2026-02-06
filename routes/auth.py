@@ -51,7 +51,7 @@ from core import (
     send_email_code,
     set_current_user,
     verify_telegram_auth,
-    YOOKASSA_ENABLED,
+    TINKOFF_ENABLED,
 )
 
 router = APIRouter()
@@ -467,11 +467,15 @@ async def account(request: Request):
                     continue
             status = str(payment.get("status") or "")
             status_labels = {
-                "pending": "Ожидает оплаты",
-                "waiting_for_capture": "Ожидает подтверждения",
-                "waiting_for_confirmation": "Ожидает подтверждения",
-                "succeeded": "Оплачен",
-                "canceled": "Отменён",
+                "NEW": "Создан",
+                "FORM_SHOWED": "Ожидает оплаты",
+                "AUTHORIZING": "Ожидает подтверждения",
+                "AUTHORIZED": "Ожидает подтверждения",
+                "CONFIRMED": "Оплачен",
+                "CANCELED": "Отменён",
+                "REJECTED": "Отказ",
+                "DEADLINE_EXPIRED": "Истёк срок",
+                "REFUNDED": "Возврат",
             }
             payment_item = {
                 "id": payment.get("id"),
@@ -535,7 +539,7 @@ async def account(request: Request):
                 "total_courses": total_courses,
                 "signed_contracts": signed_contracts,
             },
-            "payments_enabled": YOOKASSA_ENABLED,
+            "payments_enabled": TINKOFF_ENABLED,
             "payment_status": request.query_params.get("payment"),
             "payment_error": request.query_params.get("payment_error"),
         },

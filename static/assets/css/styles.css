@@ -2115,6 +2115,12 @@ select:focus {
   text-transform: uppercase;
 }
 
+.day-num {
+  display: none;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
 .lesson-day {
   min-height: 34px;
   border-radius: 10px;
@@ -2127,6 +2133,7 @@ select:focus {
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-1);
   position: relative;
+  padding-top: 2px;
 }
 
 .lesson-day--empty {
@@ -2159,7 +2166,11 @@ select:focus {
 }
 
 .lesson-emoji {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  line-height: 1;
 }
 
 .lesson-day[data-start]:hover::after {
@@ -2177,6 +2188,25 @@ select:focus {
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
   z-index: 2;
+}
+
+@media (max-width: 520px) {
+  .lesson-calendar__day .day-text {
+    display: none;
+  }
+
+  .lesson-calendar__day .day-num {
+    display: inline;
+  }
+
+  .lesson-day {
+    min-height: 30px;
+  }
+
+  .lesson-emoji {
+    font-size: 0.75rem;
+    right: 4px;
+  }
 }
 
 .month-picker {
@@ -2225,6 +2255,21 @@ select:focus {
 @media (max-width: 720px) {
   .month-picker__months {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .lesson-calendar__day {
+    font-size: 0;
+  }
+
+  .lesson-calendar__day::after {
+    content: attr(data-day);
+    font-size: 0.65rem;
+    color: var(--text-2);
+  }
+
+  .lesson-day {
+    min-height: 28px;
+    font-size: 0.75rem;
   }
 }
 
