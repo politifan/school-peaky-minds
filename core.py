@@ -1543,13 +1543,24 @@ async def telethon_login_cli() -> None:
         print("Telethon login failed")
 
 
+def is_valid_phone(value: str) -> bool:
+    digits = re.sub(r"\D", "", value or "")
+    if len(digits) != 11:
+        return False
+    if digits[0] not in {"7", "8"}:
+        return False
+    return True
+
+
 def normalize_phone(value: str) -> str:
-    value = re.sub(r"\D", "", value or "")
-    if value.startswith("8"):
-        value = "7" + value[1:]
-    if value.startswith("7") and len(value) == 11:
-        return value
-    return value
+    digits = re.sub(r"\D", "", value or "")
+    if len(digits) != 11:
+        return ""
+    if digits.startswith("8"):
+        digits = "7" + digits[1:]
+    if digits.startswith("7"):
+        return digits
+    return ""
 
 
 def build_phone_link(value: str) -> Optional[str]:

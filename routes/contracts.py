@@ -209,7 +209,8 @@ async def contract_sign(request: Request, token: str):
             status_code=HTTP_302_FOUND,
         )
 
-    if not agreement.get("contract_number"):
+    contract_number = str(agreement.get("contract_number") or "").strip()
+    if not contract_number.isdigit():
         agreement["contract_number"] = core.count_signed_contracts() + 1
     if not agreement.get("contract_date"):
         agreement["contract_date"] = core.format_moscow_date()

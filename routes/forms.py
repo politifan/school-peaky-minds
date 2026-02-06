@@ -10,6 +10,7 @@ from core import (
     EXECUTOR_EMAIL,
     find_student_by_code,
     find_student_by_phone,
+    is_valid_phone,
     load_metrics,
     load_referrals,
     normalize_phone,
@@ -101,6 +102,8 @@ async def apply(request: Request):
     form = await request.form()
     name = clamp_text(form.get("name", ""), 60)
     contact = str(form.get("phone", "")).strip()
+    if not is_valid_phone(contact):
+        return HTMLResponse("Некорректный телефон", status_code=400)
     course = str(form.get("course", "")).strip()
     page = request.headers.get("referer", "")
 
@@ -160,6 +163,9 @@ async def enroll(request: Request):
         "agreement": form.get("agreement"),
         "consent": form.get("consent"),
     }
+    phone_raw = str(payload.get("phone") or "").strip()
+    if not is_valid_phone(phone_raw):
+        return HTMLResponse("Некорректный телефон", status_code=400)
 
     referrer = None
     referrer_id = None

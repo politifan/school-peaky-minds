@@ -962,8 +962,8 @@ links.forEach((link) => {
           <form class="cta-form" action="/apply" method="post" target="_top">
             <input type="text" name="name" placeholder="Ваше имя" maxlength="60">
             <div class="input-wrap">
-              <input type="text" name="phone" placeholder="Телефон или Telegram (@username)" data-phone="flex" pattern="(@[A-Za-z0-9_]{3,32}|\\+?[0-9\\s\\-()]{7,20})" maxlength="32">
-              <div class="input-hint">Пример: +7 900 123‑45‑67 или @username</div>
+              <input type="text" name="phone" placeholder="Телефон" data-phone="strict" pattern="(\\+?7|8)[0-9\\s\\-()]{10,16}" maxlength="18" required>
+              <div class="input-hint">Пример: +7 900 123‑45‑67</div>
               <div class="input-error" aria-live="polite"></div>
             </div>
             <input type="hidden" name="course" value="Main">

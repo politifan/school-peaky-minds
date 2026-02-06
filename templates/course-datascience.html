@@ -409,8 +409,8 @@ logits = model(batch)
             <input type="hidden" name="course" value="Data Science">
             <input type="text" name="full_name" placeholder="ФИО" value="{{ user.name or "" }}" required minlength="2" maxlength="60">
             <div class="input-wrap">
-              <input type="text" name="phone" placeholder="Телефон или Telegram (@username)" data-phone="flex" required pattern="(@[A-Za-z0-9_]{3,32}|\\+?[0-9\\s\\-()]{7,20})" maxlength="32">
-              <div class="input-hint">Пример: +7 999 000‑00‑00 или @username</div>
+              <input type="text" name="phone" placeholder="Телефон" data-phone="strict" required pattern="(\\+?7|8)[0-9\\s\\-()]{10,16}" maxlength="18">
+              <div class="input-hint">Пример: +7 999 000‑00‑00</div>
               <div class="input-error" aria-live="polite"></div>
             </div>
             <input type="email" name="email" placeholder="Email" value="{{ user.email or "" }}" required maxlength="254" data-email pattern="[^@ ]+@[^@ .]+\.[^@ .]+" title="Минимум 4 символа после @ и ровно одна точка">
