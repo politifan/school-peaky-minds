@@ -81,7 +81,9 @@ app.mount("/documents", StaticFiles(directory=DOCUMENTS_DIR), name="documents")
 @app.middleware("http")
 async def enforce_canonical_host(request: Request, call_next):
     if CANONICAL_ORIGIN and CANONICAL_HOST:
-        if request.url.hostname and request.url.hostname != CANONICAL_HOST:
+        scheme_mismatch = CANONICAL_SCHEME and request.url.scheme != CANONICAL_SCHEME
+        host_mismatch = request.url.hostname and request.url.hostname != CANONICAL_HOST
+        if scheme_mismatch or host_mismatch:
             target = f"{CANONICAL_ORIGIN}{request.url.path}"
             if request.url.query:
                 target = f"{target}?{request.url.query}"
