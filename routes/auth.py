@@ -63,6 +63,11 @@ async def login(request: Request):
     return render(request, "login.html", login_context(request, next_url=next_url))
 
 
+@router.get("/vk-app", include_in_schema=False)
+async def vk_app(request: Request):
+    return render(request, "vk_app.html", {"providers": providers})
+
+
 @router.post("/login/email", include_in_schema=False)
 async def login_email(request: Request):
     form = await request.form()

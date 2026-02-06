@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VK приложение — Peaky Minds</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Prata&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+</head>
+<body class="admin-page">
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <main class="container" style="padding: 120px 0;">
+    <section class="panel admin-hero" style="grid-template-columns: 1fr;">
+      <div class="admin-hero__content">
+        <div class="account-profile">
+          <div class="logo small">
+            <img src="/assets/img/logo.png" alt="Логотип IT‑школы Peaky Minds">
+            <span>IT‑школа Peaky Minds</span>
+          </div>
+        </div>
+        <div>
+          <h1>Вход через VK</h1>
+          <p>Это страница приложения VK. Откройте её внутри VK и нажмите кнопку входа.</p>
+        </div>
+      </div>
+      <div class="admin-hero__actions">
+        {% if providers.vk %}
+        <a class="btn btn-primary" href="/login/vk">Войти через VK ID</a>
+        {% else %}
+        <span class="btn btn-secondary">VK OAuth не настроен</span>
+        {% endif %}
+        <a class="btn btn-secondary" href="/">На главную</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    if (window.vkBridge && typeof window.vkBridge.send === "function") {
+      window.vkBridge.send("VKWebAppInit").catch(function () {});
+    }
+  </script>
+</body>
+</html>

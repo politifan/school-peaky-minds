@@ -2168,7 +2168,7 @@ select:focus {
 .lesson-emoji {
   font-size: 0.85rem;
   position: absolute;
-  top: 4px;
+  top: 1px;
   right: 6px;
   line-height: 1;
 }
@@ -2205,7 +2205,7 @@ select:focus {
 
   .lesson-emoji {
     font-size: 0.75rem;
-    right: 4px;
+    right: -2px;
   }
 }
 
