@@ -1343,6 +1343,14 @@ section {
   color: #ffd6d6;
 }
 
+.btn-danger--big {
+  padding: 18px 34px;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  box-shadow: 0 16px 32px rgba(255, 86, 86, 0.25);
+}
+
 .btn-danger:hover {
   box-shadow: 0 12px 24px rgba(255, 86, 86, 0.25);
   transform: translateY(-1px);
@@ -2167,6 +2175,45 @@ select:focus {
 
 .admin-section-actions form {
   margin: 0;
+}
+
+.danger-zone {
+  border: 1px solid rgba(255, 86, 86, 0.45);
+  box-shadow: 0 0 30px rgba(255, 86, 86, 0.25);
+}
+
+.danger-zone__copy {
+  color: var(--text-2);
+  margin-bottom: 16px;
+}
+
+.danger-zone__copy p {
+  margin: 0 0 6px;
+}
+
+.danger-zone__form {
+  margin: 0;
+}
+
+.danger-zone__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.danger-zone__controls .admin-input {
+  min-width: 220px;
+}
+
+.wipe-alert {
+  border-color: rgba(255, 179, 71, 0.4);
+  box-shadow: 0 0 18px rgba(255, 179, 71, 0.2);
+}
+
+.wipe-alert--error {
+  border-color: rgba(255, 86, 86, 0.5);
+  box-shadow: 0 0 18px rgba(255, 86, 86, 0.25);
 }
 
 .lesson-legend {

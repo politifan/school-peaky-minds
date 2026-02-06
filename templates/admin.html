@@ -52,6 +52,16 @@
         </header>
 
         {% if view == 'overview' %}
+        {% if wipe_message %}
+        <div class="card wipe-alert" style="margin-top: 18px;">
+          <strong>{{ wipe_message }}</strong>
+        </div>
+        {% endif %}
+        {% if wipe_error %}
+        <div class="card wipe-alert wipe-alert--error" style="margin-top: 18px;">
+          <strong>{{ wipe_error }}</strong>
+        </div>
+        {% endif %}
         <section class="panel" id="admin-overview" style="margin-top: 24px;">
           <div class="admin-section-head">
             <h2 class="section-title">Обзор</h2>
@@ -338,6 +348,26 @@
               </div>
             </div>
           </details>
+        </section>
+
+        <section class="panel danger-zone" id="admin-danger-zone" style="margin-top: 24px;">
+          <div class="admin-section-head">
+            <h2 class="section-title">Опасная зона</h2>
+          </div>
+          <div class="danger-zone__copy">
+            <p>Эта кнопка полностью удаляет пользователей, заявки, договоры, статистику, рефералы и платежи.</p>
+            <p>Whitelist админов сохраняется.</p>
+          </div>
+          <form class="danger-zone__form" action="/admin/wipe-all" method="post" data-admin-wipe>
+            <div class="danger-zone__controls">
+              <label class="form-check">
+                <input type="checkbox" name="confirm">
+                Я понимаю последствия
+              </label>
+              <input class="admin-input" type="text" name="confirm_text" placeholder="Введите УДАЛИТЬ" required>
+              <button class="btn btn-danger btn-danger--big" type="submit">Нажми меня</button>
+            </div>
+          </form>
         </section>
         {% endif %}
 
@@ -1318,6 +1348,20 @@
           if (!ok) event.preventDefault();
         });
       });
+
+      const wipeForm = document.querySelector("[data-admin-wipe]");
+      if (wipeForm) {
+        wipeForm.addEventListener("submit", (event) => {
+          const input = wipeForm.querySelector('input[name="confirm_text"]');
+          const text = (input && input.value || "").trim().toUpperCase();
+          const ok = window.confirm(
+            "Последнее предупреждение: будут удалены пользователи, заявки, договоры, статистика, рефералы и платежи. Продолжить?"
+          );
+          if (!ok || text !== "УДАЛИТЬ") {
+            event.preventDefault();
+          }
+        });
+      }
 
       const leadRows = Array.from(document.querySelectorAll("[data-lead-file]"));
       if (leadRows.length) {

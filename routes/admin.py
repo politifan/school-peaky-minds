@@ -222,6 +222,15 @@ def lesson_redirect(message: str = "", error: str = "") -> RedirectResponse:
     return RedirectResponse(f"/admin?{urlencode(params)}", status_code=HTTP_302_FOUND)
 
 
+def wipe_redirect(message: str = "", error: str = "") -> RedirectResponse:
+    params = {"view": "overview"}
+    if message:
+        params["wipe_message"] = message
+    if error:
+        params["wipe_error"] = error
+    return RedirectResponse(f"/admin?{urlencode(params)}", status_code=HTTP_302_FOUND)
+
+
 def status_from_item(item: Dict[str, Any]) -> Tuple[str, str, str]:
     manual = (item.get("status") or "").strip()
     if manual in STATUS_META:
@@ -1163,6 +1172,8 @@ def _admin_panel_impl(request: Request):
     referral_error = request.query_params.get("ref_error") or ""
     lesson_message = request.query_params.get("lesson_message") or ""
     lesson_error = request.query_params.get("lesson_error") or ""
+    wipe_message = request.query_params.get("wipe_message") or ""
+    wipe_error = request.query_params.get("wipe_error") or ""
     referral_current_month = month_key()
     referral_participants = []
     referral_students = []
@@ -1349,6 +1360,8 @@ def _admin_panel_impl(request: Request):
             "referral_error": referral_error,
             "lesson_message": lesson_message,
             "lesson_error": lesson_error,
+            "wipe_message": wipe_message,
+            "wipe_error": wipe_error,
             "referral_current_month": referral_current_month,
             "referral_participants": referral_participants,
             "referral_students": referral_students,
@@ -1403,6 +1416,79 @@ async def admin_reset_metrics(request: Request):
     }
     core.save_metrics(metrics)
     return RedirectResponse("/admin?view=overview", status_code=HTTP_302_FOUND)
+
+
+@router.post("/admin/wipe-all", include_in_schema=False)
+async def admin_wipe_all(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    confirm = bool(form.get("confirm"))
+    confirm_text = str(form.get("confirm_text") or "").strip().upper()
+    if not confirm or confirm_text != "УДАЛИТЬ":
+        return wipe_redirect(error="Подтвердите удаление: поставьте галочку и введите УДАЛИТЬ")
+
+    users_data = load_json(core.USERS_FILE, {})
+    users_count = len(users_data) if isinstance(users_data, dict) else 0
+    codes_data = load_json(core.CODES_FILE, {})
+    codes_count = len(codes_data) if isinstance(codes_data, dict) else 0
+    referrals_data = load_referrals()
+    referrals_count = len(referrals_data.get("students") or {}) if isinstance(referrals_data, dict) else 0
+    payments_data = core.load_payments()
+    payments_count = len(payments_data.get("payments") or {}) if isinstance(payments_data, dict) else 0
+    leads_count = len(list(core.LEADS_DIR.glob("lead_*.json")))
+    agreements_count = len(list(core.AGREEMENTS_DIR.glob("agreement_*.json")))
+    contracts_count = len(list(core.CONTRACTS_DIR.glob("contract_*.pdf")))
+
+    for path in core.LEADS_DIR.glob("lead_*.json"):
+        try:
+            path.unlink()
+        except Exception:
+            logging.getLogger("app.admin").warning("Failed to delete lead file: %s", path)
+    for path in core.AGREEMENTS_DIR.glob("agreement_*.json"):
+        try:
+            path.unlink()
+        except Exception:
+            logging.getLogger("app.admin").warning("Failed to delete agreement file: %s", path)
+    for path in core.CONTRACTS_DIR.glob("contract_*.pdf"):
+        try:
+            path.unlink()
+        except Exception:
+            logging.getLogger("app.admin").warning("Failed to delete contract PDF: %s", path)
+
+    core.save_json(core.USERS_FILE, {})
+    core.save_json(core.CODES_FILE, {})
+    core.save_referrals({"students": {}, "audit": []})
+    core.save_payments({"payments": {}, "events": []})
+    core.save_metrics(
+        {
+            "total_visits": 0,
+            "unique_visits": 0,
+            "unique_ids": {},
+            "path_counts": {},
+            "funnel": {"home": 0, "login": 0, "apply": 0, "enroll": 0},
+        }
+    )
+
+    report = (
+        "🚨 <b>ПОЛНЫЙ СБРОС ДАННЫХ</b>\n"
+        f"👤 Пользователи: {users_count}\n"
+        f"🔑 Коды входа: {codes_count}\n"
+        f"🧾 Заявки: {leads_count}\n"
+        f"📄 Договоры: {agreements_count}\n"
+        f"📑 PDF договоров: {contracts_count}\n"
+        f"🤝 Рефералы: {referrals_count}\n"
+        f"💳 Платежи: {payments_count}\n"
+        "✅ WhiteList админов сохранён"
+    )
+    await notify_admins(report, subject="ALERT: Полный сброс данных")
+    return wipe_redirect(
+        message=(
+            "Данные удалены. Пользователи, заявки, договоры, статистика, рефералы и платежи очищены. "
+            "Whitelist админов сохранён."
+        )
+    )
 
 
 @router.post("/admin/leads/clear", include_in_schema=False)
