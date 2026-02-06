@@ -42,7 +42,7 @@ app.add_middleware(
     SessionMiddleware,
     secret_key=SESSION_SECRET,
     max_age=60 * 60 * 24 * 14,
-    same_site="lax",
+    same_site="none",
     https_only=bool(CANONICAL_SCHEME == "https"),
     domain=SESSION_DOMAIN,
 )
