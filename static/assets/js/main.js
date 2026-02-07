@@ -233,7 +233,7 @@ applyForms.forEach((form) => {
 
     const phoneField = form.querySelector('input[data-phone]');
     if (phoneField && !validatePhoneInput(phoneField, true)) {
-      showFormMessage(form, 'Проверьте номер телефона или Telegram.', true);
+      showFormMessage(form, 'Проверьте номер телефона.', true);
       form.dataset.sending = 'false';
       return;
     }
@@ -278,7 +278,7 @@ validatedForms.forEach((form) => {
     const phoneField = form.querySelector('input[data-phone]');
     if (phoneField && !validatePhoneInput(phoneField, true)) {
       event.preventDefault();
-      showFormMessage(form, 'Проверьте номер телефона или Telegram.', true);
+      showFormMessage(form, 'Проверьте номер телефона.', true);
       return;
     }
     const emailField = form.querySelector('input[data-email], input[type="email"]');
