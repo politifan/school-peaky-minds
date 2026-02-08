@@ -1244,6 +1244,24 @@ section {
     text-align: left;
   }
 
+  .theory-meter__dot:nth-child(1) { grid-row: 1; grid-column: 1; }
+  .theory-meter__dot:nth-child(2) { grid-row: 2; grid-column: 1; }
+  .theory-meter__dot:nth-child(3) { grid-row: 3; grid-column: 1; }
+  .theory-meter__dot:nth-child(4) { grid-row: 4; grid-column: 1; }
+  .theory-meter__labels span:nth-child(1) { grid-row: 1; grid-column: 2; }
+  .theory-meter__labels span:nth-child(2) { grid-row: 2; grid-column: 2; }
+  .theory-meter__labels span:nth-child(3) { grid-row: 3; grid-column: 2; }
+  .theory-meter__labels span:nth-child(4) { grid-row: 4; grid-column: 2; }
+
+  .career-meter__dot:nth-child(1) { grid-row: 1; grid-column: 1; }
+  .career-meter__dot:nth-child(2) { grid-row: 2; grid-column: 1; }
+  .career-meter__dot:nth-child(3) { grid-row: 3; grid-column: 1; }
+  .career-meter__dot:nth-child(4) { grid-row: 4; grid-column: 1; }
+  .career-meter__labels span:nth-child(1) { grid-row: 1; grid-column: 2; }
+  .career-meter__labels span:nth-child(2) { grid-row: 2; grid-column: 2; }
+  .career-meter__labels span:nth-child(3) { grid-row: 3; grid-column: 2; }
+  .career-meter__labels span:nth-child(4) { grid-row: 4; grid-column: 2; }
+
   .apply-float {
     right: 16px;
     bottom: 16px;
