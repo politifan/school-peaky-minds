@@ -212,7 +212,7 @@ section {
 }
 
 .home-page main {
-  padding-top: 144px;
+  padding-top: 112px;
 }
 
 .nav {
@@ -312,7 +312,7 @@ section {
 }
 
 .home-hero {
-  padding-top: 0;
+  padding-top: 90px;
 }
 
 .hero::before {
@@ -3428,11 +3428,11 @@ html[amp] .reveal {
   }
 
   .home-page main {
-    padding-top: 128px;
+    padding-top: 104px;
   }
 
   .home-hero {
-    padding-top: 0;
+    padding-top: 90px;
   }
 
   .hero::before {
