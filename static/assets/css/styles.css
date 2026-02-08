@@ -1188,6 +1188,54 @@ section {
 }
 
 @media (max-width: 720px) {
+  .nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+  }
+
+  .logo img,
+  .logo amp-img {
+    width: 52px;
+    height: 52px;
+  }
+
+  .logo span {
+    font-size: 18px !important;
+  }
+
+  .nav-user,
+  .nav .btn {
+    align-self: flex-start;
+  }
+
+  .theory-meter__track,
+  .career-meter__track {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .theory-meter__track::before,
+  .career-meter__track::before {
+    left: 50%;
+    right: auto;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    height: auto;
+    transform: translateX(-50%);
+  }
+
+  .theory-meter__labels,
+  .career-meter__labels {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    text-align: center;
+  }
+
   .apply-float {
     right: 16px;
     bottom: 16px;
@@ -3357,7 +3405,7 @@ select:focus {
 
 @media (max-width: 720px) {
   .admin-hero {
-    margin-top: 80px;
+    margin-top: 24px;
   }
 
   .admin-hero__actions {
@@ -3371,6 +3419,33 @@ select:focus {
 
   .admin-table td {
     grid-template-columns: 90px 1fr;
+  }
+
+  .admin-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #admin-overview .admin-section-head,
+  #admin-leads .admin-section-head,
+  #admin-referrals .admin-section-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  #admin-overview .admin-section-actions,
+  #admin-leads .admin-section-actions,
+  #admin-referrals .admin-section-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  #admin-overview .admin-section-actions .btn,
+  #admin-leads .admin-section-actions .btn,
+  #admin-referrals .admin-section-actions .btn {
+    width: 100%;
   }
 
   #admin-agreements .admin-section-head,
