@@ -81,11 +81,17 @@ async def login_vk_bridge(request: Request):
 
     users = load_json(USERS_FILE, {})
     user_id = f"vk:{vk_id}"
+    existing = users.get(user_id) if isinstance(users, dict) else None
+    if not isinstance(existing, dict):
+        existing = {}
     name = f"{payload.get('first_name', '')} {payload.get('last_name', '')}".strip() or "VK User"
+    phone = existing.get("phone") or payload.get("phone") or payload.get("mobile_phone")
+    email = payload.get("email") or existing.get("email")
     user = {
         "id": user_id,
-        "email": None,
+        "email": email,
         "name": name,
+        "phone": phone,
         "provider": "vk",
     }
     users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}
@@ -296,10 +302,20 @@ async def auth_google(request: Request):
     users = load_json(USERS_FILE, {})
     user_sub = userinfo.get("sub") or userinfo.get("id") or userinfo.get("email")
     user_id = f"google:{user_sub}"
+    existing = users.get(user_id) if isinstance(users, dict) else None
+    if not isinstance(existing, dict):
+        existing = {}
+    phone = (
+        existing.get("phone")
+        or userinfo.get("phone_number")
+        or userinfo.get("phone")
+        or userinfo.get("phoneNumber")
+    )
     user = {
         "id": user_id,
-        "email": userinfo.get("email"),
-        "name": userinfo.get("name") or userinfo.get("given_name") or userinfo.get("email"),
+        "email": userinfo.get("email") or existing.get("email"),
+        "name": userinfo.get("name") or userinfo.get("given_name") or existing.get("name") or userinfo.get("email"),
+        "phone": phone,
         "provider": "google",
     }
     users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}
@@ -331,10 +347,20 @@ async def auth_vk(request: Request):
 
     users = load_json(USERS_FILE, {})
     user_id = f"vk:{profile.get('id')}"
+    existing = users.get(user_id) if isinstance(users, dict) else None
+    if not isinstance(existing, dict):
+        existing = {}
+    phone = (
+        existing.get("phone")
+        or profile.get("mobile_phone")
+        or profile.get("phone")
+        or token.get("phone")
+    )
     user = {
         "id": user_id,
-        "email": token.get("email"),
-        "name": f"{profile.get('first_name', '')} {profile.get('last_name', '')}".strip(),
+        "email": token.get("email") or existing.get("email"),
+        "name": f"{profile.get('first_name', '')} {profile.get('last_name', '')}".strip() or existing.get("name"),
+        "phone": phone,
         "provider": "vk",
     }
     users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}
@@ -356,10 +382,14 @@ async def login_telegram(request: Request):
 
     users = load_json(USERS_FILE, {})
     user_id = f"telegram:{data.get('id')}"
+    existing = users.get(user_id) if isinstance(users, dict) else None
+    if not isinstance(existing, dict):
+        existing = {}
     user = {
         "id": user_id,
-        "email": None,
+        "email": existing.get("email"),
         "name": data.get("first_name") or data.get("username") or "Telegram",
+        "phone": existing.get("phone"),
         "provider": "telegram",
     }
     users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}

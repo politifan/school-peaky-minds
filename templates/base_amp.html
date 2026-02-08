@@ -176,7 +176,7 @@
             <form class="modal-form" action="/apply" method="post" target="_top">
             <input type="text" name="name" placeholder="Ваше имя" value="{{ user.name if user else '' }}" maxlength="60">
             <div class="input-wrap">
-              <input type="text" name="phone" placeholder="Телефон" data-phone="strict" pattern="(\\+?7|8)[0-9\\s\\-()]{10,16}" maxlength="18" required>
+              <input type="text" name="phone" placeholder="Телефон" data-phone="strict" pattern="(\\+?7|8)[0-9\\s\\-()]{10,16}" maxlength="18" required value="{{ user.phone if user else "" }}">
               <div class="input-hint">Пример: +7 999 000‑00‑00</div>
               <div class="input-error" aria-live="polite"></div>
             </div>
@@ -206,7 +206,7 @@
               </select>
               <input type="text" name="full_name" placeholder="ФИО" value="{{ user.name if user else '' }}" required minlength="2" maxlength="60">
               <div class="input-wrap">
-                <input type="text" name="phone" placeholder="Телефон" data-phone="strict" required pattern="(\\+?7|8)[0-9\\s\\-()]{10,16}" maxlength="18">
+                <input type="text" name="phone" placeholder="Телефон" data-phone="strict" required pattern="(\\+?7|8)[0-9\\s\\-()]{10,16}" maxlength="18" value="{{ user.phone if user else "" }}">
                 <div class="input-hint">Пример: +7 999 000‑00‑00</div>
                 <div class="input-error" aria-live="polite"></div>
               </div>
