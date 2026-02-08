@@ -1212,28 +1212,36 @@ section {
 
   .theory-meter__track,
   .career-meter__track {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: contents;
   }
 
   .theory-meter__track::before,
   .career-meter__track::before {
-    left: 50%;
-    right: auto;
-    top: 6px;
-    bottom: 6px;
-    width: 1px;
-    height: auto;
-    transform: translateX(-50%);
+    display: none;
   }
 
   .theory-meter__labels,
   .career-meter__labels {
+    display: contents;
+  }
+
+  .theory-meter,
+  .career-meter {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 6px;
-    text-align: center;
+    grid-template-columns: 16px 1fr;
+    column-gap: 12px;
+    row-gap: 8px;
+    align-items: center;
+  }
+
+  .theory-meter__dot,
+  .career-meter__dot {
+    justify-self: center;
+  }
+
+  .theory-meter__labels span,
+  .career-meter__labels span {
+    text-align: left;
   }
 
   .apply-float {
