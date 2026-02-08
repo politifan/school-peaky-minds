@@ -1207,7 +1207,7 @@ section {
 
   .nav-user,
   .nav .btn {
-    align-self: flex-start;
+    align-self: flex-end;
   }
 
   .theory-meter__track,

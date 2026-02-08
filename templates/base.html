@@ -79,6 +79,7 @@
       </nav>
       {% if user %}
         <a class="nav-user" href="/account">
+          <span class="nav-user__label">Личный кабинет</span>
           <span class="avatar {% if user_avatar.variant == 'email' %}avatar--email{% endif %}">
             {% if user_avatar.url %}
             <img src="{{ user_avatar.url }}" alt="Аватар профиля" loading="lazy"
@@ -87,7 +88,6 @@
             {% endif %}
             <span class="avatar-initial">{{ user_avatar.initial }}</span>
           </span>
-          <span class="nav-user__label">Кабинет</span>
         </a>
       {% else %}
         <a class="btn btn-secondary" href="/login">Войти</a>
