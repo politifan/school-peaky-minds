@@ -820,6 +820,58 @@ section {
   color: var(--muted);
 }
 
+.panel-note {
+  margin-top: 12px;
+  color: var(--text-2);
+}
+
+.theory-meter {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(8, 14, 14, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.theory-meter__track {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.theory-meter__track::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.2));
+  transform: translateY(-50%);
+}
+
+.theory-meter__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #0b1110;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  z-index: 1;
+}
+
+.theory-meter__labels {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 .courses .card-grid {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
@@ -991,7 +1043,7 @@ section {
 
 .career-meter__track {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: center;
   gap: 12px;
   position: relative;
@@ -1032,9 +1084,15 @@ section {
   animation-delay: 0.5s;
 }
 
+.career-meter__dot:nth-child(4) {
+  border-color: rgba(124, 210, 255, 0.85);
+  box-shadow: 0 0 14px rgba(124, 210, 255, 0.35);
+  animation-delay: 0.75s;
+}
+
 .career-meter__labels {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   font-size: 0.78rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1047,6 +1105,10 @@ section {
 
 .career-meter__labels span:nth-child(3) {
   color: rgba(255, 179, 71, 0.9);
+}
+
+.career-meter__labels span:nth-child(4) {
+  color: rgba(124, 210, 255, 0.9);
 }
 
 .problem-cta {

@@ -225,17 +225,25 @@ links.forEach((link) => {
 
     <section class="problem">
       <div class="container">
-        <h2 class="section-title reveal">Прочие курсы - теория. Peaky Minds - карьера</h2>
+        <h2 class="section-title reveal">Прочие курсы - Диплом. Peaky Minds - Карьера</h2>
         <div class="columns reveal">
           <div class="panel muted">
             <h3>У других</h3>
-            <ul>
-              <li>Большие потоки</li>
-              <li>Нет задач из реальной разработки</li>
-              <li>Мало практики</li>
-              <li>Одна программа для всех</li>
-              <li>Нет реального опыта</li>
-            </ul>
+            <p class="panel-note">Траектория без практики — много теории и диплом без реального опыта.</p>
+            <div class="theory-meter" aria-label="Траектория теории">
+              <div class="theory-meter__track">
+                <span class="theory-meter__dot"></span>
+                <span class="theory-meter__dot"></span>
+                <span class="theory-meter__dot"></span>
+                <span class="theory-meter__dot"></span>
+              </div>
+              <div class="theory-meter__labels">
+                <span>Теория</span>
+                <span>Больше теории</span>
+                <span>Практика</span>
+                <span>Диплом</span>
+              </div>
+            </div>
           </div>
           <div class="panel highlight">
             <h3>У нас</h3>
@@ -245,11 +253,13 @@ links.forEach((link) => {
                 <span class="career-meter__dot"></span>
                 <span class="career-meter__dot"></span>
                 <span class="career-meter__dot"></span>
+                <span class="career-meter__dot"></span>
               </div>
               <div class="career-meter__labels">
                 <span>Теория</span>
                 <span>Практика</span>
                 <span>Доход</span>
+                <span>Карьера</span>
               </div>
             </div>
             <div class="stamp">Фокус на результат</div>
