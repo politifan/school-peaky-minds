@@ -301,7 +301,7 @@ section {
 }
 
 .home-hero {
-  padding-top: 60px;
+  padding-top: 0;
 }
 
 .hero::before {
@@ -3417,7 +3417,7 @@ html[amp] .reveal {
   }
 
   .home-hero {
-    padding-top: 70px;
+    padding-top: 0;
   }
 
   .hero::before {

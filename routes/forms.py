@@ -108,6 +108,8 @@ async def apply(request: Request):
     course = str(form.get("course", "")).strip()
     if telegram_raw and course and telegram_raw.strip().lower() == course.lower():
         telegram_raw = ""
+    if telegram_raw.strip().lower() == "main":
+        telegram_raw = ""
     telegram_norm = normalize_telegram(telegram_raw) or ""
     telegram_display = ""
     if telegram_norm:
@@ -185,6 +187,8 @@ async def enroll(request: Request):
     telegram_raw = str(payload.get("telegram") or "").strip()
     course = str(payload.get("course") or "").strip()
     if telegram_raw and course and telegram_raw.strip().lower() == course.lower():
+        telegram_raw = ""
+    if telegram_raw.strip().lower() == "main":
         telegram_raw = ""
     telegram_norm = normalize_telegram(telegram_raw) or ""
     if telegram_norm:
