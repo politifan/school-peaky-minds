@@ -382,6 +382,10 @@ section {
   margin-bottom: 24px;
 }
 
+.hero-actions .btn {
+  font-size: 0.95rem;
+}
+
 .mini-benefits {
   display: flex;
   flex-wrap: wrap;
@@ -1167,6 +1171,10 @@ section {
 
 .apply-float__label span {
   display: block;
+}
+
+.apply-float__space {
+  height: 6px;
 }
 
 .apply-float__button {
