@@ -517,14 +517,16 @@
                 </div>
               </td>
               <td data-label="Контакт">
-                {% set contact_value = lead.contact or lead.telegram %}
                 <div class="admin-cell">
-                  <span>{{ lead.contact or "—" }}</span>
+                  <span>{{ lead.contact or "?" }}</span>
+                  {% if lead.contact %}
+                  <button class="admin-copy" type="button" data-copy="{{ lead.contact }}">???. ???.</button>
+                  {% endif %}
                   {% if lead.telegram and lead.telegram != lead.contact %}
                   <span class="admin-subtext">tg: {{ lead.telegram }}</span>
                   {% endif %}
-                  {% if contact_value %}
-                  <button class="admin-copy" type="button" data-copy="{{ contact_value }}">Коп.</button>
+                  {% if lead.telegram %}
+                  <button class="admin-copy" type="button" data-copy="{{ lead.telegram }}">???. tg</button>
                   {% endif %}
                 </div>
               </td>

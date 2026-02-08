@@ -300,6 +300,10 @@ section {
   position: relative;
 }
 
+.home-hero {
+  padding-top: 60px;
+}
+
 .hero::before {
   content: "";
   position: absolute;
@@ -3410,6 +3414,10 @@ html[amp] .reveal {
   .hero {
     padding-top: 90px;
     overflow-x: hidden;
+  }
+
+  .home-hero {
+    padding-top: 70px;
   }
 
   .hero::before {

@@ -105,6 +105,9 @@ async def apply(request: Request):
     name = clamp_text(form.get("name", ""), 60)
     contact = str(form.get("phone", "")).strip()
     telegram_raw = str(form.get("telegram", "")).strip()
+    course = str(form.get("course", "")).strip()
+    if telegram_raw and course and telegram_raw.strip().lower() == course.lower():
+        telegram_raw = ""
     telegram_norm = normalize_telegram(telegram_raw) or ""
     telegram_display = ""
     if telegram_norm:
@@ -118,7 +121,6 @@ async def apply(request: Request):
         return HTMLResponse("Укажите телефон или Telegram", status_code=400)
     if contact and not is_valid_phone(contact):
         return HTMLResponse("Некорректный телефон", status_code=400)
-    course = str(form.get("course", "")).strip()
     page = request.headers.get("referer", "")
 
     lead_payload = {
@@ -181,6 +183,9 @@ async def enroll(request: Request):
     }
     phone_raw = str(payload.get("phone") or "").strip()
     telegram_raw = str(payload.get("telegram") or "").strip()
+    course = str(payload.get("course") or "").strip()
+    if telegram_raw and course and telegram_raw.strip().lower() == course.lower():
+        telegram_raw = ""
     telegram_norm = normalize_telegram(telegram_raw) or ""
     if telegram_norm:
         if telegram_norm.startswith("http://") or telegram_norm.startswith("https://"):
