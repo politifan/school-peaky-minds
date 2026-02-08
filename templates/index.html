@@ -1,8 +1,9 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}IT‑школа Peaky Minds - курсы программирования, заработок в IT и фриланс{% endblock %}
 {% block description %}IT‑школа Peaky Minds - онлайн курсы программирования и заработка в IT: Python, Full‑stack, Data Science/ML и автоматизация бизнеса. Много практики, реальные проекты, портфолио, фриланс и стажировки, помощь с резюме и трудоустройством. Обучение с нуля и для уровня базовый: мини‑группы и индивидуальные траектории.{% endblock %}
 {% block meta_keywords %}IT школа, курсы программирования, обучение программированию, онлайн курсы, курсы Python, Python с нуля, backend курс, fullstack курс, Full‑stack разработчик, FastAPI курс, SQLAlchemy, базы данных, PostgreSQL, DevOps основы, Docker курс, Data Science курс, машинное обучение, ML курс, нейросети, NLP, компьютерное зрение, аналитика данных, автоматизация бизнеса, парсеры, боты, Telegram бот, web scraping, портфолио разработчика, реальные проекты, практика, наставник, менторство, стажировка, трудоустройство, карьера разработчика, удаленная работа, фриланс, заработок в IT, первые деньги в IT, мини‑группа, индивидуальное обучение, интенсив, курс для новичков, обучение с нуля, переквалификация, IT профессия, программирование для бизнеса{% endblock %}
+{% block body_class %}home-page{% endblock %}
 
 {% block extra_head %}
 <script type="application/ld+json">
@@ -345,7 +346,7 @@ links.forEach((link) => {
                 </div>
                 <div class="course-card__actions">
                   <a class="btn btn-secondary" href="/courses/fullstack">Смотреть программу</a>
-                  <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться</button>
+                  <button class="btn btn-primary" type="button" data-open-modal="apply">Выбрать вариант</button>
                 </div>
               </article>
               <article class="course-card course-carousel__slide course-card--beginners">
@@ -377,7 +378,7 @@ links.forEach((link) => {
                 </div>
                 <div class="course-card__actions">
                   <a class="btn btn-secondary" href="/courses/python-beginners">Смотреть программу</a>
-                  <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться</button>
+                  <button class="btn btn-primary" type="button" data-open-modal="apply">Выбрать вариант</button>
                 </div>
               </article>
               <article class="course-card course-carousel__slide course-card--data">
@@ -409,7 +410,7 @@ links.forEach((link) => {
                 </div>
                 <div class="course-card__actions">
                   <a class="btn btn-secondary" href="/courses/data-science">Смотреть программу</a>
-                  <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться</button>
+                  <button class="btn btn-primary" type="button" data-open-modal="apply">Выбрать вариант</button>
                 </div>
               </article>
               <article class="course-card course-carousel__slide course-card--business">
@@ -441,7 +442,7 @@ links.forEach((link) => {
                 </div>
                 <div class="course-card__actions">
                   <a class="btn btn-secondary" href="/courses/business">Смотреть программу</a>
-                  <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться</button>
+                  <button class="btn btn-primary" type="button" data-open-modal="apply">Выбрать вариант</button>
                 </div>
               </article>
             </div>
@@ -969,16 +970,22 @@ links.forEach((link) => {
             <h2>Оставьте заявку - составим план обучения под ваши цели</h2>
             <p>Подберём курс, оценим уровень и скажем, как быстрее выйти на проекты, фриланс или работу.</p>
           </div>
-          <form class="cta-form" action="/apply" method="post" target="_top">
-            <input type="text" name="name" placeholder="Ваше имя" maxlength="60">
-            <div class="input-wrap">
-              <input type="text" name="phone" placeholder="Телефон" data-phone="strict" pattern="(\\+?7|8)[0-9\\s\\-()]{10,16}" maxlength="18" required>
-              <div class="input-hint">Пример: +7 900 123‑45‑67</div>
-              <div class="input-error" aria-live="polite"></div>
-            </div>
-            <input type="hidden" name="course" value="Main">
-            <button class="btn btn-primary" type="submit">Получить консультацию</button>
-          </form>
+          <form class="cta-form" action="/apply" method="post" target="_top" data-contact-required>
+  <input type="text" name="name" placeholder="Ваше имя" maxlength="60" required>
+  <div class="input-wrap">
+    <input type="text" name="phone" placeholder="Телефон" data-phone="strict" pattern="(\+?7|8)[0-9\s\-()]{10,16}" maxlength="18">
+    <div class="input-hint">Пример: +7 900 123‑45‑67</div>
+    <div class="input-error" aria-live="polite"></div>
+  </div>
+  <div class="input-wrap">
+    <input type="text" name="telegram" placeholder="Telegram (@username)" data-telegram>
+    <div class="input-hint">Пример: @username</div>
+    <div class="input-error" aria-live="polite"></div>
+    <div class="input-status" aria-live="polite"></div>
+  </div>
+  <input type="hidden" name="course" value="Main">
+  <button class="btn btn-primary" type="submit">Получить консультацию</button>
+</form>
         </div>
       </div>
     </section>

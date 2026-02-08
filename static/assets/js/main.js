@@ -1,4 +1,4 @@
-const modalTriggers = document.querySelectorAll('[data-open-modal]');
+﻿const modalTriggers = document.querySelectorAll('[data-open-modal]');
 const modals = document.querySelectorAll('.modal');
 const closeButtons = document.querySelectorAll('[data-close-modal]');
 
@@ -224,6 +224,18 @@ telegramInputs.forEach((input) => {
   });
 });
 
+const isTelegramValidInput = (input) => {
+  if (!input) return false;
+  const value = input.value.trim();
+  if (!value) return false;
+  if (!telegramPattern.test(value)) return false;
+  const wrap = input.closest('.input-wrap');
+  if (wrap && (wrap.classList.contains('pending') || wrap.classList.contains('invalid'))) {
+    return false;
+  }
+  return true;
+};
+
 const applyForms = document.querySelectorAll('form[action="/apply"]');
 applyForms.forEach((form) => {
   form.addEventListener('submit', async (event) => {
@@ -231,12 +243,45 @@ applyForms.forEach((form) => {
     if (form.dataset.sending === 'true') return;
     form.dataset.sending = 'true';
 
-    const phoneField = form.querySelector('input[data-phone]');
-    if (phoneField && !validatePhoneInput(phoneField, true)) {
-      showFormMessage(form, 'Проверьте номер телефона или Telegram.', true);
+    const nameField = form.querySelector('input[name="name"]');
+    if (nameField && !nameField.value.trim()) {
+      showFormMessage(form, 'Введите имя.', true);
       form.dataset.sending = 'false';
       return;
     }
+
+    const phoneField = form.querySelector('input[data-phone]');
+    const telegramField = form.querySelector('input[data-telegram]');
+    const contactRequired = form.hasAttribute('data-contact-required');
+    const phoneProvided = !!(phoneField && phoneField.value.trim());
+    const telegramProvided = !!(telegramField && telegramField.value.trim());
+
+    if (contactRequired && !phoneProvided && !telegramProvided) {
+      showFormMessage(form, 'Укажите телефон или Telegram.', true);
+      form.dataset.sending = 'false';
+      return;
+    }
+
+    if (phoneProvided && phoneField && !validatePhoneInput(phoneField, true)) {
+      showFormMessage(form, 'Проверьте номер телефона.', true);
+      form.dataset.sending = 'false';
+      return;
+    }
+
+    if (telegramProvided && telegramField) {
+      const wrap = telegramField.closest('.input-wrap');
+      if (wrap && wrap.classList.contains('pending')) {
+        showFormMessage(form, 'Дождитесь проверки Telegram.', true);
+        form.dataset.sending = 'false';
+        return;
+      }
+      if (!isTelegramValidInput(telegramField)) {
+        showFormMessage(form, 'Проверьте Telegram username.', true);
+        form.dataset.sending = 'false';
+        return;
+      }
+    }
+
     const emailField = form.querySelector('input[data-email], input[type="email"]');
     if (emailField && !isValidEmailValue(emailField.value)) {
       showFormMessage(form, 'Введите корректный email (минимум 4 символа после @ и точка).', true);
@@ -276,9 +321,20 @@ const validatedForms = document.querySelectorAll('form[data-validate-phone]');
 validatedForms.forEach((form) => {
   form.addEventListener('submit', (event) => {
     const phoneField = form.querySelector('input[data-phone]');
-    if (phoneField && !validatePhoneInput(phoneField, true)) {
+    const telegramField = form.querySelector('input[data-telegram]');
+    const contactRequired = form.hasAttribute('data-contact-required');
+    const phoneProvided = !!(phoneField && phoneField.value.trim());
+    const telegramProvided = !!(telegramField && telegramField.value.trim());
+
+    if (contactRequired && !phoneProvided && !telegramProvided) {
       event.preventDefault();
-      showFormMessage(form, 'Проверьте номер телефона или Telegram.', true);
+      showFormMessage(form, 'Укажите телефон или Telegram.', true);
+      return;
+    }
+
+    if (phoneProvided && phoneField && !validatePhoneInput(phoneField, true)) {
+      event.preventDefault();
+      showFormMessage(form, 'Проверьте номер телефона.', true);
       return;
     }
     const emailField = form.querySelector('input[data-email], input[type="email"]');
@@ -287,7 +343,6 @@ validatedForms.forEach((form) => {
       showFormMessage(form, 'Введите корректный email (минимум 4 символа после @ и точка).', true);
       return;
     }
-    const telegramField = form.querySelector('input[data-telegram]');
     if (telegramField && telegramField.value.trim()) {
       const wrap = telegramField.closest('.input-wrap');
       if (wrap && wrap.classList.contains('pending')) {
@@ -295,7 +350,7 @@ validatedForms.forEach((form) => {
         showFormMessage(form, 'Дождитесь проверки Telegram.', true);
         return;
       }
-      if (wrap && wrap.classList.contains('invalid')) {
+      if (!isTelegramValidInput(telegramField)) {
         event.preventDefault();
         showFormMessage(form, 'Проверьте Telegram username.', true);
       }

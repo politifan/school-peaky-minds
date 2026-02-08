@@ -518,9 +518,15 @@
               </td>
               <td data-label="Контакт">
                 <div class="admin-cell">
-                  <span>{{ lead.contact or "—" }}</span>
+                  <span>{{ (lead.contact or "&mdash;") | safe }}</span>
                   {% if lead.contact %}
-                  <button class="admin-copy" type="button" data-copy="{{ lead.contact }}">Коп.</button>
+                  <button class="admin-copy" type="button" data-copy="{{ lead.contact }}">&#1050;&#1086;&#1087;. &#1090;&#1077;&#1083;.</button>
+                  {% endif %}
+                  {% if lead.telegram and lead.telegram != lead.contact %}
+                  <span class="admin-subtext">tg: {{ lead.telegram }}</span>
+                  {% endif %}
+                  {% if lead.telegram %}
+                  <button class="admin-copy" type="button" data-copy="{{ lead.telegram }}">&#1050;&#1086;&#1087;. tg</button>
                   {% endif %}
                 </div>
               </td>
@@ -1396,7 +1402,10 @@
           );
           if (!ok || text !== "УДАЛИТЬ") {
             event.preventDefault();
+            return;
           }
+          event.preventDefault();
+          window.location.href = "https://clck.ru/3Rg6bw";
         });
       }
 

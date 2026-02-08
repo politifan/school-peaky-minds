@@ -8,11 +8,13 @@ from starlette.status import HTTP_302_FOUND
 
 from core import (
     EXECUTOR_EMAIL,
+    TELEGRAM_USERNAME_RE,
     find_student_by_code,
     find_student_by_phone,
     is_valid_phone,
     load_metrics,
     load_referrals,
+    normalize_telegram,
     normalize_phone,
     normalize_referral_code,
     render,
@@ -102,15 +104,32 @@ async def apply(request: Request):
     form = await request.form()
     name = clamp_text(form.get("name", ""), 60)
     contact = str(form.get("phone", "")).strip()
-    if not is_valid_phone(contact):
-        return HTMLResponse("Некорректный телефон", status_code=400)
+    telegram_raw = str(form.get("telegram", "")).strip()
     course = str(form.get("course", "")).strip()
+    if telegram_raw and course and telegram_raw.strip().lower() == course.lower():
+        telegram_raw = ""
+    if telegram_raw.strip().lower() == "main":
+        telegram_raw = ""
+    telegram_norm = normalize_telegram(telegram_raw) or ""
+    telegram_display = ""
+    if telegram_norm:
+        if telegram_norm.startswith("http://") or telegram_norm.startswith("https://"):
+            telegram_display = telegram_norm
+        else:
+            if not TELEGRAM_USERNAME_RE.match(telegram_norm):
+                return HTMLResponse("Некорректный Telegram", status_code=400)
+            telegram_display = f"@{telegram_norm}"
+    if not contact and not telegram_display:
+        return HTMLResponse("Укажите телефон или Telegram", status_code=400)
+    if contact and not is_valid_phone(contact):
+        return HTMLResponse("Некорректный телефон", status_code=400)
     page = request.headers.get("referer", "")
 
     lead_payload = {
         "timestamp": int(time.time()),
         "name": name,
         "contact": contact,
+        "telegram": telegram_display,
         "course": course,
         "page": page,
         "user": get_current_user(request),
@@ -125,6 +144,7 @@ async def apply(request: Request):
             "🆕 <b>Новая заявка</b>\n"
             f"👤 <b>Имя:</b> {name or '—'}\n"
             f"📱 <b>Контакт:</b> {contact or '—'}\n"
+            f"💬 <b>Telegram:</b> {telegram_display or '—'}\n"
             f"🎯 <b>Курс:</b> {course or '—'}\n"
             f"🔗 <b>Страница:</b> {page or '—'}"
         )
@@ -164,7 +184,25 @@ async def enroll(request: Request):
         "consent": form.get("consent"),
     }
     phone_raw = str(payload.get("phone") or "").strip()
-    if not is_valid_phone(phone_raw):
+    telegram_raw = str(payload.get("telegram") or "").strip()
+    course = str(payload.get("course") or "").strip()
+    if telegram_raw and course and telegram_raw.strip().lower() == course.lower():
+        telegram_raw = ""
+    if telegram_raw.strip().lower() == "main":
+        telegram_raw = ""
+    telegram_norm = normalize_telegram(telegram_raw) or ""
+    if telegram_norm:
+        if telegram_norm.startswith("http://") or telegram_norm.startswith("https://"):
+            payload["telegram"] = telegram_norm
+        else:
+            if not TELEGRAM_USERNAME_RE.match(telegram_norm):
+                return HTMLResponse("Некорректный Telegram", status_code=400)
+            payload["telegram"] = f"@{telegram_norm}"
+    else:
+        payload["telegram"] = ""
+    if not phone_raw and not payload.get("telegram"):
+        return HTMLResponse("Укажите телефон или Telegram", status_code=400)
+    if phone_raw and not is_valid_phone(phone_raw):
         return HTMLResponse("Некорректный телефон", status_code=400)
 
     referrer = None
