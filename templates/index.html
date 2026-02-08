@@ -971,7 +971,7 @@ links.forEach((link) => {
             <p>Подберём курс, оценим уровень и скажем, как быстрее выйти на проекты, фриланс или работу.</p>
           </div>
           <form class="cta-form" action="/apply" method="post" target="_top" data-contact-required>
-  <input type="text" name="name" placeholder="Ваше имя" maxlength="60" required>
+            <input type="text" name="name" placeholder="Ваше имя" value="{{ user.name if user else '' }}" maxlength="60" required>
   <div class="input-wrap">
     <input type="text" name="phone" placeholder="Телефон" data-phone="strict" pattern="(\+?7|8)[0-9\s\-()]{10,16}" maxlength="18">
     <div class="input-hint">Пример: +7 900 123‑45‑67</div>

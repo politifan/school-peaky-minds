@@ -174,7 +174,7 @@
             <h3>Консультация</h3>
             <p>Оставьте контакт — ответим в течение дня.</p>
             <form class="modal-form" action="/apply" method="post" target="_top">
-            <input type="text" name="name" placeholder="Ваше имя" maxlength="60">
+            <input type="text" name="name" placeholder="Ваше имя" value="{{ user.name if user else '' }}" maxlength="60">
             <div class="input-wrap">
               <input type="text" name="phone" placeholder="Телефон" data-phone="strict" pattern="(\\+?7|8)[0-9\\s\\-()]{10,16}" maxlength="18" required>
               <div class="input-hint">Пример: +7 999 000‑00‑00</div>
@@ -204,7 +204,7 @@
                 <option value="Data Science / ML" {% if course_slug == "Data Science" %}selected{% endif %}>Data Science / ML</option>
                 <option value="Программирование для бизнеса" {% if course_slug == "Business" %}selected{% endif %}>Программирование для бизнеса</option>
               </select>
-              <input type="text" name="full_name" placeholder="ФИО" required minlength="2" maxlength="60">
+              <input type="text" name="full_name" placeholder="ФИО" value="{{ user.name if user else '' }}" required minlength="2" maxlength="60">
               <div class="input-wrap">
                 <input type="text" name="phone" placeholder="Телефон" data-phone="strict" required pattern="(\\+?7|8)[0-9\\s\\-()]{10,16}" maxlength="18">
                 <div class="input-hint">Пример: +7 999 000‑00‑00</div>
