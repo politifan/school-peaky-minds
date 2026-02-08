@@ -251,6 +251,7 @@ def build_status_keyboard(
 def build_lead_text(item: Dict[str, object]) -> str:
     name = str(item.get("name") or "—")
     contact = str(item.get("contact") or "—")
+    telegram = str(item.get("telegram") or "—")
     course = str(item.get("course") or "—")
     page = str(item.get("page") or "—")
     note = str(item.get("note") or "").strip()
@@ -258,6 +259,7 @@ def build_lead_text(item: Dict[str, object]) -> str:
     next_contact = str(item.get("next_contact") or "").strip() or "—"
     safe_name = html.escape(name)
     safe_contact = html.escape(contact)
+    safe_telegram = html.escape(telegram)
     safe_course = html.escape(course)
     safe_page = html.escape(page)
     safe_note = html.escape(note)
@@ -278,6 +280,7 @@ def build_lead_text(item: Dict[str, object]) -> str:
         "<b>Контакт</b>",
         f"👤 {safe_name}",
         f"📱 {safe_contact}",
+        f"💬 {safe_telegram}",
         f"🎯 {safe_course}",
         "",
         "<b>Источник</b>",

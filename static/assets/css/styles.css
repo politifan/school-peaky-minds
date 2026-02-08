@@ -204,6 +204,17 @@ section {
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
 }
 
+.home-page .site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.home-page main {
+  padding-top: 96px;
+}
+
 .nav {
   display: flex;
   align-items: center;
@@ -3414,6 +3425,10 @@ html[amp] .reveal {
   .hero {
     padding-top: 90px;
     overflow-x: hidden;
+  }
+
+  .home-page main {
+    padding-top: 88px;
   }
 
   .home-hero {
