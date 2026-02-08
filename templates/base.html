@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="utf-8">
@@ -159,22 +159,28 @@
           <button class="modal-back" type="button" data-modal-panel="choice">← Назад</button>
           <h3>Консультация</h3>
           <p>Оставьте контакт — ответим в течение дня.</p>
-          <form class="modal-form" action="/apply" method="post" data-validate-phone>
-            <input type="text" name="name" placeholder="Ваше имя" maxlength="60">
-            <div class="input-wrap">
-              <input type="text" name="phone" placeholder="Телефон" data-phone="strict" pattern="(\\+?7|8)[0-9\\s\\-()]{10,16}" maxlength="18" required>
-              <div class="input-hint">Пример: +7 999 000‑00‑00</div>
-              <div class="input-error" aria-live="polite"></div>
-            </div>
-            <select name="course">
-              <option value="" disabled {% if not course_slug %}selected{% endif %}>Выберите курс</option>
-              <option value="Full-stack разработчик" {% if course_slug == "Full-stack" or course_slug == "Full-stack разработчик" %}selected{% endif %}>Full‑stack разработчик</option>
-              <option value="Python для новичков" {% if course_slug == "Python для новичков" %}selected{% endif %}>Python для новичков</option>
-              <option value="Data Science / ML" {% if course_slug == "Data Science" %}selected{% endif %}>Data Science / ML</option>
-              <option value="Программирование для бизнеса" {% if course_slug == "Business" %}selected{% endif %}>Программирование для бизнеса</option>
-            </select>
-            <button class="btn btn-primary" type="submit">Отправить заявку</button>
-          </form>
+          <form class="modal-form" action="/apply" method="post" data-validate-phone data-contact-required>
+  <input type="text" name="name" placeholder="Ваше имя" maxlength="60" required>
+  <div class="input-wrap">
+    <input type="text" name="phone" placeholder="Телефон" data-phone="strict" pattern="(\+?7|8)[0-9\s\-()]{10,16}" maxlength="18">
+    <div class="input-hint">Пример: +7 999 000‑00‑00</div>
+    <div class="input-error" aria-live="polite"></div>
+  </div>
+  <div class="input-wrap">
+    <input type="text" name="telegram" placeholder="Telegram (@username)" data-telegram>
+    <div class="input-hint">Пример: @username</div>
+    <div class="input-error" aria-live="polite"></div>
+    <div class="input-status" aria-live="polite"></div>
+  </div>
+  <select name="course">
+    <option value="" disabled {% if not course_slug %}selected{% endif %}>Выберите курс</option>
+    <option value="Full-stack разработчик" {% if course_slug == "Full-stack" or course_slug == "Full-stack разработчик" %}selected{% endif %}>Full‑stack разработчик</option>
+    <option value="Python для новичков" {% if course_slug == "Python для новичков" %}selected{% endif %}>Python для новичков</option>
+    <option value="Data Science / ML" {% if course_slug == "Data Science" %}selected{% endif %}>Data Science / ML</option>
+    <option value="Программирование для бизнеса" {% if course_slug == "Business" %}selected{% endif %}>Программирование для бизнеса</option>
+  </select>
+  <button class="btn btn-primary" type="submit">Отправить заявку</button>
+</form>
         </div>
 
         <div class="modal-panel" data-panel="enroll">
