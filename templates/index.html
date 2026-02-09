@@ -983,7 +983,13 @@ links.forEach((link) => {
     <div class="input-error" aria-live="polite"></div>
     <div class="input-status" aria-live="polite"></div>
   </div>
-  <input type="hidden" name="course" value="Main">
+  <select name="course">
+    <option value="" selected>Выберите курс (необязательно)</option>
+    <option value="Full-stack разработчик">Full‑stack разработчик</option>
+    <option value="Python для новичков">Python для новичков</option>
+    <option value="Data Science / ML">Data Science / ML</option>
+    <option value="Программирование для бизнеса">Программирование для бизнеса</option>
+  </select>
   <button class="btn btn-primary" type="submit">Получить консультацию</button>
 </form>
         </div>

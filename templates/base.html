@@ -173,7 +173,7 @@
     <div class="input-status" aria-live="polite"></div>
   </div>
   <select name="course">
-    <option value="" disabled {% if not course_slug %}selected{% endif %}>Выберите курс</option>
+    <option value="" disabled {% if not course_slug %}selected{% endif %}>Выберите курс (необязательно)</option>
     <option value="Full-stack разработчик" {% if course_slug == "Full-stack" or course_slug == "Full-stack разработчик" %}selected{% endif %}>Full‑stack разработчик</option>
     <option value="Python для новичков" {% if course_slug == "Python для новичков" %}selected{% endif %}>Python для новичков</option>
     <option value="Data Science / ML" {% if course_slug == "Data Science" %}selected{% endif %}>Data Science / ML</option>
