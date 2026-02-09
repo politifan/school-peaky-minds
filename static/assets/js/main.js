@@ -91,13 +91,19 @@ const isDummyNumber = (digits) => {
 const validatePhoneInput = (input, showError = false) => {
   const value = input.value.trim();
   const mode = input.dataset.phone || 'strict';
+  const wrap = input.closest('.input-wrap');
+  const error = wrap ? wrap.querySelector('.input-error') : null;
+  if (!value) {
+    if (wrap) wrap.classList.remove('invalid');
+    input.classList.remove('input-invalid');
+    if (error) error.textContent = '';
+    return true;
+  }
   const digits = phoneDigits(value);
   const validDigits = mode === 'strict'
     ? digits.length === 11 && (digits[0] === '7' || digits[0] === '8') && !isDummyNumber(digits)
     : digits.length >= 10 && !isDummyNumber(digits);
   const isValid = mode === 'flex' ? isTelegramHandle(value) || validDigits : validDigits;
-  const wrap = input.closest('.input-wrap');
-  const error = wrap ? wrap.querySelector('.input-error') : null;
   if (!isValid && showError) {
     if (error) {
       error.textContent = mode === 'flex'
