@@ -34,6 +34,11 @@ async def robots(request: Request):
     return PlainTextResponse(content, media_type="text/plain")
 
 
+@router.get("/favicon.ico", include_in_schema=False)
+async def favicon() -> RedirectResponse:
+    return RedirectResponse("/assets/img/favicon.ico", status_code=HTTP_302_FOUND)
+
+
 @router.get("/sitemap.xml", include_in_schema=False)
 async def sitemap(request: Request):
     base_url = str(request.base_url)
