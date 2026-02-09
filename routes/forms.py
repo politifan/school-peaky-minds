@@ -31,49 +31,6 @@ from telegram_bot import send_lead_message
 
 router = APIRouter()
 
-# Simple in-memory rate limits (per-process).
-_RATE_LIMIT = {
-    "apply": {"daily": 5, "burst": 1, "window": 10},
-    "enroll": {"daily": 3, "burst": 1, "window": 10},
-}
-_rate_daily: dict[tuple[str, str], dict[str, int]] = {}
-_rate_burst: dict[tuple[str, str], float] = {}
-
-
-def _get_client_ip(request: Request) -> str:
-    forwarded = request.headers.get("cf-connecting-ip") or request.headers.get("x-forwarded-for")
-    if forwarded:
-        # Use the first IP in X-Forwarded-For.
-        return forwarded.split(",")[0].strip()
-    if request.client and request.client.host:
-        return request.client.host
-    return "unknown"
-
-
-def _check_rate_limit(request: Request, key: str) -> Optional[str]:
-    limits = _RATE_LIMIT.get(key)
-    if not limits:
-        return None
-    now = int(time.time())
-    ip = _get_client_ip(request)
-    day_key = time.strftime("%Y-%m-%d", time.gmtime(now))
-    daily_key = (key, ip)
-    entry = _rate_daily.get(daily_key)
-    if not entry or entry.get("day") != day_key:
-        entry = {"day": day_key, "count": 0}
-        _rate_daily[daily_key] = entry
-    if entry["count"] >= limits["daily"]:
-        return "Слишком много заявок с этого IP за сутки. Попробуйте позже."
-
-    burst_key = (key, ip)
-    last_ts = _rate_burst.get(burst_key)
-    if last_ts and (now - int(last_ts)) < limits["window"]:
-        return "Слишком часто. Подождите несколько секунд и попробуйте снова."
-
-    entry["count"] += 1
-    _rate_burst[burst_key] = now
-    return None
-
 def clamp_text(value: object, max_len: int) -> str:
     if value is None:
         return ""
@@ -144,9 +101,6 @@ def _upsert_student_from_enroll(payload: dict, referral_code: str, referrer_id: 
 
 @router.post("/apply", include_in_schema=False)
 async def apply(request: Request):
-    rate_error = _check_rate_limit(request, "apply")
-    if rate_error:
-        return HTMLResponse(rate_error, status_code=429)
     form = await request.form()
     name = clamp_text(form.get("name", ""), 60)
     contact = str(form.get("phone", "")).strip()
@@ -209,9 +163,6 @@ async def enroll(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse("/login", status_code=HTTP_302_FOUND)
-    rate_error = _check_rate_limit(request, "enroll")
-    if rate_error:
-        return HTMLResponse(rate_error, status_code=429)
 
     form = await request.form()
     email = str(form.get("email") or "").strip().lower()
