@@ -213,7 +213,7 @@ section {
 }
 
 .home-page main {
-  padding-top: var(--header-height);
+  padding-top: 0;
 }
 
 .nav {
@@ -322,7 +322,10 @@ section {
   position: relative;
 }
 
-.home-page .hero,
+.home-page .hero {
+  padding-top: 150px;
+}
+
 .course-page .hero {
   padding-top: calc(150px - var(--header-height));
 }
@@ -3707,7 +3710,7 @@ html[amp] .reveal {
   }
 
   .home-page main {
-    padding-top: var(--header-height);
+    padding-top: 0;
   }
 
   .hero::before {
