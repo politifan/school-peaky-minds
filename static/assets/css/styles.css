@@ -3369,6 +3369,10 @@ select:focus {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   }
 
+  .admin-view-agreements .admin-sidebar__nav {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+
   .admin-sidebar__nav a {
     font-size: 0.8rem;
     padding: 6px 10px;
@@ -3524,6 +3528,23 @@ select:focus {
   #admin-users .admin-table th,
   #admin-users .admin-table td {
     padding: 10px 10px;
+  }
+
+  .admin-view-agreements .admin-filter__row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-view-agreements .admin-filter__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-view-agreements .admin-filter__actions .btn {
+    width: 100%;
+  }
+
+  .admin-view-agreements .admin-filter__presets {
+    width: 100%;
   }
 }
 
