@@ -1,4 +1,5 @@
 :root {
+  --header-height: 114px;
   --bg-0: #0b1110;
   --bg-1: #0f1e1b;
   --bg-2: #13312c;
@@ -212,7 +213,7 @@ section {
 }
 
 .home-page main {
-  padding-top: 114px;
+  padding-top: var(--header-height);
 }
 
 .nav {
@@ -321,8 +322,9 @@ section {
   position: relative;
 }
 
-.home-hero {
-  padding-top: 90px;
+.home-page .hero,
+.course-page .hero {
+  padding-top: calc(150px - var(--header-height));
 }
 
 .hero::before {
@@ -3705,11 +3707,7 @@ html[amp] .reveal {
   }
 
   .home-page main {
-    padding-top: 114px;
-  }
-
-  .home-hero {
-    padding-top: 90px;
+    padding-top: var(--header-height);
   }
 
   .hero::before {
