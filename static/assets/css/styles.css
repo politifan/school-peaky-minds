@@ -3387,15 +3387,6 @@ select:focus {
     grid-template-columns: 1fr;
   }
 
-  .admin-view-agreements .admin-hero__actions {
-    width: 100%;
-    align-items: stretch;
-  }
-
-  .admin-view-agreements .admin-hero__actions .btn {
-    width: 100%;
-    font-size: 0.8rem;
-  }
 
   .admin-grid.two {
     grid-template-columns: 1fr;
@@ -3546,7 +3537,7 @@ select:focus {
   }
 
   .admin-view-agreements .admin-filter__row {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   }
 
   .admin-view-agreements .admin-filter__actions {
@@ -3572,7 +3563,7 @@ select:focus {
   }
 
   .admin-view-agreements .admin-table td {
-    grid-template-columns: 90px 1fr;
+    grid-template-columns: 84px 1fr;
   }
 }
 
