@@ -514,8 +514,8 @@
               <td data-label="Имя">
                 <div class="admin-cell">
                   <strong>{{ lead.name or "Без имени" }}</strong>
-                  {% if lead.id %}
-                  <span class="admin-subtext">(ID: {{ lead.id }})</span>
+                  {% if lead.user and lead.user.id %}
+                  <span class="admin-subtext">(ID: {{ lead.user.id }})</span>
                   {% endif %}
                 </div>
               </td>
@@ -720,8 +720,8 @@
               <td data-label="ФИО">
                 <div class="admin-cell">
                   <strong>{{ item.full_name or "Без имени" }}</strong>
-                  {% if item.id %}
-                  <span class="admin-subtext">(ID: {{ item.id }})</span>
+                  {% if item.user and item.user.id %}
+                  <span class="admin-subtext">(ID: {{ item.user.id }})</span>
                   {% endif %}
                 </div>
               </td>
@@ -1184,8 +1184,8 @@
             <div class="card">
               <div class="course-meta">Ученик</div>
               <h3>{{ item.name }}</h3>
-              {% if item.id %}
-              <div class="admin-subtext">(ID: {{ item.id }})</div>
+              {% if item.student_id %}
+              <div class="admin-subtext">(ID: {{ item.student_id }})</div>
               {% endif %}
               <div class="admin-subtext">{{ item.course }}</div>
               <div class="admin-subtext">{{ item.phone }} · {{ item.email }}</div>

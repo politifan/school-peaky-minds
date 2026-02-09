@@ -597,6 +597,7 @@ def _admin_panel_impl(request: Request):
                     "course": item.get("course") or "—",
                     "phone": item.get("phone") or "—",
                     "email": item.get("email") or "—",
+                    "student_id": (item.get("user") or {}).get("id") or "",
                     "lesson_month": lesson_month,
                     "lesson_calendar": calendar_weeks,
                 }
