@@ -514,6 +514,9 @@
               <td data-label="Имя">
                 <div class="admin-cell">
                   <strong>{{ lead.name or "Без имени" }}</strong>
+                  {% if lead.id %}
+                  <span class="admin-subtext">(ID: {{ lead.id }})</span>
+                  {% endif %}
                 </div>
               </td>
               <td data-label="Контакт">
@@ -714,7 +717,14 @@
             {% for item in agreements %}
             <tr>
               <td data-label="Дата">{{ item.display_time }}</td>
-              <td data-label="ФИО"><strong>{{ item.full_name or "Без имени" }}</strong></td>
+              <td data-label="ФИО">
+                <div class="admin-cell">
+                  <strong>{{ item.full_name or "Без имени" }}</strong>
+                  {% if item.id %}
+                  <span class="admin-subtext">(ID: {{ item.id }})</span>
+                  {% endif %}
+                </div>
+              </td>
               <td data-label="Номер договора">{{ item.contract_number }}</td>
               <td data-label="Курс">{{ item.course or "—" }}</td>
               <td data-label="Телефон">{{ item.phone or "—" }}</td>
@@ -1174,6 +1184,9 @@
             <div class="card">
               <div class="course-meta">Ученик</div>
               <h3>{{ item.name }}</h3>
+              {% if item.id %}
+              <div class="admin-subtext">(ID: {{ item.id }})</div>
+              {% endif %}
               <div class="admin-subtext">{{ item.course }}</div>
               <div class="admin-subtext">{{ item.phone }} · {{ item.email }}</div>
               <div class="lesson-calendar" style="margin-top: 12px;">
