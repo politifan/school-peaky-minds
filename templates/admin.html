@@ -399,7 +399,7 @@
         <div class="admin-section-actions">
           <span class="admin-badge">Показано {{ leads_count }} из {{ leads_total }}</span>
           <a class="btn btn-secondary" href="/admin/export/leads.csv{{ export_query }}">Экспорт CSV</a>
-          <form method="post" action="/admin/leads/clear" onsubmit="return confirm('Удалить все заявки? Это действие необратимо.')">
+          <form method="post" action="/admin/leads/clear" onsubmit="return confirm('Удалить все заявки? Это действие необратимо.') && confirm('Точно удалить все заявки? Это действие необратимо.');">
             <input type="hidden" name="admin_password" data-admin-password>
             <button class="btn btn-secondary btn-danger" type="submit">Удалить заявки</button>
           </form>
@@ -597,7 +597,7 @@
         <div class="admin-section-actions">
           <span class="admin-badge">Показано {{ agreements_count }} из {{ agreements_total }}</span>
           <a class="btn btn-secondary" href="/admin/export/agreements.csv{{ export_query }}">Экспорт CSV</a>
-          <form method="post" action="/admin/agreements/clear" onsubmit="return confirm('Удалить все договоры? Это действие необратимо.')">
+          <form method="post" action="/admin/agreements/clear" onsubmit="return confirm('Удалить все договоры? Это действие необратимо.') && confirm('Точно удалить все договоры? Это действие необратимо.');">
             <input type="hidden" name="admin_password" data-admin-password>
             <button class="btn btn-secondary btn-danger" type="submit">Удалить договоры</button>
           </form>

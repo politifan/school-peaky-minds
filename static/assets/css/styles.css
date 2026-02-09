@@ -3378,8 +3378,23 @@ select:focus {
     padding: 6px 10px;
   }
 
+  .admin-view-agreements .admin-sidebar__nav a {
+    font-size: 0.78rem;
+    padding: 6px 8px;
+  }
+
   .admin-hero {
     grid-template-columns: 1fr;
+  }
+
+  .admin-view-agreements .admin-hero__actions {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .admin-view-agreements .admin-hero__actions .btn {
+    width: 100%;
+    font-size: 0.8rem;
   }
 
   .admin-grid.two {
@@ -3545,6 +3560,19 @@ select:focus {
 
   .admin-view-agreements .admin-filter__presets {
     width: 100%;
+  }
+
+  .admin-view-agreements .admin-filter {
+    padding: 14px;
+  }
+
+  .admin-view-agreements .admin-filter__presets button {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+  }
+
+  .admin-view-agreements .admin-table td {
+    grid-template-columns: 90px 1fr;
   }
 }
 
