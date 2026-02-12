@@ -149,11 +149,11 @@ def lead_short_id(file_name: str) -> str:
 
 def format_ts(value: Optional[object]) -> str:
     if not value:
-        return "—"
+        return "-"
     try:
         return datetime.fromtimestamp(int(value)).strftime("%d.%m.%Y %H:%M")
     except Exception:
-        return "—"
+        return "-"
 
 
 def status_from_item(item: Dict[str, object]) -> Tuple[str, str]:
@@ -249,14 +249,14 @@ def build_status_keyboard(
 
 
 def build_lead_text(item: Dict[str, object]) -> str:
-    name = str(item.get("name") or "—")
-    contact = str(item.get("contact") or "—")
-    telegram = str(item.get("telegram") or "—")
-    course = str(item.get("course") or "—")
-    page = str(item.get("page") or "—")
+    name = str(item.get("name") or "-")
+    contact = str(item.get("contact") or "-")
+    telegram = str(item.get("telegram") or "-")
+    course = str(item.get("course") or "-")
+    page = str(item.get("page") or "-")
     note = str(item.get("note") or "").strip()
     tags_display = format_tags_display(item.get("tags"))
-    next_contact = str(item.get("next_contact") or "").strip() or "—"
+    next_contact = str(item.get("next_contact") or "").strip() or "-"
     safe_name = html.escape(name)
     safe_contact = html.escape(contact)
     safe_telegram = html.escape(telegram)
@@ -290,7 +290,7 @@ def build_lead_text(item: Dict[str, object]) -> str:
         lines.append(f"🏷 <b>Теги:</b> {safe_tags}")
     if safe_note:
         lines.append(f"📝 <b>Заметка:</b> {safe_note}")
-    if safe_next and safe_next != "—":
+    if safe_next and safe_next != "-":
         lines.append(f"📅 <b>След. контакт:</b> {safe_next}")
     actions = []
     if tel_link:
@@ -405,15 +405,15 @@ async def _start(message: Message) -> None:
         "👋 <b>Бот подключен</b>\n"
         "Заявки будут приходить сюда.\n\n"
         "<b>Быстрые команды</b>\n"
-        "• /leads <code>N</code> — последние заявки\n"
-        "• /lead <code>&lt;id&gt;</code> — карточка заявки\n"
-        "• /find <code>&lt;текст&gt;</code> — поиск\n"
-        "• /status <code>&lt;id&gt; &lt;статус&gt;</code> — сменить статус\n"
-        "• /note <code>&lt;id&gt; &lt;текст&gt;</code> — заметка\n"
-        "• /tags <code>&lt;id&gt; &lt;теги&gt;</code> — теги\n"
-        "• /next <code>&lt;id&gt; &lt;YYYY-MM-DD&gt;</code> — следующий контакт\n"
-        "• /stats — сводка статусов\n"
-        "• /help — подробная справка"
+        "• /leads <code>N</code> - последние заявки\n"
+        "• /lead <code>&lt;id&gt;</code> - карточка заявки\n"
+        "• /find <code>&lt;текст&gt;</code> - поиск\n"
+        "• /status <code>&lt;id&gt; &lt;статус&gt;</code> - сменить статус\n"
+        "• /note <code>&lt;id&gt; &lt;текст&gt;</code> - заметка\n"
+        "• /tags <code>&lt;id&gt; &lt;теги&gt;</code> - теги\n"
+        "• /next <code>&lt;id&gt; &lt;YYYY-MM-DD&gt;</code> - следующий контакт\n"
+        "• /stats - сводка статусов\n"
+        "• /help - подробная справка"
     )
 
 
@@ -424,16 +424,16 @@ async def _help(message: Message) -> None:
     await message.answer(
         "🧭 <b>Справка по боту</b>\n\n"
         "<b>Заявки</b>\n"
-        "• /leads <code>N</code> — последние заявки\n"
-        "• /lead <code>&lt;id&gt;</code> — карточка заявки\n"
-        "• /find <code>&lt;текст&gt;</code> — поиск по заявкам\n\n"
+        "• /leads <code>N</code> - последние заявки\n"
+        "• /lead <code>&lt;id&gt;</code> - карточка заявки\n"
+        "• /find <code>&lt;текст&gt;</code> - поиск по заявкам\n\n"
         "<b>Работа с заявкой</b>\n"
-        "• /status <code>&lt;id&gt; &lt;статус&gt;</code> — сменить статус\n"
-        "• /note <code>&lt;id&gt; &lt;текст&gt;</code> — заметка\n"
-        "• /tags <code>&lt;id&gt; &lt;теги&gt;</code> — теги\n"
-        "• /next <code>&lt;id&gt; &lt;YYYY-MM-DD&gt;</code> — следующий контакт\n\n"
+        "• /status <code>&lt;id&gt; &lt;статус&gt;</code> - сменить статус\n"
+        "• /note <code>&lt;id&gt; &lt;текст&gt;</code> - заметка\n"
+        "• /tags <code>&lt;id&gt; &lt;теги&gt;</code> - теги\n"
+        "• /next <code>&lt;id&gt; &lt;YYYY-MM-DD&gt;</code> - следующий контакт\n\n"
         "<b>Сводка</b>\n"
-        "• /stats — статистика по статусам\n\n"
+        "• /stats - статистика по статусам\n\n"
         "<b>Статусы</b>\n"
         "<code>new, contacted, qualified, call_scheduled, paid, lost, in_progress, closed, archived, auto</code>"
     )
@@ -520,10 +520,10 @@ async def _find(message: Message) -> None:
     for lead in results:
         lead_id = lead_short_id(str(lead.get("_file") or ""))
         status_key, status_label = status_from_item(lead)
-        name = html.escape(str(lead.get("name") or "—"))
-        contact = html.escape(str(lead.get("contact") or "—"))
+        name = html.escape(str(lead.get("name") or "-"))
+        contact = html.escape(str(lead.get("contact") or "-"))
         emoji = STATUS_EMOJI.get(status_key, "📌")
-        lines.append(f"{emoji} <code>{lead_id}</code> — {name} ({contact}) — {status_label}")
+        lines.append(f"{emoji} <code>{lead_id}</code> - {name} ({contact}) - {status_label}")
     lines.append("\nОткрыть карточку: /lead <code>&lt;id&gt;</code>")
     await message.answer("\n".join(lines))
 

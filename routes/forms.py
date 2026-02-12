@@ -206,11 +206,11 @@ async def apply(request: Request):
     if telegram_is_configured():
         text = (
             "🆕 <b>Новая заявка</b>\n"
-            f"👤 <b>Имя:</b> {name or '—'}\n"
-            f"📱 <b>Контакт:</b> {contact or '—'}\n"
-            f"💬 <b>Telegram:</b> {telegram_display or '—'}\n"
-            f"🎯 <b>Курс:</b> {course or '—'}\n"
-            f"🔗 <b>Страница:</b> {page or '—'}"
+            f"👤 <b>Имя:</b> {name or '-'}\n"
+            f"📱 <b>Контакт:</b> {contact or '-'}\n"
+            f"💬 <b>Telegram:</b> {telegram_display or '-'}\n"
+            f"🎯 <b>Курс:</b> {course or '-'}\n"
+            f"🔗 <b>Страница:</b> {page or '-'}"
         )
         try:
             sent = await send_lead_message(text, lead_file=lead_path.name)
@@ -317,11 +317,11 @@ async def enroll(request: Request):
     if referral_code and referrer:
         notify_text = (
             "🤝 <b>Новый реферал</b>\n"
-            f"👤 <b>Реферал:</b> {payload.get('full_name') or '—'}\n"
-            f"📞 <b>Телефон:</b> {payload.get('phone') or '—'}\n"
-            f"🎯 <b>Курс:</b> {payload.get('course') or '—'}\n"
+            f"👤 <b>Реферал:</b> {payload.get('full_name') or '-'}\n"
+            f"📞 <b>Телефон:</b> {payload.get('phone') or '-'}\n"
+            f"🎯 <b>Курс:</b> {payload.get('course') or '-'}\n"
             f"🔗 <b>Код:</b> {referral_code}\n"
-            f"🏷 <b>Участник:</b> {referrer.get('name') or '—'}"
+            f"🏷 <b>Участник:</b> {referrer.get('name') or '-'}"
         )
         try:
             sent = await send_lead_message(notify_text)

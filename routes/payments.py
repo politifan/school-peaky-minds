@@ -47,11 +47,11 @@ def _amount_value(amount: Decimal) -> str:
 
 def _format_ts(value: Optional[int]) -> str:
     if not value:
-        return "—"
+        return "-"
     try:
         return datetime.fromtimestamp(int(value)).strftime("%d.%m.%Y %H:%M")
     except Exception:
-        return "—"
+        return "-"
 
 
 def _append_event(data: Dict[str, Any], entry: Dict[str, Any]) -> None:
@@ -329,7 +329,7 @@ async def tinkoff_webhook(request: Request):
     record = payments.get(payment_id)
     if not record:
         amount_raw = payload.get("Amount")
-        amount_value = "—"
+        amount_value = "-"
         try:
             amount_value = str(Decimal(amount_raw) / Decimal(100))
         except Exception:
@@ -438,9 +438,9 @@ async def test_payment_page(request: Request):
         agreements_view.append(
             {
                 "file": item.get("_file"),
-                "course": item.get("course") or "—",
-                "name": item.get("full_name") or (item.get("user") or {}).get("name") or "—",
-                "phone": item.get("phone") or "—",
+                "course": item.get("course") or "-",
+                "name": item.get("full_name") or (item.get("user") or {}).get("name") or "-",
+                "phone": item.get("phone") or "-",
             }
         )
 
@@ -461,7 +461,7 @@ async def test_payment_page(request: Request):
             {
                 "id": item.get("id"),
                 "status": item.get("status"),
-                "amount": (item.get("amount") or {}).get("value") or "—",
+                "amount": (item.get("amount") or {}).get("value") or "-",
                 "lessons": item.get("lessons"),
                 "agreement_file": item.get("agreement_file"),
                 "test_mode": bool(item.get("test_mode")),

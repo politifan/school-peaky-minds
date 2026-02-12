@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Курс Python для новичков — обучение с нуля, фриланс и заработок в IT{% endblock %}
+{% block title %}Курс Python для новичков - обучение с нуля, фриланс и заработок в IT{% endblock %}
 {% block description %}Курс Python для новичков: обучение с нуля, практика с первых недель, мини‑проекты, Git и основы разработки. Формируем портфолио и путь к первым заказам, фрилансу и заработку в IT.{% endblock %}
 {% block og_type %}article{% endblock %}
 {% block body_class %}course-page{% endblock %}
@@ -98,11 +98,6 @@
               <div class="value">до 10 человек</div>
               <div class="meta">комфортный старт</div>
             </div>
-            <div class="visual-card glass-card accent archive-card">
-              <div class="tag">Цена</div>
-              <div class="value">1000 ₽ / час</div>
-              <div class="meta">фиксируется при старте</div>
-            </div>
             <div class="visual-card glass-card archive-card">
               <div class="tag">Длительность</div>
               <div class="value">6 месяцев</div>
@@ -132,6 +127,55 @@ print("Средняя цена:", sum(prices) / len(prices))
         </div>
       </div>
     </section>
+
+    <section class="price-list">
+      <div class="container">
+        <h2 class="section-title reveal">Прайс-лист</h2>
+        <div class="price-list-grid reveal">
+          <article class="price-item">
+            <div class="price-item__label">Разовая оплата занятия</div>
+            <div class="price-item__line">
+              <span class="price-item__base price-item__base--muted">1000 &#8381; / час</span>
+              <span class="price-item__badge">без скидки</span>
+              <span class="price-item__final">1000 &#8381; / час</span>
+            </div>
+          </article>
+          <article class="price-item">
+            <div class="price-item__label">Пакет на 1 месяц</div>
+            <div class="price-item__line">
+              <span class="price-item__base">1000 &#8381; / час</span>
+              <span class="price-item__badge">-5%</span>
+              <span class="price-item__final">950 &#8381; / час</span>
+            </div>
+          </article>
+          <article class="price-item">
+            <div class="price-item__label">Пакет на 3 месяца</div>
+            <div class="price-item__line">
+              <span class="price-item__base">1000 &#8381; / час</span>
+              <span class="price-item__badge">-10%</span>
+              <span class="price-item__final">900 &#8381; / час</span>
+            </div>
+          </article>
+          <article class="price-item">
+            <div class="price-item__label">Пакет на 6 месяцев</div>
+            <div class="price-item__line">
+              <span class="price-item__base">1000 &#8381; / час</span>
+              <span class="price-item__badge">-15%</span>
+              <span class="price-item__final">850 &#8381; / час</span>
+            </div>
+          </article>
+          <article class="price-item">
+            <div class="price-item__label">Пакет на 12 месяцев</div>
+            <div class="price-item__line">
+              <span class="price-item__base">1000 &#8381; / час</span>
+              <span class="price-item__badge">-20%</span>
+              <span class="price-item__final">800 &#8381; / час</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
 
     <section class="for-who">
       <div class="container">
@@ -259,22 +303,22 @@ print("Средняя цена:", sum(prices) / len(prices))
         <h2 class="section-title reveal">Программа по модулям</h2>
         <div class="module-grid reveal">
           <div class="module">
-            <h3>Модуль 1 — База Python и инструменты</h3>
+            <h3>Модуль 1 - База Python и инструменты</h3>
             <p>Синтаксис, типы данных, условия, циклы, Git. Практика: скрипт для повседневной задачи.</p>
             <span class="tag">Проект: CLI‑скрипт</span>
           </div>
           <div class="module">
-            <h3>Модуль 2 — Данные и файлы</h3>
+            <h3>Модуль 2 - Данные и файлы</h3>
             <p>CSV/JSON, запросы к API, основы анализа. Практика: сбор и чистка данных.</p>
             <span class="tag">Проект: мини‑аналитика</span>
           </div>
           <div class="module">
-            <h3>Модуль 3 — Функции и ООП</h3>
+            <h3>Модуль 3 - Функции и ООП</h3>
             <p>Модули, функции, классы, структура проекта. Практика: приложение с логикой и интерфейсом.</p>
             <span class="tag">Проект: приложение с логикой</span>
           </div>
           <div class="module">
-            <h3>Модуль 4 — Практика и портфолио</h3>
+            <h3>Модуль 4 - Практика и портфолио</h3>
             <p>Автоматизация, боты, итоговый проект и упаковка в GitHub. Практика: полезный сервис для пользователя.</p>
             <span class="tag">Проект: полезный сервис</span>
           </div>
@@ -335,7 +379,7 @@ print("Средняя цена:", sum(prices) / len(prices))
         <div class="cta-box reveal">
           <div>
             <h2>Запись на курс Python для новичков</h2>
-            <p>Подпишите договор и оставьте контакты — мы свяжемся для старта обучения.<br>Необходимы только имя, почта, телефон и/или Telegram.</p>
+            <p>Подпишите договор и оставьте контакты - мы свяжемся для старта обучения.<br>Необходимы только имя, почта, телефон и/или Telegram.</p>
             <div class="doc-links">
               <a href="/documents/dogovor.pdf" target="_blank" rel="noopener">Договор и пользовательское соглашение</a>
             </div>

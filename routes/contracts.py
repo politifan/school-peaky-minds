@@ -102,7 +102,7 @@ async def contract_view(request: Request, token: str):
         {
             "agreement": agreement,
             "contract_url": contract_url,
-            "contract_number": agreement.get("contract_number") or "—",
+            "contract_number": agreement.get("contract_number") or "-",
             "contract_date": agreement.get("contract_date") or core.format_moscow_date(),
             "contract_pdf_url": agreement.get("contract_pdf_url"),
             "contract_fields": contract_fields,
@@ -227,10 +227,10 @@ async def contract_sign(request: Request, token: str):
         try:
             text = (
                 "📝 <b>Договор подписан</b>\n"
-                f"🎯 <b>Курс:</b> {agreement.get('course') or '—'}\n"
-                f"👤 <b>ФИО:</b> {agreement.get('full_name') or (agreement.get('user') or {}).get('name') or '—'}\n"
-                f"📞 <b>Телефон:</b> {agreement.get('phone') or '—'}\n"
-                f"✉️ <b>Email:</b> {agreement.get('email') or '—'}"
+                f"🎯 <b>Курс:</b> {agreement.get('course') or '-'}\n"
+                f"👤 <b>ФИО:</b> {agreement.get('full_name') or (agreement.get('user') or {}).get('name') or '-'}\n"
+                f"📞 <b>Телефон:</b> {agreement.get('phone') or '-'}\n"
+                f"✉️ <b>Email:</b> {agreement.get('email') or '-'}"
             )
             await send_lead_message(text)
         except Exception:

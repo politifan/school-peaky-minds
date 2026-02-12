@@ -17,7 +17,7 @@ if [ -f requirements.txt ]; then
   python -m pip install -r requirements.txt
 fi
 
-# (опционально) если у вас зависимости в pyproject.toml/poetry — скажите, подстрою
+# (опционально) если у вас зависимости в pyproject.toml/poetry - скажите, подстрою
 
 # 3) Триггерим перезапуск Passenger
 # Обычно Passenger реагирует на изменение файла WSGI entrypoint.

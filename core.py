@@ -244,26 +244,26 @@ def _normalize_pdf_field_name(name: str) -> str:
 
 def _contract_pdf_values(agreement: Dict[str, Any]) -> Dict[str, str]:
     fields = resolve_contract_fields(agreement)
-    contract_number = str(agreement.get("contract_number") or "").strip() or "—"
+    contract_number = str(agreement.get("contract_number") or "").strip() or "-"
     contract_date = str(agreement.get("contract_date") or "").strip() or format_moscow_date()
-    course = str(agreement.get("course") or "—").strip()
+    course = str(agreement.get("course") or "-").strip()
     rate = course_rate(course)
-    rate_text = f"{rate} руб./час" if rate else "—"
+    rate_text = f"{rate} руб./час" if rate else "-"
     return {
         "contract_number": contract_number,
         "contract_date": contract_date,
-        "city": fields["city"] or "—",
+        "city": fields["city"] or "-",
         "course": course,
         "rate": rate_text,
-        "customer_name": fields["customer_name"] or "—",
-        "customer_passport": fields["customer_passport"] or "—",
-        "customer_address": fields["customer_address"] or "—",
-        "customer_phone": fields["customer_phone"] or "—",
-        "customer_email": fields["customer_email"] or "—",
+        "customer_name": fields["customer_name"] or "-",
+        "customer_passport": fields["customer_passport"] or "-",
+        "customer_address": fields["customer_address"] or "-",
+        "customer_phone": fields["customer_phone"] or "-",
+        "customer_email": fields["customer_email"] or "-",
         "executor_name": EXECUTOR_FULL_NAME,
         "executor_inn": EXECUTOR_INN,
         "executor_passport": EXECUTOR_PASSPORT,
-        "executor_address": EXECUTOR_ADDRESS or "—",
+        "executor_address": EXECUTOR_ADDRESS or "-",
         "executor_phone": EXECUTOR_PHONE,
         "executor_email": EXECUTOR_EMAIL,
         "executor_recipient": EXECUTOR_RECIPIENT,
@@ -435,11 +435,11 @@ def build_contract_document_text(agreement: Dict[str, Any]) -> str:
     text = html_lib.unescape(text)
 
     fields = resolve_contract_fields(agreement)
-    contract_number = str(agreement.get("contract_number") or "").strip() or "—"
+    contract_number = str(agreement.get("contract_number") or "").strip() or "-"
     contract_date = str(agreement.get("contract_date") or "").strip() or format_moscow_date()
-    course = str(agreement.get("course") or "—").strip()
+    course = str(agreement.get("course") or "-").strip()
     rate = course_rate(course)
-    rate_text = f"{rate} руб./час" if rate else "—"
+    rate_text = f"{rate} руб./час" if rate else "-"
 
     text = text.replace("ДОГОВОР № ___", f"ДОГОВОР № {contract_number}")
     text = re.sub(
@@ -448,16 +448,16 @@ def build_contract_document_text(agreement: Dict[str, Any]) -> str:
         text,
     )
     text = text.replace(
-        "Исполнитель: _____________________________ (ФИО), ИНН ____________, применяющий(ая) специальный налоговый режим «Налог на профессиональный доход» (самозанятый), далее — «Исполнитель», с одной стороны, и",
+        "Исполнитель: _____________________________ (ФИО), ИНН ____________, применяющий(ая) специальный налоговый режим «Налог на профессиональный доход» (самозанятый), далее - «Исполнитель», с одной стороны, и",
         "Исполнитель: "
         f"{EXECUTOR_FULL_NAME} (ФИО), ИНН {EXECUTOR_INN}, "
-        "применяющий(ая) специальный налоговый режим «Налог на профессиональный доход» (самозанятый), далее — «Исполнитель», с одной стороны, и",
+        "применяющий(ая) специальный налоговый режим «Налог на профессиональный доход» (самозанятый), далее - «Исполнитель», с одной стороны, и",
     )
     text = text.replace(
-        "Заказчик: _____________________________ (ФИО), паспорт: _____________________________, далее — «Заказчик», с другой стороны, вместе именуемые «Стороны», заключили настоящий Договор о нижеследующем.",
+        "Заказчик: _____________________________ (ФИО), паспорт: _____________________________, далее - «Заказчик», с другой стороны, вместе именуемые «Стороны», заключили настоящий Договор о нижеследующем.",
         "Заказчик: "
         f"{fields['customer_name']} (ФИО), паспорт: {fields['customer_passport']}, "
-        "далее — «Заказчик», с другой стороны, вместе именуемые «Стороны», заключили настоящий Договор о нижеследующем.",
+        "далее - «Заказчик», с другой стороны, вместе именуемые «Стороны», заключили настоящий Договор о нижеследующем.",
     )
     text = text.replace("1) Выбранная Программа: ___________________________", f"1) Выбранная Программа: {course}")
     text = text.replace("2) Ставка: ______ руб./час", f"2) Ставка: {rate_text}")
@@ -482,15 +482,15 @@ def build_contract_document_text(agreement: Dict[str, Any]) -> str:
     text = replace_once(text, "ФИО: _______________________", f"ФИО: {EXECUTOR_FULL_NAME}")
     text = replace_once(text, "ИНН: _______________________", f"ИНН: {EXECUTOR_INN}")
     text = replace_once(text, "Паспорт: ___________________", f"Паспорт: {EXECUTOR_PASSPORT}")
-    text = replace_once(text, "Адрес: _____________________", f"Адрес: {EXECUTOR_ADDRESS or '—'}")
+    text = replace_once(text, "Адрес: _____________________", f"Адрес: {EXECUTOR_ADDRESS or '-'}")
     text = replace_once(text, "Тел.: _______________________", f"Тел.: {EXECUTOR_PHONE}")
     text = replace_once(text, "E-mail: _____________________", f"E-mail: {EXECUTOR_EMAIL}")
 
     text = replace_once(text, "Заказчик: ФИО: _______________________", f"Заказчик: ФИО: {fields['customer_name']}")
     text = replace_once(text, "Паспорт: ___________________", f"Паспорт: {fields['customer_passport']}")
-    text = replace_once(text, "Адрес: _____________________", f"Адрес: {fields['customer_address'] or '—'}")
-    text = replace_once(text, "Тел.: _______________________", f"Тел.: {fields['customer_phone'] or '—'}")
-    text = replace_once(text, "E-mail: _____________________", f"E-mail: {fields['customer_email'] or '—'}")
+    text = replace_once(text, "Адрес: _____________________", f"Адрес: {fields['customer_address'] or '-'}")
+    text = replace_once(text, "Тел.: _______________________", f"Тел.: {fields['customer_phone'] or '-'}")
+    text = replace_once(text, "E-mail: _____________________", f"E-mail: {fields['customer_email'] or '-'}")
     text = replace_once(
         text,
         "Подпись: _____________ /__________/",
@@ -1318,7 +1318,7 @@ def build_redirect_uri(request: Request, route_name: str) -> str:
 
 def contract_channel_label(channel: Optional[str]) -> str:
     mapping = {"email": "Email", "telegram": "Telegram", "vk": "VK"}
-    return mapping.get(channel or "", "—")
+    return mapping.get(channel or "", "-")
 
 
 def default_contract_channel(user: Optional[Dict[str, Any]]) -> str:

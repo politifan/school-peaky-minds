@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Запросы временно ограничены — IT‑школа Peaky Minds{% endblock %}
+{% block title %}Запросы временно ограничены - IT‑школа Peaky Minds{% endblock %}
 {% block description %}Мы обнаружили аномально частые запросы из вашей сети. Попробуйте отправить заявку позже.{% endblock %}
 
 {% block content %}
@@ -9,7 +9,7 @@
     <div class="traffic-limit__code">429</div>
     <h1 class="traffic-limit__title">{{ limit_title or "Запросы временно ограничены" }}</h1>
     <p class="traffic-limit__text">
-      {{ limit_message or "Мы заметили подозрительный трафик из вашей сети. Попробуйте оставить заявку немного позже." }}
+      {{ limit_message or "Мы заметили подозрительный трафик из вашей сети. Попробуйте оставить заявку немного позже или свяжитесь с нами." }}
     </p>
     <p class="traffic-limit__hint">{{ limit_hint or "Обычно доступ восстанавливается автоматически." }}</p>
     <div class="traffic-limit__actions">

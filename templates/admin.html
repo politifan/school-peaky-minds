@@ -173,7 +173,7 @@
             <div class="card">
               <div class="course-meta">SLA и просрочки</div>
               <div class="admin-list">
-                <li><span>Среднее время ответа</span><strong>{% if avg_response %}{{ avg_response }} мин{% else %}—{% endif %}</strong></li>
+                <li><span>Среднее время ответа</span><strong>{% if avg_response %}{{ avg_response }} мин{% else %}-{% endif %}</strong></li>
                 <li><span>Просроченные лиды</span><strong>{{ stale_leads|length }}</strong></li>
               </div>
               <div style="height: 12px;"></div>
@@ -536,9 +536,9 @@
                   {% endif %}
                 </div>
               </td>
-              <td data-label="Курс">{{ lead.course or "—" }}</td>
+              <td data-label="Курс">{{ lead.course or "-" }}</td>
               <td data-label="Источник"><span class="admin-chip">{{ lead.source }}</span></td>
-              <td data-label="Страница"><span class="admin-truncate" title="{{ lead.page }}">{{ lead.page or "—" }}</span></td>
+              <td data-label="Страница"><span class="admin-truncate" title="{{ lead.page }}">{{ lead.page or "-" }}</span></td>
               <td data-label="Статус">
                 <form class="admin-status-form" action="/admin/leads/status" method="post">
                   <input type="hidden" name="file" value="{{ lead._file }}">
@@ -729,10 +729,10 @@
                 </div>
               </td>
               <td data-label="Номер договора">{{ item.contract_number }}</td>
-              <td data-label="Курс">{{ item.course or "—" }}</td>
-              <td data-label="Телефон">{{ item.phone or "—" }}</td>
-              <td data-label="Email">{{ item.email or "—" }}</td>
-              <td data-label="Telegram">{{ item.telegram or "—" }}</td>
+              <td data-label="Курс">{{ item.course or "-" }}</td>
+              <td data-label="Телефон">{{ item.phone or "-" }}</td>
+              <td data-label="Email">{{ item.email or "-" }}</td>
+              <td data-label="Telegram">{{ item.telegram or "-" }}</td>
               <td data-label="Договор">
                 <div class="admin-cell">
                   <span class="admin-status {{ item.contract_status_class }}">{{ item.contract_status_label }}</span>
@@ -754,9 +754,9 @@
                   <button class="admin-copy" type="submit">OK</button>
                 </form>
                 <div class="admin-subtext">
-                  {% if item.contract_channel_label and item.contract_channel_label != '—' %}{{ item.contract_channel_label }}{% else %}Канал не выбран{% endif %}
-                  {% if item.contract_sent_at and item.contract_sent_at != '—' %} · {{ item.contract_sent_at }}{% endif %}
-                  {% if item.contract_signed_at and item.contract_signed_at != '—' %} · Подписан {{ item.contract_signed_at }}{% endif %}
+                  {% if item.contract_channel_label and item.contract_channel_label != '-' %}{{ item.contract_channel_label }}{% else %}Канал не выбран{% endif %}
+                  {% if item.contract_sent_at and item.contract_sent_at != '-' %} · {{ item.contract_sent_at }}{% endif %}
+                  {% if item.contract_signed_at and item.contract_signed_at != '-' %} · Подписан {{ item.contract_signed_at }}{% endif %}
                 </div>
               </td>
               <td data-label="Прогресс">
@@ -1022,7 +1022,7 @@
                 {% if item.balance_amount %}
                   {{ item.balance_amount }} ₽
                 {% else %}
-                  —
+                  -
                 {% endif %}
                 {% if item.course %}
                 <div class="admin-subtext">{{ item.course }}</div>
@@ -1042,10 +1042,10 @@
                     Доступно к распределению: <strong>{{ item.balance }}%</strong>
                   </div>
                   <div class="referral-note" data-referral-after>
-                    Доступно после применения: —
+                    Доступно после применения: -
                   </div>
                   <div class="referral-warning" data-referral-warning>
-                    Укажите месяц и процент. Если процент пустой или 0 — скидка за этот месяц будет снята.
+                    Укажите месяц и процент. Если процент пустой или 0 - скидка за этот месяц будет снята.
                   </div>
                 </div>
                 <form class="admin-meta-form" action="/admin/referrals/month-discount" method="post" data-referral-discount>
@@ -1479,13 +1479,13 @@
           const month = (monthInput && monthInput.value) || currentMonth;
           const percent = parseInt((percentInput && percentInput.value) || "0", 10) || 0;
           if (!month) {
-            warning.textContent = "Укажите месяц и процент. Если процент пустой или 0 — скидка будет снята.";
-            if (afterNote) afterNote.textContent = "Доступно после применения: —";
+            warning.textContent = "Укажите месяц и процент. Если процент пустой или 0 - скидка будет снята.";
+            if (afterNote) afterNote.textContent = "Доступно после применения: -";
             return;
           }
           if (month < currentMonth) {
             warning.textContent = `Нельзя назначить скидку на прошлый месяц (${month}).`;
-            if (afterNote) afterNote.textContent = "Доступно после применения: —";
+            if (afterNote) afterNote.textContent = "Доступно после применения: -";
             return;
           }
           if (percent <= 0) {

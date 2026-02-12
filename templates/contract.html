@@ -25,8 +25,8 @@
         </div>
       </div>
       <ul class="admin-list">
-        <li><span>Курс</span><strong>{{ agreement.course or "—" }}</strong></li>
-        <li><span>Участник</span><strong>{{ agreement.full_name or agreement.user.name or "—" }}</strong></li>
+        <li><span>Курс</span><strong>{{ agreement.course or "-" }}</strong></li>
+        <li><span>Участник</span><strong>{{ agreement.full_name or agreement.user.name or "-" }}</strong></li>
         <li><span>Канал отправки</span><strong>{{ contract_channel_label }}</strong></li>
       </ul>
       <div style="margin-top: 14px;">

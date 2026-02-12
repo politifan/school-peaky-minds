@@ -116,11 +116,11 @@ CONTRACT_STATUS_LABELS = {key: label for key, label in CONTRACT_STATUS_OPTIONS}
 
 def format_ts(value: Optional[int]) -> str:
     if not value:
-        return "—"
+        return "-"
     try:
         return datetime.fromtimestamp(int(value)).strftime("%d.%m.%Y %H:%M")
     except Exception:
-        return "—"
+        return "-"
 
 
 def safe_int(value: Any, default: int = 0) -> int:
@@ -133,7 +133,7 @@ def safe_int(value: Any, default: int = 0) -> int:
 def format_amount(value: Any) -> str:
     amount = parse_amount(value)
     if amount is None:
-        return "—"
+        return "-"
     if amount.is_integer():
         return str(int(amount))
     return f"{amount:.2f}".rstrip("0").rstrip(".")
@@ -593,10 +593,10 @@ def _admin_panel_impl(request: Request):
             lesson_agreements.append(
                 {
                     "file": item.get("_file"),
-                    "name": item.get("full_name") or item.get("name") or "—",
-                    "course": item.get("course") or "—",
-                    "phone": item.get("phone") or "—",
-                    "email": item.get("email") or "—",
+                    "name": item.get("full_name") or item.get("name") or "-",
+                    "course": item.get("course") or "-",
+                    "phone": item.get("phone") or "-",
+                    "email": item.get("email") or "-",
                     "student_id": (item.get("user") or {}).get("id") or "",
                     "lesson_month": lesson_month,
                     "lesson_calendar": calendar_weeks,
@@ -698,7 +698,7 @@ def _admin_panel_impl(request: Request):
                 stale_leads.append(
                     {
                         "name": item.get("name") or "Без имени",
-                        "course": item.get("course") or "—",
+                        "course": item.get("course") or "-",
                         "age": round(age_hours),
                     }
                 )
@@ -831,7 +831,7 @@ def _admin_panel_impl(request: Request):
             if discounted_rate is not None
             else format_amount(price_per_lesson)
             if price_per_lesson is not None
-            else "—"
+            else "-"
         )
         total_lessons = safe_int(item.get("total_lessons"), 0) if item.get("total_lessons") is not None else None
         paid_lessons = safe_int(item.get("paid_lessons"), 0) if item.get("paid_lessons") is not None else None
@@ -851,7 +851,7 @@ def _admin_panel_impl(request: Request):
                 "amount_display": amount_display,
                 "cost_display": cost_display,
                 "cost_percent": monthly_percent,
-                "contract_number": item.get("contract_number") or "—",
+                "contract_number": item.get("contract_number") or "-",
                 "contract_status_key": contract_key,
                 "contract_status_label": contract_label,
                 "contract_status_class": contract_class,
@@ -877,9 +877,9 @@ def _admin_panel_impl(request: Request):
         users_view.append(
             {
                 "id": user.get("id"),
-                "provider": user.get("provider", "—"),
-                "email": user.get("email") or "—",
-                "name": user.get("name") or user.get("email") or user.get("id") or "—",
+                "provider": user.get("provider", "-"),
+                "email": user.get("email") or "-",
+                "name": user.get("name") or user.get("email") or user.get("id") or "-",
             }
         )
     users_view.sort(key=lambda item: (str(item.get("provider")), str(item.get("name"))))
@@ -908,7 +908,7 @@ def _admin_panel_impl(request: Request):
                 return datetime.strptime(value, "%Y-%m-%d").strftime("%d.%m.%Y")
             except Exception:
                 return value
-        filter_bits.append(f"Период: {fmt_date(date_from_value)} — {fmt_date(date_to_value)}")
+        filter_bits.append(f"Период: {fmt_date(date_from_value)} - {fmt_date(date_to_value)}")
     filters_label = " · ".join(filter_bits) if filter_bits else "Все данные"
 
     params = {}
@@ -1113,7 +1113,7 @@ def _admin_panel_impl(request: Request):
             ts_value = safe_int(ts)
             if ts_value > last_ts:
                 last_ts = ts_value
-    last_activity = format_ts(last_ts) if last_ts else "—"
+    last_activity = format_ts(last_ts) if last_ts else "-"
 
     def count_recent(items: List[Dict[str, Any]], hours: int) -> int:
         if not items:
@@ -1170,12 +1170,12 @@ def _admin_panel_impl(request: Request):
         },
         {
             "label": "Ответ на лид",
-            "value": f"{avg_response} мин" if avg_response else "—",
+            "value": f"{avg_response} мин" if avg_response else "-",
             "note": f"Просрочено (>24ч): {len(stale_leads)}",
         },
         {
             "label": "Выручка",
-            "value": f"{format_amount(revenue_total)} ₽" if revenue_total else "—",
+            "value": f"{format_amount(revenue_total)} ₽" if revenue_total else "-",
             "note": f"Средний чек: {format_amount(revenue_avg)} ₽ · Оплат: {paid_count}",
         },
         {
@@ -1216,7 +1216,7 @@ def _admin_panel_impl(request: Request):
             {
                 "name": item.get("name") or "Без имени",
                 "time": format_ts(item.get("timestamp")),
-                "course": item.get("course") or "—",
+                "course": item.get("course") or "-",
                 "status_label": label,
                 "status_class": cls,
             }
@@ -1287,13 +1287,13 @@ def _admin_panel_impl(request: Request):
                 if len(history) >= 5:
                     break
             applied_list = item.get("discount_applied") if isinstance(item.get("discount_applied"), list) else []
-            last_applied = format_ts(applied_list[-1].get("ts")) if applied_list else "—"
+            last_applied = format_ts(applied_list[-1].get("ts")) if applied_list else "-"
             referral_participants.append(
                 {
                     "id": item.get("id"),
-                    "name": item.get("name") or "—",
-                    "phone": item.get("phone") or "—",
-                    "code": item.get("referral_code") or "—",
+                    "name": item.get("name") or "-",
+                    "phone": item.get("phone") or "-",
+                    "code": item.get("referral_code") or "-",
                     "referrals_count": stats["referrals_count"],
                     "confirmed_months": stats["confirmed_months"],
                     "earned": stats["earned"],
@@ -1332,11 +1332,11 @@ def _admin_panel_impl(request: Request):
             referral_students.append(
                 {
                     "id": item.get("id"),
-                    "name": item.get("name") or "—",
-                    "phone": item.get("phone") or "—",
+                    "name": item.get("name") or "-",
+                    "phone": item.get("phone") or "-",
                     "group": item.get("group") or "",
-                    "referrer_name": (referrer or {}).get("name") or "—",
-                    "referrer_code": (referrer or {}).get("referral_code") or "—",
+                    "referrer_name": (referrer or {}).get("name") or "-",
+                    "referrer_code": (referrer or {}).get("referral_code") or "-",
                     "referrer_id": (referrer or {}).get("id"),
                     "confirmed_months": referral_confirmed_months(item),
                     "month_paid": month_paid,
@@ -1481,7 +1481,7 @@ async def admin_reset_metrics(request: Request):
     _destructive_mark()
     await _send_destructive_report(
         "🧹 <b>Сброс статистики</b>\n"
-        f"👤 Админ: {actor or '—'}\n"
+        f"👤 Админ: {actor or '-'}\n"
         "Удалены: метрики, уникальные визиты, воронка"
     )
     return admin_notice_redirect("overview", message="Статистика сброшена")
@@ -1520,7 +1520,7 @@ async def admin_clear_leads(request: Request):
             data = load_json(path, {})
             if isinstance(data, dict):
                 lead_details.append(
-                    f"- {data.get('name') or '—'} | {data.get('contact') or '—'} | {data.get('course') or '—'} | {data.get('page') or '—'}"
+                    f"- {data.get('name') or '-'} | {data.get('contact') or '-'} | {data.get('course') or '-'} | {data.get('page') or '-'}"
                 )
             path.unlink()
             deleted += 1
@@ -1529,7 +1529,7 @@ async def admin_clear_leads(request: Request):
     _destructive_mark()
     report_lines = [
         "🗑 <b>Удалены все заявки</b>",
-        f"👤 Админ: {actor or '—'}",
+        f"👤 Админ: {actor or '-'}",
         f"Количество: {deleted}",
     ]
     if lead_details:
@@ -1578,13 +1578,13 @@ async def admin_delete_lead(request: Request):
         payload = payload[:1500] + "…"
     report = (
         "🗑 <b>Удалена заявка</b>\n"
-        f"👤 Админ: {actor or '—'}\n"
-        f"Имя: {lead_name or '—'}\n"
-        f"Контакт: {lead_contact or '—'}\n"
-        f"Курс: {lead_course or '—'}\n"
-        f"Страница: {lead_page or '—'}\n"
+        f"👤 Админ: {actor or '-'}\n"
+        f"Имя: {lead_name or '-'}\n"
+        f"Контакт: {lead_contact or '-'}\n"
+        f"Курс: {lead_course or '-'}\n"
+        f"Страница: {lead_page or '-'}\n"
         f"Файл: {file_name}\n"
-        f"Данные: {payload or '—'}"
+        f"Данные: {payload or '-'}"
     )
     await _send_destructive_report(report)
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
@@ -1607,7 +1607,7 @@ async def admin_clear_agreements(request: Request):
             data = load_json(path, {})
             if isinstance(data, dict):
                 agreement_details.append(
-                    f"- {data.get('full_name') or '—'} | {data.get('phone') or '—'} | {data.get('course') or '—'}"
+                    f"- {data.get('full_name') or '-'} | {data.get('phone') or '-'} | {data.get('course') or '-'}"
                 )
             path.unlink()
             deleted += 1
@@ -1616,7 +1616,7 @@ async def admin_clear_agreements(request: Request):
     _destructive_mark()
     report_lines = [
         "🗑 <b>Удалены все договоры</b>",
-        f"👤 Админ: {actor or '—'}",
+        f"👤 Админ: {actor or '-'}",
         f"Количество: {deleted}",
     ]
     if agreement_details:
@@ -1665,13 +1665,13 @@ async def admin_delete_agreement(request: Request):
         payload = payload[:1500] + "…"
     report = (
         "🗑 <b>Удалён договор</b>\n"
-        f"👤 Админ: {actor or '—'}\n"
-        f"ФИО: {agreement_name or '—'}\n"
-        f"Телефон: {agreement_phone or '—'}\n"
-        f"Email: {agreement_email or '—'}\n"
-        f"Курс: {agreement_course or '—'}\n"
+        f"👤 Админ: {actor or '-'}\n"
+        f"ФИО: {agreement_name or '-'}\n"
+        f"Телефон: {agreement_phone or '-'}\n"
+        f"Email: {agreement_email or '-'}\n"
+        f"Курс: {agreement_course or '-'}\n"
         f"Файл: {file_name}\n"
-        f"Данные: {payload or '—'}"
+        f"Данные: {payload or '-'}"
     )
     await _send_destructive_report(report)
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
@@ -1926,7 +1926,7 @@ async def admin_remove_whitelist(request: Request):
     actor = (request.session.get("user") or {}).get("id") or ""
     await _send_destructive_report(
         "🗑 <b>Удалён из whitelist</b>\n"
-        f"👤 Админ: {actor or '—'}\n"
+        f"👤 Админ: {actor or '-'}\n"
         f"ID: {target}"
     )
     return admin_notice_redirect("whitelist", message=f"Удалён ID {target} из whitelist")
@@ -1997,8 +1997,8 @@ async def admin_referral_code(request: Request):
 
     await notify_admins(
         f"🏷 <b>Код участника</b>\n"
-        f"👤 <b>Участник:</b> {student.get('name') or '—'}\n"
-        f"📞 <b>Телефон:</b> {student.get('phone') or '—'}\n"
+        f"👤 <b>Участник:</b> {student.get('name') or '-'}\n"
+        f"📞 <b>Телефон:</b> {student.get('phone') or '-'}\n"
         f"🔗 <b>Код:</b> {code}"
     )
     return referral_redirect(message="Код сохранён")
@@ -2048,10 +2048,10 @@ async def admin_referral_code_delete(request: Request):
     _destructive_mark()
     await _send_destructive_report(
         "🗑 <b>Удалён реферальный код</b>\n"
-        f"👤 Админ: {actor or '—'}\n"
-        f"Участник: {student.get('name') or '—'}\n"
-        f"Телефон: {student.get('phone') or '—'}\n"
-        f"Код: {removed_code or '—'}"
+        f"👤 Админ: {actor or '-'}\n"
+        f"Участник: {student.get('name') or '-'}\n"
+        f"Телефон: {student.get('phone') or '-'}\n"
+        f"Код: {removed_code or '-'}"
     )
     return referral_redirect(message="Код удалён")
 
@@ -2112,10 +2112,10 @@ async def admin_referral_assign(request: Request):
 
     await notify_admins(
         f"🤝 <b>Назначен реферал</b>\n"
-        f"👤 <b>Реферал:</b> {student.get('name') or '—'}\n"
-        f"📞 <b>Телефон:</b> {student.get('phone') or '—'}\n"
+        f"👤 <b>Реферал:</b> {student.get('name') or '-'}\n"
+        f"📞 <b>Телефон:</b> {student.get('phone') or '-'}\n"
         f"🔗 <b>Код:</b> {code}\n"
-        f"🏷 <b>Участник:</b> {referrer.get('name') or '—'}"
+        f"🏷 <b>Участник:</b> {referrer.get('name') or '-'}"
     )
     return referral_redirect(message="Реферал привязан")
 
@@ -2187,10 +2187,10 @@ async def admin_referral_month(request: Request):
             balance_note = f"\n🧮 <b>Баланс:</b> {stats['balance']}%"
         await notify_admins(
             f"✅ <b>Месяц подтверждён</b>\n"
-            f"👤 <b>Реферал:</b> {student.get('name') or '—'}\n"
-            f"📞 <b>Телефон:</b> {student.get('phone') or '—'}\n"
+            f"👤 <b>Реферал:</b> {student.get('name') or '-'}\n"
+            f"📞 <b>Телефон:</b> {student.get('phone') or '-'}\n"
             f"📅 <b>Месяц:</b> {month}\n"
-            f"🏷 <b>Участник:</b> {(referrer or {}).get('name') or '—'}"
+            f"🏷 <b>Участник:</b> {(referrer or {}).get('name') or '-'}"
             f"{balance_note}"
         )
 
@@ -2257,8 +2257,8 @@ async def admin_referral_discount(request: Request):
 
     await notify_admins(
         f"💸 <b>Скидка применена</b>\n"
-        f"👤 <b>Участник:</b> {student.get('name') or '—'}\n"
-        f"📞 <b>Телефон:</b> {student.get('phone') or '—'}\n"
+        f"👤 <b>Участник:</b> {student.get('name') or '-'}\n"
+        f"📞 <b>Телефон:</b> {student.get('phone') or '-'}\n"
         f"🎯 <b>Скидка:</b> {percent}%\n"
         f"🧮 <b>Баланс:</b> {max(stats['balance'] - percent, 0)}%"
     )

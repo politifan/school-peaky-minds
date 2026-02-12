@@ -463,11 +463,11 @@ async def account(request: Request):
 
     def format_ts(value: Any) -> str:
         if not value:
-            return "—"
+            return "-"
         try:
             return datetime.fromtimestamp(int(value)).strftime("%d.%m.%Y %H:%M")
         except Exception:
-            return "—"
+            return "-"
 
     agreements_view = []
     calendar_month = str(request.query_params.get("month") or "").strip()
@@ -545,7 +545,7 @@ async def account(request: Request):
                 "id": payment.get("id"),
                 "status": status,
                 "status_label": status_labels.get(status, status),
-                "amount": (payment.get("amount") or {}).get("value") or "—",
+                "amount": (payment.get("amount") or {}).get("value") or "-",
                 "lessons": payment.get("lessons"),
                 "discount_percent": payment.get("discount_percent") or 0,
                 "created_at": format_ts(payment.get("created_at")),
@@ -576,7 +576,7 @@ async def account(request: Request):
                 "attended_lessons": attended_lessons,
                 "current_paid_lessons": current_paid,
                 "remaining_lessons": remaining,
-                "current_module": item.get("current_module") or "—",
+                "current_module": item.get("current_module") or "-",
                 "materials": materials,
                 "price_per_lesson": price_per_lesson,
                 "discount_percent": discount_percent,
