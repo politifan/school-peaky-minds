@@ -305,7 +305,22 @@ applyForms.forEach((form) => {
         headers: { Accept: 'application/json' },
       });
 
-      if (!response.ok) throw new Error('Bad response');
+      if (response.redirected) {
+        window.location.href = response.url;
+        return;
+      }
+      if (!response.ok) {
+        let errorMessage = '';
+        try {
+          errorMessage = (await response.text()).trim();
+        } catch (e) {
+          errorMessage = '';
+        }
+        if (response.status === 429 && errorMessage) {
+          throw new Error(errorMessage);
+        }
+        throw new Error('Не удалось отправить заявку. Попробуйте немного позднее.');
+      }
 
       showFormMessage(form, 'Спасибо! Мы на связи.');
       form.reset();
@@ -315,7 +330,10 @@ applyForms.forEach((form) => {
         setTimeout(() => closeModal(modal), 1800);
       }
     } catch (error) {
-      showFormMessage(form, 'Не удалось отправить. Попробуйте ещё раз.', true);
+      const message = error && error.message
+        ? error.message
+        : 'Не удалось отправить заявку. Попробуйте немного позднее.';
+      showFormMessage(form, message, true);
     } finally {
       form.dataset.sending = 'false';
       if (submitBtn) submitBtn.disabled = false;

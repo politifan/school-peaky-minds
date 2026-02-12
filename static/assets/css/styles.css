@@ -641,7 +641,7 @@ section {
 .traffic-limit__code {
   font-size: clamp(3.2rem, 10vw, 6rem);
   letter-spacing: 0.08em;
-  color: var(--accent-1);
+  color: var(--text-1);
   text-shadow: 0 24px 52px rgba(0, 0, 0, 0.35);
 }
 

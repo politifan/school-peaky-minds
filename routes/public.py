@@ -131,3 +131,18 @@ async def course_python_beginners(request: Request):
 @router.get("/healthz", include_in_schema=False)
 async def healthz() -> dict:
     return {"status": "ok"}
+
+
+@router.get("/429", include_in_schema=False)
+async def too_many_requests(request: Request):
+    response = render(
+        request,
+        "enroll_limit.html",
+        {
+            "limit_title": "Запросы временно ограничены",
+            "limit_message": "Мы заметили подозрительный трафик, исходящий из вашей сети. Попробуйте оставить заявку позднее.",
+            "limit_hint": "Если это ошибка, просто повторите попытку чуть позже.",
+        },
+    )
+    response.status_code = 429
+    return response

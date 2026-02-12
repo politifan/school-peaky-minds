@@ -33,8 +33,8 @@ router = APIRouter()
 
 # Simple in-memory rate limits (per-process).
 _RATE_LIMIT = {
-    "apply": {"daily": 5, "window": 10},
-    "enroll": {"daily": 3, "window": 10},
+    "apply": {"daily": 5, "window": 30},
+    "enroll": {"daily": 3, "window": 30},
 }
 _rate_daily: Dict[Tuple[str, str], Dict[str, object]] = {}
 _rate_burst: Dict[Tuple[str, str], float] = {}
@@ -162,7 +162,9 @@ def _upsert_student_from_enroll(payload: dict, referral_code: str, referrer_id: 
 async def apply(request: Request):
     rate_error = _check_rate_limit(request, "apply")
     if rate_error:
-        return _render_rate_limit_page(request, "apply", rate_error)
+        if rate_error == "daily":
+            return RedirectResponse("/429", status_code=HTTP_302_FOUND)
+        return HTMLResponse("Не удалось отправить заявку. Попробуйте немного позднее.", status_code=429)
     form = await request.form()
     name = clamp_text(form.get("name", ""), 60)
     contact = str(form.get("phone", "")).strip()
@@ -227,7 +229,9 @@ async def enroll(request: Request):
         return RedirectResponse("/login", status_code=HTTP_302_FOUND)
     rate_error = _check_rate_limit(request, "enroll")
     if rate_error:
-        return _render_rate_limit_page(request, "enroll", rate_error)
+        if rate_error == "daily":
+            return RedirectResponse("/429", status_code=HTTP_302_FOUND)
+        return HTMLResponse("Не удалось отправить заявку. Попробуйте немного позднее.", status_code=429)
 
     form = await request.form()
     email = str(form.get("email") or "").strip().lower()
