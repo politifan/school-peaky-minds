@@ -120,6 +120,18 @@ def is_valid_email(value: object) -> bool:
     return True
 
 
+def normalize_duration(value: object) -> str:
+    raw = str(value or "").strip()
+    allowed = {
+        "Разово",
+        "1 месяц",
+        "3 месяца",
+        "6 месяцев",
+        "12 месяцев",
+    }
+    return raw if raw in allowed else ""
+
+
 def _upsert_student_from_enroll(payload: dict, referral_code: str, referrer_id: Optional[int]) -> int:
     data = load_referrals()
     students = data.get("students") or {}
@@ -245,6 +257,7 @@ async def enroll(request: Request):
         "timestamp": int(time.time()),
         "user": user,
         "course": form.get("course"),
+        "duration": normalize_duration(form.get("duration")),
         "full_name": clamp_text(form.get("full_name"), 60),
         "phone": form.get("phone"),
         "email": email,
@@ -302,6 +315,7 @@ async def enroll(request: Request):
         text = (
             "✅ <b>Заявка на покупку курса</b>\n"
             f"🎯 <b>Курс:</b> {payload.get('course')}\n"
+            f"🗓 <b>Длительность:</b> {payload.get('duration') or '-'}\n"
             f"👤 <b>ФИО:</b> {payload.get('full_name')}\n"
             f"📞 <b>Телефон:</b> {payload.get('phone')}\n"
             f"✉️ <b>Email:</b> {payload.get('email')}\n"

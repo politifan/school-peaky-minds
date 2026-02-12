@@ -580,7 +580,7 @@ def _admin_panel_impl(request: Request):
     agreements = filter_items(agreements_all, course, date_from, date_to)
 
     leads = apply_search(leads, query, ["name", "contact", "course", "page"])
-    agreements = apply_search(agreements, query, ["full_name", "phone", "email", "telegram", "course"])
+    agreements = apply_search(agreements, query, ["full_name", "phone", "email", "telegram", "course", "duration"])
 
     leads = [{**item, "_source": extract_source(item.get("page", ""))} for item in leads]
     leads_base_count = len(leads)
@@ -2588,7 +2588,7 @@ async def export_agreements(request: Request):
     order = request.query_params.get("order") or "desc"
 
     agreements = filter_items(load_agreements(), course, date_from, date_to)
-    agreements = apply_search(agreements, query, ["full_name", "phone", "email", "telegram", "course"])
+    agreements = apply_search(agreements, query, ["full_name", "phone", "email", "telegram", "course", "duration"])
     if agreement_status_filter and agreement_status_filter in AGREEMENT_STATUS_META:
         agreements = [item for item in agreements if agreement_status_from_item(item)[0] == agreement_status_filter]
     if contract_status_filter and contract_status_filter in core.CONTRACT_STATUS_META:
@@ -2628,6 +2628,7 @@ async def export_agreements(request: Request):
         [
             "timestamp",
             "course",
+            "duration",
             "full_name",
             "contract_number",
             "phone",
@@ -2652,6 +2653,7 @@ async def export_agreements(request: Request):
         writer.writerow([
             item.get("timestamp"),
             item.get("course"),
+            item.get("duration"),
             item.get("full_name"),
             item.get("contract_number"),
             item.get("phone"),
