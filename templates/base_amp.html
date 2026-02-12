@@ -201,6 +201,14 @@
                 <option value="Data Science / ML" {% if course_slug == "Data Science" %}selected{% endif %}>Data Science / ML</option>
                 <option value="Программирование для бизнеса" {% if course_slug == "Business" %}selected{% endif %}>Программирование для бизнеса</option>
               </select>
+                        <select name="duration">
+              <option value="" selected>Выберите длительность курса (необязательно)</option>
+              <option value="Разово">Разовая оплата сессий</option>
+              <option value="1 месяц">Пакет на 1 месяц</option>
+              <option value="3 месяца">Пакет на 3 месяца</option>
+              <option value="6 месяцев">Пакет на 6 месяцев</option>
+              <option value="12 месяцев">Пакет на 12 месяцев</option>
+            </select>
               <input type="text" name="full_name" placeholder="ФИО" value="{{ user.name if user else '' }}" required minlength="2" maxlength="60">
               <div class="input-wrap">
                 <input type="text" name="phone" placeholder="Телефон" data-phone="strict" required pattern="(\\+?7|8)[0-9\\s\\-()]{10,16}" maxlength="18" value="{{ user.phone if user and user.phone else '' }}">
