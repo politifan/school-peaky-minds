@@ -626,6 +626,49 @@ section {
   text-decoration: underline;
 }
 
+.traffic-limit {
+  padding: 120px 0 140px;
+  text-align: center;
+}
+
+.traffic-limit__wrap {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  max-width: 760px;
+}
+
+.traffic-limit__code {
+  font-size: clamp(3.2rem, 10vw, 6rem);
+  letter-spacing: 0.08em;
+  color: var(--accent-1);
+  text-shadow: 0 24px 52px rgba(0, 0, 0, 0.35);
+}
+
+.traffic-limit__title {
+  margin: 0;
+}
+
+.traffic-limit__text {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 1.08rem;
+}
+
+.traffic-limit__hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.98rem;
+}
+
+.traffic-limit__actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .reveal.in-view.section-title::after,
 .section-head.reveal.in-view h2::after {
   transform: scaleX(1);

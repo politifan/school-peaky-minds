@@ -63,16 +63,32 @@ def _check_rate_limit(request: Request, key: str) -> Optional[str]:
         entry = {"day": day_key, "count": 0}
         _rate_daily[daily_key] = entry
     if int(entry.get("count", 0)) >= int(limits["daily"]):
-        return "Слишком много заявок с этого IP за сутки. Попробуйте позже."
+        return "daily"
 
     burst_key = (key, ip)
     last_ts = _rate_burst.get(burst_key)
     if last_ts and (now - int(last_ts)) < int(limits["window"]):
-        return "Слишком часто. Подождите несколько секунд и попробуйте снова."
+        return "burst"
 
     entry["count"] = int(entry.get("count", 0)) + 1
     _rate_burst[burst_key] = now
     return None
+
+
+def _render_rate_limit_page(request: Request, flow: str, reason: str) -> HTMLResponse:
+    title = "\u0417\u0430\u043f\u0440\u043e\u0441\u044b \u0432\u0440\u0435\u043c\u0435\u043d\u043d\u043e \u043e\u0433\u0440\u0430\u043d\u0438\u0447\u0435\u043d\u044b"
+    message = "\u041c\u044b \u0437\u0430\u043c\u0435\u0442\u0438\u043b\u0438 \u043f\u043e\u0434\u043e\u0437\u0440\u0438\u0442\u0435\u043b\u044c\u043d\u044b\u0439 \u0442\u0440\u0430\u0444\u0438\u043a \u0438\u0437 \u0432\u0430\u0448\u0435\u0439 \u0441\u0435\u0442\u0438. \u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u043e\u0441\u0442\u0430\u0432\u0438\u0442\u044c \u0437\u0430\u044f\u0432\u043a\u0443 \u043d\u0435\u043c\u043d\u043e\u0433\u043e \u043f\u043e\u0437\u0436\u0435."
+    hint = "\u041e\u0431\u044b\u0447\u043d\u043e \u0434\u043e\u0441\u0442\u0443\u043f \u0432\u043e\u0441\u0441\u0442\u0430\u043d\u0430\u0432\u043b\u0438\u0432\u0430\u0435\u0442\u0441\u044f \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438."
+    if reason == "burst":
+        hint = "\u041f\u043e\u0434\u043e\u0436\u0434\u0438\u0442\u0435 10 \u0441\u0435\u043a\u0443\u043d\u0434 \u0438 \u043f\u043e\u0432\u0442\u043e\u0440\u0438\u0442\u0435 \u043f\u043e\u043f\u044b\u0442\u043a\u0443."
+    response = render(
+        request,
+        "enroll_limit.html",
+        {"limit_title": title, "limit_message": message, "limit_hint": hint, "limit_flow": flow},
+    )
+    response.status_code = 429
+    return response
+
 
 def clamp_text(value: object, max_len: int) -> str:
     if value is None:
@@ -146,7 +162,7 @@ def _upsert_student_from_enroll(payload: dict, referral_code: str, referrer_id: 
 async def apply(request: Request):
     rate_error = _check_rate_limit(request, "apply")
     if rate_error:
-        return HTMLResponse(rate_error, status_code=429)
+        return _render_rate_limit_page(request, "apply", rate_error)
     form = await request.form()
     name = clamp_text(form.get("name", ""), 60)
     contact = str(form.get("phone", "")).strip()
@@ -211,7 +227,7 @@ async def enroll(request: Request):
         return RedirectResponse("/login", status_code=HTTP_302_FOUND)
     rate_error = _check_rate_limit(request, "enroll")
     if rate_error:
-        return HTMLResponse(rate_error, status_code=429)
+        return _render_rate_limit_page(request, "enroll", rate_error)
 
     form = await request.form()
     email = str(form.get("email") or "").strip().lower()
