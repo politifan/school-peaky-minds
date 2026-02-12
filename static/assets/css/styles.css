@@ -707,6 +707,10 @@ section {
   padding: 10px 12px;
 }
 
+.price-row--base {
+  grid-template-columns: minmax(180px, 1.7fr) minmax(108px, auto);
+}
+
 .price-row__plan {
   color: var(--text-1);
   font-weight: 600;
@@ -741,6 +745,30 @@ section {
   color: var(--text-1);
   font-weight: 700;
   text-align: right;
+}
+
+@media (max-width: 760px) {
+  .price-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 10px;
+  }
+
+  .price-row--base {
+    grid-template-columns: 1fr;
+  }
+
+  .price-row__plan {
+    grid-column: 1 / -1;
+  }
+
+  .price-row__old,
+  .price-row__new {
+    text-align: left;
+  }
+
+  .price-row__discount {
+    justify-self: start;
+  }
 }
 
 .card-grid {
