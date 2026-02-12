@@ -172,7 +172,11 @@ async def create_payment(request: Request):
         return RedirectResponse("/account?payment_error=Доступ+запрещен", status_code=HTTP_302_FOUND)
 
     course = str(agreement.get("course") or "").strip()
-    rate = course_rate(course)
+    try:
+        saved_rate = int(agreement.get("price_per_lesson") or 0)
+    except Exception:
+        saved_rate = 0
+    rate = saved_rate or course_rate(course, agreement.get("duration"))
     if not rate:
         return RedirectResponse("/account?payment_error=Цена+курса+не+найдена", status_code=HTTP_302_FOUND)
 
@@ -533,7 +537,11 @@ async def test_payment_create(request: Request):
         return RedirectResponse("/test_payment?error=Договор+не+найден", status_code=HTTP_302_FOUND)
 
     course = str(agreement.get("course") or "").strip()
-    rate = course_rate(course) or 0
+    try:
+        saved_rate = int(agreement.get("price_per_lesson") or 0)
+    except Exception:
+        saved_rate = 0
+    rate = saved_rate or (course_rate(course, agreement.get("duration")) or 0)
 
     discount_percent = 0
     referrals = load_referrals()

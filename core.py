@@ -174,19 +174,40 @@ def format_moscow_date(dt: Optional[datetime] = None) -> str:
     return f"«{value.day:02d}» {month_name} {value.year} г."
 
 
-def course_rate(course: Optional[str]) -> Optional[int]:
+def duration_discount_percent(duration: Optional[str]) -> int:
+    value = (duration or "").strip().lower()
+    mapping = {
+        "??????": 0,
+        "1 ?????": 5,
+        "3 ??????": 10,
+        "6 ???????": 15,
+        "12 ???????": 20,
+    }
+    return int(mapping.get(value, 0))
+
+
+def course_rate(course: Optional[str], duration: Optional[str] = None) -> Optional[int]:
     value = (course or "").strip().lower()
     if not value:
         return None
+
+    base_rate: Optional[int] = None
     if "full" in value:
-        return 1500
-    if "data" in value or "science" in value or "аналитик" in value:
-        return 2000
-    if "business" in value or "бизнес" in value or "автоматизац" in value:
-        return 2000
-    if "python" in value:
-        return 1000
-    return None
+        base_rate = 1500
+    elif "data" in value or "science" in value or "????????" in value:
+        base_rate = 2000
+    elif "business" in value or "??????" in value or "???????????" in value:
+        base_rate = 2000
+    elif "python" in value:
+        base_rate = 1000
+
+    if base_rate is None:
+        return None
+
+    discount = duration_discount_percent(duration)
+    if discount <= 0:
+        return base_rate
+    return max(int(round(base_rate * (100 - discount) / 100)), 0)
 
 
 def resolve_contract_fields(agreement: Dict[str, Any]) -> Dict[str, str]:
@@ -247,7 +268,7 @@ def _contract_pdf_values(agreement: Dict[str, Any]) -> Dict[str, str]:
     contract_number = str(agreement.get("contract_number") or "").strip() or "-"
     contract_date = str(agreement.get("contract_date") or "").strip() or format_moscow_date()
     course = str(agreement.get("course") or "-").strip()
-    rate = course_rate(course)
+    rate = course_rate(course, agreement.get("duration"))
     rate_text = f"{rate} руб./час" if rate else "-"
     return {
         "contract_number": contract_number,
@@ -438,7 +459,7 @@ def build_contract_document_text(agreement: Dict[str, Any]) -> str:
     contract_number = str(agreement.get("contract_number") or "").strip() or "-"
     contract_date = str(agreement.get("contract_date") or "").strip() or format_moscow_date()
     course = str(agreement.get("course") or "-").strip()
-    rate = course_rate(course)
+    rate = course_rate(course, agreement.get("duration"))
     rate_text = f"{rate} руб./час" if rate else "-"
 
     text = text.replace("ДОГОВОР № ___", f"ДОГОВОР № {contract_number}")

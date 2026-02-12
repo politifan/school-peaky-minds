@@ -503,7 +503,8 @@ async def account(request: Request):
         if total_lessons is not None and paid_lessons is not None:
             remaining = max(total_lessons - paid_lessons, 0)
         materials = normalize_materials(item.get("materials"))
-        price_per_lesson = course_rate(item.get("course"))
+        saved_rate = safe_int(item.get("price_per_lesson"))
+        price_per_lesson = saved_rate if saved_rate else course_rate(item.get("course"), item.get("duration"))
         discount_percent = 0
         discount_value = None
         discounted_price = None

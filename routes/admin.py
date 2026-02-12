@@ -818,7 +818,8 @@ def _admin_panel_impl(request: Request):
         contract_key, contract_label, contract_class = contract_status_from_item(item)
         manual_status = (item.get("status") or "").strip()
         amount_display = format_amount(item.get("amount"))
-        price_per_lesson = course_rate(item.get("course"))
+        saved_rate = safe_int(item.get("price_per_lesson"))
+        price_per_lesson = saved_rate if saved_rate else course_rate(item.get("course"), item.get("duration"))
         monthly_percent = 0
         student = referrals_by_phone.get(normalize_phone(item.get("phone") or ""))
         if student:

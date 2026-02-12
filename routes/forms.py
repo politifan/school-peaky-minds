@@ -11,6 +11,7 @@ from core import (
     TELEGRAM_USERNAME_RE,
     find_student_by_code,
     find_student_by_phone,
+    course_rate,
     is_valid_phone,
     load_metrics,
     load_referrals,
@@ -265,6 +266,9 @@ async def enroll(request: Request):
         "agreement": form.get("agreement"),
         "consent": form.get("consent"),
     }
+    selected_rate = course_rate(payload.get("course"), payload.get("duration"))
+    if selected_rate is not None:
+        payload["price_per_lesson"] = selected_rate
     phone_raw = str(payload.get("phone") or "").strip()
     telegram_raw = str(payload.get("telegram") or "").strip()
     course = str(payload.get("course") or "").strip()
