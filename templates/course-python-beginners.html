@@ -131,50 +131,41 @@ print("Средняя цена:", sum(prices) / len(prices))
     <section class="price-list">
       <div class="container">
         <h2 class="section-title reveal">Прайс-лист</h2>
-        <div class="price-list-grid reveal">
-          <article class="price-item">
-            <div class="price-item__label">Разовая оплата занятия</div>
-            <div class="price-item__line">
-              <span class="price-item__base price-item__base--muted">1000 &#8381; / час</span>
-              <span class="price-item__badge">без скидки</span>
-              <span class="price-item__final">1000 &#8381; / час</span>
-            </div>
-          </article>
-          <article class="price-item">
-            <div class="price-item__label">Пакет на 1 месяц</div>
-            <div class="price-item__line">
-              <span class="price-item__base">1000 &#8381; / час</span>
-              <span class="price-item__badge">-5%</span>
-              <span class="price-item__final">950 &#8381; / час</span>
-            </div>
-          </article>
-          <article class="price-item">
-            <div class="price-item__label">Пакет на 3 месяца</div>
-            <div class="price-item__line">
-              <span class="price-item__base">1000 &#8381; / час</span>
-              <span class="price-item__badge">-10%</span>
-              <span class="price-item__final">900 &#8381; / час</span>
-            </div>
-          </article>
-          <article class="price-item">
-            <div class="price-item__label">Пакет на 6 месяцев</div>
-            <div class="price-item__line">
-              <span class="price-item__base">1000 &#8381; / час</span>
-              <span class="price-item__badge">-15%</span>
-              <span class="price-item__final">850 &#8381; / час</span>
-            </div>
-          </article>
-          <article class="price-item">
-            <div class="price-item__label">Пакет на 12 месяцев</div>
-            <div class="price-item__line">
-              <span class="price-item__base">1000 &#8381; / час</span>
-              <span class="price-item__badge">-20%</span>
-              <span class="price-item__final">800 &#8381; / час</span>
-            </div>
-          </article>
+        <div class="price-sheet reveal">
+          <div class="price-row">
+            <div class="price-row__plan">Разовая оплата занятия</div>
+            <div class="price-row__old">1000 &#8381; / час</div>
+            <div class="price-row__discount">—</div>
+            <div class="price-row__new">1000 &#8381; / час</div>
+          </div>
+          <div class="price-row">
+            <div class="price-row__plan">Пакет на 1 месяц</div>
+            <div class="price-row__old">1000 &#8381; / час</div>
+            <div class="price-row__discount">-5%</div>
+            <div class="price-row__new">950 &#8381; / час</div>
+          </div>
+          <div class="price-row">
+            <div class="price-row__plan">Пакет на 3 месяца</div>
+            <div class="price-row__old">1000 &#8381; / час</div>
+            <div class="price-row__discount">-10%</div>
+            <div class="price-row__new">900 &#8381; / час</div>
+          </div>
+          <div class="price-row">
+            <div class="price-row__plan">Пакет на 6 месяцев</div>
+            <div class="price-row__old">1000 &#8381; / час</div>
+            <div class="price-row__discount">-15%</div>
+            <div class="price-row__new">850 &#8381; / час</div>
+          </div>
+          <div class="price-row">
+            <div class="price-row__plan">Пакет на 12 месяцев</div>
+            <div class="price-row__old">1000 &#8381; / час</div>
+            <div class="price-row__discount">-20%</div>
+            <div class="price-row__new">800 &#8381; / час</div>
+          </div>
         </div>
       </div>
     </section>
+
 
 
     <section class="for-who">
