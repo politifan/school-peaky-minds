@@ -8,6 +8,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Prata&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/styles.css">
+  {% if turnstile_enabled %}
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  {% endif %}
 </head>
 <body>
   <div class="bg-orb orb-1"></div>
@@ -28,8 +31,15 @@
 
       <form class="auth-form" action="/login/email" method="post">
         <input type="hidden" name="next" value="{{ next }}">
+        <input type="hidden" name="{{ antibot_token_field }}" value="{{ antibot_tokens.login_email }}">
+        <div style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+          <input type="text" name="{{ antibot_honeypot_field }}" tabindex="-1" autocomplete="off">
+        </div>
         <label class="auth-label">Email</label>
         <input type="email" name="email" placeholder="you@example.com" required maxlength="254">
+        {% if turnstile_enabled %}
+        <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+        {% endif %}
         <button class="btn btn-primary" type="submit">Получить код</button>
         <p class="auth-hint">Код действует 10 минут.</p>
       </form>

@@ -8,6 +8,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Prata&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/styles.css">
+  {% if turnstile_enabled %}
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  {% endif %}
 </head>
 <body>
   <div class="bg-orb orb-1"></div>
@@ -26,7 +29,14 @@
       <form class="cta-form" action="/login/verify" method="post" style="margin-top: 20px;">
         <input type="hidden" name="email" value="{{ email }}">
         <input type="hidden" name="next" value="{{ next }}">
+        <input type="hidden" name="{{ antibot_token_field }}" value="{{ antibot_tokens.login_verify }}">
+        <div style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+          <input type="text" name="{{ antibot_honeypot_field }}" tabindex="-1" autocomplete="off">
+        </div>
         <input type="text" name="code" placeholder="Код из письма" required>
+        {% if turnstile_enabled %}
+        <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+        {% endif %}
         <button class="btn btn-primary" type="submit">Подтвердить</button>
       </form>
     </div>

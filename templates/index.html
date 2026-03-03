@@ -971,6 +971,10 @@ links.forEach((link) => {
             <p>Подберём курс, оценим уровень и скажем, как быстрее выйти на проекты, фриланс или работу. Достаточно Вашего имени, телефона и/или Telegram.</p>
           </div>
           <form class="cta-form" action="/apply" method="post" target="_top" data-contact-required>
+            <input type="hidden" name="{{ antibot_token_field }}" value="{{ antibot_tokens.apply }}">
+            <div style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+              <input type="text" name="{{ antibot_honeypot_field }}" tabindex="-1" autocomplete="off">
+            </div>
             <input type="text" name="name" placeholder="Ваше имя" value="{{ user.name if user else '' }}" maxlength="60" required>
   <div class="input-wrap">
     <input type="text" name="phone" placeholder="Телефон" data-phone="strict" pattern="(\+?7|8)[0-9\s\-()]{10,16}" maxlength="18" value="{{ user.phone if user and user.phone else '' }}">
@@ -990,6 +994,9 @@ links.forEach((link) => {
     <option value="Data Science / ML">Data Science / ML</option>
     <option value="Программирование для бизнеса">Программирование для бизнеса</option>
   </select>
+  {% if turnstile_enabled %}
+  <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+  {% endif %}
   <button class="btn btn-primary" type="submit">Получить консультацию</button>
 </form>
         </div>

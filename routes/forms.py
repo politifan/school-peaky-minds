@@ -25,7 +25,9 @@ from core import (
     save_referrals,
     next_student_id,
     get_current_user,
+    get_client_ip,
     send_email_message,
+    validate_antibot_submission,
 )
 from telegram_bot import is_configured as telegram_is_configured
 from telegram_bot import send_lead_message
@@ -41,21 +43,12 @@ _rate_daily: Dict[Tuple[str, str], Dict[str, object]] = {}
 _rate_burst: Dict[Tuple[str, str], float] = {}
 
 
-def _get_client_ip(request: Request) -> str:
-    forwarded = request.headers.get("cf-connecting-ip") or request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    if request.client and request.client.host:
-        return request.client.host
-    return "unknown"
-
-
 def _check_rate_limit(request: Request, key: str) -> Optional[str]:
     limits = _RATE_LIMIT.get(key)
     if not limits:
         return None
     now = int(time.time())
-    ip = _get_client_ip(request)
+    ip = get_client_ip(request)
     day_key = time.strftime("%Y-%m-%d", time.gmtime(now))
 
     daily_key = (key, ip)
@@ -89,6 +82,14 @@ def _render_rate_limit_page(request: Request, flow: str, reason: str) -> HTMLRes
     )
     response.status_code = 429
     return response
+
+
+def _antibot_error_message(reason: str) -> str:
+    if reason in {"missing_turnstile", "turnstile_failed"}:
+        return "Подтвердите, что вы не робот, и отправьте форму снова."
+    if reason in {"turnstile_unavailable"}:
+        return "Не удалось проверить защиту формы. Попробуйте еще раз через минуту."
+    return "Запрос отклонен защитой от ботов. Обновите страницу и повторите попытку."
 
 
 def clamp_text(value: object, max_len: int) -> str:
@@ -179,6 +180,9 @@ async def apply(request: Request):
             return RedirectResponse("/429", status_code=HTTP_302_FOUND)
         return HTMLResponse("Не удалось отправить заявку. Попробуйте немного позднее.", status_code=429)
     form = await request.form()
+    antibot_ok, antibot_reason = await validate_antibot_submission(request, form, "apply")
+    if not antibot_ok:
+        return HTMLResponse(_antibot_error_message(antibot_reason), status_code=400)
     name = clamp_text(form.get("name", ""), 60)
     contact = str(form.get("phone", "")).strip()
     telegram_raw = str(form.get("telegram", "")).strip()
@@ -247,6 +251,9 @@ async def enroll(request: Request):
         return HTMLResponse("Не удалось отправить заявку. Попробуйте немного позднее.", status_code=429)
 
     form = await request.form()
+    antibot_ok, antibot_reason = await validate_antibot_submission(request, form, "enroll")
+    if not antibot_ok:
+        return HTMLResponse(_antibot_error_message(antibot_reason), status_code=400)
     email = str(form.get("email") or "").strip().lower()
     if not is_valid_email(email):
         return HTMLResponse("Некорректный email", status_code=400)

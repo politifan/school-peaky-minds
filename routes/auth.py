@@ -50,11 +50,20 @@ from core import (
     save_json,
     send_email_code,
     set_current_user,
+    validate_antibot_submission,
     verify_telegram_auth,
     TINKOFF_ENABLED,
 )
 
 router = APIRouter()
+
+
+def _antibot_error_message(reason: str) -> str:
+    if reason in {"missing_turnstile", "turnstile_failed"}:
+        return "Подтвердите, что вы не робот, и отправьте форму снова."
+    if reason == "turnstile_unavailable":
+        return "Не удалось проверить защиту формы. Попробуйте еще раз через минуту."
+    return "Запрос отклонен защитой от ботов. Обновите страницу и повторите попытку."
 
 
 @router.get("/login", include_in_schema=False)
@@ -107,6 +116,13 @@ async def login_email(request: Request):
     form = await request.form()
     email = str(form.get("email", "")).strip().lower()
     next_url = str(form.get("next", "/"))
+    antibot_ok, antibot_reason = await validate_antibot_submission(request, form, "login_email")
+    if not antibot_ok:
+        return render(
+            request,
+            "login.html",
+            login_context(request, next_url=next_url, error=_antibot_error_message(antibot_reason)),
+        )
     if not email:
         return render(request, "login.html", login_context(request, next_url=next_url, error="Введите email"))
 
@@ -125,6 +141,13 @@ async def login_verify(request: Request):
     email = str(form.get("email", "")).strip().lower()
     code = str(form.get("code", "")).strip()
     next_url = str(form.get("next", "/"))
+    antibot_ok, antibot_reason = await validate_antibot_submission(request, form, "login_verify")
+    if not antibot_ok:
+        return render(
+            request,
+            "verify.html",
+            {"email": email, "next": next_url, "error": _antibot_error_message(antibot_reason)},
+        )
 
     codes = load_json(CODES_FILE, {})
     entry = codes.get(email)

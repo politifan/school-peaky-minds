@@ -60,6 +60,9 @@
   </script>
   <link rel="stylesheet" href="/assets/css/styles.css">
   <script src="/assets/vendor/vk-bridge.min.js"></script>
+  {% if turnstile_enabled %}
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  {% endif %}
   {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -159,6 +162,10 @@
           <h3>Консультация</h3>
           <p>Оставьте контакт - ответим в течение дня.</p>
           <form class="modal-form" action="/apply" method="post" data-validate-phone data-contact-required>
+            <input type="hidden" name="{{ antibot_token_field }}" value="{{ antibot_tokens.apply }}">
+            <div style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+              <input type="text" name="{{ antibot_honeypot_field }}" tabindex="-1" autocomplete="off">
+            </div>
             <input type="text" name="name" placeholder="Ваше имя" value="{{ user.name if user else '' }}" maxlength="60" required>
   <div class="input-wrap">
     <input type="text" name="phone" placeholder="Телефон" data-phone="strict" pattern="(\+?7|8)[0-9\s\-()]{10,16}" maxlength="18" value="{{ user.phone if user and user.phone else '' }}">
@@ -178,6 +185,9 @@
     <option value="Data Science / ML" {% if course_slug == "Data Science" %}selected{% endif %}>Data Science / ML</option>
     <option value="Программирование для бизнеса" {% if course_slug == "Business" %}selected{% endif %}>Программирование для бизнеса</option>
   </select>
+  {% if turnstile_enabled %}
+  <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+  {% endif %}
   <button class="btn btn-primary" type="submit">Отправить заявку</button>
 </form>
         </div>
@@ -188,6 +198,10 @@
           <p>Подписываем документы и фиксируем место в группе.</p>
           {% if user %}
           <form class="modal-form" action="/enroll" method="post" data-validate-phone data-contact-required>
+            <input type="hidden" name="{{ antibot_token_field }}" value="{{ antibot_tokens.enroll }}">
+            <div style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+              <input type="text" name="{{ antibot_honeypot_field }}" tabindex="-1" autocomplete="off">
+            </div>
             <select name="course" required>
               <option value="" disabled {% if not course_slug %}selected{% endif %}>Выберите курс</option>
               <option value="Full-stack разработчик" {% if course_slug == "Full-stack" or course_slug == "Full-stack разработчик" %}selected{% endif %}>Full‑stack разработчик</option>
@@ -221,6 +235,9 @@
               <input type="checkbox" name="agreement" required>
               Я принимаю <a href="/documents/dogovor.pdf" target="_blank" rel="noopener">договор и пользовательское соглашение</a>
             </label>
+            {% if turnstile_enabled %}
+            <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+            {% endif %}
             <button class="btn btn-primary" type="submit">Подписать и отправить</button>
           </form>
           {% else %}

@@ -975,6 +975,96 @@ def clear_user(request: Request) -> None:
     request.session.pop("user", None)
 
 
+def get_client_ip(request: Request) -> str:
+    forwarded = request.headers.get("cf-connecting-ip") or request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    if request.client and request.client.host:
+        return request.client.host
+    return "unknown"
+
+
+def create_antibot_token(flow: str, now_ts: Optional[int] = None) -> str:
+    issued_at = int(now_ts or time.time())
+    nonce = secrets.token_hex(8)
+    payload = f"{flow}:{issued_at}:{nonce}".encode("utf-8")
+    signature = hmac.new(SESSION_SECRET.encode("utf-8"), payload, hashlib.sha256).hexdigest()
+    return f"{issued_at}.{nonce}.{signature}"
+
+
+def validate_antibot_token(token: str, flow: str, now_ts: Optional[int] = None) -> Tuple[bool, str]:
+    raw = str(token or "").strip()
+    if not raw:
+        return False, "missing_token"
+    parts = raw.split(".")
+    if len(parts) != 3:
+        return False, "invalid_token"
+
+    issued_raw, nonce, provided_signature = parts
+    if not (issued_raw.isdigit() and nonce and provided_signature):
+        return False, "invalid_token"
+    issued_at = int(issued_raw)
+    now = int(now_ts or time.time())
+    age = now - issued_at
+    if age < ANTIBOT_MIN_FILL_SECONDS:
+        return False, "too_fast"
+    if age > ANTIBOT_MAX_TOKEN_AGE_SECONDS:
+        return False, "expired_token"
+
+    payload = f"{flow}:{issued_at}:{nonce}".encode("utf-8")
+    expected_signature = hmac.new(SESSION_SECRET.encode("utf-8"), payload, hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(provided_signature, expected_signature):
+        return False, "invalid_token"
+    return True, ""
+
+
+async def verify_turnstile_token(token: str, request: Optional[Request] = None) -> Tuple[bool, str]:
+    if not TURNSTILE_ENABLED:
+        return True, ""
+    response_token = str(token or "").strip()
+    if not response_token:
+        return False, "missing_turnstile"
+
+    data = {
+        "secret": TURNSTILE_SECRET_KEY,
+        "response": response_token,
+    }
+    if request:
+        ip = get_client_ip(request)
+        if ip and ip != "unknown":
+            data["remoteip"] = ip
+
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            resp = await client.post(
+                "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+                data=data,
+            )
+        payload = resp.json() if resp.status_code < 500 else {}
+    except Exception:
+        return False, "turnstile_unavailable"
+
+    if not isinstance(payload, dict):
+        return False, "turnstile_failed"
+    if payload.get("success") is True:
+        return True, ""
+    return False, "turnstile_failed"
+
+
+async def validate_antibot_submission(request: Request, form: Any, flow: str) -> Tuple[bool, str]:
+    honeypot = str(form.get(ANTIBOT_HONEYPOT_FIELD) or "").strip()
+    if honeypot:
+        return False, "honeypot"
+
+    token = str(form.get(ANTIBOT_TOKEN_FIELD) or "")
+    token_ok, token_reason = validate_antibot_token(token, flow)
+    if not token_ok:
+        return False, token_reason
+
+    turnstile_token = str(form.get(ANTIBOT_TURNSTILE_FIELD) or "")
+    return await verify_turnstile_token(turnstile_token, request=request)
+
+
 def load_whitelist() -> List[int]:
     default_ids = [980343575, 1065558838, 1547353132]
     if not WHITELIST_FILE.exists():
@@ -1302,6 +1392,16 @@ providers = {
     "vk": bool(VK_CLIENT_ID and VK_CLIENT_SECRET),
     "telegram": bool(TELEGRAM_BOT_TOKEN and TELEGRAM_BOT_USERNAME),
 }
+
+TURNSTILE_SITE_KEY = os.getenv("TURNSTILE_SITE_KEY", "").strip()
+TURNSTILE_SECRET_KEY = os.getenv("TURNSTILE_SECRET_KEY", "").strip()
+TURNSTILE_ENABLED = bool(TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY)
+ANTIBOT_TOKEN_FIELD = "antibot_token"
+ANTIBOT_HONEYPOT_FIELD = "company"
+ANTIBOT_TURNSTILE_FIELD = "cf-turnstile-response"
+ANTIBOT_MIN_FILL_SECONDS = max(int(os.getenv("ANTIBOT_MIN_FILL_SECONDS", "2")), 0)
+ANTIBOT_MAX_TOKEN_AGE_SECONDS = max(int(os.getenv("ANTIBOT_MAX_TOKEN_AGE_SECONDS", "7200")), 60)
+ANTIBOT_FLOWS = ("apply", "enroll", "login_email", "login_verify")
 
 TELETHON_ENABLED = bool(TELETHON_API_ID and TELETHON_API_HASH and TelegramClient)
 _telethon_client: Optional["TelegramClient"] = None
@@ -1701,6 +1801,11 @@ def render(request: Request, template_name: str, context: Optional[Dict[str, Any
         "seo_bing_verification": SEO_BING_VERIFICATION,
         "ga_measurement_id": GA_MEASUREMENT_ID,
         "yandex_metrika_id": YANDEX_METRIKA_ID,
+        "turnstile_enabled": TURNSTILE_ENABLED,
+        "turnstile_site_key": TURNSTILE_SITE_KEY,
+        "antibot_token_field": ANTIBOT_TOKEN_FIELD,
+        "antibot_honeypot_field": ANTIBOT_HONEYPOT_FIELD,
+        "antibot_tokens": {flow: create_antibot_token(flow) for flow in ANTIBOT_FLOWS},
     }
     if context:
         ctx.update(context)

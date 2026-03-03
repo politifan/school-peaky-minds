@@ -438,6 +438,10 @@ logits = model(batch)
           </div>
           {% if user %}
           <form class="cta-form" action="/enroll" method="post" target="_top" data-validate-phone data-contact-required>
+            <input type="hidden" name="{{ antibot_token_field }}" value="{{ antibot_tokens.enroll }}">
+            <div style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+              <input type="text" name="{{ antibot_honeypot_field }}" tabindex="-1" autocomplete="off">
+            </div>
             <input type="hidden" name="course" value="Data Science">
 
                         <select name="duration">
@@ -465,6 +469,9 @@ logits = model(batch)
               <input type="checkbox" name="agreement" required>
               <span>Я ознакомился с договором и согласен с условиями.</span>
             </label>
+            {% if turnstile_enabled %}
+            <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+            {% endif %}
             <button class="btn btn-primary" type="submit">Подписать и отправить</button>
           </form>
           {% else %}
