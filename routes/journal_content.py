@@ -1,4 +1,7 @@
-from typing import Any, Dict, List
+from copy import deepcopy
+from typing import Any, Dict, List, Optional
+
+from core import JOURNAL_POSTS_FILE, load_json, save_json
 
 
 JOURNAL_CATEGORY_META: Dict[str, Dict[str, str]] = {
@@ -10,8 +13,9 @@ JOURNAL_CATEGORY_META: Dict[str, Dict[str, str]] = {
     "stories": {"label": "Истории студентов"},
 }
 
+JOURNAL_CATEGORY_KEYS = {"all", *JOURNAL_CATEGORY_META.keys()}
 
-JOURNAL_POSTS: List[Dict[str, Any]] = [
+DEFAULT_JOURNAL_POSTS: List[Dict[str, Any]] = [
     {
         "slug": "telegram-bot-enrollment-flow",
         "category": "programming",
@@ -25,6 +29,8 @@ JOURNAL_POSTS: List[Dict[str, Any]] = [
         "likes": 96,
         "comments": 12,
         "views": "12 480",
+        "author": "Михаил Павлов",
+        "author_role": "Backend mentor",
         "art": {
             "kicker": "FastAPI",
             "headline": "Bot Flow",
@@ -47,6 +53,8 @@ JOURNAL_POSTS: List[Dict[str, Any]] = [
         "likes": 58,
         "comments": 6,
         "views": "8 920",
+        "author": "Владимир Кондратьев",
+        "author_role": "Product designer",
         "art": {
             "kicker": "Design Ops",
             "headline": "Case Build",
@@ -69,6 +77,8 @@ JOURNAL_POSTS: List[Dict[str, Any]] = [
         "likes": 74,
         "comments": 9,
         "views": "10 144",
+        "author": "Анна Новикова",
+        "author_role": "Data analyst mentor",
         "art": {
             "kicker": "SQL + BI",
             "headline": "Data Map",
@@ -91,6 +101,8 @@ JOURNAL_POSTS: List[Dict[str, Any]] = [
         "likes": 83,
         "comments": 11,
         "views": "11 302",
+        "author": "Илья Сергеев",
+        "author_role": "Automation engineer",
         "art": {
             "kicker": "Automation",
             "headline": "Ops Stack",
@@ -113,6 +125,8 @@ JOURNAL_POSTS: List[Dict[str, Any]] = [
         "likes": 91,
         "comments": 17,
         "views": "13 906",
+        "author": "Peaky Minds Team",
+        "author_role": "Career guidance",
         "art": {
             "kicker": "Portfolio",
             "headline": "Proof of Work",
@@ -135,6 +149,8 @@ JOURNAL_POSTS: List[Dict[str, Any]] = [
         "likes": 66,
         "comments": 8,
         "views": "9 410",
+        "author": "Михаил Павлов",
+        "author_role": "Backend mentor",
         "art": {
             "kicker": "Git",
             "headline": "Branch Logic",
@@ -157,6 +173,8 @@ JOURNAL_POSTS: List[Dict[str, Any]] = [
         "likes": 103,
         "comments": 14,
         "views": "14 620",
+        "author": "Илья Морозов",
+        "author_role": "Студент backend-track",
         "art": {
             "kicker": "Student Story",
             "headline": "Backend Switch",
@@ -179,6 +197,8 @@ JOURNAL_POSTS: List[Dict[str, Any]] = [
         "likes": 88,
         "comments": 13,
         "views": "12 044",
+        "author": "Анна Новикова",
+        "author_role": "Data analyst mentor",
         "art": {
             "kicker": "Interview",
             "headline": "SQL Drill",
@@ -201,6 +221,8 @@ JOURNAL_POSTS: List[Dict[str, Any]] = [
         "likes": 79,
         "comments": 10,
         "views": "11 114",
+        "author": "Даниил Петров",
+        "author_role": "Студент automation-track",
         "art": {
             "kicker": "Freelance",
             "headline": "First Invoice",
@@ -223,6 +245,8 @@ JOURNAL_POSTS: List[Dict[str, Any]] = [
         "likes": 63,
         "comments": 5,
         "views": "8 604",
+        "author": "Илья Сергеев",
+        "author_role": "Automation engineer",
         "art": {
             "kicker": "Workflow",
             "headline": "Task Loop",
@@ -245,6 +269,8 @@ JOURNAL_POSTS: List[Dict[str, Any]] = [
         "likes": 112,
         "comments": 19,
         "views": "15 708",
+        "author": "Peaky Minds Team",
+        "author_role": "Career guidance",
         "art": {
             "kicker": "Career",
             "headline": "Reasoning",
@@ -267,6 +293,8 @@ JOURNAL_POSTS: List[Dict[str, Any]] = [
         "likes": 69,
         "comments": 7,
         "views": "9 982",
+        "author": "Владимир Кондратьев",
+        "author_role": "Product designer",
         "art": {
             "kicker": "Frontend",
             "headline": "Case Pack",
@@ -278,161 +306,365 @@ JOURNAL_POSTS: List[Dict[str, Any]] = [
     },
 ]
 
+POST_BODY_META: Dict[str, Dict[str, Any]] = {
+    "programming": {
+        "heading": "Что обычно недооценивают в инженерной практике",
+        "lead": (
+            "Новичок часто смотрит на тему как на набор команд, но реальная работа начинается "
+            "там, где нужно объяснить ход мысли, ограничения и последствия выбранного решения."
+        ),
+        "points": [
+            "Показывайте не только код, но и сценарий, который этот код обслуживает.",
+            "Фиксируйте структуру проекта и договорённости по именованию до того, как станет больно поддерживать репозиторий.",
+            "Любое решение полезно сопровождать коротким объяснением trade-offs: что вы упростили и почему.",
+        ],
+        "quote": "Хороший junior не угадывает идеальный ответ, а последовательно объясняет логику и способен защитить свои решения.",
+    },
+    "analytics": {
+        "heading": "Почему аналитика ломается не в SQL, а в формулировке вопроса",
+        "lead": (
+            "Сильный аналитик сначала уточняет бизнес-контекст, а уже потом пишет запрос. "
+            "Именно это отличает случайное решение от полезного для команды результата."
+        ),
+        "points": [
+            "Перед запросом нужно проговорить, какая метрика считается успешной и какой период берётся в расчёт.",
+            "Чистый SQL без внятного комментария не помогает, если следующий человек не понимает, какую гипотезу вы проверяли.",
+            "На собеседовании ценят не скорость набора, а способность увидеть дыры в данных и честно их обозначить.",
+        ],
+        "quote": "Аналитика ценится там, где числа превращаются в управленческое решение, а не в красивую витрину без контекста.",
+    },
+    "automation": {
+        "heading": "Где автоматизация реально окупается",
+        "lead": (
+            "Автоматизация полезна не там, где можно написать код ради самого кода, а там, "
+            "где повторяемая операция мешает росту команды и крадёт внимание у людей."
+        ),
+        "points": [
+            "Начинать стоит с ручных процессов, которые повторяются каждую неделю и дают одни и те же ошибки.",
+            "Инструмент должен быть прозрачен: кто владелец, где статусы, как откатиться, если сценарий дал сбой.",
+            "Лучше один понятный automation-flow, чем пять полуготовых скриптов без поддержки и документации.",
+        ],
+        "quote": "Автоматизация оправдана там, где она снимает операционную боль, а не просто выглядит технологично.",
+    },
+    "design": {
+        "heading": "Почему визуал без системы быстро становится дорогой проблемой",
+        "lead": (
+            "Интерфейс выигрывает не за счёт случайной красоты, а за счёт понятной структуры, "
+            "повторяемых решений и ясного handoff между дизайнером и разработчиком."
+        ),
+        "points": [
+            "Сильный кейс показывает путь от проблемы пользователя к интерфейсному решению, а не только финальный экран.",
+            "Компонентная система экономит недели правок, когда продукт начинает расти за пределы одного лендинга.",
+            "Даже маленькое портфолио выглядит сильнее, если видно, как вы принимаете решения и что тестировали.",
+        ],
+        "quote": "Хороший интерфейс не объясняет себя дизайнеру, он объясняет себя пользователю и команде разработки.",
+    },
+    "career": {
+        "heading": "Что действительно оценивают на старте карьеры",
+        "lead": (
+            "Работодателю редко нужен человек, который вызубрил идеальные формулировки. Нужен "
+            "человек, который спокойно мыслит, умеет признавать ограничения и предлагает разумный следующий шаг."
+        ),
+        "points": [
+            "Резюме и pet-project должны показывать мышление, а не только список технологий.",
+            "На интервью полезнее проговаривать рассуждение, чем пытаться любой ценой выдать мгновенно правильный ответ.",
+            "Портфолио работает лучше, когда из него видно, как вы принимали решения и что бы улучшили при следующей итерации.",
+        ],
+        "quote": "Карьерный рост начинается в тот момент, когда вы перестаёте демонстрировать стек и начинаете демонстрировать зрелость решений.",
+    },
+    "stories": {
+        "heading": "Почему истории студентов важнее мотивационных лозунгов",
+        "lead": (
+            "Реальный переход в IT редко выглядит как красивая рекламная дуга. Обычно это "
+            "серия маленьких шагов, ошибок, повторений и нескольких первых побед, которые дают уверенность идти дальше."
+        ),
+        "points": [
+            "Полезна не только точка успеха, но и детали пути: сколько времени ушло, где был провал, как человек из него вышел.",
+            "История становится убедительной, когда есть конкретные действия: проект, отклики, практика, первые деньги, собеседования.",
+            "Такие кейсы помогают новым ученикам понять, что рост строится на ритме и системе, а не на одном удачном моменте.",
+        ],
+        "quote": "Сильная история ученика снимает иллюзию волшебного прорыва и показывает нормальную рабочую траекторию роста.",
+    },
+}
 
-def _build_post(post: Dict[str, Any]) -> Dict[str, Any]:
-    category_meta = JOURNAL_CATEGORY_META[post["category"]]
-    return {
-        **post,
-        "category_label": category_meta["label"],
-        "url": f"/posts#{post['slug']}",
+
+def _build_default_store() -> Dict[str, Any]:
+    return {"version": 1, "items": deepcopy(DEFAULT_JOURNAL_POSTS)}
+
+
+def load_journal_posts_payload() -> Dict[str, Any]:
+    default_payload = _build_default_store()
+    payload = load_json(JOURNAL_POSTS_FILE, default_payload)
+    if not isinstance(payload, dict) or not isinstance(payload.get("items"), list) or not payload.get("items"):
+        payload = default_payload
+        save_json(JOURNAL_POSTS_FILE, payload)
+    elif not JOURNAL_POSTS_FILE.exists():
+        save_json(JOURNAL_POSTS_FILE, payload)
+    return payload
+
+
+def _post_initials(name: str) -> str:
+    parts = [item for item in str(name).split() if item]
+    if not parts:
+        return "PM"
+    return "".join(part[0] for part in parts[:2]).upper()
+
+
+def _build_post_body(post: Dict[str, Any]) -> List[Dict[str, Any]]:
+    body = post.get("body")
+    if isinstance(body, list) and body:
+        return body
+
+    meta = POST_BODY_META.get(post["category"], POST_BODY_META["career"])
+    return [
+        {
+            "type": "paragraph",
+            "text": (
+                f"{post['excerpt']} Ниже не теория ради теории, а практический разбор того, как эта тема "
+                "выглядит в нормальной рабочей среде и почему она важна для роста в IT."
+            ),
+        },
+        {"type": "heading", "text": meta["heading"]},
+        {"type": "paragraph", "text": meta["lead"]},
+        {"type": "list", "items": meta["points"]},
+        {"type": "quote", "text": meta["quote"]},
+        {"type": "heading", "text": "Как использовать это в обучении"},
+        {
+            "type": "paragraph",
+            "text": (
+                "Сильнее всего эта тема закрепляется не чтением заметки, а маленьким проектом, обсуждением "
+                "решения и рефлексией: почему вы сделали именно так, что упростили и как улучшили бы реализацию "
+                "в следующей итерации."
+            ),
+        },
+    ]
+
+
+def _normalize_post(item: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    if not isinstance(item, dict):
+        return None
+    slug = str(item.get("slug") or "").strip()
+    category = str(item.get("category") or "").strip()
+    title = str(item.get("title") or "").strip()
+    excerpt = str(item.get("excerpt") or "").strip()
+    if not slug or category not in JOURNAL_CATEGORY_META or not title or not excerpt:
+        return None
+
+    author_name = str(item.get("author") or "Редакция Peaky Minds").strip()
+    author_role = str(item.get("author_role") or "Peaky Minds").strip()
+    art = item.get("art") if isinstance(item.get("art"), dict) else {}
+    enriched = {
+        **item,
+        "slug": slug,
+        "category": category,
+        "title": title,
+        "excerpt": excerpt,
+        "category_label": JOURNAL_CATEGORY_META[category]["label"],
+        "url": f"/posts/{slug}",
+        "author": {
+            "name": author_name,
+            "role": author_role,
+            "initials": _post_initials(author_name),
+        },
+        "body": _build_post_body(item),
+        "tags": [
+            value
+            for value in dict.fromkeys(
+                [
+                    JOURNAL_CATEGORY_META[category]["label"],
+                    str(art.get("kicker") or "").strip(),
+                    str(item.get("reading_time") or "").strip(),
+                ]
+            )
+            if value
+        ],
     }
+    return enriched
 
 
-ENRICHED_JOURNAL_POSTS: List[Dict[str, Any]] = [_build_post(post) for post in JOURNAL_POSTS]
-JOURNAL_CATEGORY_KEYS = {"all", *JOURNAL_CATEGORY_META.keys()}
+def get_journal_posts() -> List[Dict[str, Any]]:
+    payload = load_journal_posts_payload()
+    items = payload.get("items") if isinstance(payload.get("items"), list) else []
+    seen = set()
+    posts: List[Dict[str, Any]] = []
+    for item in items:
+        normalized = _normalize_post(item)
+        if not normalized:
+            continue
+        slug = normalized["slug"]
+        if slug in seen:
+            continue
+        seen.add(slug)
+        posts.append(normalized)
+    if not posts:
+        save_json(JOURNAL_POSTS_FILE, _build_default_store())
+        fallback_posts: List[Dict[str, Any]] = []
+        for item in DEFAULT_JOURNAL_POSTS:
+            normalized = _normalize_post(item)
+            if normalized:
+                fallback_posts.append(normalized)
+        return fallback_posts
+    return posts
 
 
-def _build_category_list() -> List[Dict[str, Any]]:
-    categories = [{"key": "all", "label": "Все статьи", "count": len(ENRICHED_JOURNAL_POSTS)}]
+def get_journal_post(slug: str) -> Optional[Dict[str, Any]]:
+    slug_value = str(slug or "").strip()
+    for post in get_journal_posts():
+        if post["slug"] == slug_value:
+            return post
+    return None
+
+
+def _build_category_list(posts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    categories = [{"key": "all", "label": "Все статьи", "count": len(posts)}]
     for key, meta in JOURNAL_CATEGORY_META.items():
         categories.append(
             {
                 "key": key,
                 "label": meta["label"],
-                "count": sum(1 for post in ENRICHED_JOURNAL_POSTS if post["category"] == key),
+                "count": sum(1 for post in posts if post["category"] == key),
             }
         )
     return categories
 
 
-POSTS_PAGE_CONTENT: Dict[str, Any] = {
-    "eyebrow": "Материалы и база знаний",
-    "title": "Практические статьи, разборы и истории студентов Peaky Minds",
-    "description": (
-        "Здесь лежат разборы задач, инженерные заметки, карьерные материалы и истории людей, "
-        "которые входят в IT не через лозунги, а через реальную практику."
-    ),
-    "categories": _build_category_list(),
-    "featured": ENRICHED_JOURNAL_POSTS[0],
-    "promo": {
-        "kicker": "Профориентация",
-        "title": "Не знаете, с чего стартовать в IT?",
-        "text": (
-            "Пройдите короткий разбор траектории. Покажем, какой стек вам ближе и как собрать "
-            "первый внятный маршрут без лишней теории."
+def build_posts_page_content() -> Dict[str, Any]:
+    posts = get_journal_posts()
+    return {
+        "eyebrow": "Материалы и база знаний",
+        "title": "Практические статьи, разборы и истории студентов Peaky Minds",
+        "description": (
+            "Здесь лежат разборы задач, инженерные заметки, карьерные материалы и истории людей, "
+            "которые входят в IT не через лозунги, а через реальную практику."
         ),
-        "primary_cta": "Подобрать направление",
-        "secondary_cta": "Открыть блог",
-    },
-    "posts": ENRICHED_JOURNAL_POSTS[1:],
-}
+        "categories": _build_category_list(posts),
+        "featured": posts[0],
+        "promo": {
+            "kicker": "Профориентация",
+            "title": "Не знаете, с чего стартовать в IT?",
+            "text": (
+                "Пройдите короткий разбор траектории. Покажем, какой стек вам ближе и как собрать "
+                "первый внятный маршрут без лишней теории."
+            ),
+            "primary_cta": "Подобрать направление",
+            "secondary_cta": "Открыть блог",
+        },
+        "posts": posts[1:],
+    }
 
 
-BLOG_PAGE_CONTENT: Dict[str, Any] = {
-    "eyebrow": "Peaky Minds Journal",
-    "title": "Журнал про обучение, карьеру, практику и переход в IT без маркетингового тумана",
-    "description": (
-        "Мы собираем материалы, которые помогают лучше понимать рынок, инструменты, реальные "
-        "проекты и поведение на собеседованиях. Без инфошума и пустых обещаний."
-    ),
-    "stats": [
-        {"value": "120+", "label": "материалов в базе"},
-        {"value": "6", "label": "основных траекторий"},
-        {"value": "2 раза в неделю", "label": "новые публикации"},
-    ],
-    "categories": _build_category_list()[1:],
-    "featured": ENRICHED_JOURNAL_POSTS[1],
-    "promo": {
-        "title": "Откройте все материалы и фильтруйте по направлениям",
-        "text": (
-            "Если нужен быстрый вход в практические статьи и истории студентов, переходите в "
-            "отдельный каталог материалов."
+def build_blog_page_content() -> Dict[str, Any]:
+    posts = get_journal_posts()
+    by_slug = {post["slug"]: post for post in posts}
+    featured = posts[1] if len(posts) > 1 else posts[0]
+    story_slugs = [
+        ("from-office-to-it-story", "Backend track", "#6d52ff"),
+        ("sql-interview-task-breakdown", "Data track", "#4d7dff"),
+        ("first-freelance-money", "Automation track", "#32d58a"),
+        ("frontend-portfolio-package", "Design + Frontend", "#ff8e5c"),
+    ]
+    student_stories = []
+    for slug, role, accent in story_slugs:
+        post = by_slug.get(slug)
+        if not post:
+            continue
+        student_stories.append(
+            {
+                "name": post["author"]["name"],
+                "role": role,
+                "title": post["title"],
+                "excerpt": post["excerpt"],
+                "date": post["date"],
+                "initials": post["author"]["initials"],
+                "accent": accent,
+                "href": post["url"],
+            }
+        )
+
+    return {
+        "eyebrow": "Peaky Minds Journal",
+        "title": "Журнал про обучение, карьеру, практику и переход в IT без маркетингового тумана",
+        "description": (
+            "Мы собираем материалы, которые помогают лучше понимать рынок, инструменты, реальные "
+            "проекты и поведение на собеседованиях. Без инфошума и пустых обещаний."
         ),
-        "cta": "Перейти в посты",
-        "href": "/posts",
-    },
-    "popular": [
-        ENRICHED_JOURNAL_POSTS[0],
-        ENRICHED_JOURNAL_POSTS[2],
-        ENRICHED_JOURNAL_POSTS[4],
-    ],
-    "student_stories": [
-        {
-            "name": "Илья Морозов",
-            "role": "Backend track",
-            "title": "Из офиса в backend-практику за 8 месяцев",
-            "excerpt": "Как он прошёл путь от полного перегруза к первым интервью и рабочему проекту.",
-            "date": "02 марта 2026",
-            "initials": "ИМ",
-            "accent": "#6d52ff",
-            "href": "/posts?category=stories#from-office-to-it-story",
+        "stats": [
+            {"value": f"{len(posts)}+", "label": "материалов в базе"},
+            {"value": str(len(JOURNAL_CATEGORY_META)), "label": "основных траекторий"},
+            {"value": "2 раза в неделю", "label": "новые публикации"},
+        ],
+        "categories": _build_category_list(posts)[1:],
+        "featured": featured,
+        "promo": {
+            "title": "Откройте все материалы и фильтруйте по направлениям",
+            "text": (
+                "Если нужен быстрый вход в практические статьи и истории студентов, переходите в "
+                "отдельный каталог материалов."
+            ),
+            "cta": "Перейти в посты",
+            "href": "/posts",
         },
-        {
-            "name": "Алина Ким",
-            "role": "Data track",
-            "title": "Как перестать бояться SQL и начать решать задачи бизнеса",
-            "excerpt": "Разбор трека аналитики глазами человека без технического бэкграунда.",
-            "date": "27 февраля 2026",
-            "initials": "АК",
-            "accent": "#4d7dff",
-            "href": "/posts?category=analytics#sql-interview-task-breakdown",
+        "popular": [posts[0], posts[2], posts[4]] if len(posts) >= 5 else posts[:3],
+        "student_stories": student_stories,
+        "collections": [
+            {
+                "title": "Путь в backend",
+                "count": "12 материалов",
+                "text": "Python, Git, архитектура бэкенда, бот-проекты и подготовка к первой рабочей разработке.",
+                "href": "/posts?category=programming",
+            },
+            {
+                "title": "Data и аналитика",
+                "count": "9 материалов",
+                "text": "SQL, логика таблиц, интервью-задачи, аналитическое мышление и реальные запросы бизнеса.",
+                "href": "/posts?category=analytics",
+            },
+            {
+                "title": "Карьера и рост",
+                "count": "11 материалов",
+                "text": "Собеседования, pet-project, упаковка опыта, портфолио и первые проектные деньги.",
+                "href": "/posts?category=career",
+            },
+        ],
+        "latest": posts[3:9] if len(posts) >= 9 else posts[3:],
+        "newsletter": {
+            "title": "Получать новые материалы и разборы без шума",
+            "text": (
+                "Новые заметки, карьерные разборы и полезные материалы удобнее всего отдавать в "
+                "Telegram. Это быстрее, чем ждать полноценный newsletter backend."
+            ),
+            "cta": "Открыть Telegram",
+            "href": "https://t.me/IT_school_PM",
         },
-        {
-            "name": "Даниил Петров",
-            "role": "Automation track",
-            "title": "Первый платный automation-кейс для локального бизнеса",
-            "excerpt": "Что помогло продать решение без команды и без ощущения, что ты ещё не готов.",
-            "date": "23 февраля 2026",
-            "initials": "ДП",
-            "accent": "#32d58a",
-            "href": "/posts?category=stories#first-freelance-money",
-        },
-        {
-            "name": "Марина Шевцова",
-            "role": "Design + Frontend",
-            "title": "Как упаковать портфолио, если коммерческих кейсов ещё мало",
-            "excerpt": "Не ждать идеального проекта, а показать мышление, качество и логику решения.",
-            "date": "08 февраля 2026",
-            "initials": "МШ",
-            "accent": "#ff8e5c",
-            "href": "/posts?category=design#frontend-portfolio-package",
-        },
-    ],
-    "collections": [
-        {
-            "title": "Путь в backend",
-            "count": "12 материалов",
-            "text": "Python, Git, архитектура бэкенда, бот-проекты и подготовка к первой рабочей разработке.",
-            "href": "/posts?category=programming",
-        },
-        {
-            "title": "Data и аналитика",
-            "count": "9 материалов",
-            "text": "SQL, логика таблиц, интервью-задачи, аналитическое мышление и реальные запросы бизнеса.",
-            "href": "/posts?category=analytics",
-        },
-        {
-            "title": "Карьера и рост",
-            "count": "11 материалов",
-            "text": "Собеседования, pet-project, упаковка опыта, портфолио и первые проектные деньги.",
-            "href": "/posts?category=career",
-        },
-    ],
-    "latest": [
-        ENRICHED_JOURNAL_POSTS[3],
-        ENRICHED_JOURNAL_POSTS[5],
-        ENRICHED_JOURNAL_POSTS[7],
-        ENRICHED_JOURNAL_POSTS[8],
-        ENRICHED_JOURNAL_POSTS[9],
-        ENRICHED_JOURNAL_POSTS[10],
-    ],
-    "newsletter": {
-        "title": "Получать новые материалы и разборы без шума",
-        "text": (
-            "Новые заметки, карьерные разборы и полезные материалы удобнее всего отдавать в "
-            "Telegram. Это быстрее, чем ждать полноценный newsletter backend."
-        ),
-        "cta": "Открыть Telegram",
-        "href": "https://t.me/IT_school_PM",
-    },
-}
+    }
+
+
+def build_post_detail_content(slug: str) -> Optional[Dict[str, Any]]:
+    post = get_journal_post(slug)
+    if not post:
+        return None
+    posts = get_journal_posts()
+    same_category = [item for item in posts if item["slug"] != post["slug"] and item["category"] == post["category"]]
+    fallback = [item for item in posts if item["slug"] != post["slug"] and item["category"] != post["category"]]
+    related = (same_category + fallback)[:3]
+    return {
+        "post": post,
+        "related": related,
+        "breadcrumbs": [
+            {"label": "Главная", "href": "/"},
+            {"label": "Журнал", "href": "/blog"},
+            {"label": "Материалы", "href": "/posts"},
+            {"label": post["title"], "href": post["url"]},
+        ],
+    }
+
+
+def build_journal_api_payload() -> Dict[str, Any]:
+    posts = get_journal_posts()
+    return {
+        "ok": True,
+        "version": load_journal_posts_payload().get("version", 1),
+        "count": len(posts),
+        "categories": _build_category_list(posts),
+        "items": posts,
+    }

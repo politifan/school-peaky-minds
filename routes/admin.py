@@ -19,6 +19,7 @@ from telegram_bot import is_configured as telegram_is_configured
 from telegram_bot import send_lead_message
 
 import core
+from routes.journal_content import load_journal_posts_payload
 from core import (
     EXECUTOR_EMAIL,
     USERS_FILE,
@@ -2790,4 +2791,17 @@ async def export_users(request: Request):
         content=output.getvalue(),
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=users.csv"},
+    )
+
+
+@router.get("/admin/export/journal.json", include_in_schema=False)
+async def export_journal_json(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    payload = load_journal_posts_payload()
+    return Response(
+        content=json.dumps(payload, ensure_ascii=False, indent=2),
+        media_type="application/json",
+        headers={"Content-Disposition": "attachment; filename=journal_posts.json"},
     )

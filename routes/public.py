@@ -1,11 +1,18 @@
 from datetime import date
 
 from fastapi import APIRouter, Request
-from fastapi.responses import PlainTextResponse, RedirectResponse, Response
+from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse, Response
 from starlette.status import HTTP_302_FOUND
 
 from core import ASSETS_DIR, render
-from routes.journal_content import BLOG_PAGE_CONTENT, JOURNAL_CATEGORY_KEYS, POSTS_PAGE_CONTENT
+from routes.journal_content import (
+    JOURNAL_CATEGORY_KEYS,
+    build_blog_page_content,
+    build_journal_api_payload,
+    build_post_detail_content,
+    build_posts_page_content,
+    get_journal_posts,
+)
 from routes.course_content import COURSE_PAGES
 from routes.homepage_content import CALENDAR_PREVIEW
 
@@ -68,8 +75,25 @@ async def posts(request: Request):
         "posts.html",
         {
             "amp_css": _load_amp_css(),
-            "posts_page": POSTS_PAGE_CONTENT,
+            "posts_page": build_posts_page_content(),
             "selected_posts_category": selected_category,
+        },
+    )
+
+
+@router.get("/posts/{slug}", include_in_schema=False)
+async def post_detail(request: Request, slug: str):
+    post_page = build_post_detail_content(slug)
+    if not post_page:
+        response = render(request, "404.html", {"amp_css": _load_amp_css()})
+        response.status_code = 404
+        return response
+    return render(
+        request,
+        "post_detail.html",
+        {
+            "amp_css": _load_amp_css(),
+            "post_page": post_page,
         },
     )
 
@@ -82,9 +106,22 @@ async def blog(request: Request):
         "blog.html",
         {
             "amp_css": _load_amp_css(),
-            "blog_page": BLOG_PAGE_CONTENT,
+            "blog_page": build_blog_page_content(),
         },
     )
+
+
+@router.get("/api/journal/posts", include_in_schema=False)
+async def journal_posts_api():
+    return JSONResponse(build_journal_api_payload())
+
+
+@router.get("/api/journal/posts/{slug}", include_in_schema=False)
+async def journal_post_api(slug: str):
+    post_page = build_post_detail_content(slug)
+    if not post_page:
+        return JSONResponse({"ok": False, "error": "not_found"}, status_code=404)
+    return JSONResponse({"ok": True, "item": post_page["post"]})
 
 
 @router.get("/robots.txt", include_in_schema=False)
@@ -112,6 +149,7 @@ async def sitemap(request: Request):
         ("courses/business", "0.85"),
         ("courses/python-beginners", "0.85"),
     ]
+    urls.extend((f"posts/{post['slug']}", "0.72") for post in get_journal_posts())
     entries = "\n".join(
         [
             "  <url>"

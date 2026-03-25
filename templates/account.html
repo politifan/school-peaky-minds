@@ -79,9 +79,9 @@
         </div>
         <span class="pm-tag">mock API: {{ account_sections.schedule.api }}</span>
       </div>
-      {% if account_sections.schedule.items %}
+      {% if account_sections.schedule["items"] %}
       <div class="pm-student-schedule-grid">
-        {% for event in account_sections.schedule.items %}
+        {% for event in account_sections.schedule["items"] %}
         <article class="pm-surface-card pm-student-schedule-card">
           <div class="pm-student-subcard__head">
             <div class="course-meta">{{ event.course }}</div>
@@ -112,9 +112,9 @@
         </div>
         <span class="pm-tag">mock API: {{ account_sections.lectures.api }}</span>
       </div>
-      {% if account_sections.lectures.items %}
+      {% if account_sections.lectures["items"] %}
       <div class="pm-student-lecture-grid">
-        {% for lecture in account_sections.lectures.items %}
+        {% for lecture in account_sections.lectures["items"] %}
         <article class="pm-surface-card pm-student-lecture-card">
           <div class="pm-student-subcard__head">
             <div class="course-meta">{{ lecture.course }}</div>

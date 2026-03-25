@@ -8330,6 +8330,10 @@ body.shell-marketing .pm-journal-chip--link {
   text-decoration: none;
 }
 
+body.shell-marketing .pm-journal-chip--static {
+  cursor: default;
+}
+
 body.shell-marketing .pm-posts-catalog {
   display: grid;
   gap: 26px;
@@ -8754,11 +8758,129 @@ body.shell-marketing .pm-journal-cta {
     linear-gradient(135deg, rgba(109, 82, 255, 0.08), rgba(50, 213, 138, 0.08));
 }
 
+body.shell-marketing .pm-post-detail__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 28px;
+  align-items: stretch;
+}
+
+body.shell-marketing .pm-post-detail__copy {
+  display: grid;
+  align-content: center;
+  gap: 16px;
+}
+
+body.shell-marketing .pm-post-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  color: #73798a;
+  font-weight: 600;
+}
+
+body.shell-marketing .pm-post-detail__copy h1 {
+  max-width: 13ch;
+  font-size: clamp(2.7rem, 5vw, 5rem);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+}
+
+body.shell-marketing .pm-post-detail__excerpt {
+  max-width: 62ch;
+  color: #52596a;
+  font-size: 1.08rem;
+  line-height: 1.85;
+}
+
+body.shell-marketing .pm-post-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+body.shell-marketing .pm-post-detail__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+  gap: 24px;
+  margin-top: 30px;
+}
+
+body.shell-marketing .pm-post-detail__article {
+  padding: 34px;
+}
+
+body.shell-marketing .pm-post-prose {
+  display: grid;
+  gap: 18px;
+}
+
+body.shell-marketing .pm-post-prose h2 {
+  margin-top: 8px;
+  font-size: clamp(1.6rem, 2vw, 2.15rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+body.shell-marketing .pm-post-prose p,
+body.shell-marketing .pm-post-prose li {
+  color: #51586a;
+  font-size: 1.03rem;
+  line-height: 1.85;
+}
+
+body.shell-marketing .pm-post-prose ul {
+  display: grid;
+  gap: 12px;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+body.shell-marketing .pm-post-prose blockquote {
+  padding: 22px 24px;
+  border-left: 4px solid var(--pm-accent-1);
+  border-radius: 0 var(--pm-radius-sm) var(--pm-radius-sm) 0;
+  background: rgba(109, 82, 255, 0.05);
+  color: #2d3343;
+  font-size: 1.08rem;
+  font-weight: 600;
+  line-height: 1.8;
+}
+
+body.shell-marketing .pm-post-detail__aside {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
+body.shell-marketing .pm-post-aside-card {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+}
+
+body.shell-marketing .pm-post-author {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+body.shell-marketing .pm-post-author strong {
+  display: block;
+}
+
+body.shell-marketing .pm-post-author span {
+  color: #6d7384;
+}
+
 @media (max-width: 1180px) {
   body.shell-marketing .pm-journal-hero,
   body.shell-marketing .pm-blog-hero,
   body.shell-marketing .pm-posts-lead,
-  body.shell-marketing .pm-blog-featured {
+  body.shell-marketing .pm-blog-featured,
+  body.shell-marketing .pm-post-detail__hero,
+  body.shell-marketing .pm-post-detail__layout {
     grid-template-columns: 1fr;
   }
 

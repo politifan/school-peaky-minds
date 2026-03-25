@@ -83,6 +83,7 @@ METRICS_FILE = DATA_DIR / "metrics.json"
 WHITELIST_FILE = DATA_DIR / "telegram_whitelist.json"
 REFERRALS_FILE = DATA_DIR / "referrals.json"
 PAYMENTS_FILE = DATA_DIR / "payments.json"
+JOURNAL_POSTS_FILE = DATA_DIR / "journal_posts.json"
 
 DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
 CONTRACTS_DIR.mkdir(parents=True, exist_ok=True)

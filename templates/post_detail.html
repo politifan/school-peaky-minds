@@ -1,0 +1,133 @@
+{% extends "base_marketing.html" %}
+
+{% block title %}{{ post_page.post.title }} — Peaky Minds Journal{% endblock %}
+{% block description %}{{ post_page.post.excerpt }}{% endblock %}
+{% block body_class %}journal-page post-detail-page{% endblock %}
+
+{% block content %}
+<section class="pm-post-detail">
+  <div class="container">
+    <div class="pm-journal-breadcrumbs">
+      {% for item in post_page.breadcrumbs[:-1] %}
+      <a href="{{ item.href }}">{{ item.label }}</a>
+      <span>/</span>
+      {% endfor %}
+      <strong>{{ post_page.breadcrumbs[-1].label }}</strong>
+    </div>
+
+    <div class="pm-post-detail__hero">
+      <div class="pm-post-detail__copy">
+        <div class="pm-post-detail__meta">
+          <span class="pm-journal-tag">{{ post_page.post.category_label }}</span>
+          <span>{{ post_page.post.date }}</span>
+          <span>{{ post_page.post.reading_time }}</span>
+        </div>
+        <h1>{{ post_page.post.title }}</h1>
+        <p class="pm-post-detail__excerpt">{{ post_page.post.excerpt }}</p>
+        <div class="pm-journal-stats">
+          <span>{{ post_page.post.likes }} лайков</span>
+          <span>{{ post_page.post.comments }} комм.</span>
+          <span>{{ post_page.post.views }} просмотров</span>
+        </div>
+        <div class="pm-post-detail__actions">
+          <a class="btn btn-primary" href="/posts">Все материалы</a>
+          <a class="btn btn-secondary" href="/blog">Назад в журнал</a>
+        </div>
+      </div>
+
+      <div
+        class="pm-journal-art pm-journal-art--feature"
+        style="--journal-primary: {{ post_page.post.art.primary }}; --journal-secondary: {{ post_page.post.art.secondary }}; --journal-tertiary: {{ post_page.post.art.tertiary }};"
+      >
+        <span class="pm-journal-art__badge">{{ post_page.post.art.kicker }}</span>
+        <strong class="pm-journal-art__headline">{{ post_page.post.art.headline }}</strong>
+        <span class="pm-journal-art__note">{{ post_page.post.art.note }}</span>
+      </div>
+    </div>
+
+    <div class="pm-post-detail__layout">
+      <article class="pm-post-detail__article pm-surface-card">
+        <div class="pm-post-prose">
+          {% for block in post_page.post.body %}
+            {% if block.type == "heading" %}
+            <h2>{{ block.text }}</h2>
+            {% elif block.type == "paragraph" %}
+            <p>{{ block.text }}</p>
+            {% elif block.type == "list" %}
+            <ul>
+              {% for item in block["items"] %}
+              <li>{{ item }}</li>
+              {% endfor %}
+            </ul>
+            {% elif block.type == "quote" %}
+            <blockquote>{{ block.text }}</blockquote>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </article>
+
+      <aside class="pm-post-detail__aside">
+        <div class="pm-post-aside-card pm-surface-card">
+          <div class="pm-kicker">Автор</div>
+          <div class="pm-post-author">
+            <span class="pm-story-avatar" style="--story-accent: {{ post_page.post.art.primary }};">{{ post_page.post.author.initials }}</span>
+            <div>
+              <strong>{{ post_page.post.author.name }}</strong>
+              <span>{{ post_page.post.author.role }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pm-post-aside-card pm-surface-card">
+          <div class="pm-kicker">Теги</div>
+          <div class="pm-journal-chip-row">
+            {% for tag in post_page.post.tags %}
+            <span class="pm-journal-chip pm-journal-chip--static">{{ tag }}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="pm-post-aside-card pm-journal-promo">
+          <div class="pm-journal-kicker">Следующий шаг</div>
+          <h3>Если нужен не только контент, но и маршрут</h3>
+          <p>Оставьте заявку. Соберём стартовую траекторию под ваш бэкграунд и темп.</p>
+          <button class="btn btn-primary" type="button" data-open-modal="apply">Получить консультацию</button>
+        </div>
+      </aside>
+    </div>
+
+    <section class="pm-blog-section">
+      <div class="pm-section-head">
+        <div>
+          <div class="pm-journal-kicker">Ещё по теме</div>
+          <h2>Похожие материалы</h2>
+        </div>
+      </div>
+
+      <div class="pm-blog-card-grid">
+        {% for post in post_page.related %}
+        <article class="pm-post-card pm-post-card--compact">
+          <a class="pm-post-card__link" href="{{ post.url }}">
+            <div
+              class="pm-journal-art pm-journal-art--compact"
+              style="--journal-primary: {{ post.art.primary }}; --journal-secondary: {{ post.art.secondary }}; --journal-tertiary: {{ post.art.tertiary }};"
+            >
+              <span class="pm-journal-art__badge">{{ post.art.kicker }}</span>
+              <strong class="pm-journal-art__headline">{{ post.art.headline }}</strong>
+            </div>
+            <div class="pm-post-card__body">
+              <div class="pm-post-card__meta">
+                <span class="pm-journal-tag">{{ post.category_label }}</span>
+                <span>{{ post.date }}</span>
+              </div>
+              <h3>{{ post.title }}</h3>
+              <p>{{ post.excerpt }}</p>
+            </div>
+          </a>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</section>
+{% endblock %}
