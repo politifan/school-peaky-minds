@@ -56,6 +56,14 @@
           <span>Доступ</span>
           <strong>{% if agreements %}Активен{% else %}Ожидает{% endif %}</strong>
         </div>
+        <div class="pm-student-metric">
+          <span>Ближайшие события</span>
+          <strong>{{ account_stats.upcoming_events }}</strong>
+        </div>
+        <div class="pm-student-metric">
+          <span>Записи лекций</span>
+          <strong>{{ account_stats.lecture_records }}</strong>
+        </div>
       </div>
     </section>
 
@@ -90,6 +98,71 @@
           <p>Внутри каждой карточки есть календарь месяца, модульные материалы и статусы по договору, чтобы не искать это в разных местах.</p>
         </article>
       </div>
+    </section>
+
+    <section class="pm-student-section">
+      <div class="pm-section-head">
+        <div>
+          <div class="pm-kicker">Schedule</div>
+          <h2 class="section-title">Расписание</h2>
+        </div>
+        <span class="pm-tag">mock API: {{ account_api.schedule }}</span>
+      </div>
+      {% if account_schedule %}
+      <div class="pm-student-schedule-grid">
+        {% for event in account_schedule %}
+        <article class="pm-surface-card pm-student-schedule-card">
+          <div class="pm-student-subcard__head">
+            <div class="course-meta">{{ event.course }}</div>
+            <span class="pm-student-mini-tag">{{ event.duration_label }}</span>
+          </div>
+          <h3>{{ event.title }}</h3>
+          <div class="pm-student-schedule-meta">
+            <div><span>Старт</span><strong>{{ event.starts_label }}</strong></div>
+            <div><span>Формат</span><strong>{{ event.channel }}</strong></div>
+            <div><span>Преподаватель</span><strong>{{ event.teacher }}</strong></div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="pm-student-empty pm-surface-card">
+        <h3>Расписание пока пустое</h3>
+        <p>Когда курс и занятия будут назначены, ближайшие события появятся здесь и в mock API.</p>
+      </div>
+      {% endif %}
+    </section>
+
+    <section class="pm-student-section">
+      <div class="pm-section-head">
+        <div>
+          <div class="pm-kicker">Lectures</div>
+          <h2 class="section-title">Мои лекции</h2>
+        </div>
+        <span class="pm-tag">mock API: {{ account_api.lectures }}</span>
+      </div>
+      {% if account_lectures %}
+      <div class="pm-student-lecture-grid">
+        {% for lecture in account_lectures %}
+        <article class="pm-surface-card pm-student-lecture-card">
+          <div class="pm-student-subcard__head">
+            <div class="course-meta">{{ lecture.course }}</div>
+            <span class="pm-student-mini-tag">{{ lecture.duration_label }}</span>
+          </div>
+          <h3>{{ lecture.title }}</h3>
+          <p>{{ lecture.description }}</p>
+          <div class="pm-inline-actions">
+            <a class="btn btn-secondary" href="{{ lecture.url }}">Открыть запись</a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="pm-student-empty pm-surface-card">
+        <h3>Записей лекций пока нет</h3>
+        <p>Раздел уже подготовлен. Когда в backend появится хранение записей, они будут выводиться здесь автоматически.</p>
+      </div>
+      {% endif %}
     </section>
 
     {% if agreements %}

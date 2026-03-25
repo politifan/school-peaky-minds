@@ -2,12 +2,12 @@ import logging
 import re
 import secrets
 import time
-from datetime import datetime
-from typing import Any, Dict, Optional, Tuple
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
 from fastapi import APIRouter, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.status import HTTP_302_FOUND
 
 from core import (
@@ -56,6 +56,45 @@ from core import (
 )
 
 router = APIRouter()
+
+
+def _format_schedule_dt(value: datetime) -> str:
+    return value.strftime("%d.%m · %H:%M")
+
+
+def _build_account_schedule_mock(agreements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    if not agreements:
+        return []
+
+    now = datetime.now()
+    schedule = []
+    base_offsets = [
+        ("Ближайшая лекция", 1, 19, 0, "Онлайн", "live"),
+        ("Практика по модулю", 3, 20, 0, "Zoom", "practice"),
+        ("Разбор домашнего задания", 5, 18, 30, "Google Meet", "review"),
+    ]
+    for idx, item in enumerate(agreements[:3]):
+        title, days, hour, minute, channel, kind = base_offsets[idx % len(base_offsets)]
+        starts_at = (now + timedelta(days=days)).replace(hour=hour, minute=minute, second=0, microsecond=0)
+        schedule.append(
+            {
+                "id": f"mock-{idx + 1}",
+                "course": item.get("course") or "Курс",
+                "title": title,
+                "starts_at": starts_at.isoformat(),
+                "starts_label": _format_schedule_dt(starts_at),
+                "duration_label": "90 минут",
+                "channel": channel,
+                "teacher": "Преподаватель будет назначен",
+                "kind": kind,
+                "status": "planned",
+            }
+        )
+    return schedule
+
+
+def _build_account_lectures_mock(agreements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    return []
 
 
 def _antibot_error_message(reason: str) -> str:
@@ -618,17 +657,82 @@ async def account(request: Request):
     signed_contracts = sum(
         1 for item in agreements_view if item.get("contract_status_key") == "signed"
     )
+    schedule_items = _build_account_schedule_mock(agreements_view)
+    lecture_items = _build_account_lectures_mock(agreements_view)
     return render(
         request,
         "account.html",
         {
             "agreements": agreements_view,
+            "account_schedule": schedule_items,
+            "account_lectures": lecture_items,
+            "account_api": {
+                "schedule": "/api/account/schedule",
+                "lectures": "/api/account/lectures",
+            },
             "account_stats": {
                 "total_courses": total_courses,
                 "signed_contracts": signed_contracts,
+                "upcoming_events": len(schedule_items),
+                "lecture_records": len(lecture_items),
             },
             "payments_enabled": TINKOFF_ENABLED,
             "payment_status": request.query_params.get("payment"),
             "payment_error": request.query_params.get("payment_error"),
         },
+    )
+
+
+@router.get("/api/account/schedule", include_in_schema=False)
+async def account_schedule_api(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
+
+    user_id = user.get("id")
+    user_email = (user.get("email") or "").strip().lower()
+    agreements = []
+    for item in load_agreements():
+        item_user = item.get("user") or {}
+        matches = False
+        if user_id and item_user.get("id") == user_id:
+            matches = True
+        elif user_email and (item.get("email") or "").strip().lower() == user_email:
+            matches = True
+        if matches:
+            agreements.append(item)
+
+    return JSONResponse(
+        {
+            "ok": True,
+            "items": _build_account_schedule_mock(agreements),
+        }
+    )
+
+
+@router.get("/api/account/lectures", include_in_schema=False)
+async def account_lectures_api(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
+
+    user_id = user.get("id")
+    user_email = (user.get("email") or "").strip().lower()
+    agreements = []
+    for item in load_agreements():
+        item_user = item.get("user") or {}
+        matches = False
+        if user_id and item_user.get("id") == user_id:
+            matches = True
+        elif user_email and (item.get("email") or "").strip().lower() == user_email:
+            matches = True
+        if matches:
+            agreements.append(item)
+
+    return JSONResponse(
+        {
+            "ok": True,
+            "items": _build_account_lectures_mock(agreements),
+            "message": "Записей пока нет. Раздел подготовлен под будущее хранение лекций.",
+        }
     )

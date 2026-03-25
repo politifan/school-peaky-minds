@@ -6383,14 +6383,100 @@ body.shell-student .site-header--student {
   backdrop-filter: blur(14px);
 }
 
+body.shell-student .site-header--student .site-header__inner {
+  min-height: 88px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+body.shell-student .site-header--student .logo--marketing {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  color: #f4f4f7;
+  font-size: 1.12rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+
+body.shell-student .site-header--student .logo--marketing img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+body.shell-student .nav-links--student {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-left: auto;
+}
+
 body.shell-student .nav-links--student a,
 body.shell-student .site-header--student .logo span {
   color: #f4f4f7;
 }
 
+body.shell-student .nav-links--student a {
+  color: rgba(244, 244, 247, 0.74);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+body.shell-student .nav-links--student a:hover {
+  color: #ffffff;
+}
+
 body.shell-student .site-header--student .nav-user {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.shell-student .site-header--student .site-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+body.shell-student .site-header--student .btn-secondary,
+body.shell-student .site-header--student .nav-user--marketing {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+body.shell-student .site-header--student .btn-secondary:hover,
+body.shell-student .site-header--student .nav-user--marketing:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+body.shell-student .site-header--student .nav-user--marketing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.shell-student .site-header--student .nav-user__label {
+  color: #ffffff;
+}
+
+body.shell-student .site-header--student .nav-user--marketing .avatar {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
 }
 
 body.shell-student .site-main--student {
@@ -6399,6 +6485,23 @@ body.shell-student .site-main--student {
 
 body.shell-student .site-footer--student {
   background: #1a1c23;
+  color: #f4f4f7;
+}
+
+body.shell-student .site-footer--student .logo--marketing,
+body.shell-student .site-footer--student .logo--marketing span,
+body.shell-student .site-footer--student .site-footer__column h4 {
+  color: #ffffff;
+}
+
+body.shell-student .site-footer--student .site-footer__intro p,
+body.shell-student .site-footer--student .site-footer__column a,
+body.shell-student .site-footer--student .site-footer__column span {
+  color: rgba(244, 244, 247, 0.76);
+}
+
+body.shell-student .site-footer--student .site-footer__column a:hover {
+  color: #ffffff;
 }
 
 body.shell-student .site-footer__inner--student {
@@ -6545,6 +6648,58 @@ body.shell-student .pm-student-overview-card p {
   margin: 0;
   color: #5f6473;
   line-height: 1.65;
+}
+
+body.shell-student .pm-student-schedule-grid,
+body.shell-student .pm-student-lecture-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+body.shell-student .pm-student-schedule-card,
+body.shell-student .pm-student-lecture-card {
+  padding: 24px;
+  display: grid;
+  gap: 14px;
+}
+
+body.shell-student .pm-student-schedule-card h3,
+body.shell-student .pm-student-lecture-card h3 {
+  margin: 0;
+  font-size: 1.18rem;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+}
+
+body.shell-student .pm-student-lecture-card p {
+  margin: 0;
+  color: #5f6473;
+  line-height: 1.6;
+}
+
+body.shell-student .pm-student-schedule-meta {
+  display: grid;
+  gap: 10px;
+}
+
+body.shell-student .pm-student-schedule-meta > div {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(17, 18, 24, 0.04);
+}
+
+body.shell-student .pm-student-schedule-meta span {
+  display: block;
+  color: #6f7280;
+  font-size: 0.82rem;
+}
+
+body.shell-student .pm-student-schedule-meta strong {
+  display: block;
+  margin-top: 4px;
+  color: #1f2230;
+  line-height: 1.45;
 }
 
 body.shell-student .pm-section-head {
@@ -6883,6 +7038,8 @@ body.shell-student .admin-table th {
 @media (max-width: 1080px) {
   body.shell-marketing .pm-auth-grid,
   body.shell-student .pm-student-overview,
+  body.shell-student .pm-student-schedule-grid,
+  body.shell-student .pm-student-lecture-grid,
   body.shell-student .pm-student-layout,
   body.shell-student .pm-student-hero {
     grid-template-columns: 1fr;
@@ -6890,6 +7047,21 @@ body.shell-student .admin-table th {
 
   body.shell-student .pm-student-metrics {
     min-width: 0;
+  }
+}
+
+@media (max-width: 920px) {
+  body.shell-student .site-header--student .site-header__inner {
+    min-height: 76px;
+    gap: 16px;
+  }
+
+  body.shell-student .nav-links--student {
+    display: none;
+  }
+
+  body.shell-student .site-header--student .site-header__actions {
+    margin-left: auto;
   }
 }
 
@@ -6914,6 +7086,34 @@ body.shell-student .admin-table th {
 }
 
 @media (max-width: 640px) {
+  body.shell-student .site-header--student .logo--marketing {
+    gap: 12px;
+    font-size: 1rem;
+  }
+
+  body.shell-student .site-header--student .logo--marketing img {
+    width: 32px;
+    height: 32px;
+  }
+
+  body.shell-student .site-header--student .site-header__actions {
+    gap: 8px;
+  }
+
+  body.shell-student .site-header--student .btn-secondary {
+    min-height: 44px;
+    padding: 0 14px;
+  }
+
+  body.shell-student .site-header--student .nav-user--marketing {
+    min-width: 46px;
+    padding: 0 6px;
+  }
+
+  body.shell-student .site-header--student .nav-user--marketing .nav-user__label {
+    display: none;
+  }
+
   body.shell-student .site-footer__inner--student {
     grid-template-columns: 1fr;
   }
