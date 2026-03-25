@@ -164,6 +164,69 @@ window.addEventListener('resize', () => {
   faqItems.forEach(syncFaqHeight);
 });
 
+const calendarPreviews = document.querySelectorAll('[data-calendar-preview]');
+
+calendarPreviews.forEach((preview) => {
+  const monthTabs = Array.from(preview.querySelectorAll('[data-calendar-tab]'));
+  const monthPanels = Array.from(preview.querySelectorAll('[data-calendar-panel]'));
+  const monthLabel = preview.querySelector('[data-calendar-month-label]');
+  const trackLabel = preview.querySelector('[data-calendar-track]');
+  const timeLabel = preview.querySelector('[data-calendar-time]');
+  const formatLabel = preview.querySelector('[data-calendar-format]');
+
+  const setActiveMonth = (name) => {
+    monthTabs.forEach((tab) => {
+      const isActive = tab.dataset.calendarTab === name;
+      tab.classList.toggle('is-active', isActive);
+      tab.setAttribute('aria-selected', String(isActive));
+    });
+
+    monthPanels.forEach((panel) => {
+      const isActive = panel.dataset.calendarPanel === name;
+      panel.classList.toggle('is-active', isActive);
+      panel.hidden = !isActive;
+    });
+
+    const activeTab = monthTabs.find((tab) => tab.dataset.calendarTab === name);
+    if (activeTab) {
+      if (monthLabel) monthLabel.textContent = activeTab.dataset.calendarLabel || '';
+      if (trackLabel) trackLabel.textContent = activeTab.dataset.calendarTrackValue || '';
+      if (timeLabel) timeLabel.textContent = activeTab.dataset.calendarTimeValue || '';
+      if (formatLabel) formatLabel.textContent = activeTab.dataset.calendarFormatValue || '';
+    }
+  };
+
+  monthTabs.forEach((tab) => {
+    tab.addEventListener('click', () => setActiveMonth(tab.dataset.calendarTab));
+  });
+
+  const initialMonth = monthTabs.find((tab) => tab.classList.contains('is-active')) || monthTabs[0];
+  if (initialMonth) setActiveMonth(initialMonth.dataset.calendarTab);
+
+  const agendaTabs = Array.from(preview.querySelectorAll('[data-calendar-agenda-tab]'));
+  const agendaPanels = Array.from(preview.querySelectorAll('[data-calendar-agenda-panel]'));
+
+  const setActiveAgenda = (name) => {
+    agendaTabs.forEach((tab) => {
+      const isActive = tab.dataset.calendarAgendaTab === name;
+      tab.classList.toggle('is-active', isActive);
+    });
+
+    agendaPanels.forEach((panel) => {
+      const isActive = panel.dataset.calendarAgendaPanel === name;
+      panel.classList.toggle('is-active', isActive);
+      panel.hidden = !isActive;
+    });
+  };
+
+  agendaTabs.forEach((tab) => {
+    tab.addEventListener('click', () => setActiveAgenda(tab.dataset.calendarAgendaTab));
+  });
+
+  const initialAgenda = agendaTabs.find((tab) => tab.classList.contains('is-active')) || agendaTabs[0];
+  if (initialAgenda) setActiveAgenda(initialAgenda.dataset.calendarAgendaTab);
+});
+
 const showFormMessage = (form, message, isError = false) => {
   let note = form.querySelector('.form-note');
   if (!note) {

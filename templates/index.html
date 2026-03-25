@@ -321,105 +321,118 @@
   <div class="container">
     <div class="pm-section-head reveal">
       <div>
-        <div class="eyebrow eyebrow--dark">Календарь занятий</div>
-        <h2 class="display-title">До покупки видно, как устроены расписание, слоты и будущие лекции</h2>
+        <div class="eyebrow eyebrow--dark">{{ calendar_preview.eyebrow }}</div>
+        <h2 class="display-title">{{ calendar_preview.title }}</h2>
       </div>
-      <p>Пользователь должен заранее понимать, что после записи он получает не хаос в чате, а рабочий интерфейс: календарь месяца, ближайшие занятия, статусы встреч и в будущем доступ к записям лекций.</p>
+      <p>{{ calendar_preview.description }}</p>
     </div>
 
-    <div class="pm-calendar-showcase reveal">
+    <div class="pm-calendar-showcase reveal" data-calendar-preview>
       <article class="pm-calendar-window pm-calendar-window--light">
         <div class="pm-calendar-window__top">
           <div>
-            <div class="course-meta">Preview · Student schedule</div>
-            <h3>Март 2026</h3>
+            <div class="course-meta">{{ calendar_preview.window.meta }}</div>
+            <h3 data-calendar-month-label>{{ calendar_preview.window.months[0].title }}</h3>
           </div>
           <div class="pm-calendar-window__chips">
-            <span class="pm-calendar-chip">Python Start</span>
-            <span class="pm-calendar-chip">2 встречи в неделю</span>
+            <span class="pm-calendar-chip">{{ calendar_preview.window.track_name }}</span>
+            <span class="pm-calendar-chip">{{ calendar_preview.window.pace }}</span>
           </div>
         </div>
 
         <div class="pm-calendar-toolbar">
-          <span class="pm-student-mini-tag">Пн / Ср</span>
-          <span class="pm-student-mini-tag">19:00 МСК</span>
-          <span class="pm-student-mini-tag">Online</span>
+          <div class="pm-calendar-months" role="tablist" aria-label="Месяц расписания">
+            {% for month in calendar_preview.window.months %}
+            <button
+              class="pm-calendar-month{% if loop.first %} is-active{% endif %}"
+              type="button"
+              data-calendar-tab="{{ month.key }}"
+              data-calendar-label="{{ month.title }}"
+              data-calendar-track-value="{{ month.track }}"
+              data-calendar-time-value="{{ month.time }}"
+              data-calendar-format-value="{{ month.format }}"
+              aria-selected="{% if loop.first %}true{% else %}false{% endif %}"
+            >{{ month.tab_label }}</button>
+            {% endfor %}
+          </div>
+          <div class="pm-calendar-toolbar__meta">
+            <span class="pm-student-mini-tag" data-calendar-track>{{ calendar_preview.window.months[0].track }}</span>
+            <span class="pm-student-mini-tag" data-calendar-time>{{ calendar_preview.window.months[0].time }}</span>
+            <span class="pm-student-mini-tag" data-calendar-format>{{ calendar_preview.window.months[0].format }}</span>
+          </div>
         </div>
 
         <div class="pm-calendar-grid-preview pm-calendar-grid-preview--head">
-          <span>Пн</span>
-          <span>Вт</span>
-          <span>Ср</span>
-          <span>Чт</span>
-          <span>Пт</span>
-          <span>Сб</span>
-          <span>Вс</span>
+          {% for weekday in calendar_preview.window.weekdays %}
+          <span>{{ weekday }}</span>
+          {% endfor %}
         </div>
 
-        <div class="pm-calendar-grid-preview">
-          <div class="pm-calendar-day-preview is-empty"></div>
-          <div class="pm-calendar-day-preview is-empty"></div>
-          <div class="pm-calendar-day-preview"><span>1</span></div>
-          <div class="pm-calendar-day-preview"><span>2</span></div>
-          <div class="pm-calendar-day-preview"><span>3</span></div>
-          <div class="pm-calendar-day-preview is-live"><span>4</span><small>лекция</small></div>
-          <div class="pm-calendar-day-preview"><span>5</span></div>
+        <div class="pm-calendar-grid-preview-wrap">
+          {% for month in calendar_preview.window.months %}
+          <div class="pm-calendar-grid-preview{% if loop.first %} is-active{% endif %}" data-calendar-panel="{{ month.key }}"{% if not loop.first %} hidden{% endif %}>
+            {% for day in month.days %}
+            <div class="pm-calendar-day-preview{% if day.empty %} is-empty{% elif day.status %} is-{{ day.status }}{% endif %}">
+              {% if not day.empty %}
+              <span>{{ day.day }}</span>
+              {% if day.label %}
+              <small>{{ day.label }}</small>
+              {% endif %}
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
 
-          <div class="pm-calendar-day-preview"><span>8</span></div>
-          <div class="pm-calendar-day-preview"><span>9</span></div>
-          <div class="pm-calendar-day-preview is-practice"><span>10</span><small>практика</small></div>
-          <div class="pm-calendar-day-preview"><span>11</span></div>
-          <div class="pm-calendar-day-preview"><span>12</span></div>
-          <div class="pm-calendar-day-preview"><span>13</span></div>
-          <div class="pm-calendar-day-preview"><span>14</span></div>
-
-          <div class="pm-calendar-day-preview"><span>15</span></div>
-          <div class="pm-calendar-day-preview is-review"><span>16</span><small>разбор</small></div>
-          <div class="pm-calendar-day-preview"><span>17</span></div>
-          <div class="pm-calendar-day-preview"><span>18</span></div>
-          <div class="pm-calendar-day-preview is-live"><span>19</span><small>лекция</small></div>
-          <div class="pm-calendar-day-preview"><span>20</span></div>
-          <div class="pm-calendar-day-preview"><span>21</span></div>
-
-          <div class="pm-calendar-day-preview"><span>22</span></div>
-          <div class="pm-calendar-day-preview"><span>23</span></div>
-          <div class="pm-calendar-day-preview is-practice"><span>24</span><small>практика</small></div>
-          <div class="pm-calendar-day-preview"><span>25</span></div>
-          <div class="pm-calendar-day-preview"><span>26</span></div>
-          <div class="pm-calendar-day-preview"><span>27</span></div>
-          <div class="pm-calendar-day-preview"><span>28</span></div>
+        <div class="pm-calendar-legend">
+          {% for item in calendar_preview.window.legend %}
+          <span><i class="is-{{ item.status }}"></i>{{ item.label }}</span>
+          {% endfor %}
         </div>
       </article>
 
       <article class="pm-calendar-window pm-calendar-window--dark">
         <div class="pm-calendar-window__top">
           <div>
-            <div class="eyebrow eyebrow--light">Что видно ученику</div>
-            <h3>Ближайшие занятия и будущие лекции</h3>
+            <div class="eyebrow eyebrow--light">{{ calendar_preview.agenda.eyebrow }}</div>
+            <h3>{{ calendar_preview.agenda.title }}</h3>
           </div>
         </div>
 
-        <div class="pm-calendar-agenda">
-          <article class="pm-calendar-agenda__item">
-            <strong>04 марта · 19:00</strong>
-            <span>Лекция: Python и структура проекта</span>
-            <small>Zoom · 90 минут</small>
+        <div class="pm-calendar-agenda-tabs">
+          {% for tab in calendar_preview.agenda.tabs %}
+          <button class="pm-calendar-agenda-tab{% if loop.first %} is-active{% endif %}" type="button" data-calendar-agenda-tab="{{ tab.key }}">{{ tab.label }}</button>
+          {% endfor %}
+        </div>
+
+        <div class="pm-calendar-agenda is-active" data-calendar-agenda-panel="upcoming">
+          {% for item in calendar_preview.agenda.upcoming %}
+          <article class="pm-calendar-agenda__item{% if item.soft %} pm-calendar-agenda__item--soft{% endif %}">
+            <strong>{{ item.title }}</strong>
+            <span>{{ item.text }}</span>
+            <small>{{ item.meta }}</small>
           </article>
-          <article class="pm-calendar-agenda__item">
-            <strong>10 марта · 20:00</strong>
-            <span>Практика: задачи по функциям и модулям</span>
-            <small>Онлайн-сессия · 90 минут</small>
+          {% endfor %}
+        </div>
+
+        <div class="pm-calendar-records" data-calendar-agenda-panel="records" hidden>
+          {% for item in calendar_preview.agenda.records %}
+          <article class="pm-calendar-record-card">
+            <div class="pm-calendar-record-card__meta">
+              {% for badge in item.badges %}
+              <span class="pm-student-mini-tag">{{ badge }}</span>
+              {% endfor %}
+            </div>
+            <h4>{{ item.title }}</h4>
+            <p>{{ item.text }}</p>
           </article>
-          <article class="pm-calendar-agenda__item">
-            <strong>16 марта · 19:00</strong>
-            <span>Разбор домашнего задания и вопросы</span>
-            <small>Google Meet · 60 минут</small>
-          </article>
+          {% endfor %}
         </div>
 
         <div class="pm-calendar-note">
-          <h4>После покупки курса</h4>
-          <p>Ученик видит календарь месяца, статусы встреч, ближайшие активности, а в будущем здесь же появятся записи лекций и история доступа к ним.</p>
+          <h4>{{ calendar_preview.agenda.note_title }}</h4>
+          <p>{{ calendar_preview.agenda.note_text }}</p>
         </div>
 
         <div class="pm-calendar-window__actions">

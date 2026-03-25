@@ -6,6 +6,7 @@ from starlette.status import HTTP_302_FOUND
 
 from core import ASSETS_DIR, render
 from routes.course_content import COURSE_PAGES
+from routes.homepage_content import CALENDAR_PREVIEW
 
 router = APIRouter()
 
@@ -32,12 +33,26 @@ def _render_course(request: Request, course_key: str, course_slug: str):
 
 @router.get("/", include_in_schema=False)
 async def index(request: Request):
-    return render(request, "index.html", {"amp_css": _load_amp_css()})
+    return render(
+        request,
+        "index.html",
+        {
+            "amp_css": _load_amp_css(),
+            "calendar_preview": CALENDAR_PREVIEW,
+        },
+    )
 
 
 @router.get("/index.html", include_in_schema=False)
 async def index_alias(request: Request):
-    return render(request, "index.html", {"amp_css": _load_amp_css()})
+    return render(
+        request,
+        "index.html",
+        {
+            "amp_css": _load_amp_css(),
+            "calendar_preview": CALENDAR_PREVIEW,
+        },
+    )
 
 
 @router.get("/robots.txt", include_in_schema=False)

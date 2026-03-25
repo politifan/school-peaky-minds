@@ -103,14 +103,14 @@
     <section class="pm-student-section">
       <div class="pm-section-head">
         <div>
-          <div class="pm-kicker">Schedule</div>
-          <h2 class="section-title">Расписание</h2>
+          <div class="pm-kicker">{{ account_sections.schedule.kicker }}</div>
+          <h2 class="section-title">{{ account_sections.schedule.title }}</h2>
         </div>
-        <span class="pm-tag">mock API: {{ account_api.schedule }}</span>
+        <span class="pm-tag">mock API: {{ account_sections.schedule.api }}</span>
       </div>
-      {% if account_schedule %}
+      {% if account_sections.schedule.items %}
       <div class="pm-student-schedule-grid">
-        {% for event in account_schedule %}
+        {% for event in account_sections.schedule.items %}
         <article class="pm-surface-card pm-student-schedule-card">
           <div class="pm-student-subcard__head">
             <div class="course-meta">{{ event.course }}</div>
@@ -127,8 +127,8 @@
       </div>
       {% else %}
       <div class="pm-student-empty pm-surface-card">
-        <h3>Расписание пока пустое</h3>
-        <p>Когда курс и занятия будут назначены, ближайшие события появятся здесь и в mock API.</p>
+        <h3>{{ account_sections.schedule.empty_title }}</h3>
+        <p>{{ account_sections.schedule.empty_text }}</p>
       </div>
       {% endif %}
     </section>
@@ -136,14 +136,14 @@
     <section class="pm-student-section">
       <div class="pm-section-head">
         <div>
-          <div class="pm-kicker">Lectures</div>
-          <h2 class="section-title">Мои лекции</h2>
+          <div class="pm-kicker">{{ account_sections.lectures.kicker }}</div>
+          <h2 class="section-title">{{ account_sections.lectures.title }}</h2>
         </div>
-        <span class="pm-tag">mock API: {{ account_api.lectures }}</span>
+        <span class="pm-tag">mock API: {{ account_sections.lectures.api }}</span>
       </div>
-      {% if account_lectures %}
+      {% if account_sections.lectures.items %}
       <div class="pm-student-lecture-grid">
-        {% for lecture in account_lectures %}
+        {% for lecture in account_sections.lectures.items %}
         <article class="pm-surface-card pm-student-lecture-card">
           <div class="pm-student-subcard__head">
             <div class="course-meta">{{ lecture.course }}</div>
@@ -159,8 +159,8 @@
       </div>
       {% else %}
       <div class="pm-student-empty pm-surface-card">
-        <h3>Записей лекций пока нет</h3>
-        <p>Раздел уже подготовлен. Когда в backend появится хранение записей, они будут выводиться здесь автоматически.</p>
+        <h3>{{ account_sections.lectures.empty_title }}</h3>
+        <p>{{ account_sections.lectures.empty_text }}</p>
       </div>
       {% endif %}
     </section>

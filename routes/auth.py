@@ -2,13 +2,18 @@ import logging
 import re
 import secrets
 import time
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import datetime
+from typing import Any, Dict, Optional, Tuple
 
 import httpx
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.status import HTTP_302_FOUND
+from routes.account_content import (
+    build_account_lectures_mock,
+    build_account_mock_content,
+    build_account_schedule_mock,
+)
 
 from core import (
     OAuthError,
@@ -56,45 +61,6 @@ from core import (
 )
 
 router = APIRouter()
-
-
-def _format_schedule_dt(value: datetime) -> str:
-    return value.strftime("%d.%m · %H:%M")
-
-
-def _build_account_schedule_mock(agreements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    if not agreements:
-        return []
-
-    now = datetime.now()
-    schedule = []
-    base_offsets = [
-        ("Ближайшая лекция", 1, 19, 0, "Онлайн", "live"),
-        ("Практика по модулю", 3, 20, 0, "Zoom", "practice"),
-        ("Разбор домашнего задания", 5, 18, 30, "Google Meet", "review"),
-    ]
-    for idx, item in enumerate(agreements[:3]):
-        title, days, hour, minute, channel, kind = base_offsets[idx % len(base_offsets)]
-        starts_at = (now + timedelta(days=days)).replace(hour=hour, minute=minute, second=0, microsecond=0)
-        schedule.append(
-            {
-                "id": f"mock-{idx + 1}",
-                "course": item.get("course") or "Курс",
-                "title": title,
-                "starts_at": starts_at.isoformat(),
-                "starts_label": _format_schedule_dt(starts_at),
-                "duration_label": "90 минут",
-                "channel": channel,
-                "teacher": "Преподаватель будет назначен",
-                "kind": kind,
-                "status": "planned",
-            }
-        )
-    return schedule
-
-
-def _build_account_lectures_mock(agreements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    return []
 
 
 def _antibot_error_message(reason: str) -> str:
@@ -657,8 +623,9 @@ async def account(request: Request):
     signed_contracts = sum(
         1 for item in agreements_view if item.get("contract_status_key") == "signed"
     )
-    schedule_items = _build_account_schedule_mock(agreements_view)
-    lecture_items = _build_account_lectures_mock(agreements_view)
+    account_content = build_account_mock_content(agreements_view)
+    schedule_items = account_content["schedule"]
+    lecture_items = account_content["lectures"]
     return render(
         request,
         "account.html",
@@ -666,15 +633,12 @@ async def account(request: Request):
             "agreements": agreements_view,
             "account_schedule": schedule_items,
             "account_lectures": lecture_items,
-            "account_api": {
-                "schedule": "/api/account/schedule",
-                "lectures": "/api/account/lectures",
-            },
+            "account_api": account_content["api"],
+            "account_sections": account_content["sections"],
             "account_stats": {
                 "total_courses": total_courses,
                 "signed_contracts": signed_contracts,
-                "upcoming_events": len(schedule_items),
-                "lecture_records": len(lecture_items),
+                **account_content["stats"],
             },
             "payments_enabled": TINKOFF_ENABLED,
             "payment_status": request.query_params.get("payment"),
@@ -705,7 +669,7 @@ async def account_schedule_api(request: Request):
     return JSONResponse(
         {
             "ok": True,
-            "items": _build_account_schedule_mock(agreements),
+            "items": build_account_schedule_mock(agreements),
         }
     )
 
@@ -732,7 +696,7 @@ async def account_lectures_api(request: Request):
     return JSONResponse(
         {
             "ok": True,
-            "items": _build_account_lectures_mock(agreements),
+            "items": build_account_lectures_mock(agreements),
             "message": "Записей пока нет. Раздел подготовлен под будущее хранение лекций.",
         }
     )
