@@ -3422,6 +3422,7 @@ select:focus {
 }
 
 .avatar {
+  position: relative;
   width: 36px;
   height: 36px;
   min-width: 36px;
@@ -3447,9 +3448,13 @@ select:focus {
 
 .avatar img {
   position: absolute;
-  height: 65px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
   object-fit: cover;
-  border-radius: 50%;
+  object-position: center;
+  border-radius: inherit;
 }
 
 .avatar--large {
@@ -4389,8 +4394,11 @@ body.shell-marketing .nav-user--marketing .nav-user__label {
 }
 
 body.shell-marketing .nav-user--marketing .avatar {
+  flex: 0 0 34px;
   width: 34px;
   height: 34px;
+  min-width: 34px;
+  min-height: 34px;
 }
 
 body.shell-marketing .site-header__cta {
@@ -5017,6 +5025,10 @@ body.shell-marketing .pm-career-banner__card {
   border-radius: 30px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+body.shell-marketing .pm-career-banner__card:not(.pm-career-banner__card--light) p {
+  color: #ffffff;
 }
 
 body.shell-marketing .pm-career-banner__card--light {
@@ -6206,6 +6218,12 @@ body.shell-marketing .pm-auth-verify h1 {
   margin: 0;
 }
 
+body.shell-marketing .pm-auth-card__head p {
+  margin: 0;
+  color: #ffffff;
+  line-height: 1.6;
+}
+
 body.shell-marketing .pm-auth-form {
   display: grid;
   gap: 14px;
@@ -6860,6 +6878,48 @@ body.shell-admin .site-header--admin {
   backdrop-filter: blur(14px);
 }
 
+body.shell-admin .site-header--admin .site-header__inner {
+  min-height: 88px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+body.shell-admin .site-header--admin .logo--marketing {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  color: #f5f6fa;
+  font-size: 1.12rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+
+body.shell-admin .site-header--admin .logo--marketing img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+body.shell-admin .nav-links--admin {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-left: auto;
+}
+
+body.shell-admin .nav-links--admin a {
+  color: rgba(245, 246, 250, 0.74);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+body.shell-admin .nav-links--admin a:hover {
+  color: #ffffff;
+}
+
 body.shell-admin .nav-links--admin a,
 body.shell-admin .site-header--admin .logo span {
   color: #f5f6fa;
@@ -6868,6 +6928,50 @@ body.shell-admin .site-header--admin .logo span {
 body.shell-admin .site-header--admin .nav-user {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.shell-admin .site-header--admin .site-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+body.shell-admin .site-header--admin .btn-secondary,
+body.shell-admin .site-header--admin .nav-user--marketing {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+body.shell-admin .site-header--admin .btn-secondary:hover,
+body.shell-admin .site-header--admin .nav-user--marketing:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+body.shell-admin .site-header--admin .nav-user--marketing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.shell-admin .site-header--admin .nav-user__label {
+  color: #ffffff;
+}
+
+body.shell-admin .site-header--admin .nav-user--marketing .avatar {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
 }
 
 body.shell-admin .site-main--admin {
@@ -7373,6 +7477,19 @@ body.shell-admin .wipe-alert--error {
 }
 
 @media (max-width: 920px) {
+  body.shell-admin .site-header--admin .site-header__inner {
+    min-height: 76px;
+    gap: 16px;
+  }
+
+  body.shell-admin .nav-links--admin {
+    display: none;
+  }
+
+  body.shell-admin .site-header--admin .site-header__actions {
+    margin-left: auto;
+  }
+
   body.shell-admin .admin-hero,
   body.shell-admin .admin-grid.two {
     grid-template-columns: 1fr;
@@ -7388,7 +7505,32 @@ body.shell-admin .wipe-alert--error {
 }
 
 @media (max-width: 640px) {
-  body.shell-admin .nav-links--admin {
+  body.shell-admin .site-header--admin .logo--marketing {
+    gap: 12px;
+    font-size: 1rem;
+  }
+
+  body.shell-admin .site-header--admin .logo--marketing img {
+    width: 32px;
+    height: 32px;
+  }
+
+  body.shell-admin .site-header--admin .site-header__actions {
+    gap: 8px;
+  }
+
+  body.shell-admin .site-header--admin .btn-secondary,
+  body.shell-admin .site-header--admin .btn-primary {
+    min-height: 44px;
+    padding: 0 14px;
+  }
+
+  body.shell-admin .site-header--admin .nav-user--marketing {
+    min-width: 46px;
+    padding: 0 6px;
+  }
+
+  body.shell-admin .site-header--admin .nav-user--marketing .nav-user__label {
     display: none;
   }
 
