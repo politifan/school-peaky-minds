@@ -5,6 +5,7 @@ from fastapi.responses import PlainTextResponse, RedirectResponse, Response
 from starlette.status import HTTP_302_FOUND
 
 from core import ASSETS_DIR, render
+from routes.journal_content import BLOG_PAGE_CONTENT, JOURNAL_CATEGORY_KEYS, POSTS_PAGE_CONTENT
 from routes.course_content import COURSE_PAGES
 from routes.homepage_content import CALENDAR_PREVIEW
 
@@ -55,6 +56,37 @@ async def index_alias(request: Request):
     )
 
 
+@router.get("/posts", include_in_schema=False)
+@router.get("/posts/", include_in_schema=False)
+async def posts(request: Request):
+    selected_category = request.query_params.get("category", "all")
+    if selected_category not in JOURNAL_CATEGORY_KEYS:
+        selected_category = "all"
+
+    return render(
+        request,
+        "posts.html",
+        {
+            "amp_css": _load_amp_css(),
+            "posts_page": POSTS_PAGE_CONTENT,
+            "selected_posts_category": selected_category,
+        },
+    )
+
+
+@router.get("/blog", include_in_schema=False)
+@router.get("/blog/", include_in_schema=False)
+async def blog(request: Request):
+    return render(
+        request,
+        "blog.html",
+        {
+            "amp_css": _load_amp_css(),
+            "blog_page": BLOG_PAGE_CONTENT,
+        },
+    )
+
+
 @router.get("/robots.txt", include_in_schema=False)
 async def robots(request: Request):
     base_url = str(request.base_url)
@@ -73,6 +105,8 @@ async def sitemap(request: Request):
     lastmod = date.today().isoformat()
     urls = [
         ("", "1.0"),
+        ("blog", "0.85"),
+        ("posts", "0.8"),
         ("courses/fullstack", "0.85"),
         ("courses/data-science", "0.85"),
         ("courses/business", "0.85"),

@@ -619,11 +619,12 @@ async def account(request: Request):
             }
         )
 
-    total_courses = len(agreements_view)
-    signed_contracts = sum(
-        1 for item in agreements_view if item.get("contract_status_key") == "signed"
+    user_display = user.get("name") or user.get("email") or "Пользователь"
+    account_content = build_account_mock_content(
+        agreements_view,
+        user_display=user_display,
+        payments_enabled=TINKOFF_ENABLED,
     )
-    account_content = build_account_mock_content(agreements_view)
     schedule_items = account_content["schedule"]
     lecture_items = account_content["lectures"]
     return render(
@@ -634,12 +635,10 @@ async def account(request: Request):
             "account_schedule": schedule_items,
             "account_lectures": lecture_items,
             "account_api": account_content["api"],
+            "account_hero": account_content["hero"],
+            "account_overview": account_content["overview"],
             "account_sections": account_content["sections"],
-            "account_stats": {
-                "total_courses": total_courses,
-                "signed_contracts": signed_contracts,
-                **account_content["stats"],
-            },
+            "account_stats": account_content["stats"],
             "payments_enabled": TINKOFF_ENABLED,
             "payment_status": request.query_params.get("payment"),
             "payment_error": request.query_params.get("payment_error"),

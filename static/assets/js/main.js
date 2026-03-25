@@ -766,3 +766,51 @@ carousels.forEach((carousel) => {
   if (prevBtn) prevBtn.addEventListener('click', () => scrollToIndex(currentIndex - 1));
   if (nextBtn) nextBtn.addEventListener('click', () => scrollToIndex(currentIndex + 1));
 });
+
+const postsCatalogs = document.querySelectorAll('[data-posts-catalog]');
+
+postsCatalogs.forEach((catalog) => {
+  const buttons = Array.from(catalog.querySelectorAll('[data-posts-category]'));
+  const searchField = catalog.querySelector('[data-posts-search]');
+  const cards = Array.from(catalog.querySelectorAll('[data-post-card]'));
+  const countNode = catalog.querySelector('[data-posts-count]');
+  const emptyNode = catalog.querySelector('[data-posts-empty]');
+
+  if (!buttons.length || !cards.length) return;
+
+  let activeCategory =
+    buttons.find((button) => button.getAttribute('aria-pressed') === 'true')?.dataset.postsCategory || 'all';
+
+  const applyPostsFilter = () => {
+    const query = (searchField?.value || '').trim().toLowerCase();
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const matchesCategory = activeCategory === 'all' || card.dataset.category === activeCategory;
+      const haystack = card.dataset.search || '';
+      const matchesQuery = !query || haystack.includes(query);
+      const isVisible = matchesCategory && matchesQuery;
+      card.hidden = !isVisible;
+      if (isVisible) visibleCount += 1;
+    });
+
+    if (countNode) countNode.textContent = String(visibleCount);
+    if (emptyNode) emptyNode.hidden = visibleCount !== 0;
+  };
+
+  buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+      activeCategory = button.dataset.postsCategory || 'all';
+      buttons.forEach((item) => {
+        item.setAttribute('aria-pressed', String(item === button));
+      });
+      applyPostsFilter();
+    });
+  });
+
+  if (searchField) {
+    searchField.addEventListener('input', applyPostsFilter);
+  }
+
+  applyPostsFilter();
+});

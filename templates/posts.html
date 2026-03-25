@@ -1,0 +1,139 @@
+{% extends "base_marketing.html" %}
+
+{% block title %}Посты и материалы Peaky Minds — практические статьи про IT, карьеру и проекты{% endblock %}
+{% block description %}Каталог материалов Peaky Minds: программирование, аналитика, автоматизация, дизайн, карьера и истории студентов. Практические статьи без инфошума.{% endblock %}
+{% block body_class %}journal-page posts-page{% endblock %}
+
+{% block content %}
+<section class="pm-journal-page">
+  <div class="container">
+    <div class="pm-journal-breadcrumbs">
+      <a href="/">Главная</a>
+      <span>/</span>
+      <a href="/blog">Журнал</a>
+      <span>/</span>
+      <strong>Материалы</strong>
+    </div>
+
+    <div class="pm-journal-hero">
+      <div class="pm-journal-hero__copy">
+        <div class="pm-journal-kicker">{{ posts_page.eyebrow }}</div>
+        <h1>{{ posts_page.title }}</h1>
+        <p>{{ posts_page.description }}</p>
+      </div>
+      <div class="pm-journal-hero__aside">
+        <span class="pm-journal-hero__meta">Knowledge base</span>
+        <strong>{{ posts_page.categories[0].count }}+ материалов</strong>
+        <span>Фильтры по направлениям, поисковая строка и отдельные подборки по карьерным сценариям.</span>
+      </div>
+    </div>
+
+    <div class="pm-posts-catalog" data-posts-catalog>
+      <div class="pm-journal-chip-row">
+        {% for category in posts_page.categories %}
+        <button
+          class="pm-journal-chip"
+          type="button"
+          data-posts-category="{{ category.key }}"
+          aria-pressed="{{ 'true' if category.key == selected_posts_category else 'false' }}"
+        >
+          <span>{{ category.label }}</span>
+          <small>{{ category.count }}</small>
+        </button>
+        {% endfor %}
+      </div>
+
+      <div class="pm-journal-toolbar">
+        <label class="pm-journal-search">
+          <input type="search" placeholder="Поиск по статьям, историям и темам" data-posts-search>
+          <span>Поиск</span>
+        </label>
+        <div class="pm-journal-results">
+          В каталоге видно
+          <strong data-posts-count>{{ posts_page.posts | length }}</strong>
+          материалов
+        </div>
+      </div>
+
+      <div class="pm-posts-lead">
+        <a class="pm-journal-feature" href="{{ posts_page.featured.url }}">
+          <div
+            class="pm-journal-art pm-journal-art--feature"
+            style="--journal-primary: {{ posts_page.featured.art.primary }}; --journal-secondary: {{ posts_page.featured.art.secondary }}; --journal-tertiary: {{ posts_page.featured.art.tertiary }};"
+          >
+            <span class="pm-journal-art__badge">{{ posts_page.featured.art.kicker }}</span>
+            <strong class="pm-journal-art__headline">{{ posts_page.featured.art.headline }}</strong>
+            <span class="pm-journal-art__note">{{ posts_page.featured.art.note }}</span>
+          </div>
+          <div class="pm-journal-feature__body">
+            <div class="pm-journal-feature__meta">
+              <span class="pm-journal-tag">{{ posts_page.featured.category_label }}</span>
+              <span>{{ posts_page.featured.date }}</span>
+              <span>{{ posts_page.featured.reading_time }}</span>
+            </div>
+            <h2>{{ posts_page.featured.title }}</h2>
+            <p>{{ posts_page.featured.excerpt }}</p>
+            <div class="pm-journal-stats">
+              <span>{{ posts_page.featured.likes }} лайков</span>
+              <span>{{ posts_page.featured.comments }} комм.</span>
+              <span>{{ posts_page.featured.views }} просмотров</span>
+            </div>
+          </div>
+        </a>
+
+        <div class="pm-journal-promo">
+          <div class="pm-journal-kicker">Для новых учеников</div>
+          <h3>{{ posts_page.promo.title }}</h3>
+          <p>{{ posts_page.promo.text }}</p>
+          <div class="pm-journal-promo__actions">
+            <button class="btn btn-primary" type="button" data-open-modal="apply">{{ posts_page.promo.primary_cta }}</button>
+            <a class="btn btn-secondary" href="/blog">{{ posts_page.promo.secondary_cta }}</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="pm-posts-grid">
+        {% for post in posts_page.posts %}
+        <article
+          id="{{ post.slug }}"
+          class="pm-post-card"
+          data-post-card
+          data-category="{{ post.category }}"
+          data-search="{{ (post.title ~ ' ' ~ post.excerpt ~ ' ' ~ post.category_label ~ ' ' ~ post.reading_time) | lower }}"
+        >
+          <a class="pm-post-card__link" href="{{ post.url }}">
+            <div
+              class="pm-journal-art"
+              style="--journal-primary: {{ post.art.primary }}; --journal-secondary: {{ post.art.secondary }}; --journal-tertiary: {{ post.art.tertiary }};"
+            >
+              <span class="pm-journal-art__badge">{{ post.art.kicker }}</span>
+              <strong class="pm-journal-art__headline">{{ post.art.headline }}</strong>
+              <span class="pm-journal-art__note">{{ post.art.note }}</span>
+            </div>
+            <div class="pm-post-card__body">
+              <div class="pm-post-card__meta">
+                <span class="pm-journal-tag">{{ post.category_label }}</span>
+                <span>{{ post.date }}</span>
+                <span>{{ post.reading_time }}</span>
+              </div>
+              <h3>{{ post.title }}</h3>
+              <p>{{ post.excerpt }}</p>
+              <div class="pm-journal-stats">
+                <span>{{ post.likes }} лайков</span>
+                <span>{{ post.comments }} комм.</span>
+                <span>{{ post.views }} просмотров</span>
+              </div>
+            </div>
+          </a>
+        </article>
+        {% endfor %}
+      </div>
+
+      <div class="pm-posts-empty" data-posts-empty hidden>
+        <strong>Материалы не найдены</strong>
+        <p>Попробуйте снять фильтр или сократить поисковый запрос.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

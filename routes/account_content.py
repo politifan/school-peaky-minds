@@ -27,6 +27,85 @@ def _format_schedule_dt(value: datetime) -> str:
     return value.strftime("%d.%m · %H:%M")
 
 
+def _build_account_hero(
+    *,
+    user_display: str,
+    has_agreements: bool,
+    payments_enabled: bool,
+    total_courses: int,
+    signed_contracts: int,
+    upcoming_events: int,
+    lecture_records: int,
+) -> Dict[str, Any]:
+    return {
+        "kicker": "Student workspace",
+        "title": "Личный кабинет",
+        "user_display": user_display,
+        "lead": "Здесь собраны договоры, прогресс по курсам, материалы и оплата.",
+        "summary": [
+            "Договоры и PDF в одном месте",
+            "Календарь по каждому курсу",
+            "Материалы и оплата без лишних шагов",
+        ],
+        "actions": [
+            {
+                "label": "Открыть мои курсы" if has_agreements else "Выбрать курс",
+                "href": "#student-courses" if has_agreements else "/#courses",
+                "variant": "primary",
+            },
+            {
+                "label": "Договоры",
+                "href": "#student-contracts",
+                "variant": "secondary",
+                "show": has_agreements,
+            },
+        ],
+        "metrics": [
+            {"label": "Курсов", "value": total_courses},
+            {"label": "Подписано договоров", "value": signed_contracts},
+            {"label": "Оплата", "value": "СБП" if payments_enabled else "Offline"},
+            {"label": "Доступ", "value": "Активен" if has_agreements else "Ожидает"},
+            {"label": "Ближайшие события", "value": upcoming_events},
+            {"label": "Записи лекций", "value": lecture_records},
+        ],
+    }
+
+
+def _build_account_overview(*, has_agreements: bool, payments_enabled: bool) -> Dict[str, Any]:
+    return {
+        "kicker": "Overview",
+        "title": "Что доступно сейчас",
+        "cards": [
+            {
+                "kicker": "Маршрут",
+                "title": "Курсы, договоры и прогресс в одном экране",
+                "text": (
+                    "Кабинет собран как рабочая панель: сначала обзор, затем детали по каждому "
+                    "курсу, оплате и материалам."
+                ),
+            },
+            {
+                "kicker": "Оплата",
+                "title": "СБП включена" if payments_enabled else "Онлайн-оплата выключена",
+                "text": (
+                    "Можно оплачивать занятия прямо из карточки курса и продолжать незавершённый "
+                    "платёж без повторного ввода данных."
+                    if payments_enabled
+                    else "Сейчас доступны только договоры, календарь и материалы. Онлайн-оплата появится позже."
+                ),
+            },
+            {
+                "kicker": "Материалы и встречи",
+                "title": "Доступ открывается по активным курсам" if has_agreements else "Доступ откроется после записи",
+                "text": (
+                    "Внутри каждой карточки есть календарь месяца, модульные материалы и статусы "
+                    "по договору, чтобы не искать это в разных местах."
+                ),
+            },
+        ],
+    }
+
+
 def build_account_schedule_mock(agreements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     if not agreements:
         return []
@@ -62,9 +141,22 @@ def build_account_lectures_mock(agreements: List[Dict[str, Any]]) -> List[Dict[s
     return []
 
 
-def build_account_mock_content(agreements: List[Dict[str, Any]]) -> Dict[str, Any]:
+def build_account_mock_content(
+    agreements: List[Dict[str, Any]],
+    *,
+    user_display: str,
+    payments_enabled: bool,
+) -> Dict[str, Any]:
     schedule = build_account_schedule_mock(agreements)
     lectures = build_account_lectures_mock(agreements)
+    total_courses = len(agreements)
+    signed_contracts = sum(1 for item in agreements if item.get("contract_status_key") == "signed")
+    stats = {
+        "total_courses": total_courses,
+        "signed_contracts": signed_contracts,
+        "upcoming_events": len(schedule),
+        "lecture_records": len(lectures),
+    }
     sections = {
         "schedule": {
             **ACCOUNT_SECTION_META["schedule"],
@@ -81,9 +173,19 @@ def build_account_mock_content(agreements: List[Dict[str, Any]]) -> Dict[str, An
         "schedule": schedule,
         "lectures": lectures,
         "api": dict(ACCOUNT_API_ENDPOINTS),
+        "hero": _build_account_hero(
+            user_display=user_display,
+            has_agreements=bool(agreements),
+            payments_enabled=payments_enabled,
+            total_courses=stats["total_courses"],
+            signed_contracts=stats["signed_contracts"],
+            upcoming_events=stats["upcoming_events"],
+            lecture_records=stats["lecture_records"],
+        ),
+        "overview": _build_account_overview(
+            has_agreements=bool(agreements),
+            payments_enabled=payments_enabled,
+        ),
         "sections": sections,
-        "stats": {
-            "upcoming_events": len(schedule),
-            "lecture_records": len(lectures),
-        },
+        "stats": stats,
     }

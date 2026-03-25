@@ -78,6 +78,7 @@
     <nav class="marketing-drawer__nav">
       <a href="/#courses">Направления</a>
       <a href="/#portfolio">Проекты</a>
+      <a href="/blog" {% if request.url.path.startswith('/blog') or request.url.path.startswith('/posts') %}aria-current="page"{% endif %}>Журнал</a>
       <a href="/#method">Как учимся</a>
       <a href="/#faq">FAQ</a>
     </nav>
@@ -101,6 +102,7 @@
       <nav class="nav-links nav-links--marketing">
         <a href="/#courses">Направления</a>
         <a href="/#portfolio">Проекты</a>
+        <a href="/blog" {% if request.url.path.startswith('/blog') or request.url.path.startswith('/posts') %}aria-current="page"{% endif %}>Журнал</a>
         <a href="/#method">Как учимся</a>
         <a href="/#faq">FAQ</a>
       </nav>
@@ -162,6 +164,8 @@
         <div class="site-footer__column">
           <h4>Школа</h4>
           <a href="/#portfolio">Проекты</a>
+          <a href="/blog">Блог</a>
+          <a href="/posts">Посты и материалы</a>
           <a href="/#method">Как учимся</a>
           <a href="/#faq">FAQ</a>
           <a href="/account">Личный кабинет</a>
