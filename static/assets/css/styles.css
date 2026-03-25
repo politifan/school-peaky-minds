@@ -4437,7 +4437,9 @@ body.shell-marketing .marketing-drawer {
   z-index: 100;
   width: min(380px, 100%);
   height: 100vh;
+  height: 100dvh;
   padding: 28px 24px 24px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   background: var(--pm-surface);
   box-shadow: var(--pm-shadow-strong);
   transform: translateX(100%);
@@ -5159,7 +5161,7 @@ body.shell-marketing .faq-answer {
 }
 
 body.shell-marketing .faq-item.open .faq-answer {
-  max-height: 240px;
+  max-height: var(--faq-height, 0px);
   padding-bottom: 24px;
 }
 
@@ -5270,6 +5272,7 @@ body.shell-marketing .modal {
 body.shell-marketing .modal-content {
   width: min(720px, calc(100% - 32px));
   max-height: min(88vh, 920px);
+  max-height: min(88dvh, 920px);
   overflow: auto;
   padding: 32px;
   border-radius: 34px;
@@ -5420,8 +5423,13 @@ body.shell-marketing .contact-item {
   body.shell-marketing .nav-links--marketing,
   body.shell-marketing .site-header__actions > .header-pill,
   body.shell-marketing .site-header__actions > .btn-secondary,
-  body.shell-marketing .site-header__actions > .nav-user--marketing {
+  body.shell-marketing .site-header__actions > .nav-user--marketing,
+  body.shell-marketing .site-header__actions > .site-header__cta {
     display: none;
+  }
+
+  body.shell-marketing .site-header__actions {
+    margin-left: auto;
   }
 
   body.shell-marketing .header-burger {
@@ -5496,9 +5504,25 @@ body.shell-marketing .contact-item {
     grid-template-columns: 1fr;
   }
 
+  body.shell-marketing .trajectory-switcher__tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   body.shell-marketing .trajectory-switcher,
   body.shell-marketing .pm-final-cta__form {
     padding: 18px;
+  }
+
+  body.shell-marketing .pm-project-card,
+  body.shell-marketing .pm-step-card,
+  body.shell-marketing .pm-course-card,
+  body.shell-marketing .pm-metric-card,
+  body.shell-marketing .pm-testimonial,
+  body.shell-marketing .pm-audience-card,
+  body.shell-marketing .faq-item,
+  body.shell-marketing .pm-home-hero__trust li {
+    padding: 20px;
   }
 
   body.shell-marketing .modal-content {
@@ -5514,6 +5538,60 @@ body.shell-marketing .contact-item {
 
   body.shell-marketing .site-footer__grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  body.shell-marketing .logo--marketing {
+    gap: 10px;
+    font-size: 1.02rem;
+  }
+
+  body.shell-marketing .logo--marketing img {
+    width: 32px;
+    height: 32px;
+  }
+
+  body.shell-marketing .hero-actions,
+  body.shell-marketing .pm-course-card__actions,
+  body.shell-marketing .site-footer__actions,
+  body.shell-marketing .pm-status-actions,
+  body.shell-marketing .pm-auth-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-marketing .hero-actions .btn,
+  body.shell-marketing .pm-course-card__actions .btn,
+  body.shell-marketing .pm-audience-card .btn,
+  body.shell-marketing .site-footer__actions .btn,
+  body.shell-marketing .pm-status-actions .btn,
+  body.shell-marketing .pm-auth-actions .btn {
+    width: 100%;
+  }
+
+  body.shell-marketing .trajectory-switcher__tabs {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-marketing .pm-home-hero__visual {
+    min-height: 380px;
+  }
+
+  body.shell-marketing .pm-hero-card {
+    width: calc(100% - 24px);
+    padding: 18px;
+  }
+
+  body.shell-marketing .pm-hero-card strong {
+    font-size: 1rem;
+  }
+
+  body.shell-marketing .pm-career-banner,
+  body.shell-marketing .pm-final-cta,
+  body.shell-marketing .trajectory-switcher,
+  body.shell-marketing .pm-home-hero__visual {
+    border-radius: 28px;
   }
 }
 
@@ -6755,5 +6833,584 @@ body.shell-student .admin-table th {
 
   body.shell-student .admin-list strong {
     text-align: left;
+  }
+}
+
+/* =========================================================
+   Phase 7: Admin Shell
+   ========================================================= */
+
+body.shell-admin {
+  --pm-admin-bg: #eef0f4;
+  --pm-admin-surface: rgba(255, 255, 255, 0.96);
+  --pm-admin-border: rgba(17, 18, 24, 0.08);
+  --pm-admin-shadow: 0 24px 52px rgba(17, 18, 24, 0.08);
+  background:
+    radial-gradient(circle at top right, rgba(109, 82, 255, 0.12), transparent 30%),
+    linear-gradient(180deg, #f5f6f8 0%, var(--pm-admin-bg) 100%);
+  color: #191b22;
+}
+
+body.shell-admin .site-header--admin {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(22, 24, 31, 0.94);
+  backdrop-filter: blur(14px);
+}
+
+body.shell-admin .nav-links--admin a,
+body.shell-admin .site-header--admin .logo span {
+  color: #f5f6fa;
+}
+
+body.shell-admin .site-header--admin .nav-user {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.shell-admin .site-main--admin {
+  padding: 30px 0 80px;
+}
+
+body.shell-admin .pm-admin-page {
+  display: grid;
+}
+
+body.shell-admin .admin-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+body.shell-admin .panel,
+body.shell-admin .card {
+  background: var(--pm-admin-surface);
+  border: 1px solid var(--pm-admin-border);
+  border-radius: 28px;
+  box-shadow: var(--pm-admin-shadow);
+  backdrop-filter: none;
+  transform: none;
+  will-change: auto;
+}
+
+body.shell-admin .panel:hover,
+body.shell-admin .card:hover {
+  transform: none;
+  border-color: var(--pm-admin-border);
+  box-shadow: var(--pm-admin-shadow);
+}
+
+body.shell-admin .admin-sidebar {
+  position: sticky;
+  top: 92px;
+  padding: 24px;
+  background: linear-gradient(180deg, #17191f 0%, #202430 100%);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+body.shell-admin .admin-sidebar__title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+body.shell-admin .admin-sidebar__nav {
+  margin-top: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+body.shell-admin .admin-sidebar__nav a {
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 16px;
+  color: rgba(255, 255, 255, 0.84);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+body.shell-admin .admin-sidebar__nav a:hover,
+body.shell-admin .admin-sidebar__nav a.is-active {
+  background: linear-gradient(135deg, rgba(109, 82, 255, 0.18), rgba(44, 212, 154, 0.16));
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+body.shell-admin .admin-content {
+  min-width: 0;
+  display: grid;
+  gap: 24px;
+}
+
+body.shell-admin .admin-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  padding: 32px;
+  background: linear-gradient(145deg, #1b1d26 0%, #262a3a 100%);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+body.shell-admin .admin-hero h1 {
+  margin: 12px 0 0;
+  font-size: clamp(2.4rem, 4vw, 4rem);
+  line-height: 0.94;
+  letter-spacing: -0.05em;
+}
+
+body.shell-admin .admin-hero p,
+body.shell-admin .page-back {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+body.shell-admin .admin-meta,
+body.shell-admin .admin-section-actions,
+body.shell-admin .admin-filter__actions,
+body.shell-admin .danger-zone__controls,
+body.shell-admin .admin-danger-password__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+body.shell-admin .admin-hero__actions {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+body.shell-admin .admin-chip,
+body.shell-admin .admin-badge,
+body.shell-admin .admin-chip-link,
+body.shell-admin .admin-page-btn,
+body.shell-admin .tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 18, 24, 0.1);
+  background: rgba(17, 18, 24, 0.04);
+  color: #363a47;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+body.shell-admin .admin-chip-link.is-active,
+body.shell-admin .admin-page-btn.is-active {
+  background: linear-gradient(135deg, var(--pm-accent-1), var(--pm-accent-3));
+  border-color: transparent;
+  color: #ffffff;
+}
+
+body.shell-admin .admin-page-btn.is-disabled {
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+body.shell-admin .admin-filter-chips {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+body.shell-admin .admin-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+body.shell-admin .admin-chip-label {
+  color: #666b79;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+body.shell-admin .admin-chip-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  margin-left: 8px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(17, 18, 24, 0.08);
+  font-size: 0.74rem;
+}
+
+body.shell-admin .admin-danger-password,
+body.shell-admin .danger-zone,
+body.shell-admin .admin-collapse {
+  padding: 24px;
+}
+
+body.shell-admin .danger-zone {
+  border-color: rgba(211, 47, 47, 0.14);
+  background: linear-gradient(180deg, rgba(211, 47, 47, 0.04), rgba(255, 255, 255, 0.96));
+}
+
+body.shell-admin .danger-zone__copy {
+  color: #666b79;
+  line-height: 1.6;
+}
+
+body.shell-admin .admin-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+body.shell-admin .kpi-card,
+body.shell-admin .admin-kpi-card {
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(17, 18, 24, 0.04);
+  border: 1px solid rgba(17, 18, 24, 0.06);
+}
+
+body.shell-admin .kpi-label,
+body.shell-admin .admin-kpi-label {
+  color: #666b79;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+body.shell-admin .kpi-value,
+body.shell-admin .admin-kpi-value {
+  margin-top: 10px;
+  font-size: clamp(1.8rem, 2vw, 2.5rem);
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+body.shell-admin .kpi-note {
+  margin-top: 8px;
+  color: #666b79;
+  line-height: 1.5;
+}
+
+body.shell-admin .admin-grid.two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+body.shell-admin .admin-filter,
+body.shell-admin .admin-meta-form,
+body.shell-admin .admin-status-form {
+  display: grid;
+  gap: 14px;
+}
+
+body.shell-admin .admin-filter {
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(17, 18, 24, 0.03);
+  border: 1px solid rgba(17, 18, 24, 0.06);
+}
+
+body.shell-admin .admin-filter__row {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+body.shell-admin .input-wrap {
+  display: grid;
+  gap: 8px;
+}
+
+body.shell-admin .auth-label,
+body.shell-admin .course-meta,
+body.shell-admin .admin-subtext {
+  color: #666b79;
+}
+
+body.shell-admin input[type="text"],
+body.shell-admin input[type="password"],
+body.shell-admin input[type="date"],
+body.shell-admin input[type="month"],
+body.shell-admin input[type="time"],
+body.shell-admin input[type="number"],
+body.shell-admin input[type="email"],
+body.shell-admin select,
+body.shell-admin textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(17, 18, 24, 0.12);
+  background: #ffffff;
+  color: #1b1f29;
+  font: inherit;
+}
+
+body.shell-admin textarea {
+  min-height: 84px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  resize: vertical;
+}
+
+body.shell-admin .admin-input {
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 14px;
+}
+
+body.shell-admin .admin-sort {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+body.shell-admin .admin-table-wrap {
+  overflow: auto;
+  border-radius: 24px;
+  border: 1px solid rgba(17, 18, 24, 0.08);
+  background: #ffffff;
+}
+
+body.shell-admin .admin-table {
+  width: 100%;
+  min-width: 1080px;
+  border-collapse: collapse;
+}
+
+body.shell-admin .admin-table th,
+body.shell-admin .admin-table td {
+  padding: 16px 14px;
+  border-bottom: 1px solid rgba(17, 18, 24, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+body.shell-admin .admin-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #ffffff;
+  color: #59606f;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+body.shell-admin .admin-table tbody tr:hover {
+  background: rgba(109, 82, 255, 0.03);
+}
+
+body.shell-admin .admin-cell {
+  display: grid;
+  gap: 6px;
+}
+
+body.shell-admin .admin-subtext {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+body.shell-admin .admin-truncate {
+  display: inline-block;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.shell-admin .admin-copy,
+body.shell-admin .admin-status,
+body.shell-admin .referral-warning,
+body.shell-admin .referral-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 18, 24, 0.1);
+  background: rgba(17, 18, 24, 0.04);
+  color: #2e3340;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+body.shell-admin .admin-copy {
+  cursor: pointer;
+}
+
+body.shell-admin .admin-delete,
+body.shell-admin .btn-danger {
+  border-color: rgba(211, 47, 47, 0.18);
+  background: rgba(211, 47, 47, 0.08);
+  color: #c62828;
+}
+
+body.shell-admin .btn-danger--big {
+  min-height: 48px;
+  padding: 0 18px;
+}
+
+body.shell-admin .admin-status.status-muted {
+  background: rgba(17, 18, 24, 0.08);
+  color: #4e5361;
+}
+
+body.shell-admin .admin-status.status-warm {
+  background: rgba(255, 152, 0, 0.14);
+  color: #b36b00;
+}
+
+body.shell-admin .admin-status.status-good {
+  background: rgba(46, 125, 50, 0.14);
+  color: #2e7d32;
+}
+
+body.shell-admin .admin-chart,
+body.shell-admin .funnel-list,
+body.shell-admin .lesson-legend,
+body.shell-admin .tag-grid {
+  display: grid;
+  gap: 10px;
+}
+
+body.shell-admin .admin-chart__row,
+body.shell-admin .funnel-item {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+body.shell-admin .admin-chart__bar,
+body.shell-admin .funnel-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(17, 18, 24, 0.08);
+  overflow: hidden;
+}
+
+body.shell-admin .admin-chart__bar > div,
+body.shell-admin .funnel-bar > div {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--pm-accent-1), var(--pm-accent-3));
+}
+
+body.shell-admin .admin-pagination {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+body.shell-admin .admin-page-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  color: #666b79;
+}
+
+body.shell-admin .admin-collapse summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+body.shell-admin .admin-collapse__body {
+  margin-top: 18px;
+  display: grid;
+  gap: 18px;
+}
+
+body.shell-admin .wipe-alert,
+body.shell-admin .wipe-alert--error {
+  padding: 18px 20px;
+}
+
+body.shell-admin .wipe-alert--error {
+  border-color: rgba(211, 47, 47, 0.16);
+}
+
+@media (max-width: 1280px) {
+  body.shell-admin .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-admin .admin-sidebar {
+    position: static;
+  }
+
+  body.shell-admin .admin-sidebar__nav {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+
+  body.shell-admin .admin-kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  body.shell-admin .admin-filter__row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 920px) {
+  body.shell-admin .admin-hero,
+  body.shell-admin .admin-grid.two {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-admin .admin-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.shell-admin .admin-filter__row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  body.shell-admin .nav-links--admin {
+    display: none;
+  }
+
+  body.shell-admin .admin-sidebar,
+  body.shell-admin .admin-hero,
+  body.shell-admin .panel,
+  body.shell-admin .card,
+  body.shell-admin .admin-danger-password,
+  body.shell-admin .danger-zone,
+  body.shell-admin .admin-collapse,
+  body.shell-admin .admin-filter {
+    padding: 20px;
+  }
+
+  body.shell-admin .admin-kpi-grid,
+  body.shell-admin .admin-filter__row,
+  body.shell-admin .admin-sidebar__nav {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-admin .admin-chart__row,
+  body.shell-admin .funnel-item {
+    grid-template-columns: 1fr;
   }
 }

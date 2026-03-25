@@ -134,10 +134,34 @@ trajectorySwitchers.forEach((switcher) => {
 });
 
 const faqItems = document.querySelectorAll('.faq-item');
+
+const syncFaqHeight = (item) => {
+  const answer = item.querySelector('.faq-answer');
+  if (!answer) return;
+  if (item.classList.contains('open')) {
+    answer.style.setProperty('--faq-height', `${answer.scrollHeight}px`);
+    answer.style.maxHeight = `${answer.scrollHeight}px`;
+  } else {
+    answer.style.maxHeight = '0px';
+  }
+};
+
 faqItems.forEach((item) => {
-  item.addEventListener('click', () => {
-    item.classList.toggle('open');
+  const button = item.querySelector('button');
+  const answer = item.querySelector('.faq-answer');
+  if (!button || !answer) return;
+  button.setAttribute('aria-expanded', String(item.classList.contains('open')));
+  syncFaqHeight(item);
+  button.addEventListener('click', () => {
+    const willOpen = !item.classList.contains('open');
+    item.classList.toggle('open', willOpen);
+    button.setAttribute('aria-expanded', String(willOpen));
+    syncFaqHeight(item);
   });
+});
+
+window.addEventListener('resize', () => {
+  faqItems.forEach(syncFaqHeight);
 });
 
 const showFormMessage = (form, message, isError = false) => {

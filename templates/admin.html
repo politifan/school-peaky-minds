@@ -1,23 +1,13 @@
-<!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Админ панель</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Prata&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
-  <link rel="shortcut icon" href="/assets/img/favicon.ico">
-  <link rel="apple-touch-icon" href="/assets/img/favicon.ico">
-  <link rel="stylesheet" href="/assets/css/styles.css">
-</head>
-<body class="admin-page admin-view-{{ view }}" data-sort="{{ filters.sort }}" data-order="{{ filters.order }}">
-  <div class="bg-orb orb-1"></div>
-  <div class="bg-orb orb-2"></div>
-  <div class="bg-orb orb-3"></div>
+{% extends "base_admin.html" %}
 
-  <main class="container admin-container" id="admin-top" style="width:100%;">
+{% block title %}Админ панель - Peaky Minds{% endblock %}
+{% block description %}Внутренний интерфейс управления лидами, договорами, пользователями, рефералами и занятиями в Peaky Minds.{% endblock %}
+{% block body_class %}admin-page admin-view-{{ view }}{% endblock %}
+{% block body_attrs %}data-sort="{{ filters.sort }}" data-order="{{ filters.order }}"{% endblock %}
+
+{% block content %}
+  <section class="pm-admin-page">
+  <div class="container admin-container" id="admin-top" style="width:100%;">
     <div class="admin-layout">
       <aside class="panel admin-sidebar" aria-label="Навигация по админке">
         <div class="admin-sidebar__title">Админка</div>
@@ -38,8 +28,9 @@
           <div class="admin-hero__content">
             <a class="page-back" href="/">← На главную</a>
             <div>
+              <div class="pm-kicker">Operations center</div>
               <h1>Админ панель</h1>
-              <p>Метрики, заявки, пользователи и whitelist Telegram.</p>
+              <p>Лиды, договоры, пользователи, занятия, рефералы и whitelist в одном операционном интерфейсе.</p>
             </div>
             <div class="admin-meta">
               <span class="admin-chip">Последняя активность: {{ last_activity }}</span>
@@ -1304,8 +1295,11 @@
         {% endif %}
       </div>
     </div>
-  </main>
+  </div>
+  </section>
+{% endblock %}
 
+{% block extra_scripts %}
   <script>
     (function () {
       const filterForm = document.querySelector(".admin-filter");
@@ -1560,5 +1554,4 @@
       });
     })();
   </script>
-</body>
-</html>
+{% endblock %}
