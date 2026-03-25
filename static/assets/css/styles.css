@@ -6453,6 +6453,39 @@ body.shell-student .pm-student-hero__main {
   gap: 12px;
 }
 
+body.shell-student .pm-student-hero__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+body.shell-student .pm-student-badge,
+body.shell-student .pm-student-mini-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(17, 18, 24, 0.05);
+  color: #3f4453;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+body.shell-student .pm-student-mini-tag {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 0.78rem;
+}
+
+body.shell-student .pm-student-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 4px;
+}
+
 body.shell-student .pm-student-metrics {
   display: grid;
   grid-template-columns: repeat(2, minmax(150px, 1fr));
@@ -6465,6 +6498,7 @@ body.shell-student .pm-student-metric {
   border-radius: 22px;
   background: linear-gradient(135deg, rgba(109, 82, 255, 0.12), rgba(44, 212, 154, 0.12));
   border: 1px solid rgba(109, 82, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 body.shell-student .pm-student-metric span,
@@ -6486,6 +6520,31 @@ body.shell-student .pm-student-metric strong {
 body.shell-student .pm-student-section {
   display: grid;
   gap: 18px;
+}
+
+body.shell-student .pm-student-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+body.shell-student .pm-student-overview-card {
+  padding: 24px;
+  display: grid;
+  gap: 12px;
+}
+
+body.shell-student .pm-student-overview-card h3 {
+  margin: 0;
+  font-size: 1.24rem;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+body.shell-student .pm-student-overview-card p {
+  margin: 0;
+  color: #5f6473;
+  line-height: 1.65;
 }
 
 body.shell-student .pm-section-head {
@@ -6527,6 +6586,11 @@ body.shell-student .pm-student-pane {
   padding: 26px;
 }
 
+body.shell-student .pm-contract-card {
+  display: grid;
+  gap: 16px;
+}
+
 body.shell-student .pm-contract-card__head,
 body.shell-student .pm-student-course-card__head {
   display: flex;
@@ -6560,6 +6624,10 @@ body.shell-student .pm-student-course-card {
   padding: 28px;
   display: grid;
   gap: 18px;
+}
+
+body.shell-student .pm-student-course-card__head > div:first-child {
+  min-width: 0;
 }
 
 body.shell-student .pm-student-facts {
@@ -6606,6 +6674,14 @@ body.shell-student .pm-student-subcard {
   border-radius: 24px;
   background: rgba(17, 18, 24, 0.03);
   border: 1px solid rgba(17, 18, 24, 0.06);
+}
+
+body.shell-student .pm-student-subcard__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 body.shell-student .pm-student-form {
@@ -6694,6 +6770,10 @@ body.shell-student .admin-list {
   margin: 16px 0 0;
   padding: 0;
   list-style: none;
+}
+
+body.shell-student .admin-list--links li {
+  align-items: center;
 }
 
 body.shell-student .admin-list li {
@@ -6802,6 +6882,7 @@ body.shell-student .admin-table th {
 
 @media (max-width: 1080px) {
   body.shell-marketing .pm-auth-grid,
+  body.shell-student .pm-student-overview,
   body.shell-student .pm-student-layout,
   body.shell-student .pm-student-hero {
     grid-template-columns: 1fr;
@@ -6837,6 +6918,7 @@ body.shell-student .admin-table th {
     grid-template-columns: 1fr;
   }
 
+  body.shell-student .pm-student-hero__actions,
   body.shell-student .pm-inline-actions,
   body.shell-marketing .pm-auth-actions,
   body.shell-marketing .pm-status-actions {

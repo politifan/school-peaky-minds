@@ -21,6 +21,21 @@
             <div class="pm-kicker">Student workspace</div>
             <h1 class="display-title">Личный кабинет</h1>
             <p class="section-lead">Вы вошли как <strong>{{ user.name or user.email }}</strong>. Здесь собраны договоры, прогресс по курсам, материалы и оплата.</p>
+            <div class="pm-student-hero__summary">
+              <span class="pm-student-badge">Договоры и PDF в одном месте</span>
+              <span class="pm-student-badge">Календарь по каждому курсу</span>
+              <span class="pm-student-badge">Материалы и оплата без лишних шагов</span>
+            </div>
+            <div class="pm-student-hero__actions">
+              {% if agreements %}
+              <a class="btn btn-primary" href="#student-courses">Открыть мои курсы</a>
+              {% else %}
+              <a class="btn btn-primary" href="/#courses">Выбрать курс</a>
+              {% endif %}
+              {% if agreements %}
+              <a class="btn btn-secondary" href="#student-contracts">Договоры</a>
+              {% endif %}
+            </div>
           </div>
         </div>
       </div>
@@ -33,6 +48,14 @@
           <span>Подписано договоров</span>
           <strong>{{ account_stats.signed_contracts }}</strong>
         </div>
+        <div class="pm-student-metric">
+          <span>Оплата</span>
+          <strong>{% if payments_enabled %}СБП{% else %}Offline{% endif %}</strong>
+        </div>
+        <div class="pm-student-metric">
+          <span>Доступ</span>
+          <strong>{% if agreements %}Активен{% else %}Ожидает{% endif %}</strong>
+        </div>
       </div>
     </section>
 
@@ -43,8 +66,34 @@
     <div class="pm-inline-alert">Оплата принята. Статус обновится после подтверждения платежа.</div>
     {% endif %}
 
-    {% if agreements %}
     <section class="pm-student-section">
+      <div class="pm-section-head">
+        <div>
+          <div class="pm-kicker">Overview</div>
+          <h2 class="section-title">Что доступно сейчас</h2>
+        </div>
+      </div>
+      <div class="pm-student-overview">
+        <article class="pm-surface-card pm-student-overview-card">
+          <div class="course-meta">Маршрут</div>
+          <h3>Курсы, договоры и прогресс в одном экране</h3>
+          <p>Кабинет собран как рабочая панель: сначала обзор, затем детали по каждому курсу, оплате и материалам.</p>
+        </article>
+        <article class="pm-surface-card pm-student-overview-card">
+          <div class="course-meta">Оплата</div>
+          <h3>{% if payments_enabled %}СБП включена{% else %}Онлайн-оплата выключена{% endif %}</h3>
+          <p>{% if payments_enabled %}Можно оплачивать занятия прямо из карточки курса и продолжать незавершённый платёж без повторного ввода данных.{% else %}Сейчас доступны только договоры, календарь и материалы. Онлайн-оплата появится позже.{% endif %}</p>
+        </article>
+        <article class="pm-surface-card pm-student-overview-card">
+          <div class="course-meta">Материалы и встречи</div>
+          <h3>{% if agreements %}Доступ открывается по активным курсам{% else %}Доступ откроется после записи{% endif %}</h3>
+          <p>Внутри каждой карточки есть календарь месяца, модульные материалы и статусы по договору, чтобы не искать это в разных местах.</p>
+        </article>
+      </div>
+    </section>
+
+    {% if agreements %}
+    <section id="student-contracts" class="pm-student-section">
       <div class="pm-section-head">
         <div>
           <div class="pm-kicker">Contracts</div>
@@ -77,7 +126,7 @@
     </section>
     {% endif %}
 
-    <section class="pm-student-section">
+    <section id="student-courses" class="pm-student-section">
       <div class="pm-section-head">
         <div>
           <div class="pm-kicker">Courses</div>
@@ -113,17 +162,109 @@
             <div><span>Текущий модуль</span><strong>{{ item.current_module }}</strong></div>
           </div>
 
-          <div class="pm-student-subgrid">
-            <section class="pm-student-subcard">
-              <div class="course-meta">Скидка текущего месяца</div>
-              <ul class="admin-list">
-                <li><span>Скидка</span><strong>{{ item.discount_percent }}%</strong></li>
-                <li><span>Основной курс</span><strong>{{ item.primary_course or "не выбран" }}</strong></li>
-              </ul>
-            </section>
+          <div class="pm-student-layout">
+            <div class="pm-student-layout__main">
+              <section class="pm-student-subcard">
+                <div class="pm-student-subcard__head">
+                  <div class="course-meta">Календарь занятий</div>
+                  <span class="pm-student-mini-tag">{{ item.lesson_month }}</span>
+                </div>
+                <form class="pm-student-form" method="get" action="/account" data-month-picker>
+                  <div class="month-picker">
+                    {% set month_names = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] %}
+                    {% set current_year = item.lesson_month[:4] %}
+                    {% set current_month = item.lesson_month[5:7] %}
+                    <div class="month-picker__year">
+                      <label class="auth-label">Год</label>
+                      <select name="year" data-month-year>
+                        <option value="{{ (current_year|int) - 1 }}">{{ (current_year|int) - 1 }}</option>
+                        <option value="{{ current_year }}" selected>{{ current_year }}</option>
+                        <option value="{{ (current_year|int) + 1 }}">{{ (current_year|int) + 1 }}</option>
+                      </select>
+                    </div>
+                    <div class="month-picker__months">
+                      {% for idx in range(1, 13) %}
+                        {% set value = "%02d"|format(idx) %}
+                        <button type="button" class="month-pill{% if value == current_month %} is-active{% endif %}" data-month="{{ value }}">
+                          {{ month_names[idx - 1] }}
+                        </button>
+                      {% endfor %}
+                    </div>
+                    <input type="hidden" name="month" value="{{ item.lesson_month }}" data-month-input>
+                  </div>
+                </form>
+                <div class="lesson-legend">
+                  <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--proposed"></span>Предложено</span>
+                  <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--approved"></span>Согласовано</span>
+                  <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--missed"></span>Пропуск</span>
+                  <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--excused">🌡️</span>Уважительная причина</span>
+                </div>
+                <div class="lesson-calendar">
+                  <div class="lesson-calendar__grid lesson-calendar__grid--head">
+                    <div class="lesson-calendar__day" data-day="1"><span class="day-text">Пн</span><span class="day-num">1</span></div>
+                    <div class="lesson-calendar__day" data-day="2"><span class="day-text">Вт</span><span class="day-num">2</span></div>
+                    <div class="lesson-calendar__day" data-day="3"><span class="day-text">Ср</span><span class="day-num">3</span></div>
+                    <div class="lesson-calendar__day" data-day="4"><span class="day-text">Чт</span><span class="day-num">4</span></div>
+                    <div class="lesson-calendar__day" data-day="5"><span class="day-text">Пт</span><span class="day-num">5</span></div>
+                    <div class="lesson-calendar__day" data-day="6"><span class="day-text">Сб</span><span class="day-num">6</span></div>
+                    <div class="lesson-calendar__day" data-day="7"><span class="day-text">Вс</span><span class="day-num">7</span></div>
+                  </div>
+                  <div class="lesson-calendar__grid">
+                    {% for week in item.lesson_calendar %}
+                      {% for day in week %}
+                        {% if day %}
+                        <div class="lesson-day{% if day.status %} lesson-day--{{ day.status }}{% endif %}"{% if day.time %} data-start="{{ day.time }}"{% endif %}{% if day.time_end %} data-end="{{ day.time_end }}"{% endif %}>
+                          <span>{{ day.day }}</span>
+                          {% if day.status == "excused" %}
+                          <span class="lesson-emoji">🌡️</span>
+                          {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="lesson-day lesson-day--empty"></div>
+                        {% endif %}
+                      {% endfor %}
+                    {% endfor %}
+                  </div>
+                </div>
+              </section>
 
-            <section class="pm-student-subcard">
-              <div class="course-meta">Оплата через СБП</div>
+              <section class="pm-student-subcard">
+                <div class="pm-student-subcard__head">
+                  <div class="course-meta">Материалы модуля</div>
+                  <span class="pm-student-mini-tag">{{ item.materials|length if item.materials else 0 }}</span>
+                </div>
+                {% if item.materials %}
+                <ul class="admin-list admin-list--links">
+                  {% for material in item.materials %}
+                  <li>
+                    <span>{{ material.title or material.url }}</span>
+                    <a class="admin-copy" href="{{ material.url }}" target="_blank" rel="noopener">Открыть</a>
+                  </li>
+                  {% endfor %}
+                </ul>
+                {% else %}
+                <p class="pm-student-note">Материалы будут доступны позже.</p>
+                {% endif %}
+              </section>
+            </div>
+
+            <aside class="pm-student-layout__side">
+              <section class="pm-student-subcard">
+                <div class="pm-student-subcard__head">
+                  <div class="course-meta">Скидка текущего месяца</div>
+                  <span class="pm-student-mini-tag">{{ item.discount_percent }}%</span>
+                </div>
+                <ul class="admin-list">
+                  <li><span>Скидка</span><strong>{{ item.discount_percent }}%</strong></li>
+                  <li><span>Основной курс</span><strong>{{ item.primary_course or "не выбран" }}</strong></li>
+                </ul>
+              </section>
+
+              <section class="pm-student-subcard">
+                <div class="pm-student-subcard__head">
+                  <div class="course-meta">Оплата через СБП</div>
+                  <span class="pm-student-mini-tag">{% if payments_enabled %}Online{% else %}Off{% endif %}</span>
+                </div>
               {% if payments_enabled %}
               {% set price_value = item.discounted_price if item.discounted_price is not none else item.price_per_lesson %}
               <ul class="admin-list">
@@ -161,85 +302,9 @@
               {% else %}
               <p class="pm-student-note">Онлайн-оплата временно недоступна.</p>
               {% endif %}
-            </section>
+              </section>
+            </aside>
           </div>
-
-          <section class="pm-student-subcard">
-            <div class="course-meta">Календарь занятий</div>
-            <form class="pm-student-form" method="get" action="/account" data-month-picker>
-              <div class="month-picker">
-                {% set month_names = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] %}
-                {% set current_year = item.lesson_month[:4] %}
-                {% set current_month = item.lesson_month[5:7] %}
-                <div class="month-picker__year">
-                  <label class="auth-label">Год</label>
-                  <select name="year" data-month-year>
-                    <option value="{{ (current_year|int) - 1 }}">{{ (current_year|int) - 1 }}</option>
-                    <option value="{{ current_year }}" selected>{{ current_year }}</option>
-                    <option value="{{ (current_year|int) + 1 }}">{{ (current_year|int) + 1 }}</option>
-                  </select>
-                </div>
-                <div class="month-picker__months">
-                  {% for idx in range(1, 13) %}
-                    {% set value = "%02d"|format(idx) %}
-                    <button type="button" class="month-pill{% if value == current_month %} is-active{% endif %}" data-month="{{ value }}">
-                      {{ month_names[idx - 1] }}
-                    </button>
-                  {% endfor %}
-                </div>
-                <input type="hidden" name="month" value="{{ item.lesson_month }}" data-month-input>
-              </div>
-            </form>
-            <div class="lesson-legend">
-              <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--proposed"></span>Предложено</span>
-              <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--approved"></span>Согласовано</span>
-              <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--missed"></span>Пропуск</span>
-              <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--excused">🌡️</span>Уважительная причина</span>
-            </div>
-            <div class="lesson-calendar">
-              <div class="lesson-calendar__grid lesson-calendar__grid--head">
-                <div class="lesson-calendar__day" data-day="1"><span class="day-text">Пн</span><span class="day-num">1</span></div>
-                <div class="lesson-calendar__day" data-day="2"><span class="day-text">Вт</span><span class="day-num">2</span></div>
-                <div class="lesson-calendar__day" data-day="3"><span class="day-text">Ср</span><span class="day-num">3</span></div>
-                <div class="lesson-calendar__day" data-day="4"><span class="day-text">Чт</span><span class="day-num">4</span></div>
-                <div class="lesson-calendar__day" data-day="5"><span class="day-text">Пт</span><span class="day-num">5</span></div>
-                <div class="lesson-calendar__day" data-day="6"><span class="day-text">Сб</span><span class="day-num">6</span></div>
-                <div class="lesson-calendar__day" data-day="7"><span class="day-text">Вс</span><span class="day-num">7</span></div>
-              </div>
-              <div class="lesson-calendar__grid">
-                {% for week in item.lesson_calendar %}
-                  {% for day in week %}
-                    {% if day %}
-                    <div class="lesson-day{% if day.status %} lesson-day--{{ day.status }}{% endif %}"{% if day.time %} data-start="{{ day.time }}"{% endif %}{% if day.time_end %} data-end="{{ day.time_end }}"{% endif %}>
-                      <span>{{ day.day }}</span>
-                      {% if day.status == "excused" %}
-                      <span class="lesson-emoji">🌡️</span>
-                      {% endif %}
-                    </div>
-                    {% else %}
-                    <div class="lesson-day lesson-day--empty"></div>
-                    {% endif %}
-                  {% endfor %}
-                {% endfor %}
-              </div>
-            </div>
-          </section>
-
-          <section class="pm-student-subcard">
-            <div class="course-meta">Материалы модуля</div>
-            {% if item.materials %}
-            <ul class="admin-list">
-              {% for material in item.materials %}
-              <li>
-                <span>{{ material.title or material.url }}</span>
-                <a class="admin-copy" href="{{ material.url }}" target="_blank" rel="noopener">Открыть</a>
-              </li>
-              {% endfor %}
-            </ul>
-            {% else %}
-            <p class="pm-student-note">Материалы будут доступны позже.</p>
-            {% endif %}
-          </section>
         </article>
         {% endfor %}
       </div>
