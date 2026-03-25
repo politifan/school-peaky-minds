@@ -3,16 +3,17 @@ import re
 import secrets
 import time
 from datetime import datetime
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.status import HTTP_302_FOUND
 from routes.account_content import (
-    build_account_lectures_mock,
-    build_account_mock_content,
-    build_account_schedule_mock,
+    build_account_content,
+    build_account_lectures_payload,
+    build_account_schedule_payload,
+    get_lecture_record,
 )
 
 from core import (
@@ -61,6 +62,22 @@ from core import (
 )
 
 router = APIRouter()
+
+
+def _load_current_user_agreements(user: Dict[str, Any]) -> List[Dict[str, Any]]:
+    user_id = user.get("id")
+    user_email = (user.get("email") or "").strip().lower()
+    agreements = []
+    for item in load_agreements():
+        item_user = item.get("user") or {}
+        matches = False
+        if user_id and item_user.get("id") == user_id:
+            matches = True
+        elif user_email and (item.get("email") or "").strip().lower() == user_email:
+            matches = True
+        if matches:
+            agreements.append(item)
+    return agreements
 
 
 def _antibot_error_message(reason: str) -> str:
@@ -594,6 +611,7 @@ async def account(request: Request):
             {
                 **item,
                 "file": item.get("_file"),
+                "agreement_file": item.get("_file"),
                 "contract_url": build_contract_url(item.get("contract_token"), request),
                 "contract_pdf_url": item.get("contract_pdf_url"),
                 "contract_status_key": status_key,
@@ -613,6 +631,7 @@ async def account(request: Request):
                 "discounted_price": discounted_price,
                 "primary_course": primary_course,
                 "lesson_month": calendar_month,
+                "lesson_calendar_map": lesson_calendar,
                 "lesson_calendar": calendar_weeks,
                 "payments": payment_list,
                 "active_payment": active_payment,
@@ -620,7 +639,7 @@ async def account(request: Request):
         )
 
     user_display = user.get("name") or user.get("email") or "Пользователь"
-    account_content = build_account_mock_content(
+    account_content = build_account_content(
         agreements_view,
         user_display=user_display,
         payments_enabled=TINKOFF_ENABLED,
@@ -652,25 +671,10 @@ async def account_schedule_api(request: Request):
     if not user:
         return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
 
-    user_id = user.get("id")
-    user_email = (user.get("email") or "").strip().lower()
-    agreements = []
-    for item in load_agreements():
-        item_user = item.get("user") or {}
-        matches = False
-        if user_id and item_user.get("id") == user_id:
-            matches = True
-        elif user_email and (item.get("email") or "").strip().lower() == user_email:
-            matches = True
-        if matches:
-            agreements.append(item)
-
-    return JSONResponse(
-        {
-            "ok": True,
-            "items": build_account_schedule_mock(agreements),
-        }
-    )
+    agreements = _load_current_user_agreements(user)
+    month = request.query_params.get("month") or ""
+    payload = build_account_schedule_payload(agreements, month=month)
+    return JSONResponse({"ok": True, **payload})
 
 
 @router.get("/api/account/lectures", include_in_schema=False)
@@ -679,23 +683,24 @@ async def account_lectures_api(request: Request):
     if not user:
         return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
 
-    user_id = user.get("id")
-    user_email = (user.get("email") or "").strip().lower()
-    agreements = []
-    for item in load_agreements():
-        item_user = item.get("user") or {}
-        matches = False
-        if user_id and item_user.get("id") == user_id:
-            matches = True
-        elif user_email and (item.get("email") or "").strip().lower() == user_email:
-            matches = True
-        if matches:
-            agreements.append(item)
+    agreements = _load_current_user_agreements(user)
+    payload = build_account_lectures_payload(agreements)
+    return JSONResponse({"ok": True, **payload})
 
-    return JSONResponse(
-        {
-            "ok": True,
-            "items": build_account_lectures_mock(agreements),
-            "message": "Записей пока нет. Раздел подготовлен под будущее хранение лекций.",
-        }
-    )
+
+@router.get("/api/account/lectures/{lecture_id}", include_in_schema=False)
+async def account_lecture_detail_api(request: Request, lecture_id: str):
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
+
+    agreements = _load_current_user_agreements(user)
+    allowed_files = {
+        str(item.get("_file") or item.get("agreement_file") or "").strip()
+        for item in agreements
+        if str(item.get("_file") or item.get("agreement_file") or "").strip()
+    }
+    lecture = get_lecture_record(lecture_id)
+    if not lecture or lecture.get("agreement_file") not in allowed_files:
+        return JSONResponse({"ok": False, "error": "not_found"}, status_code=404)
+    return JSONResponse({"ok": True, "item": lecture})

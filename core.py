@@ -84,9 +84,12 @@ WHITELIST_FILE = DATA_DIR / "telegram_whitelist.json"
 REFERRALS_FILE = DATA_DIR / "referrals.json"
 PAYMENTS_FILE = DATA_DIR / "payments.json"
 JOURNAL_POSTS_FILE = DATA_DIR / "journal_posts.json"
+LECTURE_RECORDS_FILE = DATA_DIR / "lecture_records.json"
 
 DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
 CONTRACTS_DIR.mkdir(parents=True, exist_ok=True)
+LECTURE_DOCUMENTS_DIR = DOCUMENTS_DIR / "lectures"
+LECTURE_DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR = BASE_DIR / "logs"
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 

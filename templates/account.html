@@ -77,7 +77,7 @@
           <div class="pm-kicker">{{ account_sections.schedule.kicker }}</div>
           <h2 class="section-title">{{ account_sections.schedule.title }}</h2>
         </div>
-        <span class="pm-tag">mock API: {{ account_sections.schedule.api }}</span>
+        <span class="pm-tag">API: {{ account_sections.schedule.api }}</span>
       </div>
       {% if account_sections.schedule["items"] %}
       <div class="pm-student-schedule-grid">
@@ -110,7 +110,7 @@
           <div class="pm-kicker">{{ account_sections.lectures.kicker }}</div>
           <h2 class="section-title">{{ account_sections.lectures.title }}</h2>
         </div>
-        <span class="pm-tag">mock API: {{ account_sections.lectures.api }}</span>
+        <span class="pm-tag">API: {{ account_sections.lectures.api }}</span>
       </div>
       {% if account_sections.lectures["items"] %}
       <div class="pm-student-lecture-grid">
@@ -121,9 +121,13 @@
             <span class="pm-student-mini-tag">{{ lecture.duration_label }}</span>
           </div>
           <h3>{{ lecture.title }}</h3>
+          <div class="pm-inline-actions">
+            <span class="pm-student-mini-tag">{{ lecture.published_label }}</span>
+            <span class="pm-student-mini-tag">{{ lecture.source_label }}</span>
+          </div>
           <p>{{ lecture.description }}</p>
           <div class="pm-inline-actions">
-            <a class="btn btn-secondary" href="{{ lecture.url }}">Открыть запись</a>
+            <a class="btn btn-secondary" href="{{ lecture.url }}" target="_blank" rel="noopener">Открыть запись</a>
           </div>
         </article>
         {% endfor %}

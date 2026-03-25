@@ -19,6 +19,11 @@ from telegram_bot import is_configured as telegram_is_configured
 from telegram_bot import send_lead_message
 
 import core
+from routes.account_content import (
+    delete_lecture_record,
+    list_lecture_records,
+    upsert_lecture_record,
+)
 from routes.journal_content import load_journal_posts_payload
 from core import (
     EXECUTOR_EMAIL,
@@ -218,8 +223,10 @@ def referral_redirect(message: str = "", error: str = "") -> RedirectResponse:
     return RedirectResponse(f"/admin?{urlencode(params)}", status_code=HTTP_302_FOUND)
 
 
-def lesson_redirect(message: str = "", error: str = "") -> RedirectResponse:
+def lesson_redirect(message: str = "", error: str = "", month: str = "") -> RedirectResponse:
     params = {"view": "lessons"}
+    if month:
+        params["month"] = month
     if message:
         params["lesson_message"] = message
     if error:
@@ -243,6 +250,82 @@ def admin_notice_redirect(view: str, message: str = "", error: str = "") -> Redi
     if error:
         params["admin_error"] = error
     return RedirectResponse(f"/admin?{urlencode(params)}", status_code=HTTP_302_FOUND)
+
+
+def _admin_api_guard(request: Request) -> Optional[JSONResponse]:
+    guard = admin_required(request)
+    if guard:
+        return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
+    return None
+
+
+def _build_admin_lesson_agreements(month: str) -> List[Dict[str, Any]]:
+    lesson_month = normalize_month_input(month) or month_key()
+    lecture_items = list_lecture_records()
+    lectures_by_file: Dict[str, List[Dict[str, Any]]] = {}
+    for lecture in lecture_items:
+        agreement_file = str(lecture.get("agreement_file") or "").strip()
+        if not agreement_file:
+            continue
+        lectures_by_file.setdefault(agreement_file, []).append(lecture)
+
+    items = []
+    for agreement in load_agreements():
+        agreement_file = agreement.get("_file")
+        lesson_calendar = agreement.get("lesson_calendar") if isinstance(agreement.get("lesson_calendar"), dict) else {}
+        calendar_weeks = build_month_calendar(lesson_month, lesson_calendar)
+        lecture_records = lectures_by_file.get(str(agreement_file or "").strip(), [])
+        items.append(
+            {
+                "file": agreement_file,
+                "name": agreement.get("full_name") or agreement.get("name") or "-",
+                "course": agreement.get("course") or "-",
+                "phone": agreement.get("phone") or "-",
+                "email": agreement.get("email") or "-",
+                "student_id": (agreement.get("user") or {}).get("id") or "",
+                "lesson_month": lesson_month,
+                "lesson_calendar": calendar_weeks,
+                "lesson_calendar_map": lesson_calendar,
+                "lecture_records": lecture_records,
+                "lecture_count": len(lecture_records),
+            }
+        )
+    return items
+
+
+def _save_lesson_calendar_entry(file_name: str, date_raw: str, status_raw: str, time_raw: str) -> None:
+    if not file_name:
+        raise ValueError("Не указан договор")
+    if not re.match(r"^\d{4}-\d{2}-\d{2}$", date_raw):
+        raise ValueError("Некорректная дата")
+
+    time_value = str(time_raw or "").strip()
+    if time_value:
+        if re.match(r"^\d{2}:\d{2}:\d{2}$", time_value):
+            time_value = time_value[:5]
+        if not re.match(r"^\d{2}:\d{2}$", time_value):
+            raise ValueError("Некорректное время")
+
+    if status_raw not in {"proposed", "approved", "missed", "excused", "clear", ""}:
+        raise ValueError("Некорректный статус")
+
+    path = core.AGREEMENTS_DIR / file_name
+    if not path.exists():
+        raise ValueError("Договор не найден")
+    data = load_json(path, {})
+    if not isinstance(data, dict):
+        raise ValueError("Договор не найден")
+
+    calendar_data = data.get("lesson_calendar") if isinstance(data.get("lesson_calendar"), dict) else {}
+    if status_raw in {"", "clear"}:
+        calendar_data.pop(date_raw, None)
+    else:
+        payload = {"status": status_raw}
+        if time_value:
+            payload["time"] = time_value
+        calendar_data[date_raw] = payload
+    data["lesson_calendar"] = calendar_data
+    core.save_json(path, data)
 
 
 def _destructive_guard(form: Any, view: str) -> Optional[RedirectResponse]:
@@ -588,21 +671,7 @@ def _admin_panel_impl(request: Request):
     agreements_base_count = len(agreements)
 
     if view == "lessons":
-        for item in agreements_all:
-            lesson_calendar = item.get("lesson_calendar") if isinstance(item.get("lesson_calendar"), dict) else {}
-            calendar_weeks = build_month_calendar(lesson_month, lesson_calendar)
-            lesson_agreements.append(
-                {
-                    "file": item.get("_file"),
-                    "name": item.get("full_name") or item.get("name") or "-",
-                    "course": item.get("course") or "-",
-                    "phone": item.get("phone") or "-",
-                    "email": item.get("email") or "-",
-                    "student_id": (item.get("user") or {}).get("id") or "",
-                    "lesson_month": lesson_month,
-                    "lesson_calendar": calendar_weeks,
-                }
-            )
+        lesson_agreements = _build_admin_lesson_agreements(lesson_month)
 
     status_counts = {key: 0 for key in STATUS_META}
     source_counts: Dict[str, int] = {}
@@ -2474,40 +2543,182 @@ async def admin_lessons_update(request: Request):
     file_name = str(form.get("file") or "").strip()
     date_raw = str(form.get("date") or "").strip()
     status_raw = str(form.get("status") or "").strip()
-
-    if not file_name:
-        return lesson_redirect(error="Не указан договор")
-    if not re.match(r"^\d{4}-\d{2}-\d{2}$", date_raw):
-        return lesson_redirect(error="Некорректная дата")
-
     time_raw = str(form.get("time") or "").strip()
-    status_map = {"proposed", "approved", "missed", "excused", "clear", ""}
-    if status_raw not in status_map:
-        return lesson_redirect(error="Некорректный статус")
-    if time_raw:
-        if re.match(r"^\d{2}:\d{2}:\d{2}$", time_raw):
-            time_raw = time_raw[:5]
-        if not re.match(r"^\d{2}:\d{2}$", time_raw):
-            return lesson_redirect(error="Некорректное время")
+    month = normalize_month_input(str(form.get("month") or "").strip()) or ""
+    try:
+        _save_lesson_calendar_entry(file_name, date_raw, status_raw, time_raw)
+    except ValueError as exc:
+        return lesson_redirect(error=str(exc), month=month)
+    return lesson_redirect(message="Статус сохранён", month=month)
 
-    path = core.AGREEMENTS_DIR / file_name
-    if not path.exists():
-        return lesson_redirect(error="Договор не найден")
-    data = load_json(path, {})
-    if not isinstance(data, dict):
-        return lesson_redirect(error="Договор не найден")
 
-    calendar_data = data.get("lesson_calendar") if isinstance(data.get("lesson_calendar"), dict) else {}
-    if status_raw in {"", "clear"}:
-        calendar_data.pop(date_raw, None)
+@router.post("/admin/lectures/save", include_in_schema=False)
+async def admin_lectures_save(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    month = normalize_month_input(str(form.get("month") or "").strip()) or ""
+    file_name = str(form.get("file") or "").strip()
+    title = str(form.get("title") or "").strip()
+    description = str(form.get("description") or "").strip()
+    duration_label = str(form.get("duration_label") or "").strip()
+    teacher = str(form.get("teacher") or "").strip()
+    published_at = str(form.get("published_at") or "").strip()
+    url = str(form.get("url") or "").strip()
+    record_id = str(form.get("record_id") or "").strip()
+    upload = form.get("recording_file")
+
+    agreement = None
+    if file_name:
+        agreement_path = core.AGREEMENTS_DIR / file_name
+        agreement = load_json(agreement_path, {})
+        if not isinstance(agreement, dict):
+            agreement = None
+    if not agreement:
+        return lesson_redirect(error="Договор для записи лекции не найден", month=month)
+    course = str((agreement or {}).get("course") or "").strip()
+
+    try:
+        upsert_lecture_record(
+            agreement_file=file_name,
+            course=course,
+            title=title,
+            description=description,
+            duration_label=duration_label,
+            teacher=teacher,
+            published_at=published_at,
+            url=url,
+            upload=upload,
+            record_id=record_id,
+        )
+    except ValueError as exc:
+        return lesson_redirect(error=str(exc), month=month)
+    return lesson_redirect(message="Запись лекции сохранена", month=month)
+
+
+@router.post("/admin/lectures/delete", include_in_schema=False)
+async def admin_lectures_delete(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    month = normalize_month_input(str(form.get("month") or "").strip()) or ""
+    record_id = str(form.get("record_id") or "").strip()
+    if not delete_lecture_record(record_id):
+        return lesson_redirect(error="Запись лекции не найдена", month=month)
+    return lesson_redirect(message="Запись лекции удалена", month=month)
+
+
+@router.get("/admin/api/lessons", include_in_schema=False)
+async def admin_lessons_api(request: Request):
+    guard = _admin_api_guard(request)
+    if guard:
+        return guard
+    month = normalize_month_input(request.query_params.get("month") or "") or month_key()
+    items = _build_admin_lesson_agreements(month)
+    return JSONResponse({"ok": True, "month": month, "items": items, "total": len(items)})
+
+
+@router.post("/admin/api/lessons/update", include_in_schema=False)
+async def admin_lessons_update_api(request: Request):
+    guard = _admin_api_guard(request)
+    if guard:
+        return guard
+    try:
+        payload = await request.json()
+    except Exception:
+        return JSONResponse({"ok": False, "error": "invalid_json"}, status_code=400)
+    if not isinstance(payload, dict):
+        return JSONResponse({"ok": False, "error": "invalid_payload"}, status_code=400)
+
+    file_name = str(payload.get("file") or "").strip()
+    date_raw = str(payload.get("date") or "").strip()
+    status_raw = str(payload.get("status") or "").strip()
+    time_raw = str(payload.get("time") or "").strip()
+    month = normalize_month_input(str(payload.get("month") or "").strip()) or ""
+    try:
+        _save_lesson_calendar_entry(file_name, date_raw, status_raw, time_raw)
+    except ValueError as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=400)
+
+    return JSONResponse({"ok": True, "month": month or month_key(), "item": {"file": file_name, "date": date_raw, "status": status_raw, "time": time_raw}})
+
+
+@router.get("/admin/api/lectures", include_in_schema=False)
+async def admin_lectures_api(request: Request):
+    guard = _admin_api_guard(request)
+    if guard:
+        return guard
+    file_name = str(request.query_params.get("file") or "").strip()
+    items = list_lecture_records(agreement_file=file_name)
+    return JSONResponse({"ok": True, "items": items, "total": len(items)})
+
+
+@router.post("/admin/api/lectures/save", include_in_schema=False)
+async def admin_lectures_save_api(request: Request):
+    guard = _admin_api_guard(request)
+    if guard:
+        return guard
+
+    content_type = request.headers.get("content-type", "")
+    if "application/json" in content_type:
+        try:
+            payload = await request.json()
+        except Exception:
+            return JSONResponse({"ok": False, "error": "invalid_json"}, status_code=400)
+        if not isinstance(payload, dict):
+            return JSONResponse({"ok": False, "error": "invalid_payload"}, status_code=400)
+        upload = None
     else:
-        payload = {"status": status_raw}
-        if time_raw:
-            payload["time"] = time_raw
-        calendar_data[date_raw] = payload
-    data["lesson_calendar"] = calendar_data
-    core.save_json(path, data)
-    return lesson_redirect(message="Статус сохранён")
+        form = await request.form()
+        payload = dict(form)
+        upload = form.get("recording_file")
+
+    file_name = str(payload.get("file") or "").strip()
+    agreement = None
+    if file_name:
+        agreement_path = core.AGREEMENTS_DIR / file_name
+        agreement = load_json(agreement_path, {})
+        if not isinstance(agreement, dict):
+            agreement = None
+    if not agreement:
+        return JSONResponse({"ok": False, "error": "agreement_not_found"}, status_code=404)
+
+    try:
+        item = upsert_lecture_record(
+            agreement_file=file_name,
+            course=str((agreement or {}).get("course") or "").strip(),
+            title=str(payload.get("title") or "").strip(),
+            description=str(payload.get("description") or "").strip(),
+            duration_label=str(payload.get("duration_label") or "").strip(),
+            teacher=str(payload.get("teacher") or "").strip(),
+            published_at=str(payload.get("published_at") or "").strip(),
+            url=str(payload.get("url") or "").strip(),
+            upload=upload,
+            record_id=str(payload.get("record_id") or "").strip(),
+        )
+    except ValueError as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=400)
+
+    return JSONResponse({"ok": True, "item": item})
+
+
+@router.post("/admin/api/lectures/delete", include_in_schema=False)
+async def admin_lectures_delete_api(request: Request):
+    guard = _admin_api_guard(request)
+    if guard:
+        return guard
+    try:
+        payload = await request.json()
+    except Exception:
+        payload = {}
+    if not isinstance(payload, dict):
+        payload = {}
+    record_id = str(payload.get("record_id") or "").strip()
+    if not delete_lecture_record(record_id):
+        return JSONResponse({"ok": False, "error": "not_found"}, status_code=404)
+    return JSONResponse({"ok": True})
 
 
 @router.get("/admin/export/leads.csv", include_in_schema=False)

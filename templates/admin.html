@@ -1199,7 +1199,7 @@
                   {% for week in item.lesson_calendar %}
                     {% for day in week %}
                       {% if day %}
-                      <div class="lesson-day{% if day.status %} lesson-day--{{ day.status }}{% endif %}">
+                      <div class="lesson-day{% if day.status %} lesson-day--{{ day.status }}{% endif %}{% if day.time %} has-time{% endif %}"{% if day.time %} data-start="{{ day.time }}"{% endif %}{% if day.time_end %} data-end="{{ day.time_end }}"{% endif %}>
                         <span>{{ day.day }}</span>
                         {% if day.status == "excused" %}
                         <span class="lesson-emoji">🌡️</span>
@@ -1214,6 +1214,7 @@
               </div>
               <form class="admin-filter" action="/admin/lessons/update" method="post" style="margin-top: 12px;">
                 <input type="hidden" name="file" value="{{ item.file }}">
+                <input type="hidden" name="month" value="{{ lesson_month }}">
                 <div class="admin-filter__row">
                   <div class="input-wrap">
                     <label class="auth-label">Дата</label>
@@ -1238,6 +1239,83 @@
                   <button class="btn btn-primary" type="submit">Сохранить</button>
                 </div>
               </form>
+              <div class="admin-lecture-stack">
+                <div class="pm-student-subcard__head" style="margin-top: 18px;">
+                  <div class="course-meta">Записи лекций</div>
+                  <span class="pm-student-mini-tag">{{ item.lecture_count }}</span>
+                </div>
+                {% if item.lecture_records %}
+                <div class="admin-lecture-list">
+                  {% for lecture in item.lecture_records %}
+                  <article class="admin-lecture-card">
+                    <div class="admin-lecture-card__head">
+                      <div>
+                        <h4>{{ lecture.title }}</h4>
+                        <div class="admin-lecture-meta">
+                          <span>{{ lecture.published_label }}</span>
+                          <span>{{ lecture.duration_label }}</span>
+                          <span>{{ lecture.source_label }}</span>
+                        </div>
+                      </div>
+                      <div class="pm-inline-actions">
+                        <a class="admin-copy" href="{{ lecture.url }}" target="_blank" rel="noopener">Открыть</a>
+                        <form action="/admin/lectures/delete" method="post" onsubmit="return confirm('Удалить запись лекции?');">
+                          <input type="hidden" name="record_id" value="{{ lecture.id }}">
+                          <input type="hidden" name="month" value="{{ lesson_month }}">
+                          <button class="admin-copy admin-delete" type="submit">Удалить</button>
+                        </form>
+                      </div>
+                    </div>
+                    {% if lecture.description %}
+                    <p class="admin-subtext">{{ lecture.description }}</p>
+                    {% endif %}
+                  </article>
+                  {% endfor %}
+                </div>
+                {% else %}
+                <p class="admin-subtext">Записей пока нет. Можно загрузить файл на сервер или сохранить внешнюю ссылку.</p>
+                {% endif %}
+
+                <form class="admin-filter" action="/admin/lectures/save" method="post" enctype="multipart/form-data">
+                  <input type="hidden" name="file" value="{{ item.file }}">
+                  <input type="hidden" name="month" value="{{ lesson_month }}">
+                  <div class="admin-filter__row">
+                    <div class="input-wrap">
+                      <label class="auth-label">Название</label>
+                      <input type="text" name="title" placeholder="Лекция 1. Введение" required>
+                    </div>
+                    <div class="input-wrap">
+                      <label class="auth-label">Дата публикации</label>
+                      <input type="date" name="published_at">
+                    </div>
+                    <div class="input-wrap">
+                      <label class="auth-label">Длительность</label>
+                      <input type="text" name="duration_label" placeholder="58 минут">
+                    </div>
+                    <div class="input-wrap">
+                      <label class="auth-label">Преподаватель</label>
+                      <input type="text" name="teacher" placeholder="Иван Петров">
+                    </div>
+                  </div>
+                  <div class="admin-filter__row">
+                    <div class="input-wrap">
+                      <label class="auth-label">Внешняя ссылка</label>
+                      <input type="url" name="url" placeholder="https://...">
+                    </div>
+                    <div class="input-wrap">
+                      <label class="auth-label">Файл записи</label>
+                      <input type="file" name="recording_file" accept=".mp4,.mov,.m4v,.webm,.mp3,.m4a,.ogg,.wav,.pdf">
+                    </div>
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Описание</label>
+                    <textarea class="admin-textarea" name="description" rows="3" placeholder="Краткое описание записи и содержимого лекции"></textarea>
+                  </div>
+                  <div class="admin-filter__actions">
+                    <button class="btn btn-primary" type="submit">Сохранить запись</button>
+                  </div>
+                </form>
+              </div>
             </div>
             {% endfor %}
           </div>
