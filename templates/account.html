@@ -18,52 +18,31 @@
             <span class="avatar-initial">{{ user_avatar.initial }}</span>
           </div>
           <div>
-            <div class="pm-kicker">Student workspace</div>
-            <h1 class="display-title">Личный кабинет</h1>
-            <p class="section-lead">Вы вошли как <strong>{{ user.name or user.email }}</strong>. Здесь собраны договоры, прогресс по курсам, материалы и оплата.</p>
+            <div class="pm-kicker">{{ account_hero.kicker }}</div>
+            <h1 class="display-title">{{ account_hero.title }}</h1>
+            <p class="section-lead">Вы вошли как <strong>{{ account_hero.user_display }}</strong>. {{ account_hero.lead }}</p>
             <div class="pm-student-hero__summary">
-              <span class="pm-student-badge">Договоры и PDF в одном месте</span>
-              <span class="pm-student-badge">Календарь по каждому курсу</span>
-              <span class="pm-student-badge">Материалы и оплата без лишних шагов</span>
+              {% for item in account_hero.summary %}
+              <span class="pm-student-badge">{{ item }}</span>
+              {% endfor %}
             </div>
             <div class="pm-student-hero__actions">
-              {% if agreements %}
-              <a class="btn btn-primary" href="#student-courses">Открыть мои курсы</a>
-              {% else %}
-              <a class="btn btn-primary" href="/#courses">Выбрать курс</a>
+              {% for action in account_hero.actions %}
+              {% if action.show is not defined or action.show %}
+              <a class="btn btn-{{ action.variant }}" href="{{ action.href }}">{{ action.label }}</a>
               {% endif %}
-              {% if agreements %}
-              <a class="btn btn-secondary" href="#student-contracts">Договоры</a>
-              {% endif %}
+              {% endfor %}
             </div>
           </div>
         </div>
       </div>
       <div class="pm-student-metrics">
+        {% for metric in account_hero.metrics %}
         <div class="pm-student-metric">
-          <span>Курсов</span>
-          <strong>{{ account_stats.total_courses }}</strong>
+          <span>{{ metric.label }}</span>
+          <strong>{{ metric.value }}</strong>
         </div>
-        <div class="pm-student-metric">
-          <span>Подписано договоров</span>
-          <strong>{{ account_stats.signed_contracts }}</strong>
-        </div>
-        <div class="pm-student-metric">
-          <span>Оплата</span>
-          <strong>{% if payments_enabled %}СБП{% else %}Offline{% endif %}</strong>
-        </div>
-        <div class="pm-student-metric">
-          <span>Доступ</span>
-          <strong>{% if agreements %}Активен{% else %}Ожидает{% endif %}</strong>
-        </div>
-        <div class="pm-student-metric">
-          <span>Ближайшие события</span>
-          <strong>{{ account_stats.upcoming_events }}</strong>
-        </div>
-        <div class="pm-student-metric">
-          <span>Записи лекций</span>
-          <strong>{{ account_stats.lecture_records }}</strong>
-        </div>
+        {% endfor %}
       </div>
     </section>
 
@@ -77,26 +56,18 @@
     <section class="pm-student-section">
       <div class="pm-section-head">
         <div>
-          <div class="pm-kicker">Overview</div>
-          <h2 class="section-title">Что доступно сейчас</h2>
+          <div class="pm-kicker">{{ account_overview.kicker }}</div>
+          <h2 class="section-title">{{ account_overview.title }}</h2>
         </div>
       </div>
       <div class="pm-student-overview">
+        {% for card in account_overview.cards %}
         <article class="pm-surface-card pm-student-overview-card">
-          <div class="course-meta">Маршрут</div>
-          <h3>Курсы, договоры и прогресс в одном экране</h3>
-          <p>Кабинет собран как рабочая панель: сначала обзор, затем детали по каждому курсу, оплате и материалам.</p>
+          <div class="course-meta">{{ card.kicker }}</div>
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.text }}</p>
         </article>
-        <article class="pm-surface-card pm-student-overview-card">
-          <div class="course-meta">Оплата</div>
-          <h3>{% if payments_enabled %}СБП включена{% else %}Онлайн-оплата выключена{% endif %}</h3>
-          <p>{% if payments_enabled %}Можно оплачивать занятия прямо из карточки курса и продолжать незавершённый платёж без повторного ввода данных.{% else %}Сейчас доступны только договоры, календарь и материалы. Онлайн-оплата появится позже.{% endif %}</p>
-        </article>
-        <article class="pm-surface-card pm-student-overview-card">
-          <div class="course-meta">Материалы и встречи</div>
-          <h3>{% if agreements %}Доступ открывается по активным курсам{% else %}Доступ откроется после записи{% endif %}</h3>
-          <p>Внутри каждой карточки есть календарь месяца, модульные материалы и статусы по договору, чтобы не искать это в разных местах.</p>
-        </article>
+        {% endfor %}
       </div>
     </section>
 
