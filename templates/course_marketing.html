@@ -1,0 +1,420 @@
+{% extends "base_marketing.html" %}
+
+{% block title %}{{ course.seo_title }}{% endblock %}
+{% block description %}{{ course.seo_description }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block body_class %}pm-course-page{% endblock %}
+{% block meta_keywords %}{{ course.seo_keywords }}{% endblock %}
+
+{% block extra_head %}
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "{{ course.schema_name }}",
+    "description": "{{ course.schema_description }}",
+    "provider": {
+      "@type": "Organization",
+      "name": "IT-школа Peaky Minds",
+      "url": "{{ request.base_url }}"
+    },
+    "url": "{{ request.base_url }}{{ course.path.lstrip('/') }}",
+    "inLanguage": "ru",
+    "offers": {
+      "@type": "Offer",
+      "price": "{{ course.offer_price }}",
+      "priceCurrency": "RUB"
+    }
+  }
+</script>
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Главная",
+        "item": "{{ request.base_url }}"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "{{ course.breadcrumb_name }}",
+        "item": "{{ request.base_url }}{{ course.path.lstrip('/') }}"
+      }
+    ]
+  }
+</script>
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {% for item in course.faq %}
+      {
+        "@type": "Question",
+        "name": "{{ item.q }}",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "{{ item.a }}"
+        }
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="pm-course-hero pm-section">
+  <div class="container pm-course-hero__grid">
+    <div class="pm-course-hero__copy reveal">
+      <nav class="pm-breadcrumbs" aria-label="Навигация">
+        <a href="/">Главная</a>
+        <span>/</span>
+        <span>{{ course.breadcrumb_name }}</span>
+      </nav>
+      <div class="eyebrow">{{ course.track_label }}</div>
+      <h1 class="display-title display-title--hero">{{ course.hero_title }}</h1>
+      <p class="lead-text">{{ course.hero_lead }}</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться на курс</button>
+        <a class="btn btn-secondary" href="#program">Смотреть программу</a>
+      </div>
+      <ul class="pm-home-hero__trust">
+        {% for item in course.hero_bullets %}
+        <li>
+          <strong>{{ item.value }}</strong>
+          <span>{{ item.text }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="pm-course-hero__visual reveal" aria-hidden="true">
+      <div class="shape-stage shape-stage--course">
+        <div class="shape-stage__arc"></div>
+        <div class="shape-stage__stair"></div>
+        <div class="shape-stage__slab"></div>
+        <div class="shape-stage__wave"></div>
+      </div>
+      <div class="pm-course-hero__visual-pills">
+        {% for item in course.hero_stack %}
+        <span>{{ item }}</span>
+        {% endfor %}
+      </div>
+      <div class="pm-course-hero__cards">
+        {% for item in course.hero_cards %}
+        <article class="pm-course-glance{% if item.tone == 'dark' %} pm-course-glance--dark{% elif item.tone == 'gradient' %} pm-course-glance--gradient{% endif %}">
+          <div class="pm-course-glance__kicker">{{ item.kicker }}</div>
+          <strong>{{ item.value }}</strong>
+          <span>{{ item.meta }}</span>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--compact">
+  <div class="container">
+    <div class="pm-course-facts reveal">
+      {% for item in course.facts %}
+      <article class="pm-course-fact">
+        <div class="pm-course-fact__label">{{ item.label }}</div>
+        <strong>{{ item.value }}</strong>
+        <p>{{ item.text }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--soft">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Прайс-лист</div>
+        <h2 class="display-title">Стоимость и формат движения по курсу</h2>
+      </div>
+      <p>{{ course.pricing_description }}</p>
+    </div>
+
+    <div class="pm-price-grid reveal">
+      <article class="pm-price-card">
+        <div class="pm-price-card__title">Тарифы</div>
+        <div class="pm-price-card__list">
+          {% for item in course.prices %}
+          <div class="pm-price-row{% if item.featured %} pm-price-row--featured{% endif %}">
+            <div class="pm-price-row__plan">{{ item.plan }}</div>
+            <div class="pm-price-row__meta">
+              {% if item.old %}
+              <span class="pm-price-row__old">{{ item.old }}</span>
+              {% endif %}
+              {% if item.discount %}
+              <span class="pm-price-row__discount">{{ item.discount }}</span>
+              {% endif %}
+              <span class="pm-price-row__new">{{ item.new }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="pm-price-note">
+        <div class="eyebrow eyebrow--dark">Как это работает</div>
+        <h3>{{ course.price_note_title }}</h3>
+        <p>{{ course.price_note_text }}</p>
+        <ul class="pm-bullet-list">
+          {% for item in course.price_note_points %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Для кого</div>
+        <h2 class="display-title">Кому этот трек действительно подходит</h2>
+      </div>
+      <p>{{ course.for_whom_description }}</p>
+    </div>
+
+    <div class="pm-audience-grid reveal">
+      {% for item in course.for_whom %}
+      <article class="pm-audience-card">
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.text }}</p>
+        <button class="btn btn-secondary" type="button" data-open-modal="apply">Обсудить формат</button>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--soft">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Результат</div>
+        <h2 class="display-title">Что вы будете уметь после курса</h2>
+      </div>
+      <p>{{ course.outcomes_description }}</p>
+    </div>
+
+    <div class="pm-outcomes-grid reveal">
+      <article class="pm-outcomes-card">
+        <ul class="pm-bullet-list pm-bullet-list--strong">
+          {% for item in course.outcomes %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </article>
+
+      <article class="pm-stack-card">
+        <div class="eyebrow eyebrow--dark">Стек</div>
+        <h3>Технологии, через которые собирается практический трек</h3>
+        <p>{{ course.stack_description }}</p>
+        <div class="pm-chip-cloud">
+          {% for item in course.stack %}
+          <span>{{ item }}</span>
+          {% endfor %}
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Проекты</div>
+        <h2 class="display-title">Проекты, которыми вы будете усиливать портфолио</h2>
+      </div>
+      <p>{{ course.projects_description }}</p>
+    </div>
+
+    <div class="pm-projects-grid reveal">
+      {% for item in course.projects %}
+      <article class="pm-project-card">
+        <div class="pm-project-card__meta">{{ item.meta }}</div>
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.text }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--compact" id="program">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Программа</div>
+        <h2 class="display-title">Модули, через которые строится курс</h2>
+      </div>
+      <p>{{ course.program_description }}</p>
+    </div>
+
+    <div class="pm-module-grid reveal">
+      {% for item in course.modules %}
+      <article class="pm-module-card">
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.text }}</p>
+        <span>{{ item.tag }}</span>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="pm-section">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Траектория</div>
+        <h2 class="display-title">Как учеба превращается в рыночный навык</h2>
+      </div>
+      <p>{{ course.journey_description }}</p>
+    </div>
+
+    <div class="pm-learning-flow reveal">
+      {% for item in course.journey %}
+      <article class="pm-step-card">
+        <div class="pm-step-card__number">{{ item.number }}</div>
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.text }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--compact">
+  <div class="container">
+    <div class="pm-career-banner reveal">
+      <div class="shape-stage shape-stage--banner" aria-hidden="true">
+        <div class="shape-stage__wave"></div>
+        <div class="shape-stage__stair"></div>
+      </div>
+      <div class="pm-career-banner__content">
+        <div>
+          <div class="eyebrow eyebrow--light">Интервью и рынок</div>
+          <h2 class="display-title">{{ course.banner_title }}</h2>
+          <p>{{ course.banner_text }}</p>
+        </div>
+        <div class="pm-career-banner__chips">
+          {% for item in course.interview_topics %}
+          <span class="c-pill c-pill--dark">{{ item }}</span>
+          {% endfor %}
+        </div>
+        <div class="pm-career-banner__grid">
+          <article class="pm-career-banner__card">
+            <div class="eyebrow eyebrow--light">Фокус</div>
+            <h3>{{ course.banner_primary.title }}</h3>
+            <p>{{ course.banner_primary.text }}</p>
+          </article>
+          <article class="pm-career-banner__card pm-career-banner__card--light">
+            <div class="eyebrow eyebrow--dark">Выход</div>
+            <h3>{{ course.banner_secondary.title }}</h3>
+            <p>{{ course.banner_secondary.text }}</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section" id="faq">
+  <div class="container container--narrow">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">FAQ</div>
+        <h2 class="display-title">Частые вопросы по курсу</h2>
+      </div>
+    </div>
+
+    <div class="faq-list reveal">
+      {% for item in course.faq %}
+      <div class="faq-item">
+        <button type="button">{{ item.q }}</button>
+        <div class="faq-answer">{{ item.a }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--compact" id="enroll">
+  <div class="container">
+    <div class="pm-enroll-panel reveal">
+      <div class="shape-stage shape-stage--final" aria-hidden="true">
+        <div class="shape-stage__arc"></div>
+        <div class="shape-stage__slab"></div>
+      </div>
+      <div class="pm-enroll-panel__copy">
+        <div class="eyebrow eyebrow--dark">Запись</div>
+        <h2 class="display-title">{{ course.enroll_heading }}</h2>
+        <p>{{ course.enroll_text }}</p>
+        <div class="pm-enroll-panel__docs">
+          <a href="/documents/dogovor.pdf" target="_blank" rel="noopener">Договор и пользовательское соглашение</a>
+        </div>
+        <div class="pm-enroll-panel__note">
+          Оплата онлайн через СБП. После подтверждения платежа добавляем вас в рабочий контур и согласуем расписание. Услуги оказываются онлайн, доставка не требуется.
+        </div>
+      </div>
+
+      {% if user %}
+      <form class="pm-enroll-panel__form" action="/enroll" method="post" target="_top" data-validate-phone data-contact-required>
+        <input type="hidden" name="{{ antibot_token_field }}" value="{{ antibot_tokens.enroll }}">
+        <div style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+          <input type="text" name="{{ antibot_honeypot_field }}" tabindex="-1" autocomplete="off">
+        </div>
+        <input type="hidden" name="course" value="{{ course.enroll_value }}">
+
+        <select name="duration">
+          <option value="" selected>Выберите длительность курса (необязательно)</option>
+          {% for item in course.duration_options %}
+          <option value="{{ item }}">{{ "Разовая оплата сессий" if item == "Разово" else "Пакет на " ~ item }}</option>
+          {% endfor %}
+        </select>
+        <input type="text" name="full_name" placeholder="ФИО" value="{{ user.name or '' }}" required minlength="2" maxlength="60">
+        <div class="input-wrap">
+          <input type="text" name="phone" placeholder="Телефон" data-phone="strict" pattern="(\+?7|8)[0-9\s\-()]{10,16}" maxlength="18" value="{{ user.phone if user and user.phone else '' }}">
+          <div class="input-hint">Пример: +7 999 000-00-00</div>
+          <div class="input-error" aria-live="polite"></div>
+        </div>
+        <input type="email" name="email" placeholder="Email" value="{{ user.email or '' }}" required maxlength="254" data-email pattern="[^@ ]+@[^@ .]+\.[^@ .]+" title="Минимум 4 символа после @ и ровно одна точка">
+        <div class="input-wrap">
+          <input type="text" name="telegram" placeholder="Telegram (@username)" data-telegram>
+          <div class="input-hint">Пример: @username</div>
+          <div class="input-error" aria-live="polite"></div>
+          <div class="input-status" aria-live="polite"></div>
+        </div>
+        <label class="form-check">
+          <input type="checkbox" name="agreement" required>
+          <span>Я ознакомился с договором и согласен с условиями.</span>
+        </label>
+        {% if turnstile_enabled %}
+        <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+        {% endif %}
+        <button class="btn btn-primary" type="submit">Подписать и отправить</button>
+      </form>
+      {% else %}
+      <div class="pm-enroll-panel__auth">
+        <p>Чтобы подписать документы и записаться, сначала войдите в аккаунт.</p>
+        <a class="btn btn-primary" href="/login?next={{ course.path }}">Войти</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

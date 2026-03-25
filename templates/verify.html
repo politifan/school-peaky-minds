@@ -1,45 +1,37 @@
-<!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Подтверждение входа</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Prata&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/css/styles.css">
-  {% if turnstile_enabled %}
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-  {% endif %}
-</head>
-<body>
-  <div class="bg-orb orb-1"></div>
-  <div class="bg-orb orb-2"></div>
-  <div class="bg-orb orb-3"></div>
+{% extends "base_marketing.html" %}
 
-  <main class="container" style="padding: 120px 0;">
-    <div class="cta-box" style="grid-template-columns: 1fr;">
-      <div>
-        <h1>Введите код</h1>
-        <p>Код отправлен на {{ email }}.</p>
-        {% if error %}
-        <div class="form-note error" style="margin-top: 16px;">{{ error }}</div>
-        {% endif %}
-      </div>
-      <form class="cta-form" action="/login/verify" method="post" style="margin-top: 20px;">
+{% block title %}Подтверждение входа - Peaky Minds{% endblock %}
+{% block description %}Подтвердите вход в аккаунт Peaky Minds кодом из письма.{% endblock %}
+{% block body_class %}pm-auth-body{% endblock %}
+
+{% block content %}
+<section class="pm-auth-page pm-auth-page--narrow">
+  <div class="container">
+    <div class="pm-auth-verify pm-surface-card">
+      <div class="pm-kicker">Подтверждение</div>
+      <h1 class="display-title">Введите код из письма</h1>
+      <p class="section-lead">Мы отправили шестизначный код на <strong>{{ email }}</strong>. После подтверждения вернём вас к следующему шагу.</p>
+      {% if error %}
+      <div class="pm-inline-alert pm-inline-alert--error">{{ error }}</div>
+      {% endif %}
+      <form class="pm-auth-form" action="/login/verify" method="post">
         <input type="hidden" name="email" value="{{ email }}">
         <input type="hidden" name="next" value="{{ next }}">
         <input type="hidden" name="{{ antibot_token_field }}" value="{{ antibot_tokens.login_verify }}">
         <div style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
           <input type="text" name="{{ antibot_honeypot_field }}" tabindex="-1" autocomplete="off">
         </div>
-        <input type="text" name="code" placeholder="Код из письма" required>
+        <label class="auth-label" for="verify-code">Код</label>
+        <input id="verify-code" type="text" name="code" placeholder="123456" inputmode="numeric" autocomplete="one-time-code" required>
         {% if turnstile_enabled %}
         <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
         {% endif %}
-        <button class="btn btn-primary" type="submit">Подтвердить</button>
+        <div class="pm-auth-actions">
+          <button class="btn btn-primary" type="submit">Подтвердить вход</button>
+          <a class="btn btn-secondary" href="/login{% if next %}?next={{ next }}{% endif %}">Изменить email</a>
+        </div>
       </form>
     </div>
-  </main>
-</body>
-</html>
+  </div>
+</section>
+{% endblock %}

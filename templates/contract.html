@@ -1,145 +1,173 @@
-<!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Договор</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Prata&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/css/styles.css">
-</head>
-<body>
-  <div class="bg-orb orb-1"></div>
-  <div class="bg-orb orb-2"></div>
-  <div class="bg-orb orb-3"></div>
+{% extends "base_student.html" %}
 
-  <main class="container" style="padding: 120px 0;">
-    <a class="page-back" href="/">← На главную</a>
+{% block title %}Договор - Peaky Minds{% endblock %}
+{% block description %}Оформление и подписание договора на обучение в Peaky Minds.{% endblock %}
 
-    <section class="panel">
-      <div class="admin-section-head">
-        <h1 class="section-title">Договор обучения</h1>
-        <div class="admin-section-actions">
-          <span class="admin-status {{ contract_status_class }}">{{ contract_status_label }}</span>
+{% block content %}
+<section class="pm-student-page">
+  <div class="container">
+    <section class="pm-student-hero pm-surface-card">
+      <div class="pm-student-hero__main">
+        <div>
+          <div class="pm-kicker">Contract workflow</div>
+          <h1 class="display-title">Договор обучения</h1>
+          <p class="section-lead">Заполните реквизиты, выберите канал отправки и подтвердите договор. После подписания здесь появится PDF.</p>
         </div>
       </div>
-      <ul class="admin-list">
-        <li><span>Курс</span><strong>{{ agreement.course or "-" }}</strong></li>
-        <li><span>Участник</span><strong>{{ agreement.full_name or agreement.user.name or "-" }}</strong></li>
-        <li><span>Канал отправки</span><strong>{{ contract_channel_label }}</strong></li>
-      </ul>
-      <div style="margin-top: 14px;">
+      <div class="pm-inline-actions">
+        <span class="admin-status {{ contract_status_class }}">{{ contract_status_label }}</span>
         {% if contract_pdf_url %}
-        <a class="btn btn-secondary" href="{{ contract_pdf_url }}" target="_blank" rel="noopener">Открыть PDF договора</a>
+        <a class="btn btn-secondary" href="{{ contract_pdf_url }}" target="_blank" rel="noopener">PDF договора</a>
         {% else %}
-        <a class="btn btn-secondary" href="/documents/dogovor.pdf" target="_blank" rel="noopener">Открыть договор</a>
+        <a class="btn btn-secondary" href="/documents/dogovor.pdf" target="_blank" rel="noopener">Шаблон договора</a>
         {% endif %}
       </div>
     </section>
 
-    <section class="panel" style="margin-top: 24px;">
-      <div class="admin-section-head">
-        <h2 class="section-title">Данные для договора</h2>
-        <div class="admin-section-actions">
-          <span class="admin-badge">№ {{ contract_number }}</span>
-          <span class="admin-badge">{{ contract_date }}</span>
-          {% if contract_pdf_url %}
-          <a class="btn btn-secondary" href="{{ contract_pdf_url }}" target="_blank" rel="noopener">Скачать PDF</a>
-          {% endif %}
-        </div>
-      </div>
-      <form class="admin-filter" method="post" action="/contract/{{ agreement.contract_token }}/save">
-        <div class="admin-filter__row">
-          <div class="input-wrap">
-            <label class="auth-label">Город</label>
-            <input type="text" name="city" value="{{ contract_fields.city }}" required>
-          </div>
-          <div class="input-wrap">
-            <label class="auth-label">ФИО заказчика</label>
-            <input type="text" name="customer_name" value="{{ contract_fields.customer_name }}" required>
-          </div>
-        </div>
-        <div class="admin-filter__row">
-          <div class="input-wrap">
-            <label class="auth-label">Паспорт</label>
-            <input type="text" name="customer_passport" value="{{ contract_fields.customer_passport }}" required>
-          </div>
-          <div class="input-wrap">
-            <label class="auth-label">Адрес</label>
-            <input type="text" name="customer_address" value="{{ contract_fields.customer_address }}" required>
-          </div>
-        </div>
-        <div class="admin-filter__row">
-          <div class="input-wrap">
-            <label class="auth-label">Телефон</label>
-            <input type="text" name="customer_phone" value="{{ contract_fields.customer_phone }}" required>
-          </div>
-          <div class="input-wrap">
-            <label class="auth-label">Email</label>
-            <input type="email" name="customer_email" value="{{ contract_fields.customer_email }}" required>
-          </div>
-        </div>
-        <div class="admin-filter__actions">
-          <button class="btn btn-primary" type="submit">Сохранить данные</button>
-        </div>
-      </form>
-      <div class="admin-subtext" style="margin-top: 8px;">
-        Дата договора заполняется автоматически по МСК при подписании.
-      </div>
-    </section>
-
     {% if message %}
-    <section class="card" style="margin-top: 18px;">
-      <strong>{{ message }}</strong>
-    </section>
+    <div class="pm-inline-alert">{{ message }}</div>
     {% endif %}
     {% if error %}
-    <section class="card" style="margin-top: 18px; border-color: rgba(255, 77, 77, 0.4);">
-      <strong>{{ error }}</strong>
-    </section>
+    <div class="pm-inline-alert pm-inline-alert--error">{{ error }}</div>
     {% endif %}
 
-    <section class="panel" style="margin-top: 24px;">
-      <div class="admin-section-head">
-        <h2 class="section-title">Отправить договор</h2>
-      </div>
-      <form class="admin-filter" method="post" action="/contract/{{ agreement.contract_token }}/send">
-        <div class="admin-filter__row">
-          <div class="input-wrap">
-            <label class="auth-label">Канал</label>
-            <select name="channel">
-              {% for item in channels %}
-              <option value="{{ item.key }}" {% if item.key == default_channel %}selected{% endif %} {% if item.disabled %}disabled{% endif %}>
-                {{ item.label }}{% if item.detail %} · {{ item.detail }}{% endif %}{% if item.note %} ({{ item.note }}){% endif %}
-              </option>
+    <section class="pm-student-section">
+      <div class="pm-student-layout">
+        <div class="pm-student-layout__main">
+          <article class="pm-surface-card pm-student-pane">
+            <div class="pm-section-head">
+              <div>
+                <div class="pm-kicker">Step 1</div>
+                <h2 class="section-title">Данные для договора</h2>
+              </div>
+              <div class="pm-inline-actions">
+                <span class="pm-tag">№ {{ contract_number }}</span>
+                <span class="pm-tag">{{ contract_date }}</span>
+              </div>
+            </div>
+            <form class="pm-student-form pm-student-form--wide" method="post" action="/contract/{{ agreement.contract_token }}/save">
+              <div class="pm-form-row">
+                <div class="input-wrap">
+                  <label class="auth-label">Город</label>
+                  <input type="text" name="city" value="{{ contract_fields.city }}" required>
+                </div>
+                <div class="input-wrap">
+                  <label class="auth-label">ФИО заказчика</label>
+                  <input type="text" name="customer_name" value="{{ contract_fields.customer_name }}" required>
+                </div>
+              </div>
+              <div class="pm-form-row">
+                <div class="input-wrap">
+                  <label class="auth-label">Паспорт</label>
+                  <input type="text" name="customer_passport" value="{{ contract_fields.customer_passport }}" required>
+                </div>
+                <div class="input-wrap">
+                  <label class="auth-label">Адрес</label>
+                  <input type="text" name="customer_address" value="{{ contract_fields.customer_address }}" required>
+                </div>
+              </div>
+              <div class="pm-form-row">
+                <div class="input-wrap">
+                  <label class="auth-label">Телефон</label>
+                  <input type="text" name="customer_phone" value="{{ contract_fields.customer_phone }}" required>
+                </div>
+                <div class="input-wrap">
+                  <label class="auth-label">Email</label>
+                  <input type="email" name="customer_email" value="{{ contract_fields.customer_email }}" required>
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit">Сохранить данные</button>
+            </form>
+            <p class="pm-student-note">Дата договора проставляется автоматически по МСК при подписании.</p>
+          </article>
+
+          <article class="pm-surface-card pm-student-pane">
+            <div class="pm-section-head">
+              <div>
+                <div class="pm-kicker">Step 2</div>
+                <h2 class="section-title">Отправить договор</h2>
+              </div>
+            </div>
+            <form class="pm-student-form pm-student-form--wide" method="post" action="/contract/{{ agreement.contract_token }}/send">
+              <div class="pm-form-row">
+                <div class="input-wrap">
+                  <label class="auth-label">Канал</label>
+                  <select name="channel">
+                    {% for item in channels %}
+                    <option value="{{ item.key }}" {% if item.key == default_channel %}selected{% endif %} {% if item.disabled %}disabled{% endif %}>
+                      {{ item.label }}{% if item.detail %} · {{ item.detail }}{% endif %}{% if item.note %} ({{ item.note }}){% endif %}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="input-wrap">
+                  <label class="auth-label">Email для отправки</label>
+                  <input type="email" name="email" placeholder="name@example.com" value="{{ manual_email }}">
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit">Отправить договор</button>
+            </form>
+            <p class="pm-student-note">Если отправка в VK недоступна, укажите email вручную.</p>
+          </article>
+
+          {% if contract_status_key != "signed" %}
+          <article class="pm-surface-card pm-student-pane">
+            <div class="pm-section-head">
+              <div>
+                <div class="pm-kicker">Step 3</div>
+                <h2 class="section-title">Подтверждение</h2>
+              </div>
+            </div>
+            <form method="post" action="/contract/{{ agreement.contract_token }}/sign">
+              <button class="btn btn-primary" type="submit">Подписать и сформировать PDF</button>
+            </form>
+          </article>
+          {% endif %}
+        </div>
+
+        <aside class="pm-student-layout__side">
+          <article class="pm-surface-card pm-student-pane">
+            <div class="course-meta">Карточка договора</div>
+            <ul class="admin-list">
+              <li><span>Курс</span><strong>{{ agreement.course or "-" }}</strong></li>
+              <li><span>Участник</span><strong>{{ agreement.full_name or agreement.user.name or "-" }}</strong></li>
+              <li><span>Канал отправки</span><strong>{{ contract_channel_label }}</strong></li>
+              <li><span>Номер</span><strong>{{ contract_number }}</strong></li>
+              <li><span>Дата</span><strong>{{ contract_date }}</strong></li>
+            </ul>
+          </article>
+
+          <article class="pm-surface-card pm-student-pane">
+            <div class="course-meta">Контрольный список</div>
+            <ol class="pm-step-list">
+              <li class="is-active">Заполните реквизиты заказчика</li>
+              <li class="{% if contract_status_key in ['sent', 'signed'] %}is-active{% endif %}">Отправьте договор по удобному каналу</li>
+              <li class="{% if contract_status_key == 'signed' %}is-active{% endif %}">Подтвердите договор и сформируйте PDF</li>
+            </ol>
+          </article>
+
+          <article class="pm-surface-card pm-student-pane">
+            <div class="course-meta">Ключевые пункты</div>
+            <ul class="pm-bullet-list">
+              {% for point in contract_key_points %}
+              <li>{{ point }}</li>
               {% endfor %}
-            </select>
-          </div>
-          <div class="input-wrap">
-            <label class="auth-label">Email для отправки</label>
-            <input type="email" name="email" placeholder="name@example.com" value="{{ manual_email }}">
-          </div>
-        </div>
-        <div class="admin-filter__actions">
-          <button class="btn btn-primary" type="submit">Отправить договор</button>
-        </div>
-      </form>
-      <div class="admin-subtext" style="margin-top: 8px;">
-        Если отправка в VK недоступна, укажите email вручную.
+            </ul>
+            {% if contract_documents %}
+            <div class="course-meta" style="margin-top: 18px;">Документы</div>
+            <ul class="admin-list">
+              {% for title, path in contract_documents %}
+              <li>
+                <span>{{ title }}</span>
+                <a class="admin-copy" href="{{ path }}" target="_blank" rel="noopener">Открыть</a>
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </article>
+        </aside>
       </div>
     </section>
-
-    {% if contract_status_key != "signed" %}
-    <section class="panel" style="margin-top: 24px;">
-      <div class="admin-section-head">
-        <h2 class="section-title">Подтверждение</h2>
-      </div>
-      <form method="post" action="/contract/{{ agreement.contract_token }}/sign">
-        <button class="btn btn-secondary" type="submit">Подписать и сформировать PDF</button>
-      </form>
-    </section>
-    {% endif %}
-  </main>
-</body>
-</html>
+  </div>
+</section>
+{% endblock %}

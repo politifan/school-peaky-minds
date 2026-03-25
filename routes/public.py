@@ -5,6 +5,7 @@ from fastapi.responses import PlainTextResponse, RedirectResponse, Response
 from starlette.status import HTTP_302_FOUND
 
 from core import ASSETS_DIR, render
+from routes.course_content import COURSE_PAGES
 
 router = APIRouter()
 
@@ -15,6 +16,18 @@ def _load_amp_css() -> str:
         return css_path.read_text(encoding="utf-8")
     except Exception:
         return ""
+
+
+def _render_course(request: Request, course_key: str, course_slug: str):
+    return render(
+        request,
+        "course_marketing.html",
+        {
+            "course": COURSE_PAGES[course_key],
+            "course_slug": course_slug,
+            "amp_css": _load_amp_css(),
+        },
+    )
 
 
 @router.get("/", include_in_schema=False)
@@ -76,11 +89,7 @@ async def course_fullstack_legacy(request: Request):
 @router.get("/courses/fullstack", include_in_schema=False)
 @router.get("/courses/fullstack/", include_in_schema=False)
 async def course_fullstack(request: Request):
-    return render(
-        request,
-        "course-fullstack.html",
-        {"course_slug": "Full-stack", "amp_css": _load_amp_css()},
-    )
+    return _render_course(request, "fullstack", "Full-stack")
 
 
 @router.get("/course-datascience.html", include_in_schema=False)
@@ -91,11 +100,7 @@ async def course_datascience_legacy(request: Request):
 @router.get("/courses/data-science", include_in_schema=False)
 @router.get("/courses/data-science/", include_in_schema=False)
 async def course_datascience(request: Request):
-    return render(
-        request,
-        "course-datascience.html",
-        {"course_slug": "Data Science", "amp_css": _load_amp_css()},
-    )
+    return _render_course(request, "data_science", "Data Science")
 
 
 @router.get("/course-business.html", include_in_schema=False)
@@ -111,21 +116,13 @@ async def course_python_beginners_legacy(request: Request):
 @router.get("/courses/business", include_in_schema=False)
 @router.get("/courses/business/", include_in_schema=False)
 async def course_business(request: Request):
-    return render(
-        request,
-        "course-business.html",
-        {"course_slug": "Business", "amp_css": _load_amp_css()},
-    )
+    return _render_course(request, "business", "Business")
 
 
 @router.get("/courses/python-beginners", include_in_schema=False)
 @router.get("/courses/python-beginners/", include_in_schema=False)
 async def course_python_beginners(request: Request):
-    return render(
-        request,
-        "course-python-beginners.html",
-        {"course_slug": "Python для новичков", "amp_css": _load_amp_css()},
-    )
+    return _render_course(request, "python_start", "Python для новичков")
 
 
 @router.get("/healthz", include_in_schema=False)

@@ -1,27 +1,21 @@
-<!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Заявка на курс отправлена</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Prata&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/css/styles.css">
-</head>
-<body>
-  <div class="bg-orb orb-1"></div>
-  <div class="bg-orb orb-2"></div>
-  <div class="bg-orb orb-3"></div>
+{% extends "base_marketing.html" %}
 
-  <main class="container" style="padding: 120px 0;">
-    <div class="cta-box" style="grid-template-columns: 1fr;">
-      <div>
-        <h1>Спасибо за заявку</h1>
-        <p>Мы получили ваше согласие на курс{{ ' ' + course if course }}. Скоро с вами свяжутся.</p>
+{% block title %}Заявка на курс отправлена - Peaky Minds{% endblock %}
+{% block description %}Запрос на курс отправлен. Дальше команда Peaky Minds свяжется с вами для подтверждения и оформления.{% endblock %}
+
+{% block content %}
+<section class="pm-status-page">
+  <div class="container">
+    <div class="pm-status-card pm-surface-card">
+      <div class="pm-status-code">ENROLL</div>
+      <div class="pm-kicker">Курс забронирован</div>
+      <h1 class="display-title">Место в воронке уже зафиксировано</h1>
+      <p class="section-lead">Мы получили ваше согласие на курс{% if course %} <strong>{{ course }}</strong>{% endif %}. Дальше поможем с договором, оплатой и стартом обучения.</p>
+      <div class="pm-status-actions">
+        <a class="btn btn-primary" href="/account">Перейти в кабинет</a>
+        <a class="btn btn-secondary" href="/">Вернуться на главную</a>
       </div>
-      <a class="btn btn-secondary" href="/">Вернуться на главную</a>
     </div>
-  </main>
-</body>
-</html>
+  </div>
+</section>
+{% endblock %}

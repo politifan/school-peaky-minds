@@ -2,6 +2,12 @@
 const modals = document.querySelectorAll('.modal');
 const closeButtons = document.querySelectorAll('[data-close-modal]');
 
+const syncBodyLock = () => {
+  const hasOpenModal = Array.from(modals).some((modal) => modal.classList.contains('open'));
+  const hasOpenDrawer = document.body.classList.contains('drawer-open');
+  document.body.style.overflow = hasOpenModal || hasOpenDrawer ? 'hidden' : '';
+};
+
 const setModalPanel = (modal, panel) => {
   const panels = Array.from(modal.querySelectorAll('.modal-panel'));
   if (!panels.length) return;
@@ -14,12 +20,12 @@ const openModal = (name, defaultPanel = 'choice') => {
   if (!modal) return;
   setModalPanel(modal, defaultPanel);
   modal.classList.add('open');
-  document.body.style.overflow = 'hidden';
+  syncBodyLock();
 };
 
 const closeModal = (modal) => {
   modal.classList.remove('open');
-  document.body.style.overflow = '';
+  syncBodyLock();
 };
 
 modalTriggers.forEach((trigger) => {
@@ -48,12 +54,83 @@ modals.forEach((modal) => {
   });
 });
 
+const mobileDrawer = document.querySelector('[data-mobile-drawer]');
+const drawerToggles = document.querySelectorAll('[data-drawer-toggle]');
+const drawerCloseButtons = document.querySelectorAll('[data-drawer-close]');
+
+const closeDrawer = () => {
+  if (!mobileDrawer) return;
+  document.body.classList.remove('drawer-open');
+  syncBodyLock();
+};
+
+const openDrawer = () => {
+  if (!mobileDrawer) return;
+  document.body.classList.add('drawer-open');
+  syncBodyLock();
+};
+
+drawerToggles.forEach((trigger) => {
+  trigger.addEventListener('click', () => {
+    if (document.body.classList.contains('drawer-open')) {
+      closeDrawer();
+      return;
+    }
+    openDrawer();
+  });
+});
+
+drawerCloseButtons.forEach((trigger) => {
+  trigger.addEventListener('click', closeDrawer);
+});
+
+if (mobileDrawer) {
+  mobileDrawer.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', closeDrawer);
+  });
+}
+
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
     modals.forEach((modal) => {
       if (modal.classList.contains('open')) closeModal(modal);
     });
+    if (document.body.classList.contains('drawer-open')) closeDrawer();
   }
+});
+
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 920) closeDrawer();
+});
+
+const trajectorySwitchers = document.querySelectorAll('[data-trajectory-switcher]');
+
+trajectorySwitchers.forEach((switcher) => {
+  const tabs = Array.from(switcher.querySelectorAll('[data-trajectory-tab]'));
+  const panels = Array.from(switcher.querySelectorAll('[data-trajectory-panel]'));
+  if (!tabs.length || !panels.length) return;
+
+  const setActiveTrajectory = (name) => {
+    tabs.forEach((tab) => {
+      const isActive = tab.dataset.trajectoryTab === name;
+      tab.classList.toggle('is-active', isActive);
+      tab.setAttribute('aria-selected', String(isActive));
+      tab.setAttribute('tabindex', isActive ? '0' : '-1');
+    });
+
+    panels.forEach((panel) => {
+      panel.classList.toggle('is-active', panel.dataset.trajectoryPanel === name);
+    });
+  };
+
+  const initialTab = tabs.find((tab) => tab.classList.contains('is-active')) || tabs[0];
+
+  tabs.forEach((tab) => {
+    tab.setAttribute('role', 'tab');
+    tab.addEventListener('click', () => setActiveTrajectory(tab.dataset.trajectoryTab));
+  });
+
+  setActiveTrajectory(initialTab.dataset.trajectoryTab);
 });
 
 const faqItems = document.querySelectorAll('.faq-item');

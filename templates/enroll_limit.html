@@ -1,20 +1,23 @@
-{% extends "base.html" %}
+{% extends "base_marketing.html" %}
 
 {% block title %}Запросы временно ограничены - IT‑школа Peaky Minds{% endblock %}
 {% block description %}Мы обнаружили аномально частые запросы из вашей сети. Попробуйте отправить заявку позже.{% endblock %}
 
 {% block content %}
-<section class="traffic-limit">
-  <div class="container traffic-limit__wrap">
-    <div class="traffic-limit__code">429</div>
-    <h1 class="traffic-limit__title">{{ limit_title or "Запросы временно ограничены" }}</h1>
-    <p class="traffic-limit__text">
-      {{ limit_message or "Мы заметили подозрительный трафик из вашей сети. Попробуйте оставить заявку немного позже или свяжитесь с нами." }}
-    </p>
-    <p class="traffic-limit__hint">{{ limit_hint or "Обычно доступ восстанавливается автоматически." }}</p>
-    <div class="traffic-limit__actions">
+<section class="pm-status-page">
+  <div class="container">
+    <div class="pm-status-card pm-surface-card">
+      <div class="pm-status-code">429</div>
+      <div class="pm-kicker">Rate limit</div>
+      <h1 class="display-title">{{ limit_title or "Запросы временно ограничены" }}</h1>
+      <p class="section-lead">
+        {{ limit_message or "Мы заметили аномально частые запросы из вашей сети. Попробуйте отправить форму позже или вернитесь на сайт чуть позже." }}
+      </p>
+      <p class="pm-status-hint">{{ limit_hint or "Обычно доступ восстанавливается автоматически." }}</p>
+      <div class="pm-status-actions">
       <a class="btn btn-primary" href="/">На главную</a>
       <a class="btn btn-secondary" href="/#apply">Оставить заявку позже</a>
+      </div>
     </div>
   </div>
 </section>

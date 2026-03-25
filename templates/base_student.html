@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Peaky Minds - личный кабинет{% endblock %}</title>
+  <meta name="description" content="{% block description %}Личный кабинет Peaky Minds: договоры, прогресс, материалы и оплата обучения.{% endblock %}">
+  <meta name="theme-color" content="#1f1f23">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+  <link rel="shortcut icon" href="/assets/img/favicon.ico">
+  <link rel="apple-touch-icon" href="/assets/img/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="shell-student {% block body_class %}{% endblock %}">
+  <header class="site-header site-header--student">
+    <div class="container site-header__inner">
+      <a class="logo logo--marketing" href="/">
+        <img src="/assets/img/logo.png" alt="Логотип IT‑школы Peaky Minds">
+        <span>Peaky Minds</span>
+      </a>
+
+      <nav class="nav-links nav-links--student">
+        <a href="/">Главная</a>
+        <a href="/#courses">Курсы</a>
+        {% if user %}
+        <a href="/account">Кабинет</a>
+        {% endif %}
+      </nav>
+
+      <div class="site-header__actions">
+        {% block student_header_actions %}
+        {% if user %}
+        <a class="nav-user nav-user--marketing" href="/account">
+          <span class="nav-user__label">Кабинет</span>
+          <span class="avatar {% if user_avatar.variant == 'email' %}avatar--email{% endif %}">
+            {% if user_avatar.url %}
+            <img src="{{ user_avatar.url }}" alt="Аватар профиля" loading="lazy"
+              onload="this.parentElement.classList.add('has-image')"
+              onerror="this.parentElement.classList.remove('has-image'); this.style.display='none'">
+            {% endif %}
+            <span class="avatar-initial">{{ user_avatar.initial }}</span>
+          </span>
+        </a>
+        <a class="btn btn-secondary" href="/logout">Выйти</a>
+        {% else %}
+        <a class="btn btn-secondary" href="/login">Войти</a>
+        {% endif %}
+        {% endblock %}
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main site-main--student">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer site-footer--student">
+    <div class="container site-footer__inner site-footer__inner--student">
+      <div class="site-footer__intro">
+        <a class="logo logo--marketing logo--footer" href="/">
+          <img src="/assets/img/logo.png" alt="Логотип IT‑школы Peaky Minds">
+          <span>Peaky Minds</span>
+        </a>
+        <p>Управляйте договором, отслеживайте прогресс обучения и быстро переходите к оплате и материалам.</p>
+      </div>
+      <div class="site-footer__column">
+        <h4>Быстрые ссылки</h4>
+        <a href="/">Главная</a>
+        <a href="/#courses">Каталог курсов</a>
+        <a href="/documents/dogovor.pdf" target="_blank" rel="noopener">Документы</a>
+      </div>
+      <div class="site-footer__column">
+        <h4>Контакты</h4>
+        {% if contact_phone and contact_phone_link %}
+        <a href="{{ contact_phone_link }}">{{ contact_phone }}</a>
+        {% endif %}
+        {% if contact_telegram and contact_telegram_link %}
+        <a href="{{ contact_telegram_link }}" target="_blank" rel="noopener">{{ contact_telegram }}</a>
+        {% endif %}
+        {% if contact_vk and contact_vk_link %}
+        <a href="{{ contact_vk_link }}" target="_blank" rel="noopener">{{ contact_vk }}</a>
+        {% endif %}
+      </div>
+    </div>
+  </footer>
+
+  {% if yandex_metrika_id %}
+  <script type="text/javascript">
+      (function(m,e,t,r,i,k,a){
+          m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+          m[i].l=1*new Date();
+          for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+          k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+      })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id={{ yandex_metrika_id }}', 'ym');
+      ym({{ yandex_metrika_id }}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+  </script>
+  <noscript><div><img src="https://mc.yandex.ru/watch/{{ yandex_metrika_id }}" style="position:absolute; left:-9999px;" alt=""></div></noscript>
+  {% endif %}
+  {% if ga_measurement_id %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ ga_measurement_id }}');
+  </script>
+  {% endif %}
+  <script src="/assets/js/main.js"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
