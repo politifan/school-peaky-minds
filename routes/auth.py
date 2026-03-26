@@ -83,10 +83,8 @@ def _load_current_user_agreements(user: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 
 def _antibot_error_message(reason: str) -> str:
-    if reason in {"missing_turnstile", "turnstile_failed"}:
+    if reason in {"missing_turnstile", "turnstile_failed", "turnstile_unavailable"}:
         return "Подтвердите, что вы не робот, и отправьте форму снова."
-    if reason == "turnstile_unavailable":
-        return "Не удалось проверить защиту формы. Попробуйте еще раз через минуту."
     return "Запрос отклонен защитой от ботов. Обновите страницу и повторите попытку."
 
 

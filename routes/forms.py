@@ -85,9 +85,7 @@ def _render_rate_limit_page(request: Request, flow: str, reason: str) -> HTMLRes
 
 
 def _antibot_error_message(reason: str) -> str:
-    if reason in {"missing_turnstile", "turnstile_failed"}:
-        return "Подтвердите, что вы не робот, и отправьте форму снова."
-    if reason in {"turnstile_unavailable"}:
+    if reason in {"missing_turnstile", "turnstile_failed", "turnstile_unavailable"}:
         return "Не удалось проверить защиту формы. Попробуйте еще раз через минуту."
     return "Запрос отклонен защитой от ботов. Обновите страницу и повторите попытку."
 

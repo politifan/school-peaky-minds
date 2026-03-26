@@ -100,33 +100,6 @@ const initNonCriticalAnalytics = () => {
   }
 };
 
-const renderTurnstileWidgets = () => {
-  if (!window.turnstile) return;
-  document.querySelectorAll('.cf-turnstile').forEach((node) => {
-    if (node.dataset.pmRendered === 'true') return;
-    if (node.querySelector('iframe')) {
-      node.dataset.pmRendered = 'true';
-      return;
-    }
-    const siteKey = node.dataset.sitekey || (pmRuntimeConfig.turnstile || {}).siteKey;
-    if (!siteKey) return;
-    try {
-      window.turnstile.render(node, { sitekey: siteKey });
-      node.dataset.pmRendered = 'true';
-    } catch (error) {
-      /* no-op */
-    }
-  });
-};
-
-const initTurnstileRuntime = () => {
-  const turnstileConfig = pmRuntimeConfig.turnstile || {};
-  if (!turnstileConfig.enabled || !document.querySelector('.cf-turnstile')) return;
-  loadExternalScript('https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', { defer: true })
-    .then(() => renderTurnstileWidgets())
-    .catch(() => {});
-};
-
 const mountTelegramWidget = () => {
   const node = document.querySelector('[data-telegram-widget]');
   if (!node || node.dataset.pmLoaded === 'true') return;
@@ -144,7 +117,6 @@ const mountTelegramWidget = () => {
 };
 
 runAfterPageLoad(initNonCriticalAnalytics, 1500);
-runAfterPageLoad(initTurnstileRuntime, 600);
 runAfterPageLoad(mountTelegramWidget, 1200);
 runAfterPageLoad(() => {
   if (window.vkBridge && typeof window.vkBridge.send === 'function') {

@@ -1071,7 +1071,7 @@ def clear_user(request: Request) -> None:
 
 
 def get_client_ip(request: Request) -> str:
-    forwarded = request.headers.get("cf-connecting-ip") or request.headers.get("x-forwarded-for")
+    forwarded = request.headers.get("x-forwarded-for")
     if forwarded:
         return forwarded.split(",")[0].strip()
     if request.client and request.client.host:
@@ -1114,36 +1114,7 @@ def validate_antibot_token(token: str, flow: str, now_ts: Optional[int] = None) 
 
 
 async def verify_turnstile_token(token: str, request: Optional[Request] = None) -> Tuple[bool, str]:
-    if not TURNSTILE_ENABLED:
-        return True, ""
-    response_token = str(token or "").strip()
-    if not response_token:
-        return False, "missing_turnstile"
-
-    data = {
-        "secret": TURNSTILE_SECRET_KEY,
-        "response": response_token,
-    }
-    if request:
-        ip = get_client_ip(request)
-        if ip and ip != "unknown":
-            data["remoteip"] = ip
-
-    try:
-        async with httpx.AsyncClient(timeout=8.0) as client:
-            resp = await client.post(
-                "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-                data=data,
-            )
-        payload = resp.json() if resp.status_code < 500 else {}
-    except Exception:
-        return False, "turnstile_unavailable"
-
-    if not isinstance(payload, dict):
-        return False, "turnstile_failed"
-    if payload.get("success") is True:
-        return True, ""
-    return False, "turnstile_failed"
+    return True, ""
 
 
 async def validate_antibot_submission(request: Request, form: Any, flow: str) -> Tuple[bool, str]:
@@ -1488,9 +1459,9 @@ providers = {
     "telegram": bool(TELEGRAM_BOT_TOKEN and TELEGRAM_BOT_USERNAME),
 }
 
-TURNSTILE_SITE_KEY = os.getenv("TURNSTILE_SITE_KEY", "").strip()
-TURNSTILE_SECRET_KEY = os.getenv("TURNSTILE_SECRET_KEY", "").strip()
-TURNSTILE_ENABLED = bool(TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY)
+TURNSTILE_SITE_KEY = ""
+TURNSTILE_SECRET_KEY = ""
+TURNSTILE_ENABLED = False
 ANTIBOT_TOKEN_FIELD = "antibot_token"
 ANTIBOT_HONEYPOT_FIELD = "company"
 ANTIBOT_TURNSTILE_FIELD = "cf-turnstile-response"

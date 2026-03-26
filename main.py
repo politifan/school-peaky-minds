@@ -103,9 +103,6 @@ def _emergency_log(message: str) -> None:
 
 
 def _forwarded_scheme(request: Request) -> str:
-    cf_visitor = request.headers.get("cf-visitor", "")
-    if '"scheme":"https"' in cf_visitor:
-        return "https"
     forwarded_proto = (request.headers.get("x-forwarded-proto") or "").split(",", 1)[0].strip()
     if forwarded_proto:
         return forwarded_proto
