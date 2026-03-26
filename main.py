@@ -259,10 +259,13 @@ async def log_requests(request: Request, call_next):
         )
     cache_control = _static_cache_control(request.url.path)
     if cache_control:
-        response.headers.setdefault("Cache-Control", cache_control)
-        response.headers.setdefault("Vary", "Accept-Encoding")
+        if "Cache-Control" not in response.headers:
+            response.headers["Cache-Control"] = cache_control
+        if "Vary" not in response.headers:
+            response.headers["Vary"] = "Accept-Encoding"
     if request.url.path.lower().endswith((".css", ".js")):
-        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        if "X-Content-Type-Options" not in response.headers:
+            response.headers["X-Content-Type-Options"] = "nosniff"
     return response
 
 
