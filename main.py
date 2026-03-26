@@ -177,57 +177,59 @@ async def enforce_canonical_host(request: Request, call_next):
 @app.middleware("http")
 async def track_metrics(request: Request, call_next):
     response = await call_next(request)
-    if request.method != "GET":
-        return response
-    path = request.url.path
-    if path.startswith(("/assets", "/documents")):
-        return response
-    if path in ("/healthz", "/favicon.ico", "/robots.txt", "/sitemap.xml"):
-        return response
-    accept = request.headers.get("accept", "")
-    if "text/html" not in accept and path != "/":
-        return response
+    try:
+        if request.method != "GET":
+            return response
+        path = request.url.path
+        if path.startswith(("/assets", "/documents")):
+            return response
+        if path in ("/healthz", "/favicon.ico", "/robots.txt", "/sitemap.xml"):
+            return response
+        accept = request.headers.get("accept", "")
+        if "text/html" not in accept and path != "/":
+            return response
 
-    await _ensure_metrics_state()
-    visit_id = request.session.get("visit_id") or request.cookies.get("visit_id")
-    if not visit_id:
-        visit_id = secrets.token_hex(8)
-        request.session["visit_id"] = visit_id
-        response.set_cookie(
-            "visit_id",
-            visit_id,
-            max_age=60 * 60 * 24 * 365,
-            httponly=True,
-            samesite="lax",
-            secure=bool(CANONICAL_SCHEME == "https"),
-            domain=SESSION_DOMAIN,
-        )
-    assert _METRICS_LOCK is not None
-    async with _METRICS_LOCK:
-        metrics = _METRICS_CACHE
-        metrics["total_visits"] += 1
-        unique_ids = metrics.get("unique_ids")
-        if not isinstance(unique_ids, dict):
-            unique_ids = {}
-            metrics["unique_ids"] = unique_ids
-        if visit_id not in unique_ids:
-            metrics["unique_visits"] += 1
-            unique_ids[visit_id] = int(time.time())
-        if len(unique_ids) > 20000:
-            cutoff = int(time.time() - 60 * 60 * 24 * 120)
-            for key, ts in list(unique_ids.items()):
-                if ts < cutoff:
-                    unique_ids.pop(key, None)
-        metrics["path_counts"][path] = metrics["path_counts"].get(path, 0) + 1
+        await _ensure_metrics_state()
+        visit_id = request.cookies.get("visit_id")
+        if not visit_id:
+            visit_id = secrets.token_hex(8)
+            response.set_cookie(
+                "visit_id",
+                visit_id,
+                max_age=60 * 60 * 24 * 365,
+                httponly=True,
+                samesite="lax",
+                secure=bool(CANONICAL_SCHEME == "https"),
+                domain=SESSION_DOMAIN,
+            )
+        assert _METRICS_LOCK is not None
+        async with _METRICS_LOCK:
+            metrics = _METRICS_CACHE
+            metrics["total_visits"] += 1
+            unique_ids = metrics.get("unique_ids")
+            if not isinstance(unique_ids, dict):
+                unique_ids = {}
+                metrics["unique_ids"] = unique_ids
+            if visit_id not in unique_ids:
+                metrics["unique_visits"] += 1
+                unique_ids[visit_id] = int(time.time())
+            if len(unique_ids) > 20000:
+                cutoff = int(time.time() - 60 * 60 * 24 * 120)
+                for key, ts in list(unique_ids.items()):
+                    if ts < cutoff:
+                        unique_ids.pop(key, None)
+            metrics["path_counts"][path] = metrics["path_counts"].get(path, 0) + 1
 
-        if path == "/":
-            metrics["funnel"]["home"] = metrics["funnel"].get("home", 0) + 1
-        if path == "/login":
-            metrics["funnel"]["login"] = metrics["funnel"].get("login", 0) + 1
+            if path == "/":
+                metrics["funnel"]["home"] = metrics["funnel"].get("home", 0) + 1
+            if path == "/login":
+                metrics["funnel"]["login"] = metrics["funnel"].get("login", 0) + 1
 
-        global _METRICS_DIRTY
-        _METRICS_DIRTY = True
-        _schedule_metrics_flush()
+            global _METRICS_DIRTY
+            _METRICS_DIRTY = True
+            _schedule_metrics_flush()
+    except Exception:
+        error_logger.exception("Metrics tracking failed for %s %s", request.method, request.url.path)
     return response
 
 
