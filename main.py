@@ -1,6 +1,7 @@
 
 import asyncio
 import copy
+import datetime as dt
 import logging
 import os
 import secrets
@@ -89,6 +90,15 @@ _METRICS_LAST_FLUSH = 0.0
 _METRICS_FLUSH_INTERVAL = 15.0
 _METRICS_LOCK: asyncio.Lock | None = None
 _METRICS_FLUSH_TASK: asyncio.Task | None = None
+
+
+def _emergency_log(message: str) -> None:
+    timestamp = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f")[:-3]
+    try:
+        with log_path.open("a", encoding="utf-8") as fh:
+            fh.write(f"{timestamp} EMERGENCY main: {message}\n")
+    except Exception:
+        pass
 
 
 def _forwarded_scheme(request: Request) -> str:
@@ -271,6 +281,31 @@ async def log_requests(request: Request, call_next):
     if request.url.path.lower().endswith((".css", ".js")):
         if "X-Content-Type-Options" not in response.headers:
             response.headers["X-Content-Type-Options"] = "nosniff"
+    return response
+
+
+@app.middleware("http")
+async def emergency_request_debug(request: Request, call_next):
+    _emergency_log(f"REQUEST START {request.method} {request.url.path}")
+    try:
+        response = await call_next(request)
+    except BaseException as exc:
+        tb = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+        _emergency_log(
+            f"REQUEST CRASH {request.method} {request.url.path}\n{tb}"
+        )
+        if INLINE_500_DEBUG:
+            body = (
+                f"500 Internal Server Error\n\n"
+                f"{request.method} {request.url}\n\n"
+                f"{tb}"
+            )
+        else:
+            body = "Internal Server Error"
+        return PlainTextResponse(body, status_code=500)
+    _emergency_log(
+        f"REQUEST END {request.method} {request.url.path} -> {response.status_code}"
+    )
     return response
 
 
