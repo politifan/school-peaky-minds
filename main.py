@@ -47,6 +47,7 @@ from routes.public import router as public_router
 app = FastAPI(docs_url=None, redoc_url=None)
 SAMESITE = "none" if CANONICAL_SCHEME == "https" else "lax"
 INLINE_500_DEBUG = os.getenv("INLINE_500_DEBUG", "1").strip().lower() not in {"0", "false", "no", "off"}
+DISABLE_CANONICAL_REDIRECT = os.getenv("DISABLE_CANONICAL_REDIRECT", "0").strip().lower() in {"1", "true", "yes", "on"}
 app.add_middleware(GZipMiddleware, minimum_size=500)
 app.add_middleware(
     SessionMiddleware,
@@ -172,6 +173,8 @@ def _schedule_metrics_flush() -> None:
 
 @app.middleware("http")
 async def enforce_canonical_host(request: Request, call_next):
+    if DISABLE_CANONICAL_REDIRECT:
+        return await call_next(request)
     if CANONICAL_ORIGIN and CANONICAL_HOST:
         current_scheme = _forwarded_scheme(request)
         current_host = _forwarded_host(request)
