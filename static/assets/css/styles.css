@@ -2693,18 +2693,20 @@ select:focus {
 }
 
 .lesson-day {
-  min-height: 34px;
-  border-radius: 10px;
+  min-height: 58px;
+  border-radius: 12px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
   gap: 4px;
   font-size: 0.85rem;
   border: 1px solid var(--stroke);
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-1);
   position: relative;
-  padding-top: 2px;
+  padding: 7px 8px 8px;
+  overflow: visible;
 }
 
 .lesson-day--empty {
@@ -2739,26 +2741,71 @@ select:focus {
 .lesson-emoji {
   font-size: 0.85rem;
   position: absolute;
-  top: 1px;
+  top: 4px;
   right: 6px;
   line-height: 1;
 }
 
-.lesson-day[data-start]:hover::after {
-  content: attr(data-start) "–" attr(data-end);
+.lesson-day__num {
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.lesson-day__time {
+  font-size: 0.66rem;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.lesson-day__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 0.58rem;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: rgba(11, 17, 16, 0.14);
+}
+
+.lesson-day__tooltip {
   position: absolute;
   bottom: calc(100% + 8px);
   left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  padding: 6px 10px;
-  border-radius: 999px;
+  transform: translateX(-50%) translateY(6px);
+  display: grid;
+  gap: 4px;
+  min-width: 96px;
+  padding: 8px 10px;
+  border-radius: 14px;
   font-size: 0.75rem;
   color: var(--text-1);
   background: rgba(11, 17, 16, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  z-index: 2;
+  z-index: 6;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.18s var(--ease-out), transform 0.18s var(--ease-out), visibility 0.18s var(--ease-out);
+}
+
+.lesson-day__tooltip-item {
+  white-space: nowrap;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.lesson-day.has-multiple:hover .lesson-day__tooltip,
+.lesson-day.has-multiple:focus-within .lesson-day__tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
 }
 
 @media (max-width: 520px) {
@@ -2771,12 +2818,33 @@ select:focus {
   }
 
   .lesson-day {
-    min-height: 30px;
+    min-height: 44px;
+    padding: 5px 5px 6px;
+    gap: 2px;
   }
 
   .lesson-emoji {
     font-size: 0.75rem;
-    right: -2px;
+    right: 2px;
+  }
+
+  .lesson-day__num {
+    font-size: 0.78rem;
+  }
+
+  .lesson-day__time {
+    font-size: 0.54rem;
+  }
+
+  .lesson-day__more {
+    min-width: 22px;
+    padding: 1px 4px;
+    font-size: 0.52rem;
+  }
+
+  .lesson-day__tooltip {
+    min-width: 84px;
+    padding: 7px 8px;
   }
 }
 
@@ -2846,7 +2914,7 @@ select:focus {
   }
 
   .lesson-day {
-    min-height: 28px;
+    min-height: 42px;
     font-size: 0.75rem;
   }
 }
@@ -7416,7 +7484,7 @@ body.shell-student .lesson-calendar__day {
 }
 
 body.shell-student .lesson-day {
-  min-height: 38px;
+  min-height: 60px;
   background: #f2f5fb;
   border-color: rgba(17, 18, 24, 0.08);
   color: #444b5e;
@@ -7454,7 +7522,16 @@ body.shell-student .lesson-day--excused {
   color: #346ab6;
 }
 
-body.shell-student .lesson-day[data-start]:hover::after {
+body.shell-student .lesson-day__time {
+  color: #525a6d;
+}
+
+body.shell-student .lesson-day__more {
+  background: rgba(17, 18, 24, 0.08);
+  color: #444b5e;
+}
+
+body.shell-student .lesson-day__tooltip {
   color: #ffffff;
   background: rgba(17, 18, 24, 0.96);
   border-color: rgba(255, 255, 255, 0.12);
@@ -7484,11 +7561,227 @@ body.shell-student .admin-table th {
   letter-spacing: 0.08em;
 }
 
+body.shell-student .pm-workspace {
+  padding: 28px;
+  display: grid;
+  gap: 22px;
+}
+
+body.shell-student .pm-workspace__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+body.shell-student .pm-workspace__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+body.shell-student .pm-workspace__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 18, 24, 0.08);
+  background: rgba(17, 18, 24, 0.04);
+  color: #3b4050;
+  font: inherit;
+  font-weight: 700;
+}
+
+body.shell-student .pm-workspace__tab.is-active {
+  background: linear-gradient(135deg, rgba(109, 82, 255, 0.14), rgba(44, 212, 154, 0.16));
+  border-color: rgba(109, 82, 255, 0.18);
+  color: #1f2230;
+}
+
+body.shell-student .pm-workspace__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(17, 18, 24, 0.08);
+  font-size: 0.76rem;
+}
+
+body.shell-student .pm-workspace__controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+body.shell-student .pm-workspace__arrow {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 18, 24, 0.1);
+  background: #ffffff;
+  color: #232734;
+  font: inherit;
+  font-weight: 800;
+}
+
+body.shell-student .pm-workspace__arrow:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+body.shell-student .pm-workspace__position {
+  color: #666b79;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+body.shell-student .pm-workspace__panels {
+  display: grid;
+}
+
+body.shell-student .pm-workspace__panel {
+  display: grid;
+  gap: 18px;
+}
+
+body.shell-student .pm-workspace__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+body.shell-student .pm-workspace__head h3,
+body.shell-student .pm-workspace-calendar-card h4,
+body.shell-student .pm-settings-card h4,
+body.shell-student .pm-homework-card h3,
+body.shell-student .pm-teacher-card h3 {
+  margin: 0;
+  letter-spacing: -0.03em;
+}
+
+body.shell-student .pm-workspace-calendars,
+body.shell-student .pm-teacher-grid,
+body.shell-student .pm-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+body.shell-student .pm-settings-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+body.shell-student .pm-settings-grid--wide {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.shell-student .pm-workspace-calendar-card,
+body.shell-student .pm-homework-card,
+body.shell-student .pm-teacher-card,
+body.shell-student .pm-settings-card {
+  padding: 24px;
+  display: grid;
+  gap: 14px;
+}
+
+body.shell-student .pm-homework-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+body.shell-student .pm-homework-status--violet {
+  background: rgba(109, 82, 255, 0.16);
+  color: #5d3cff;
+}
+
+body.shell-student .pm-homework-status--sky {
+  background: rgba(90, 160, 255, 0.16);
+  color: #326cc5;
+}
+
+body.shell-student .pm-homework-status--mint {
+  background: rgba(44, 212, 154, 0.16);
+  color: #0f8d68;
+}
+
+body.shell-student .pm-homework-status--warm {
+  background: rgba(255, 174, 66, 0.2);
+  color: #a15b00;
+}
+
+body.shell-student .pm-homework-status--good {
+  background: rgba(46, 125, 50, 0.16);
+  color: #2e7d32;
+}
+
+body.shell-student .pm-homework-card p,
+body.shell-student .pm-settings-card p,
+body.shell-student .pm-teacher-card__bio,
+body.shell-student .pm-teacher-card p {
+  margin: 0;
+  color: #5f6473;
+  line-height: 1.6;
+}
+
+body.shell-student .pm-teacher-card__head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+body.shell-student .pm-teacher-card__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+}
+
+body.shell-student .pm-teacher-card__avatar--violet {
+  background: linear-gradient(135deg, #6d52ff, #5338f2);
+}
+
+body.shell-student .pm-teacher-card__avatar--mint {
+  background: linear-gradient(135deg, #26d39a, #13a87b);
+}
+
+body.shell-student .pm-teacher-card__avatar--sky {
+  background: linear-gradient(135deg, #59a2ff, #3c7ff0);
+}
+
+body.shell-student .pm-teacher-card__avatar--sunset {
+  background: linear-gradient(135deg, #ff8c52, #ffb84a);
+}
+
+body.shell-student .pm-settings-card h4 {
+  font-size: 1.12rem;
+}
+
 @media (max-width: 1080px) {
   body.shell-marketing .pm-auth-grid,
   body.shell-student .pm-student-overview,
   body.shell-student .pm-student-schedule-grid,
   body.shell-student .pm-student-lecture-grid,
+  body.shell-student .pm-workspace-calendars,
+  body.shell-student .pm-teacher-grid,
+  body.shell-student .pm-settings-grid,
+  body.shell-student .pm-settings-grid--wide,
   body.shell-student .pm-student-layout,
   body.shell-student .pm-student-hero {
     grid-template-columns: 1fr;
@@ -7529,6 +7822,7 @@ body.shell-student .admin-table th {
   body.shell-student .pm-contract-card,
   body.shell-student .pm-student-pane,
   body.shell-student .pm-student-course-card,
+  body.shell-student .pm-workspace,
   body.shell-student .pm-student-empty {
     padding: 24px;
   }
@@ -7569,6 +7863,7 @@ body.shell-student .admin-table th {
 
   body.shell-student .pm-student-hero__actions,
   body.shell-student .pm-inline-actions,
+  body.shell-student .pm-workspace__toolbar,
   body.shell-marketing .pm-auth-actions,
   body.shell-marketing .pm-status-actions {
     flex-direction: column;
@@ -7582,6 +7877,10 @@ body.shell-student .admin-table th {
 
   body.shell-student .admin-list strong {
     text-align: left;
+  }
+
+  body.shell-student .pm-workspace__tabs {
+    width: 100%;
   }
 }
 
@@ -8181,7 +8480,7 @@ body.shell-admin .lesson-calendar__day {
 }
 
 body.shell-admin .lesson-day {
-  min-height: 38px;
+  min-height: 60px;
   background: #f2f5fb;
   border-color: rgba(17, 18, 24, 0.08);
   color: #444b5e;
@@ -8219,7 +8518,16 @@ body.shell-admin .lesson-day--excused {
   color: #346ab6;
 }
 
-body.shell-admin .lesson-day[data-start]:hover::after {
+body.shell-admin .lesson-day__time {
+  color: #525a6d;
+}
+
+body.shell-admin .lesson-day__more {
+  background: rgba(17, 18, 24, 0.08);
+  color: #444b5e;
+}
+
+body.shell-admin .lesson-day__tooltip {
   color: #ffffff;
   background: rgba(17, 18, 24, 0.96);
   border-color: rgba(255, 255, 255, 0.12);
@@ -8271,6 +8579,78 @@ body.shell-admin .admin-lecture-meta {
   gap: 6px 12px;
   color: #737b8c;
   font-size: 0.86rem;
+}
+
+body.shell-admin .admin-faculty-panel {
+  padding: 24px;
+  display: grid;
+  gap: 18px;
+}
+
+body.shell-admin .admin-faculty-grid,
+body.shell-admin .admin-faculty-assignments,
+body.shell-admin .admin-homework-list {
+  display: grid;
+  gap: 14px;
+}
+
+body.shell-admin .admin-faculty-card,
+body.shell-admin .admin-assignment-card,
+body.shell-admin .admin-homework-card {
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(17, 18, 24, 0.08);
+  background: rgba(247, 249, 253, 0.92);
+  display: grid;
+  gap: 12px;
+}
+
+body.shell-admin .admin-faculty-card__head,
+body.shell-admin .admin-assignment-card__head,
+body.shell-admin .admin-homework-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+body.shell-admin .admin-faculty-card__head h4,
+body.shell-admin .admin-assignment-card__head h4,
+body.shell-admin .admin-homework-card__head h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #161b24;
+}
+
+body.shell-admin .admin-faculty-card__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+body.shell-admin .admin-faculty-card__avatar--violet {
+  background: linear-gradient(135deg, #6d52ff, #5338f2);
+}
+
+body.shell-admin .admin-faculty-card__avatar--mint {
+  background: linear-gradient(135deg, #26d39a, #13a87b);
+}
+
+body.shell-admin .admin-faculty-card__avatar--sky {
+  background: linear-gradient(135deg, #59a2ff, #3c7ff0);
+}
+
+body.shell-admin .admin-faculty-card__avatar--sunset {
+  background: linear-gradient(135deg, #ff8c52, #ffb84a);
+}
+
+body.shell-admin .admin-faculty-panel .admin-filter__row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 body.shell-admin .admin-chart__row,

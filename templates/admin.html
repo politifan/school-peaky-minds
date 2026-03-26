@@ -18,6 +18,7 @@
           <a class="{% if view == 'users' %}is-active{% endif %}" href="/admin?view=users">Пользователи</a>
           <a class="{% if view == 'referrals' %}is-active{% endif %}" href="/admin?view=referrals">Рефералы</a>
           <a class="{% if view == 'lessons' %}is-active{% endif %}" href="/admin?view=lessons">Занятия</a>
+          <a class="{% if view == 'teachers' %}is-active{% endif %}" href="/admin?view=teachers">Преподаватели</a>
           <a class="{% if view == 'whitelist' %}is-active{% endif %}" href="/admin?view=whitelist">Whitelist</a>
           <a href="/">На главную</a>
         </nav>
@@ -1199,10 +1200,23 @@
                   {% for week in item.lesson_calendar %}
                     {% for day in week %}
                       {% if day %}
-                      <div class="lesson-day{% if day.status %} lesson-day--{{ day.status }}{% endif %}{% if day.time %} has-time{% endif %}"{% if day.time %} data-start="{{ day.time }}"{% endif %}{% if day.time_end %} data-end="{{ day.time_end }}"{% endif %}>
-                        <span>{{ day.day }}</span>
+                      <div class="lesson-day{% if day.status %} lesson-day--{{ day.status }}{% endif %}{% if day.time %} has-time{% endif %}{% if day.session_count > 1 %} has-multiple{% endif %}">
+                        <span class="lesson-day__num">{{ day.day }}</span>
+                        {% if day.time %}
+                        <span class="lesson-day__time">{{ day.time }}</span>
+                        {% endif %}
+                        {% if day.more_count %}
+                        <span class="lesson-day__more">+{{ day.more_count }}</span>
+                        {% endif %}
                         {% if day.status == "excused" %}
                         <span class="lesson-emoji">🌡️</span>
+                        {% endif %}
+                        {% if day.session_count > 1 %}
+                        <div class="lesson-day__tooltip" role="tooltip">
+                          {% for time in day.times %}
+                          <span class="lesson-day__tooltip-item">{{ time }}</span>
+                          {% endfor %}
+                        </div>
                         {% endif %}
                       </div>
                       {% else %}
@@ -1250,7 +1264,7 @@
                   <article class="admin-lecture-card">
                     <div class="admin-lecture-card__head">
                       <div>
-                        <h4>{{ lecture.title }}</h4>
+                        <h4>{{ lecture.display_title }}</h4>
                         <div class="admin-lecture-meta">
                           <span>{{ lecture.published_label }}</span>
                           <span>{{ lecture.duration_label }}</span>
@@ -1266,6 +1280,9 @@
                         </form>
                       </div>
                     </div>
+                    {% if lecture.topic %}
+                    <div class="admin-subtext"><strong>Тема:</strong> {{ lecture.topic }}</div>
+                    {% endif %}
                     {% if lecture.description %}
                     <p class="admin-subtext">{{ lecture.description }}</p>
                     {% endif %}
@@ -1282,7 +1299,11 @@
                   <div class="admin-filter__row">
                     <div class="input-wrap">
                       <label class="auth-label">Название</label>
-                      <input type="text" name="title" placeholder="Лекция 1. Введение" required>
+                      <input type="text" name="title" placeholder="Опционально: Лекция 1. Введение">
+                    </div>
+                    <div class="input-wrap">
+                      <label class="auth-label">Тема</label>
+                      <input type="text" name="topic" placeholder="Например, Основы FastAPI">
                     </div>
                     <div class="input-wrap">
                       <label class="auth-label">Дата публикации</label>
@@ -1311,6 +1332,7 @@
                     <label class="auth-label">Описание</label>
                     <textarea class="admin-textarea" name="description" rows="3" placeholder="Краткое описание записи и содержимого лекции"></textarea>
                   </div>
+                  <div class="admin-subtext">Достаточно указать тему или название. Если название не задано, в карточке лекции будет показана тема.</div>
                   <div class="admin-filter__actions">
                     <button class="btn btn-primary" type="submit">Сохранить запись</button>
                   </div>
@@ -1319,9 +1341,488 @@
             </div>
             {% endfor %}
           </div>
+          <div class="card" style="margin-top: 20px;">
+            <div class="admin-section-head">
+              <h3 class="section-title" style="font-size: 1.15rem;">Реестр лекций</h3>
+              <span class="admin-badge">{{ lecture_registry.total_all }}</span>
+            </div>
+            <form class="admin-filter" method="get" action="/admin">
+              <input type="hidden" name="view" value="lessons">
+              <input type="hidden" name="month" value="{{ lesson_month }}">
+              <div class="admin-filter__row">
+                <div class="input-wrap">
+                  <label class="auth-label">Поиск</label>
+                  <input type="text" name="lecture_q" value="{{ lecture_registry.filters.q }}" placeholder="Название, тема, преподаватель, студент">
+                </div>
+                <div class="input-wrap">
+                  <label class="auth-label">Источник</label>
+                  <select name="lecture_source">
+                    <option value="">Все</option>
+                    {% for option in lecture_registry.source_options %}
+                    <option value="{{ option }}" {% if lecture_registry.filters.source == option %}selected{% endif %}>
+                      {% if option == 'upload' %}Файл на сервере{% else %}Внешняя ссылка{% endif %}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="input-wrap">
+                  <label class="auth-label">Курс</label>
+                  <select name="lecture_course">
+                    <option value="">Все</option>
+                    {% for option in lecture_registry.course_options %}
+                    <option value="{{ option }}" {% if lecture_registry.filters.course == option %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="admin-filter__actions">
+                <button class="btn btn-secondary" type="submit">Применить</button>
+                <a class="admin-copy" href="/admin?view=lessons&month={{ lesson_month }}">Сбросить</a>
+              </div>
+            </form>
+            {% if lecture_registry.items %}
+            <div class="admin-table-wrap" style="margin-top: 16px;">
+              <table class="admin-table" style="min-width: 920px;">
+                <thead>
+                  <tr>
+                    <th>Лекция</th>
+                    <th>Тема</th>
+                    <th>Студент</th>
+                    <th>Курс</th>
+                    <th>Преподаватель</th>
+                    <th>Источник</th>
+                    <th>Дата</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for lecture in lecture_registry.items %}
+                  <tr>
+                    <td data-label="Лекция">
+                      <div class="admin-cell">
+                        <strong>{{ lecture.display_title }}</strong>
+                        <span class="admin-subtext">{{ lecture.duration_label }}</span>
+                      </div>
+                    </td>
+                    <td data-label="Тема">{{ lecture.topic or "—" }}</td>
+                    <td data-label="Студент">{{ lecture.student_name }}</td>
+                    <td data-label="Курс">{{ lecture.course }}</td>
+                    <td data-label="Преподаватель">{{ lecture.teacher }}</td>
+                    <td data-label="Источник">{{ lecture.source_label }}</td>
+                    <td data-label="Дата">{{ lecture.published_label }}</td>
+                    <td data-label="">
+                      <div class="pm-inline-actions">
+                        <a class="admin-copy" href="{{ lecture.url }}" target="_blank" rel="noopener">Открыть</a>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% if lecture_registry.pages > 1 %}
+            <div class="admin-pagination">
+              {% if lecture_registry.has_prev %}
+              <form method="get" action="/admin">
+                <input type="hidden" name="view" value="lessons">
+                <input type="hidden" name="month" value="{{ lesson_month }}">
+                <input type="hidden" name="lecture_q" value="{{ lecture_registry.filters.q }}">
+                <input type="hidden" name="lecture_source" value="{{ lecture_registry.filters.source }}">
+                <input type="hidden" name="lecture_course" value="{{ lecture_registry.filters.course }}">
+                <input type="hidden" name="lecture_page" value="{{ lecture_registry.prev_page }}">
+                <button class="admin-page-btn" type="submit">Назад</button>
+              </form>
+              {% endif %}
+              <span class="admin-page-ellipsis">Страница {{ lecture_registry.page }} / {{ lecture_registry.pages }}</span>
+              {% if lecture_registry.has_next %}
+              <form method="get" action="/admin">
+                <input type="hidden" name="view" value="lessons">
+                <input type="hidden" name="month" value="{{ lesson_month }}">
+                <input type="hidden" name="lecture_q" value="{{ lecture_registry.filters.q }}">
+                <input type="hidden" name="lecture_source" value="{{ lecture_registry.filters.source }}">
+                <input type="hidden" name="lecture_course" value="{{ lecture_registry.filters.course }}">
+                <input type="hidden" name="lecture_page" value="{{ lecture_registry.next_page }}">
+                <button class="admin-page-btn" type="submit">Вперёд</button>
+              </form>
+              {% endif %}
+            </div>
+            {% endif %}
+            {% else %}
+            <p class="admin-subtext" style="margin-top: 16px;">По текущим фильтрам лекции не найдены.</p>
+            {% endif %}
+          </div>
           {% else %}
           <p>Договоров пока нет.</p>
           {% endif %}
+        </section>
+        {% endif %}
+
+        {% if view == 'teachers' %}
+        <section class="panel" id="admin-teachers" style="margin-top: 24px;">
+          <div class="admin-section-head">
+            <div>
+              <div class="pm-kicker">Faculty</div>
+              <h2 class="section-title">Преподаватели и учебный контур</h2>
+            </div>
+            <form class="admin-section-actions" method="get" action="/admin">
+              <input type="hidden" name="view" value="teachers">
+              <input class="admin-input" type="month" name="month" value="{{ lesson_month }}" style="max-width: 160px;">
+              <button class="btn btn-secondary" type="submit">Показать месяц</button>
+            </form>
+          </div>
+
+          <div class="admin-kpi-grid" style="margin-top: 18px;">
+            <article class="admin-kpi-card">
+              <div class="admin-kpi-label">Преподавателей в составе</div>
+              <div class="admin-kpi-value">{{ teacher_items|length }}</div>
+              <div class="kpi-note">Активные и на паузе в одном реестре.</div>
+            </article>
+            <article class="admin-kpi-card">
+              <div class="admin-kpi-label">Назначений в месяце</div>
+              <div class="admin-kpi-value">{{ teacher_assignments|length }}</div>
+              <div class="kpi-note">Привязка преподавателей к конкретным датам.</div>
+            </article>
+            <article class="admin-kpi-card">
+              <div class="admin-kpi-label">Домашних заданий</div>
+              <div class="admin-kpi-value">{{ teacher_homework_items|length }}</div>
+              <div class="kpi-note">Все активные задания по договорам.</div>
+            </article>
+            <article class="admin-kpi-card">
+              <div class="admin-kpi-label">Без преподавателя</div>
+              <div class="admin-kpi-value">{{ teacher_assignments|selectattr("teacher_id", "equalto", "")|list|length }}</div>
+              <div class="kpi-note">Даты, где нужен преподаватель.</div>
+            </article>
+          </div>
+
+          <div class="admin-grid two" style="margin-top: 20px;">
+            <section class="card admin-faculty-panel">
+              <div class="admin-section-head">
+                <h3 class="section-title" style="font-size: 1.15rem;">Состав преподавателей</h3>
+                <span class="admin-badge">{{ teacher_items|length }}</span>
+              </div>
+              {% if teacher_items %}
+              <div class="admin-faculty-grid">
+                {% for teacher in teacher_items %}
+                <article class="admin-faculty-card">
+                  <div class="admin-faculty-card__head">
+                    <div class="admin-faculty-card__avatar admin-faculty-card__avatar--{{ teacher.accent }}">{{ teacher.initials }}</div>
+                    <div>
+                      <h4>{{ teacher.name }}</h4>
+                      <div class="admin-subtext">{{ teacher.role }}</div>
+                    </div>
+                    <span class="admin-status {% if teacher.status == 'active' %}status-good{% else %}status-muted{% endif %}">{{ teacher.status_label }}</span>
+                  </div>
+                  {% if teacher.speciality %}
+                  <p class="admin-subtext"><strong>Направление:</strong> {{ teacher.speciality }}</p>
+                  {% endif %}
+                  {% if teacher.bio %}
+                  <p class="admin-subtext">{{ teacher.bio }}</p>
+                  {% endif %}
+                  <div class="admin-chip-group">
+                    <span class="admin-chip">Назначений: {{ teacher.assignments_count }}</span>
+                    <span class="admin-chip">Студентов: {{ teacher.students_count }}</span>
+                    <span class="admin-chip">Ближайшее: {{ teacher.next_date_label }}</span>
+                  </div>
+                  {% if teacher.expertise %}
+                  <div class="tag-grid">
+                    {% for tag in teacher.expertise %}
+                    <span class="tag">{{ tag }}</span>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                  <div class="pm-inline-actions">
+                    <a class="admin-copy" href="/admin?view=teachers&month={{ lesson_month }}&teacher_id={{ teacher.id }}">Редактировать</a>
+                    {% if teacher.contact_url %}
+                    <a class="admin-copy" href="{{ teacher.contact_url }}" target="_blank" rel="noopener">Контакт</a>
+                    {% endif %}
+                    <form action="/admin/teachers/delete" method="post" onsubmit="return confirm('Удалить преподавателя из состава?');">
+                      <input type="hidden" name="month" value="{{ lesson_month }}">
+                      <input type="hidden" name="teacher_id" value="{{ teacher.id }}">
+                      <button class="admin-copy admin-delete" type="submit">Удалить</button>
+                    </form>
+                  </div>
+                </article>
+                {% endfor %}
+              </div>
+              {% else %}
+              <p class="admin-subtext">Состав пока пуст. Создайте первого преподавателя справа.</p>
+              {% endif %}
+            </section>
+
+            <section class="card admin-faculty-panel">
+              <div class="admin-section-head">
+                <h3 class="section-title" style="font-size: 1.15rem;">{{ 'Редактирование преподавателя' if teacher_edit else 'Новый преподаватель' }}</h3>
+                {% if teacher_edit %}
+                <a class="admin-copy" href="/admin?view=teachers&month={{ lesson_month }}">Сбросить</a>
+                {% endif %}
+              </div>
+              <form class="admin-filter" action="/admin/teachers/save" method="post">
+                <input type="hidden" name="month" value="{{ lesson_month }}">
+                <input type="hidden" name="teacher_id" value="{{ teacher_edit.id if teacher_edit else '' }}">
+                <div class="admin-filter__row">
+                  <div class="input-wrap">
+                    <label class="auth-label">Имя</label>
+                    <input type="text" name="name" value="{{ teacher_edit.name if teacher_edit else '' }}" placeholder="Иван Петров" required>
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Роль</label>
+                    <input type="text" name="role" value="{{ teacher_edit.role if teacher_edit else '' }}" placeholder="Senior Python mentor">
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Статус</label>
+                    <select name="status">
+                      <option value="active" {% if not teacher_edit or teacher_edit.status == 'active' %}selected{% endif %}>Активен</option>
+                      <option value="paused" {% if teacher_edit and teacher_edit.status == 'paused' %}selected{% endif %}>Пауза</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="admin-filter__row">
+                  <div class="input-wrap">
+                    <label class="auth-label">Направление</label>
+                    <input type="text" name="speciality" value="{{ teacher_edit.speciality if teacher_edit else '' }}" placeholder="Python, Data Science, Frontend">
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Telegram</label>
+                    <input type="text" name="telegram" value="{{ teacher_edit.telegram if teacher_edit else '' }}" placeholder="@mentor_handle">
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Email</label>
+                    <input type="email" name="email" value="{{ teacher_edit.email if teacher_edit else '' }}" placeholder="mentor@example.com">
+                  </div>
+                </div>
+                <div class="admin-filter__row">
+                  <div class="input-wrap">
+                    <label class="auth-label">Экспертиза</label>
+                    <input type="text" name="expertise" value="{{ teacher_edit.expertise|join(', ') if teacher_edit and teacher_edit.expertise else '' }}" placeholder="Python, FastAPI, SQL, Code review">
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Акцент</label>
+                    <select name="accent">
+                      {% set accent_value = teacher_edit.accent if teacher_edit else 'violet' %}
+                      <option value="violet" {% if accent_value == 'violet' %}selected{% endif %}>Violet</option>
+                      <option value="mint" {% if accent_value == 'mint' %}selected{% endif %}>Mint</option>
+                      <option value="sky" {% if accent_value == 'sky' %}selected{% endif %}>Sky</option>
+                      <option value="sunset" {% if accent_value == 'sunset' %}selected{% endif %}>Sunset</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="input-wrap">
+                  <label class="auth-label">Описание</label>
+                  <textarea name="bio" rows="4" placeholder="Что ведёт, на чём специализируется и как работает со студентами.">{{ teacher_edit.bio if teacher_edit else '' }}</textarea>
+                </div>
+                <div class="admin-filter__actions">
+                  <button class="btn btn-primary" type="submit">{{ 'Обновить' if teacher_edit else 'Добавить преподавателя' }}</button>
+                </div>
+              </form>
+            </section>
+          </div>
+
+          <div class="admin-grid two" style="margin-top: 18px;">
+            <section class="card admin-faculty-panel">
+              <div class="admin-section-head">
+                <h3 class="section-title" style="font-size: 1.15rem;">Назначения по датам</h3>
+                <span class="admin-badge">{{ teacher_assignments|length }}</span>
+              </div>
+              {% if teacher_assignments %}
+              <div class="admin-faculty-assignments">
+                {% for row in teacher_assignments %}
+                <article class="admin-assignment-card">
+                  <div class="admin-assignment-card__head">
+                    <div>
+                      <h4>{{ row.student_name }}</h4>
+                      <div class="admin-subtext">{{ row.course }}</div>
+                    </div>
+                    <span class="admin-status {% if row.teacher_id %}status-good{% else %}status-warm{% endif %}">{{ row.teacher_name }}</span>
+                  </div>
+                  <div class="admin-chip-group">
+                    <span class="admin-chip">{{ row.date_label }}</span>
+                    <span class="admin-chip">{{ row.time }}</span>
+                    <span class="admin-chip">{{ row.status_label }}</span>
+                  </div>
+                </article>
+                {% endfor %}
+              </div>
+              {% else %}
+              <p class="admin-subtext">На выбранный месяц назначений пока нет.</p>
+              {% endif %}
+            </section>
+
+            <section class="card admin-faculty-panel">
+              <div class="admin-section-head">
+                <h3 class="section-title" style="font-size: 1.15rem;">Привязать преподавателя к дате</h3>
+                <span class="admin-badge">{{ lesson_month }}</span>
+              </div>
+              <form class="admin-filter" action="/admin/teachers/assign" method="post">
+                <input type="hidden" name="month" value="{{ lesson_month }}">
+                <div class="admin-filter__row">
+                  <div class="input-wrap">
+                    <label class="auth-label">Договор / студент</label>
+                    <select name="file" required>
+                      <option value="">Выберите договор</option>
+                      {% for option in agreement_options %}
+                      <option value="{{ option.file }}">{{ option.label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Дата</label>
+                    <input type="date" name="date" required>
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Время</label>
+                    <input type="time" name="time">
+                  </div>
+                </div>
+                <div class="admin-filter__row">
+                  <div class="input-wrap">
+                    <label class="auth-label">Преподаватель</label>
+                    <select name="teacher_id">
+                      <option value="">Снять назначение</option>
+                      {% for teacher in teacher_options %}
+                      <option value="{{ teacher.id }}">{{ teacher.name }} · {{ teacher.role }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Статус</label>
+                    <select name="status">
+                      <option value="proposed">Предложено</option>
+                      <option value="approved">Согласовано</option>
+                      <option value="missed">Пропуск</option>
+                      <option value="excused">Уважительная причина</option>
+                      <option value="clear">Очистить</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="admin-filter__actions">
+                  <button class="btn btn-primary" type="submit">Сохранить назначение</button>
+                </div>
+              </form>
+            </section>
+          </div>
+
+          <div class="admin-grid two" style="margin-top: 18px;">
+            <section class="card admin-faculty-panel">
+              <div class="admin-section-head">
+                <h3 class="section-title" style="font-size: 1.15rem;">Домашние задания</h3>
+                <span class="admin-badge">{{ teacher_homework_items|length }}</span>
+              </div>
+              {% if teacher_homework_items %}
+              <div class="admin-homework-list">
+                {% for item in teacher_homework_items %}
+                <article class="admin-homework-card">
+                  <div class="admin-homework-card__head">
+                    <div>
+                      <h4>{{ item.title }}</h4>
+                      <div class="admin-subtext">{{ item.student_name }} · {{ item.course }}</div>
+                    </div>
+                    <span class="admin-status {% if item.status == 'done' %}status-good{% elif item.status in ['review', 'submitted'] %}status-warm{% else %}status-muted{% endif %}">{{ item.status_label }}</span>
+                  </div>
+                  <div class="admin-chip-group">
+                    <span class="admin-chip">{{ item.module }}</span>
+                    <span class="admin-chip">Дедлайн: {{ item.due_label }}</span>
+                    <span class="admin-chip">{{ item.teacher_name }}</span>
+                  </div>
+                  {% if item.description %}
+                  <p class="admin-subtext">{{ item.description }}</p>
+                  {% endif %}
+                  <div class="pm-inline-actions">
+                    <a class="admin-copy" href="/admin?view=teachers&month={{ lesson_month }}&homework_id={{ item.id }}">Редактировать</a>
+                    {% if item.resource_url %}
+                    <a class="admin-copy" href="{{ item.resource_url }}" target="_blank" rel="noopener">Материалы</a>
+                    {% endif %}
+                    {% if item.answer_url %}
+                    <a class="admin-copy" href="{{ item.answer_url }}" target="_blank" rel="noopener">Ответ</a>
+                    {% endif %}
+                    <form action="/admin/homework/delete" method="post" onsubmit="return confirm('Удалить домашнее задание?');">
+                      <input type="hidden" name="month" value="{{ lesson_month }}">
+                      <input type="hidden" name="homework_id" value="{{ item.id }}">
+                      <button class="admin-copy admin-delete" type="submit">Удалить</button>
+                    </form>
+                  </div>
+                </article>
+                {% endfor %}
+              </div>
+              {% else %}
+              <p class="admin-subtext">Домашних заданий пока нет. Создайте первое задание справа.</p>
+              {% endif %}
+            </section>
+
+            <section class="card admin-faculty-panel">
+              <div class="admin-section-head">
+                <h3 class="section-title" style="font-size: 1.15rem;">{{ 'Редактировать ДЗ' if homework_edit else 'Новое домашнее задание' }}</h3>
+                {% if homework_edit %}
+                <a class="admin-copy" href="/admin?view=teachers&month={{ lesson_month }}">Сбросить</a>
+                {% endif %}
+              </div>
+              <form class="admin-filter" action="/admin/homework/save" method="post">
+                <input type="hidden" name="month" value="{{ lesson_month }}">
+                <input type="hidden" name="homework_id" value="{{ homework_edit.id if homework_edit else '' }}">
+                <div class="admin-filter__row">
+                  <div class="input-wrap">
+                    <label class="auth-label">Договор / студент</label>
+                    <select name="file" required>
+                      <option value="">Выберите договор</option>
+                      {% for option in agreement_options %}
+                      <option value="{{ option.file }}" {% if homework_edit and homework_edit.agreement_file == option.file %}selected{% endif %}>{{ option.label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Название</label>
+                    <input type="text" name="title" value="{{ homework_edit.title if homework_edit else '' }}" placeholder="Домашнее задание по модулю" required>
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Модуль</label>
+                    <input type="text" name="module" value="{{ homework_edit.module if homework_edit else '' }}" placeholder="Модуль 03 · Функции">
+                  </div>
+                </div>
+                <div class="admin-filter__row">
+                  <div class="input-wrap">
+                    <label class="auth-label">Статус</label>
+                    <select name="status">
+                      {% set homework_status_value = homework_edit.status if homework_edit else 'assigned' %}
+                      <option value="assigned" {% if homework_status_value == 'assigned' %}selected{% endif %}>Назначено</option>
+                      <option value="submitted" {% if homework_status_value == 'submitted' %}selected{% endif %}>Отправлено</option>
+                      <option value="review" {% if homework_status_value == 'review' %}selected{% endif %}>На проверке</option>
+                      <option value="revision" {% if homework_status_value == 'revision' %}selected{% endif %}>Нужна доработка</option>
+                      <option value="done" {% if homework_status_value == 'done' %}selected{% endif %}>Принято</option>
+                    </select>
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Дедлайн</label>
+                    <input type="date" name="due_at" value="{{ homework_edit.due_at if homework_edit else '' }}">
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Преподаватель</label>
+                    <select name="teacher_id">
+                      <option value="">Без преподавателя</option>
+                      {% for teacher in teacher_options %}
+                      <option value="{{ teacher.id }}" {% if homework_edit and homework_edit.teacher_id == teacher.id %}selected{% endif %}>{{ teacher.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="input-wrap">
+                  <label class="auth-label">Описание</label>
+                  <textarea name="description" rows="4" placeholder="Что нужно сделать, какой результат ожидается и как будет проверяться.">{{ homework_edit.description if homework_edit else '' }}</textarea>
+                </div>
+                <div class="admin-filter__row">
+                  <div class="input-wrap">
+                    <label class="auth-label">Ссылка на материалы</label>
+                    <input type="url" name="resource_url" value="{{ homework_edit.resource_url if homework_edit else '' }}" placeholder="https://...">
+                  </div>
+                  <div class="input-wrap">
+                    <label class="auth-label">Ссылка на ответ / папку</label>
+                    <input type="url" name="answer_url" value="{{ homework_edit.answer_url if homework_edit else '' }}" placeholder="https://...">
+                  </div>
+                </div>
+                <div class="admin-filter__actions">
+                  <button class="btn btn-primary" type="submit">{{ 'Обновить ДЗ' if homework_edit else 'Сохранить ДЗ' }}</button>
+                </div>
+              </form>
+            </section>
+          </div>
         </section>
         {% endif %}
 

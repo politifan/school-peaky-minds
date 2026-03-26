@@ -20,9 +20,19 @@ from telegram_bot import send_lead_message
 
 import core
 from routes.account_content import (
+    assign_teacher_to_lesson,
+    build_homework_admin_items,
+    build_lecture_registry_payload,
+    build_teacher_assignment_rows,
+    build_teacher_overview_items,
+    delete_homework_item,
     delete_lecture_record,
+    delete_teacher_record,
+    list_teachers,
     list_lecture_records,
+    upsert_homework_item,
     upsert_lecture_record,
+    upsert_teacher_record,
 )
 from routes.journal_content import load_journal_posts_payload
 from core import (
@@ -234,6 +244,17 @@ def lesson_redirect(message: str = "", error: str = "", month: str = "") -> Redi
     return RedirectResponse(f"/admin?{urlencode(params)}", status_code=HTTP_302_FOUND)
 
 
+def teachers_redirect(message: str = "", error: str = "", month: str = "") -> RedirectResponse:
+    params = {"view": "teachers"}
+    if month:
+        params["month"] = month
+    if message:
+        params["admin_message"] = message
+    if error:
+        params["admin_error"] = error
+    return RedirectResponse(f"/admin?{urlencode(params)}", status_code=HTTP_302_FOUND)
+
+
 def wipe_redirect(message: str = "", error: str = "") -> RedirectResponse:
     params = {"view": "overview"}
     if message:
@@ -317,13 +338,32 @@ def _save_lesson_calendar_entry(file_name: str, date_raw: str, status_raw: str, 
         raise ValueError("Договор не найден")
 
     calendar_data = data.get("lesson_calendar") if isinstance(data.get("lesson_calendar"), dict) else {}
+    sessions = core.lesson_entry_sessions(calendar_data.get(date_raw))
     if status_raw in {"", "clear"}:
-        calendar_data.pop(date_raw, None)
+        if not time_value:
+            calendar_data.pop(date_raw, None)
+        else:
+            index = core.select_lesson_session_index(sessions, time_value)
+            if index is None:
+                raise ValueError("Занятие с таким временем не найдено")
+            sessions.pop(index)
+            compact_entry = core.lesson_sessions_entry(sessions)
+            if compact_entry:
+                calendar_data[date_raw] = compact_entry
+            else:
+                calendar_data.pop(date_raw, None)
     else:
-        payload = {"status": status_raw}
-        if time_value:
-            payload["time"] = time_value
-        calendar_data[date_raw] = payload
+        index = core.select_lesson_session_index(sessions, time_value)
+        if index is None:
+            sessions.append({"status": status_raw, "time": time_value})
+        else:
+            sessions[index]["status"] = status_raw
+            if time_value:
+                sessions[index]["time"] = time_value
+        for session in sessions:
+            if not session.get("status"):
+                session["status"] = "proposed"
+        calendar_data[date_raw] = core.lesson_sessions_entry(sessions)
     data["lesson_calendar"] = calendar_data
     core.save_json(path, data)
 
@@ -639,7 +679,7 @@ def _admin_panel_impl(request: Request):
         save_referrals(referrals_data)
 
     view = request.query_params.get("view") or "overview"
-    allowed_views = {"overview", "leads", "agreements", "users", "whitelist", "referrals", "lessons"}
+    allowed_views = {"overview", "leads", "agreements", "users", "whitelist", "referrals", "lessons", "teachers"}
     if view not in allowed_views:
         view = "overview"
     course = request.query_params.get("course") or ""
@@ -659,6 +699,14 @@ def _admin_panel_impl(request: Request):
     date_to = parse_date(date_to_value)
     lesson_month = normalize_month_input(request.query_params.get("month") or "") or month_key()
     lesson_agreements = []
+    lecture_registry = {"items": [], "page": 1, "pages": 1, "total": 0, "total_all": 0, "filters": {"q": "", "source": "", "course": ""}, "source_options": [], "course_options": [], "has_prev": False, "has_next": False, "prev_page": 1, "next_page": 1}
+    teacher_items = []
+    teacher_assignment_rows = []
+    teacher_homework_items = []
+    teacher_edit = None
+    homework_edit = None
+    agreement_options = []
+    teacher_options = []
 
     leads = filter_items(leads_all, course, date_from, date_to)
     agreements = filter_items(agreements_all, course, date_from, date_to)
@@ -672,6 +720,41 @@ def _admin_panel_impl(request: Request):
 
     if view == "lessons":
         lesson_agreements = _build_admin_lesson_agreements(lesson_month)
+        try:
+            lecture_page = max(int(request.query_params.get("lecture_page") or 1), 1)
+        except Exception:
+            lecture_page = 1
+        lecture_registry = build_lecture_registry_payload(
+            agreements_all,
+            q=str(request.query_params.get("lecture_q") or "").strip(),
+            source_type=str(request.query_params.get("lecture_source") or "").strip(),
+            course=str(request.query_params.get("lecture_course") or "").strip(),
+            page=lecture_page,
+            per_page=8,
+        )
+    if view == "teachers":
+        teacher_items = build_teacher_overview_items(agreements_all, month=lesson_month)
+        teacher_assignment_rows = build_teacher_assignment_rows(agreements_all, month=lesson_month)
+        teacher_homework_items = build_homework_admin_items(agreements_all)
+        teacher_options = list_teachers()
+        agreement_options = sorted(
+            [
+                {
+                    "file": str(item.get("_file") or "").strip(),
+                    "label": f"{item.get('full_name') or item.get('name') or 'Без имени'} · {item.get('course') or 'Курс'}",
+                    "course": item.get("course") or "Курс",
+                }
+                for item in agreements_all
+                if str(item.get("_file") or "").strip()
+            ],
+            key=lambda item: item["label"].lower(),
+        )
+        edit_teacher_id = str(request.query_params.get("teacher_id") or "").strip()
+        if edit_teacher_id:
+            teacher_edit = next((item for item in teacher_options if item["id"] == edit_teacher_id), None)
+        edit_homework_id = str(request.query_params.get("homework_id") or "").strip()
+        if edit_homework_id:
+            homework_edit = next((item for item in teacher_homework_items if item["id"] == edit_homework_id), None)
 
     status_counts = {key: 0 for key in STATUS_META}
     source_counts: Dict[str, int] = {}
@@ -1498,6 +1581,14 @@ def _admin_panel_impl(request: Request):
             "referral_top": referral_top,
             "lesson_month": lesson_month,
             "lesson_agreements": lesson_agreements,
+            "lecture_registry": lecture_registry,
+            "teacher_items": teacher_items,
+            "teacher_assignments": teacher_assignment_rows,
+            "teacher_homework_items": teacher_homework_items,
+            "teacher_edit": teacher_edit,
+            "homework_edit": homework_edit,
+            "teacher_options": teacher_options,
+            "agreement_options": agreement_options,
         },
     )
 
@@ -2561,6 +2652,7 @@ async def admin_lectures_save(request: Request):
     month = normalize_month_input(str(form.get("month") or "").strip()) or ""
     file_name = str(form.get("file") or "").strip()
     title = str(form.get("title") or "").strip()
+    topic = str(form.get("topic") or "").strip()
     description = str(form.get("description") or "").strip()
     duration_label = str(form.get("duration_label") or "").strip()
     teacher = str(form.get("teacher") or "").strip()
@@ -2584,6 +2676,7 @@ async def admin_lectures_save(request: Request):
             agreement_file=file_name,
             course=course,
             title=title,
+            topic=topic,
             description=description,
             duration_label=duration_label,
             teacher=teacher,
@@ -2651,8 +2744,24 @@ async def admin_lectures_api(request: Request):
     if guard:
         return guard
     file_name = str(request.query_params.get("file") or "").strip()
-    items = list_lecture_records(agreement_file=file_name)
-    return JSONResponse({"ok": True, "items": items, "total": len(items)})
+    try:
+        page = max(int(request.query_params.get("page") or 1), 1)
+    except Exception:
+        page = 1
+    try:
+        per_page = max(int(request.query_params.get("per_page") or 8), 1)
+    except Exception:
+        per_page = 8
+    payload = build_lecture_registry_payload(
+        load_agreements(),
+        agreement_file=file_name,
+        q=str(request.query_params.get("q") or "").strip(),
+        source_type=str(request.query_params.get("source") or "").strip(),
+        course=str(request.query_params.get("course") or "").strip(),
+        page=page,
+        per_page=per_page,
+    )
+    return JSONResponse({"ok": True, **payload})
 
 
 @router.post("/admin/api/lectures/save", include_in_schema=False)
@@ -2690,6 +2799,7 @@ async def admin_lectures_save_api(request: Request):
             agreement_file=file_name,
             course=str((agreement or {}).get("course") or "").strip(),
             title=str(payload.get("title") or "").strip(),
+            topic=str(payload.get("topic") or "").strip(),
             description=str(payload.get("description") or "").strip(),
             duration_label=str(payload.get("duration_label") or "").strip(),
             teacher=str(payload.get("teacher") or "").strip(),
@@ -2717,6 +2827,261 @@ async def admin_lectures_delete_api(request: Request):
         payload = {}
     record_id = str(payload.get("record_id") or "").strip()
     if not delete_lecture_record(record_id):
+        return JSONResponse({"ok": False, "error": "not_found"}, status_code=404)
+    return JSONResponse({"ok": True})
+
+
+@router.post("/admin/teachers/save", include_in_schema=False)
+async def admin_teachers_save(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    month = normalize_month_input(str(form.get("month") or "").strip()) or ""
+    try:
+        upsert_teacher_record(
+            teacher_id=str(form.get("teacher_id") or "").strip(),
+            name=str(form.get("name") or "").strip(),
+            role=str(form.get("role") or "").strip(),
+            bio=str(form.get("bio") or "").strip(),
+            speciality=str(form.get("speciality") or "").strip(),
+            telegram=str(form.get("telegram") or "").strip(),
+            email=str(form.get("email") or "").strip(),
+            expertise=str(form.get("expertise") or "").strip(),
+            status=str(form.get("status") or "").strip(),
+            accent=str(form.get("accent") or "").strip(),
+        )
+    except ValueError as exc:
+        return teachers_redirect(error=str(exc), month=month)
+    return teachers_redirect(message="Преподаватель сохранён", month=month)
+
+
+@router.post("/admin/teachers/delete", include_in_schema=False)
+async def admin_teachers_delete(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    month = normalize_month_input(str(form.get("month") or "").strip()) or ""
+    teacher_id = str(form.get("teacher_id") or "").strip()
+    if not delete_teacher_record(teacher_id):
+        return teachers_redirect(error="Преподаватель не найден", month=month)
+    return teachers_redirect(message="Преподаватель удалён", month=month)
+
+
+@router.post("/admin/teachers/assign", include_in_schema=False)
+async def admin_teachers_assign(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    month = normalize_month_input(str(form.get("month") or "").strip()) or ""
+    try:
+        assign_teacher_to_lesson(
+            file_name=str(form.get("file") or "").strip(),
+            date_raw=str(form.get("date") or "").strip(),
+            teacher_id=str(form.get("teacher_id") or "").strip(),
+            time_raw=str(form.get("time") or "").strip(),
+            status_raw=str(form.get("status") or "").strip(),
+        )
+    except ValueError as exc:
+        return teachers_redirect(error=str(exc), month=month)
+    return teachers_redirect(message="Назначение сохранено", month=month)
+
+
+@router.post("/admin/homework/save", include_in_schema=False)
+async def admin_homework_save(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    month = normalize_month_input(str(form.get("month") or "").strip()) or ""
+    file_name = str(form.get("file") or "").strip()
+    agreement_path = core.AGREEMENTS_DIR / file_name if file_name else None
+    agreement = load_json(agreement_path, {}) if agreement_path and agreement_path.exists() else {}
+    if not isinstance(agreement, dict):
+        agreement = {}
+    if not agreement:
+        return teachers_redirect(error="Договор для домашнего задания не найден", month=month)
+    try:
+        upsert_homework_item(
+            homework_id=str(form.get("homework_id") or "").strip(),
+            agreement_file=file_name,
+            course=str(agreement.get("course") or "").strip(),
+            title=str(form.get("title") or "").strip(),
+            module=str(form.get("module") or "").strip(),
+            description=str(form.get("description") or "").strip(),
+            status=str(form.get("status") or "").strip(),
+            due_at=str(form.get("due_at") or "").strip(),
+            teacher_id=str(form.get("teacher_id") or "").strip(),
+            resource_url=str(form.get("resource_url") or "").strip(),
+            answer_url=str(form.get("answer_url") or "").strip(),
+        )
+    except ValueError as exc:
+        return teachers_redirect(error=str(exc), month=month)
+    return teachers_redirect(message="Домашнее задание сохранено", month=month)
+
+
+@router.post("/admin/homework/delete", include_in_schema=False)
+async def admin_homework_delete(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    month = normalize_month_input(str(form.get("month") or "").strip()) or ""
+    homework_id = str(form.get("homework_id") or "").strip()
+    if not delete_homework_item(homework_id):
+        return teachers_redirect(error="Домашнее задание не найдено", month=month)
+    return teachers_redirect(message="Домашнее задание удалено", month=month)
+
+
+@router.get("/admin/api/teachers", include_in_schema=False)
+async def admin_teachers_api(request: Request):
+    guard = _admin_api_guard(request)
+    if guard:
+        return guard
+    month = normalize_month_input(request.query_params.get("month") or "") or month_key()
+    agreements = load_agreements()
+    teacher_items = build_teacher_overview_items(agreements, month=month)
+    assignment_rows = build_teacher_assignment_rows(agreements, month=month)
+    homework_items = build_homework_admin_items(agreements)
+    return JSONResponse(
+        {
+            "ok": True,
+            "month": month,
+            "teachers": teacher_items,
+            "assignments": assignment_rows,
+            "homework": homework_items,
+            "total": len(teacher_items),
+        }
+    )
+
+
+@router.post("/admin/api/teachers/save", include_in_schema=False)
+async def admin_teachers_save_api(request: Request):
+    guard = _admin_api_guard(request)
+    if guard:
+        return guard
+    try:
+        payload = await request.json()
+    except Exception:
+        return JSONResponse({"ok": False, "error": "invalid_json"}, status_code=400)
+    if not isinstance(payload, dict):
+        return JSONResponse({"ok": False, "error": "invalid_payload"}, status_code=400)
+    try:
+        item = upsert_teacher_record(
+            teacher_id=str(payload.get("teacher_id") or "").strip(),
+            name=str(payload.get("name") or "").strip(),
+            role=str(payload.get("role") or "").strip(),
+            bio=str(payload.get("bio") or "").strip(),
+            speciality=str(payload.get("speciality") or "").strip(),
+            telegram=str(payload.get("telegram") or "").strip(),
+            email=str(payload.get("email") or "").strip(),
+            expertise=payload.get("expertise") or "",
+            status=str(payload.get("status") or "").strip(),
+            accent=str(payload.get("accent") or "").strip(),
+        )
+    except ValueError as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=400)
+    return JSONResponse({"ok": True, "item": item})
+
+
+@router.post("/admin/api/teachers/delete", include_in_schema=False)
+async def admin_teachers_delete_api(request: Request):
+    guard = _admin_api_guard(request)
+    if guard:
+        return guard
+    try:
+        payload = await request.json()
+    except Exception:
+        payload = {}
+    teacher_id = str((payload or {}).get("teacher_id") or "").strip()
+    if not delete_teacher_record(teacher_id):
+        return JSONResponse({"ok": False, "error": "not_found"}, status_code=404)
+    return JSONResponse({"ok": True})
+
+
+@router.post("/admin/api/teachers/assign", include_in_schema=False)
+async def admin_teachers_assign_api(request: Request):
+    guard = _admin_api_guard(request)
+    if guard:
+        return guard
+    try:
+        payload = await request.json()
+    except Exception:
+        return JSONResponse({"ok": False, "error": "invalid_json"}, status_code=400)
+    if not isinstance(payload, dict):
+        return JSONResponse({"ok": False, "error": "invalid_payload"}, status_code=400)
+    try:
+        item = assign_teacher_to_lesson(
+            file_name=str(payload.get("file") or "").strip(),
+            date_raw=str(payload.get("date") or "").strip(),
+            teacher_id=str(payload.get("teacher_id") or "").strip(),
+            time_raw=str(payload.get("time") or "").strip(),
+            status_raw=str(payload.get("status") or "").strip(),
+        )
+    except ValueError as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=400)
+    return JSONResponse({"ok": True, "item": item})
+
+
+@router.get("/admin/api/homework", include_in_schema=False)
+async def admin_homework_api(request: Request):
+    guard = _admin_api_guard(request)
+    if guard:
+        return guard
+    items = build_homework_admin_items(load_agreements())
+    return JSONResponse({"ok": True, "items": items, "total": len(items)})
+
+
+@router.post("/admin/api/homework/save", include_in_schema=False)
+async def admin_homework_save_api(request: Request):
+    guard = _admin_api_guard(request)
+    if guard:
+        return guard
+    try:
+        payload = await request.json()
+    except Exception:
+        return JSONResponse({"ok": False, "error": "invalid_json"}, status_code=400)
+    if not isinstance(payload, dict):
+        return JSONResponse({"ok": False, "error": "invalid_payload"}, status_code=400)
+    file_name = str(payload.get("file") or "").strip()
+    agreement_path = core.AGREEMENTS_DIR / file_name if file_name else None
+    agreement = load_json(agreement_path, {}) if agreement_path and agreement_path.exists() else {}
+    if not isinstance(agreement, dict):
+        agreement = {}
+    if not agreement:
+        return JSONResponse({"ok": False, "error": "agreement_not_found"}, status_code=404)
+    try:
+        item = upsert_homework_item(
+            homework_id=str(payload.get("homework_id") or "").strip(),
+            agreement_file=file_name,
+            course=str(agreement.get("course") or "").strip(),
+            title=str(payload.get("title") or "").strip(),
+            module=str(payload.get("module") or "").strip(),
+            description=str(payload.get("description") or "").strip(),
+            status=str(payload.get("status") or "").strip(),
+            due_at=str(payload.get("due_at") or "").strip(),
+            teacher_id=str(payload.get("teacher_id") or "").strip(),
+            resource_url=str(payload.get("resource_url") or "").strip(),
+            answer_url=str(payload.get("answer_url") or "").strip(),
+        )
+    except ValueError as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=400)
+    return JSONResponse({"ok": True, "item": item})
+
+
+@router.post("/admin/api/homework/delete", include_in_schema=False)
+async def admin_homework_delete_api(request: Request):
+    guard = _admin_api_guard(request)
+    if guard:
+        return guard
+    try:
+        payload = await request.json()
+    except Exception:
+        payload = {}
+    homework_id = str((payload or {}).get("homework_id") or "").strip()
+    if not delete_homework_item(homework_id):
         return JSONResponse({"ok": False, "error": "not_found"}, status_code=404)
     return JSONResponse({"ok": True})
 

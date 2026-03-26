@@ -767,6 +767,69 @@ carousels.forEach((carousel) => {
   if (nextBtn) nextBtn.addEventListener('click', () => scrollToIndex(currentIndex + 1));
 });
 
+const workspaceCarousels = document.querySelectorAll('[data-workspace-carousel]');
+
+workspaceCarousels.forEach((workspace) => {
+  const tabs = Array.from(workspace.querySelectorAll('[data-workspace-tab]'));
+  const panels = Array.from(workspace.querySelectorAll('[data-workspace-panel]'));
+  if (!tabs.length || !panels.length) return;
+
+  const prevBtn = workspace.querySelector('[data-workspace-prev]');
+  const nextBtn = workspace.querySelector('[data-workspace-next]');
+  const position = workspace.querySelector('[data-workspace-current]');
+
+  let currentIndex = Math.max(
+    0,
+    tabs.findIndex((tab) => tab.classList.contains('is-active'))
+  );
+
+  const syncWorkspace = () => {
+    const activeTab = tabs[currentIndex];
+    if (!activeTab) return;
+    const activeKey = activeTab.dataset.workspaceTab;
+
+    tabs.forEach((tab, index) => {
+      const isActive = index === currentIndex;
+      tab.classList.toggle('is-active', isActive);
+      tab.setAttribute('aria-selected', String(isActive));
+      tab.setAttribute('tabindex', isActive ? '0' : '-1');
+    });
+
+    panels.forEach((panel) => {
+      const isActive = panel.dataset.workspacePanel === activeKey;
+      panel.classList.toggle('is-active', isActive);
+      panel.hidden = !isActive;
+    });
+
+    if (prevBtn) prevBtn.disabled = currentIndex === 0;
+    if (nextBtn) nextBtn.disabled = currentIndex === tabs.length - 1;
+    if (position) position.textContent = `${currentIndex + 1} / ${tabs.length}`;
+  };
+
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => {
+      currentIndex = index;
+      syncWorkspace();
+    });
+  });
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      currentIndex = Math.max(0, currentIndex - 1);
+      syncWorkspace();
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      currentIndex = Math.min(tabs.length - 1, currentIndex + 1);
+      syncWorkspace();
+    });
+  }
+
+  syncWorkspace();
+});
+
 const postsCatalogs = document.querySelectorAll('[data-posts-catalog]');
 
 postsCatalogs.forEach((catalog) => {

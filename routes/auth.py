@@ -11,8 +11,10 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.status import HTTP_302_FOUND
 from routes.account_content import (
     build_account_content,
+    build_account_homework_payload,
     build_account_lectures_payload,
     build_account_schedule_payload,
+    build_account_teachers_payload,
     get_lecture_record,
 )
 
@@ -518,6 +520,13 @@ async def account(request: Request):
     calendar_month = str(request.query_params.get("month") or "").strip()
     if not re.match(r"^\d{4}-\d{2}$", calendar_month or ""):
         calendar_month = month_key()
+    lecture_q = str(request.query_params.get("lecture_q") or "").strip()
+    lecture_source = str(request.query_params.get("lecture_source") or "").strip()
+    lecture_course = str(request.query_params.get("lecture_course") or "").strip()
+    try:
+        lecture_page = max(int(request.query_params.get("lecture_page") or 1), 1)
+    except Exception:
+        lecture_page = 1
     referrals_data = load_referrals()
     referrals_students = referrals_data.get("students") if isinstance(referrals_data, dict) else {}
     if not isinstance(referrals_students, dict):
@@ -643,21 +652,41 @@ async def account(request: Request):
         agreements_view,
         user_display=user_display,
         payments_enabled=TINKOFF_ENABLED,
+        user=user,
+        lectures_query=lecture_q,
+        lectures_source=lecture_source,
+        lectures_course=lecture_course,
+        lectures_page=lecture_page,
     )
+    workspace_active = str(request.query_params.get("workspace") or "overview").strip() or "overview"
+    allowed_workspace_keys = {item["key"] for item in account_content["workspace_tabs"]}
+    if workspace_active not in allowed_workspace_keys:
+        workspace_active = "overview"
     schedule_items = account_content["schedule"]
+    homework_items = account_content["homework"]
     lecture_items = account_content["lectures"]
+    teacher_items = account_content["teachers"]
     return render(
         request,
         "account.html",
         {
             "agreements": agreements_view,
             "account_schedule": schedule_items,
+            "account_homework": homework_items,
             "account_lectures": lecture_items,
+            "account_teachers": teacher_items,
             "account_api": account_content["api"],
             "account_hero": account_content["hero"],
             "account_overview": account_content["overview"],
             "account_sections": account_content["sections"],
             "account_stats": account_content["stats"],
+            "account_schedule_payload": account_content["schedule_payload"],
+            "account_homework_payload": account_content["homework_payload"],
+            "account_lectures_payload": account_content["lectures_payload"],
+            "account_teachers_payload": account_content["teachers_payload"],
+            "account_settings": account_content["settings_payload"],
+            "account_workspace_tabs": account_content["workspace_tabs"],
+            "account_workspace_active": workspace_active,
             "payments_enabled": TINKOFF_ENABLED,
             "payment_status": request.query_params.get("payment"),
             "payment_error": request.query_params.get("payment_error"),
@@ -684,7 +713,44 @@ async def account_lectures_api(request: Request):
         return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
 
     agreements = _load_current_user_agreements(user)
-    payload = build_account_lectures_payload(agreements)
+    try:
+        page = max(int(request.query_params.get("page") or 1), 1)
+    except Exception:
+        page = 1
+    try:
+        per_page = max(int(request.query_params.get("per_page") or 6), 1)
+    except Exception:
+        per_page = 6
+    payload = build_account_lectures_payload(
+        agreements,
+        q=str(request.query_params.get("q") or "").strip(),
+        source_type=str(request.query_params.get("source") or "").strip(),
+        course=str(request.query_params.get("course") or "").strip(),
+        page=page,
+        per_page=per_page,
+    )
+    return JSONResponse({"ok": True, **payload})
+
+
+@router.get("/api/account/homework", include_in_schema=False)
+async def account_homework_api(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
+
+    agreements = _load_current_user_agreements(user)
+    payload = build_account_homework_payload(agreements)
+    return JSONResponse({"ok": True, **payload})
+
+
+@router.get("/api/account/teachers", include_in_schema=False)
+async def account_teachers_api(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
+
+    agreements = _load_current_user_agreements(user)
+    payload = build_account_teachers_payload(agreements)
     return JSONResponse({"ok": True, **payload})
 
 

@@ -85,6 +85,8 @@ REFERRALS_FILE = DATA_DIR / "referrals.json"
 PAYMENTS_FILE = DATA_DIR / "payments.json"
 JOURNAL_POSTS_FILE = DATA_DIR / "journal_posts.json"
 LECTURE_RECORDS_FILE = DATA_DIR / "lecture_records.json"
+TEACHERS_FILE = DATA_DIR / "teachers.json"
+HOMEWORK_ITEMS_FILE = DATA_DIR / "homework_items.json"
 
 DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
 CONTRACTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -774,23 +776,12 @@ def build_month_calendar(month: str, statuses: Optional[Dict[str, Any]] = None) 
     for day in range(1, days_in_month + 1):
         date_str = f"{year:04d}-{month_num:02d}-{day:02d}"
         entry = statuses.get(date_str, "")
-        if isinstance(entry, dict):
-            status = str(entry.get("status") or "")
-            time_value = str(entry.get("time") or "")
-        else:
-            status = str(entry or "")
-            time_value = ""
-        time_end = ""
-        if time_value and re.match(r"^\d{2}:\d{2}$", time_value):
-            try:
-                hour = int(time_value[:2])
-                minute = int(time_value[3:5])
-                total = (hour * 60 + minute + 60) % (24 * 60)
-                end_hour = total // 60
-                end_min = total % 60
-                time_end = f"{end_hour:02d}:{end_min:02d}"
-            except Exception:
-                time_end = ""
+        sessions = lesson_entry_sessions(entry)
+        primary = sessions[0] if sessions else {}
+        status = str(primary.get("status") or "")
+        time_value = str(primary.get("time") or "")
+        time_end = str(primary.get("time_end") or "")
+        times = [str(item.get("time") or "").strip() or "время уточняется" for item in sessions]
         week.append(
             {
                 "date": date_str,
@@ -798,6 +789,9 @@ def build_month_calendar(month: str, statuses: Optional[Dict[str, Any]] = None) 
                 "status": status,
                 "time": time_value,
                 "time_end": time_end,
+                "times": times,
+                "session_count": len(sessions),
+                "more_count": max(len(sessions) - 1, 0),
             }
         )
         if len(week) == 7:
@@ -808,6 +802,103 @@ def build_month_calendar(month: str, statuses: Optional[Dict[str, Any]] = None) 
             week.append(None)
         weeks.append(week)
     return weeks
+
+
+def normalize_lesson_time(value: Any) -> str:
+    raw = str(value or "").strip()
+    if re.match(r"^\d{2}:\d{2}:\d{2}$", raw):
+        raw = raw[:5]
+    if re.match(r"^\d{2}:\d{2}$", raw):
+        return raw
+    return ""
+
+
+def lesson_time_end(time_value: str, duration_minutes: int = 60) -> str:
+    raw = normalize_lesson_time(time_value)
+    if not raw:
+        return ""
+    try:
+        hour = int(raw[:2])
+        minute = int(raw[3:5])
+        total = (hour * 60 + minute + duration_minutes) % (24 * 60)
+        end_hour = total // 60
+        end_min = total % 60
+        return f"{end_hour:02d}:{end_min:02d}"
+    except Exception:
+        return ""
+
+
+def lesson_entry_sessions(entry: Any) -> List[Dict[str, str]]:
+    sessions_raw: List[Any]
+    if isinstance(entry, dict) and isinstance(entry.get("sessions"), list):
+        sessions_raw = entry.get("sessions") or []
+    elif isinstance(entry, dict):
+        sessions_raw = [entry]
+    elif entry:
+        sessions_raw = [{"status": str(entry or "").strip()}]
+    else:
+        sessions_raw = []
+
+    sessions: List[Dict[str, str]] = []
+    for raw in sessions_raw:
+        if isinstance(raw, dict):
+            status = str(raw.get("status") or "").strip()
+            time_value = normalize_lesson_time(raw.get("time"))
+            teacher_id = str(raw.get("teacher_id") or "").strip()
+        else:
+            status = str(raw or "").strip()
+            time_value = ""
+            teacher_id = ""
+        if not status and not time_value and not teacher_id:
+            continue
+        sessions.append(
+            {
+                "status": status,
+                "time": time_value,
+                "time_end": lesson_time_end(time_value),
+                "teacher_id": teacher_id,
+            }
+        )
+    sessions.sort(key=lambda item: (0 if item["time"] else 1, item["time"], item["status"], item["teacher_id"]))
+    return sessions
+
+
+def lesson_sessions_entry(sessions: List[Dict[str, Any]]) -> Dict[str, Any]:
+    normalized = []
+    for raw in sessions:
+        if not isinstance(raw, dict):
+            continue
+        status = str(raw.get("status") or "").strip()
+        time_value = normalize_lesson_time(raw.get("time"))
+        teacher_id = str(raw.get("teacher_id") or "").strip()
+        if not status and not time_value and not teacher_id:
+            continue
+        item = {}
+        if status:
+            item["status"] = status
+        if time_value:
+            item["time"] = time_value
+        if teacher_id:
+            item["teacher_id"] = teacher_id
+        normalized.append(item)
+    normalized.sort(key=lambda item: (0 if item.get("time") else 1, item.get("time") or "", item.get("status") or ""))
+    if not normalized:
+        return {}
+    if len(normalized) == 1:
+        return normalized[0]
+    return {"sessions": normalized}
+
+
+def select_lesson_session_index(sessions: List[Dict[str, Any]], time_value: str = "") -> Optional[int]:
+    normalized_time = normalize_lesson_time(time_value)
+    if normalized_time:
+        for index, session in enumerate(sessions):
+            if normalize_lesson_time(session.get("time")) == normalized_time:
+                return index
+        return None
+    if len(sessions) <= 1:
+        return 0 if sessions else None
+    raise ValueError("Для дня с несколькими занятиями укажите время")
 
 
 def referral_monthly_discounts(student: Dict[str, Any]) -> Dict[str, Any]:
