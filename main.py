@@ -8,6 +8,7 @@ import secrets
 import sys
 import time
 import traceback
+from typing import Optional
 
 from anyio import to_thread
 from fastapi import FastAPI, Request
@@ -88,8 +89,8 @@ _METRICS_CACHE = None
 _METRICS_DIRTY = False
 _METRICS_LAST_FLUSH = 0.0
 _METRICS_FLUSH_INTERVAL = 15.0
-_METRICS_LOCK: asyncio.Lock | None = None
-_METRICS_FLUSH_TASK: asyncio.Task | None = None
+_METRICS_LOCK: Optional[asyncio.Lock] = None
+_METRICS_FLUSH_TASK: Optional[asyncio.Task] = None
 
 
 def _emergency_log(message: str) -> None:
