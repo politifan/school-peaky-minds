@@ -314,6 +314,12 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 
 @app.exception_handler(Exception)
 async def internal_error_handler(request: Request, exc: Exception):
+    error_logger.exception(
+        "Unhandled exception on %s %s",
+        request.method,
+        request.url.path,
+        exc_info=(type(exc), exc, exc.__traceback__),
+    )
     if not INLINE_500_DEBUG:
         return PlainTextResponse("Internal Server Error", status_code=500)
     tb = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
