@@ -2,13 +2,15 @@
 import asyncio
 import copy
 import logging
+import os
 import secrets
 import sys
 import time
+import traceback
 
 from anyio import to_thread
 from fastapi import FastAPI, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import PlainTextResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exception_handlers import http_exception_handler as default_http_exception_handler
 from fastapi.staticfiles import StaticFiles
@@ -42,6 +44,7 @@ from routes.public import router as public_router
 
 app = FastAPI(docs_url=None, redoc_url=None)
 SAMESITE = "none" if CANONICAL_SCHEME == "https" else "lax"
+INLINE_500_DEBUG = os.getenv("INLINE_500_DEBUG", "1").strip().lower() not in {"0", "false", "no", "off"}
 app.add_middleware(GZipMiddleware, minimum_size=500)
 app.add_middleware(
     SessionMiddleware,
@@ -307,6 +310,19 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         response.status_code = 404
         return response
     return await default_http_exception_handler(request, exc)
+
+
+@app.exception_handler(Exception)
+async def internal_error_handler(request: Request, exc: Exception):
+    if not INLINE_500_DEBUG:
+        return PlainTextResponse("Internal Server Error", status_code=500)
+    tb = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+    body = (
+        f"500 Internal Server Error\n\n"
+        f"{request.method} {request.url}\n\n"
+        f"{tb}"
+    )
+    return PlainTextResponse(body, status_code=500)
 
 
 if __name__ == "__main__":
