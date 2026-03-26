@@ -1380,7 +1380,7 @@
                 <a class="admin-copy" href="/admin?view=lessons&month={{ lesson_month }}">Сбросить</a>
               </div>
             </form>
-            {% if lecture_registry.items %}
+            {% if lecture_registry["items"] %}
             <div class="admin-table-wrap" style="margin-top: 16px;">
               <table class="admin-table" style="min-width: 920px;">
                 <thead>
@@ -1396,7 +1396,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for lecture in lecture_registry.items %}
+                  {% for lecture in lecture_registry["items"] %}
                   <tr>
                     <td data-label="Лекция">
                       <div class="admin-cell">

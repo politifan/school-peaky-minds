@@ -140,9 +140,9 @@
               </div>
             </form>
 
-            {% if account_schedule_payload.items %}
+            {% if account_schedule_payload["items"] %}
             <div class="pm-student-schedule-grid">
-              {% for event in account_schedule_payload.items %}
+              {% for event in account_schedule_payload["items"] %}
               <article class="pm-surface-card pm-student-schedule-card">
                 <div class="pm-student-subcard__head">
                   <div class="course-meta">{{ event.course }}</div>
@@ -226,7 +226,7 @@
               </article>
               {% endfor %}
             </div>
-            {% elif not account_schedule_payload.items %}
+            {% elif not account_schedule_payload["items"] %}
             <div class="pm-student-empty pm-surface-card">
               <h3>{{ account_sections.schedule.empty_title }}</h3>
               <p>{{ account_sections.schedule.empty_text }}</p>
