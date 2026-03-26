@@ -85,14 +85,15 @@
             <span class="pm-provider-button__badge">TG</span>
             <span>Войти через Telegram</span>
           </div>
-          <div id="telegram-login" class="tg-login-button tg-login-button--visible">
-            <script async src="https://telegram.org/js/telegram-widget.js?22"
-              data-telegram-login="{{ telegram_bot_username }}"
-              data-size="large"
-              data-onauth="onTelegramAuth(user)"
-              data-request-access="write"></script>
+          <div id="telegram-login"
+            class="tg-login-button tg-login-button--visible"
+            data-telegram-widget
+            data-telegram-login="{{ telegram_bot_username }}"
+            data-size="large"
+            data-request-access="write"
+            data-onauth="onTelegramAuth(user)">
           </div>
-          <p class="pm-auth-form__hint">Если виджет не отображается, откройте страницу без блокировщика рекламы.</p>
+          <p class="pm-auth-form__hint">Виджет Telegram загружается после открытия страницы. Если он не появился, используйте email или VK.</p>
         </div>
         {% else %}
         <span class="pm-provider-button is-disabled">

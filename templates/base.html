@@ -35,9 +35,6 @@
   {% if seo_bing_verification %}
   <meta name="msvalidate.01" content="{{ seo_bing_verification }}">
   {% endif %}
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Prata&display=swap" rel="stylesheet">
   <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
   <link rel="shortcut icon" href="/assets/img/favicon.ico">
   <link rel="apple-touch-icon" href="/assets/img/favicon.ico">
@@ -59,10 +56,7 @@
     }
   </script>
   <link rel="stylesheet" href="/assets/css/styles.css">
-  <script src="/assets/vendor/vk-bridge.min.js"></script>
-  {% if turnstile_enabled %}
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-  {% endif %}
+  <script defer src="/assets/vendor/vk-bridge.min.js"></script>
   {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -270,27 +264,18 @@
     </div>
   </div>
 
-  {% if yandex_metrika_id %}
-  <script type="text/javascript">
-      (function(m,e,t,r,i,k,a){
-          m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-          m[i].l=1*new Date();
-          for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-          k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-      })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id={{ yandex_metrika_id }}', 'ym');
-      ym({{ yandex_metrika_id }}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
-  </script>
-  <noscript><div><img src="https://mc.yandex.ru/watch/{{ yandex_metrika_id }}" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-  {% endif %}
-  {% if ga_measurement_id %}
-  <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}"></script>
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', '{{ ga_measurement_id }}');
+    window.pmRuntimeConfig = Object.assign(window.pmRuntimeConfig || {}, {
+      analytics: {
+        yandexMetrikaId: "{{ yandex_metrika_id }}",
+        gaMeasurementId: "{{ ga_measurement_id }}"
+      },
+      turnstile: {
+        enabled: {{ 'true' if turnstile_enabled else 'false' }},
+        siteKey: "{{ turnstile_site_key }}"
+      }
+    });
   </script>
-  {% endif %}
   <script>
     if (window.vkBridge && typeof window.vkBridge.send === "function") {
       window.vkBridge.send("VKWebAppInit").catch(function () {});

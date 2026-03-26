@@ -1,6 +1,160 @@
 ﻿const modalTriggers = document.querySelectorAll('[data-open-modal]');
 const modals = document.querySelectorAll('.modal');
 const closeButtons = document.querySelectorAll('[data-close-modal]');
+const pmRuntimeConfig = window.pmRuntimeConfig || {};
+
+const runAfterPageLoad = (callback, delay = 0) => {
+  const schedule = () => {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => window.setTimeout(callback, delay), { timeout: 3000 });
+      return;
+    }
+    window.setTimeout(callback, delay);
+  };
+
+  if (document.readyState === 'complete') {
+    schedule();
+    return;
+  }
+
+  window.addEventListener('load', schedule, { once: true });
+};
+
+const externalScriptPromises = new Map();
+
+const loadExternalScript = (src, attributes = {}) => {
+  if (!src) return Promise.reject(new Error('Missing script src'));
+  if (externalScriptPromises.has(src)) return externalScriptPromises.get(src);
+  const promise = new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${src}"]`);
+    if (existing) {
+      if (existing.dataset.loaded === 'true') {
+        resolve(existing);
+        return;
+      }
+      existing.addEventListener('load', () => resolve(existing), { once: true });
+      existing.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), { once: true });
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = src;
+    Object.entries(attributes).forEach(([key, value]) => {
+      if (value === true) {
+        script.setAttribute(key, '');
+        return;
+      }
+      if (value !== false && value !== null && value !== undefined) {
+        script.setAttribute(key, String(value));
+      }
+    });
+    script.async = true;
+    script.dataset.loaded = 'false';
+    script.addEventListener('load', () => {
+      script.dataset.loaded = 'true';
+      resolve(script);
+    }, { once: true });
+    script.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), { once: true });
+    document.head.appendChild(script);
+  });
+  externalScriptPromises.set(src, promise);
+  return promise;
+};
+
+const initNonCriticalAnalytics = () => {
+  const analytics = pmRuntimeConfig.analytics || {};
+  const yandexId = String(analytics.yandexMetrikaId || '').trim();
+  const gaId = String(analytics.gaMeasurementId || '').trim();
+
+  if (yandexId && typeof window.ym !== 'function') {
+    window.ym = window.ym || function () {
+      (window.ym.a = window.ym.a || []).push(arguments);
+    };
+    window.ym.l = Date.now();
+    loadExternalScript(`https://mc.yandex.ru/metrika/tag.js?id=${encodeURIComponent(yandexId)}`)
+      .then(() => {
+        if (typeof window.ym === 'function') {
+          window.ym(Number(yandexId), 'init', {
+            ssr: true,
+            webvisor: true,
+            clickmap: true,
+            ecommerce: 'dataLayer',
+            referrer: document.referrer,
+            url: location.href,
+            accurateTrackBounce: true,
+            trackLinks: true,
+          });
+        }
+      })
+      .catch(() => {});
+  }
+
+  if (gaId) {
+    loadExternalScript(`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`)
+      .then(() => {
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+        window.gtag('js', new Date());
+        window.gtag('config', gaId);
+      })
+      .catch(() => {});
+  }
+};
+
+const renderTurnstileWidgets = () => {
+  if (!window.turnstile) return;
+  document.querySelectorAll('.cf-turnstile').forEach((node) => {
+    if (node.dataset.pmRendered === 'true') return;
+    if (node.querySelector('iframe')) {
+      node.dataset.pmRendered = 'true';
+      return;
+    }
+    const siteKey = node.dataset.sitekey || (pmRuntimeConfig.turnstile || {}).siteKey;
+    if (!siteKey) return;
+    try {
+      window.turnstile.render(node, { sitekey: siteKey });
+      node.dataset.pmRendered = 'true';
+    } catch (error) {
+      /* no-op */
+    }
+  });
+};
+
+const initTurnstileRuntime = () => {
+  const turnstileConfig = pmRuntimeConfig.turnstile || {};
+  if (!turnstileConfig.enabled || !document.querySelector('.cf-turnstile')) return;
+  loadExternalScript('https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', { defer: true })
+    .then(() => renderTurnstileWidgets())
+    .catch(() => {});
+};
+
+const mountTelegramWidget = () => {
+  const node = document.querySelector('[data-telegram-widget]');
+  if (!node || node.dataset.pmLoaded === 'true') return;
+  node.dataset.pmLoaded = 'true';
+  node.innerHTML = '';
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = 'https://telegram.org/js/telegram-widget.js?22';
+  ['telegramLogin', 'size', 'onauth', 'requestAccess'].forEach((key) => {
+    const attrKey = `data-${key.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)}`;
+    const value = node.dataset[key];
+    if (value) script.setAttribute(attrKey, value);
+  });
+  node.appendChild(script);
+};
+
+runAfterPageLoad(initNonCriticalAnalytics, 1500);
+runAfterPageLoad(initTurnstileRuntime, 600);
+runAfterPageLoad(mountTelegramWidget, 1200);
+runAfterPageLoad(() => {
+  if (window.vkBridge && typeof window.vkBridge.send === 'function') {
+    window.vkBridge.send('VKWebAppInit').catch(() => {});
+  }
+}, 300);
+
+document.querySelectorAll('.pm-provider-telegram .pm-provider-button').forEach((button) => {
+  button.addEventListener('click', mountTelegramWidget);
+});
 
 const syncBodyLock = () => {
   const hasOpenModal = Array.from(modals).some((modal) => modal.classList.contains('open'));
