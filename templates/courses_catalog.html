@@ -1,0 +1,109 @@
+{% extends "base_marketing.html" %}
+
+{% block title %}Все курсы Peaky Minds — разработка, аналитика, QA, инфраструктура и automation{% endblock %}
+{% block description %}Каталог всех курсов Peaky Minds: Python, Front-end, Backend, Full-stack, аналитика, QA, DevOps, системное администрирование и автоматизация бизнеса.{% endblock %}
+{% block body_class %}journal-page courses-page{% endblock %}
+
+{% block content %}
+<section class="pm-journal-page">
+  <div class="container">
+    <div class="pm-journal-breadcrumbs">
+      <a href="/">Главная</a>
+      <span>/</span>
+      <strong>Курсы</strong>
+    </div>
+
+    <div class="pm-journal-hero">
+      <div class="pm-journal-hero__copy">
+        <div class="pm-journal-kicker">{{ courses_page.eyebrow }}</div>
+        <h1>{{ courses_page.title }}</h1>
+        <p>{{ courses_page.description }}</p>
+      </div>
+      <div class="pm-journal-hero__aside">
+        <span class="pm-journal-hero__meta">Learning tracks</span>
+        <strong>{{ courses_page.courses | length }} программ</strong>
+        <span>Фильтры по направлениям, быстрый поиск и переход в детальную программу каждого трека.</span>
+      </div>
+    </div>
+
+    <div class="pm-posts-catalog pm-courses-catalog" data-course-catalog>
+      <div class="pm-journal-chip-row">
+        {% for category in courses_page.categories %}
+        <button class="pm-journal-chip{% if category.key == 'all' %} is-active{% endif %}" type="button" data-course-filter="{{ category.key }}">
+          <span>{{ category.label }}</span>
+          <small>{{ category.count }}</small>
+        </button>
+        {% endfor %}
+      </div>
+
+      <div class="pm-journal-toolbar">
+        <label class="pm-journal-search">
+          <input type="search" placeholder="Поиск по ролям, стеку и названиям курсов" data-course-search>
+          <span>Поиск</span>
+        </label>
+        <label class="pm-course-sort pm-course-sort--toolbar">
+          <span>Сортировка</span>
+          <select data-course-sort>
+            {% for option in courses_page.sort_options %}
+            <option value="{{ option.key }}">{{ option.label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <div class="pm-journal-results">
+          В каталоге видно
+          <strong data-course-filter-count>{{ courses_page.courses | length }} курсов</strong>
+        </div>
+      </div>
+
+      <div class="pm-posts-lead">
+        <div class="pm-journal-promo pm-journal-promo--wide">
+          <div class="pm-journal-kicker">Навигация по каталогу</div>
+          <h3>{{ courses_page.promo.title }}</h3>
+          <p>{{ courses_page.promo.text }}</p>
+          <div class="pm-journal-promo__actions">
+            <button class="btn btn-primary" type="button" data-open-modal="apply">{{ courses_page.promo.primary_cta }}</button>
+            <a class="btn btn-secondary" href="/blog">{{ courses_page.promo.secondary_cta }}</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="pm-course-grid">
+        {% for course in courses_page.courses %}
+        <article
+          class="pm-course-card pm-course-card--catalog"
+          data-course-card
+          data-course-group="{{ course.group }}"
+          data-course-name="{{ (course.name ~ ' ' ~ course.track_label ~ ' ' ~ course.group_label ~ ' ' ~ course.chips|join(' ')) | lower }}"
+          data-course-price="{{ course.price_value }}"
+          data-course-duration="{{ course.duration_value }}"
+          data-course-direction-order="{{ course.direction_order }}"
+        >
+          <div class="pm-course-card__top">
+            <span class="pm-course-card__label">{{ course.track_label }}</span>
+            <span class="pm-course-card__price">от {{ course.price }}</span>
+          </div>
+          <h3>{{ course.name }}</h3>
+          <p>{{ course.lead }}</p>
+          <div class="pm-course-card__chips">
+            <span>{{ course.group_label }}</span>
+            <span>{{ course.duration }}</span>
+            {% for chip in course.chips %}
+            <span>{{ chip }}</span>
+            {% endfor %}
+          </div>
+          <div class="pm-course-card__actions">
+            <a class="btn btn-secondary" href="{{ course.path }}">Смотреть программу</a>
+            <button class="btn btn-primary" type="button" data-open-modal="apply">Выбрать</button>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      <div class="pm-posts-empty" data-course-empty hidden>
+        <strong>Курсы не найдены</strong>
+        <p>Попробуйте сменить фильтр или сократить поисковый запрос.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -445,91 +445,81 @@
 </section>
 
 <section class="pm-section" id="courses">
-  <div class="container">
+  <div class="container" data-course-catalog>
     <div class="pm-section-head reveal">
       <div>
         <div class="eyebrow eyebrow--dark">Направления</div>
-        <h2 class="display-title">Четыре трека под разные цели, темп и уровень подготовки</h2>
+        <h2 class="display-title">Каталог курсов под разные роли, цели и уровень подготовки</h2>
       </div>
-      <p>Можно стартовать с базового Python, идти в backend и full-stack, строить ML‑траекторию или быстро уходить в автоматизацию бизнес‑процессов и прикладной фриланс.</p>
+      <p>Можно стартовать с базового Python, уйти в frontend или backend, строить трек в аналитике, QA, инфраструктуре или выбрать системную роль, если вам ближе процессы, требования и архитектура.</p>
+    </div>
+
+    <div class="pm-course-filter reveal">
+      <div class="pm-course-filter__tabs" role="tablist" aria-label="Фильтр курсов">
+        <button class="c-pill is-active" type="button" data-course-filter="all">Все</button>
+        <button class="c-pill" type="button" data-course-filter="start">Старт</button>
+        <button class="c-pill" type="button" data-course-filter="development">Разработка</button>
+        <button class="c-pill" type="button" data-course-filter="analytics">Аналитика</button>
+        <button class="c-pill" type="button" data-course-filter="quality">QA</button>
+        <button class="c-pill" type="button" data-course-filter="infrastructure">Инфраструктура</button>
+        <button class="c-pill" type="button" data-course-filter="business">Бизнес и automation</button>
+      </div>
+      <div class="pm-course-filter__meta">
+        <label class="pm-course-sort">
+          <span>Сортировка</span>
+          <select data-course-sort>
+            <option value="default">Сначала рекомендуемые</option>
+            <option value="price-asc">По цене: дешевле</option>
+            <option value="price-desc">По цене: дороже</option>
+            <option value="duration-asc">По длительности: быстрее</option>
+            <option value="duration-desc">По длительности: дольше</option>
+            <option value="direction">По направлению</option>
+          </select>
+        </label>
+        <span class="pm-student-mini-tag" data-course-filter-count>{{ home_courses|length }} курсов</span>
+      </div>
+    </div>
+
+    <div class="pm-journal-toolbar pm-course-toolbar reveal">
+      <label class="pm-journal-search">
+        <input type="search" placeholder="Поиск по ролям, стеку и названиям курсов" data-course-search>
+        <span>Поиск</span>
+      </label>
     </div>
 
     <div class="pm-course-grid reveal">
-      <article class="pm-course-card">
+      {% for course in home_courses %}
+      <article
+        class="pm-course-card"
+        data-course-card
+        data-course-group="{{ course.catalog_group }}"
+        data-course-name="{{ (course.name ~ ' ' ~ course.track_label ~ ' ' ~ course.catalog_label ~ ' ' ~ course.hero_stack|join(' ')) | lower }}"
+        data-course-price="{{ course.prices[0].new.split('₽', 1)[0].replace(' ', '').strip() }}"
+        data-course-duration="{{ course.hero_bullets[1].value.split('-', 1)[0].split()[0] }}"
+        data-course-direction-order="{{ {'start': 1, 'development': 2, 'analytics': 3, 'quality': 4, 'infrastructure': 5, 'business': 6}.get(course.catalog_group, 99) }}"
+      >
         <div class="pm-course-card__top">
-          <span class="pm-course-card__label">Full‑stack</span>
-          <span class="pm-course-card__price">от 900 ₽ / час</span>
+          <span class="pm-course-card__label">{{ course.track_label }}</span>
+          <span class="pm-course-card__price">от {{ course.prices[0].new }}</span>
         </div>
-        <h3>Backend и продуктовая разработка</h3>
-        <p>FastAPI, базы данных, архитектура, деплой, quality mindset и подготовка к коммерческим backend-задачам.</p>
+        <h3>{{ course.name }}</h3>
+        <p>{{ course.hero_lead }}</p>
         <div class="pm-course-card__chips">
-          <span>FastAPI</span>
-          <span>SQLAlchemy</span>
-          <span>PostgreSQL</span>
-          <span>Docker</span>
+          {% for chip in course.hero_stack[:4] %}
+          <span>{{ chip }}</span>
+          {% endfor %}
         </div>
         <div class="pm-course-card__actions">
-          <a class="btn btn-secondary" href="/courses/fullstack">Смотреть программу</a>
+          <a class="btn btn-secondary" href="{{ course.path }}">Смотреть программу</a>
           <button class="btn btn-primary" type="button" data-open-modal="apply">Выбрать</button>
         </div>
       </article>
+      {% endfor %}
+    </div>
 
-      <article class="pm-course-card">
-        <div class="pm-course-card__top">
-          <span class="pm-course-card__label">Python Start</span>
-          <span class="pm-course-card__price">от 635 ₽ / час</span>
-        </div>
-        <h3>Python для новичков</h3>
-        <p>Быстрый и понятный вход в программирование через небольшие проекты, сценарии автоматизации и базовые инструменты разработки.</p>
-        <div class="pm-course-card__chips">
-          <span>Python</span>
-          <span>Git</span>
-          <span>requests</span>
-          <span>SQLite</span>
-        </div>
-        <div class="pm-course-card__actions">
-          <a class="btn btn-secondary" href="/courses/python-beginners">Смотреть программу</a>
-          <button class="btn btn-primary" type="button" data-open-modal="apply">Выбрать</button>
-        </div>
-      </article>
-
-      <article class="pm-course-card">
-        <div class="pm-course-card__top">
-          <span class="pm-course-card__label">Data Science / ML</span>
-          <span class="pm-course-card__price">от 1200 ₽ / час</span>
-        </div>
-        <h3>Данные, модели и прикладной ML</h3>
-        <p>Сильная практика по данным, NLP, CV и production‑подходу к inference через реальные кейсы и портфолио.</p>
-        <div class="pm-course-card__chips">
-          <span>PyTorch</span>
-          <span>Hugging Face</span>
-          <span>OpenCV</span>
-          <span>FastAPI</span>
-        </div>
-        <div class="pm-course-card__actions">
-          <a class="btn btn-secondary" href="/courses/data-science">Смотреть программу</a>
-          <button class="btn btn-primary" type="button" data-open-modal="apply">Выбрать</button>
-        </div>
-      </article>
-
-      <article class="pm-course-card">
-        <div class="pm-course-card__top">
-          <span class="pm-course-card__label">Business Automation</span>
-          <span class="pm-course-card__price">от 1200 ₽ / час</span>
-        </div>
-        <h3>Автоматизация и прикладной фриланс</h3>
-        <p>Парсеры, боты, отчёты, интеграции и сервисы, которые помогают компаниям и быстро дают реальные кейсы для рынка.</p>
-        <div class="pm-course-card__chips">
-          <span>Automation</span>
-          <span>Telegram</span>
-          <span>Parsing</span>
-          <span>FastAPI</span>
-        </div>
-        <div class="pm-course-card__actions">
-          <a class="btn btn-secondary" href="/courses/business">Смотреть программу</a>
-          <button class="btn btn-primary" type="button" data-open-modal="apply">Выбрать</button>
-        </div>
-      </article>
+    <div class="pm-posts-empty" data-course-empty hidden>
+      <strong>Курсы не найдены</strong>
+      <p>Попробуйте сменить фильтр или сократить поисковый запрос.</p>
     </div>
   </div>
 </section>

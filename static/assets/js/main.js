@@ -216,10 +216,61 @@ if (mobileDrawer) {
   });
 }
 
+const coursesMenus = document.querySelectorAll('[data-courses-menu]');
+
+coursesMenus.forEach((menu) => {
+  const toggle = menu.querySelector('[data-courses-toggle]');
+  const panel = menu.querySelector('[data-courses-panel]');
+  if (!toggle || !panel) return;
+
+  const closeMenu = () => {
+    menu.classList.remove('is-open');
+    toggle.setAttribute('aria-expanded', 'false');
+    panel.hidden = true;
+  };
+
+  const openMenu = () => {
+    menu.classList.add('is-open');
+    toggle.setAttribute('aria-expanded', 'true');
+    panel.hidden = false;
+  };
+
+  toggle.addEventListener('click', (event) => {
+    event.stopPropagation();
+    if (menu.classList.contains('is-open')) {
+      closeMenu();
+      return;
+    }
+    coursesMenus.forEach((item) => {
+      if (item !== menu) {
+        item.classList.remove('is-open');
+        const itemToggle = item.querySelector('[data-courses-toggle]');
+        const itemPanel = item.querySelector('[data-courses-panel]');
+        if (itemToggle) itemToggle.setAttribute('aria-expanded', 'false');
+        if (itemPanel) itemPanel.hidden = true;
+      }
+    });
+    openMenu();
+  });
+
+  panel.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+
+  document.addEventListener('click', (event) => {
+    if (!menu.contains(event.target)) closeMenu();
+  });
+});
+
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
     modals.forEach((modal) => {
       if (modal.classList.contains('open')) closeModal(modal);
+    });
+    coursesMenus.forEach((menu) => {
+      menu.classList.remove('is-open');
+      const toggle = menu.querySelector('[data-courses-toggle]');
+      const panel = menu.querySelector('[data-courses-panel]');
+      if (toggle) toggle.setAttribute('aria-expanded', 'false');
+      if (panel) panel.hidden = true;
     });
     if (document.body.classList.contains('drawer-open')) closeDrawer();
   }
@@ -1002,4 +1053,95 @@ postsCatalogs.forEach((catalog) => {
   }
 
   applyPostsFilter();
+});
+
+const courseCatalogs = document.querySelectorAll('[data-course-catalog]');
+
+courseCatalogs.forEach((catalog) => {
+  const buttons = Array.from(catalog.querySelectorAll('[data-course-filter]'));
+  const cards = Array.from(catalog.querySelectorAll('[data-course-card]'));
+  const countNode = catalog.querySelector('[data-course-filter-count]');
+  const searchField = catalog.querySelector('[data-course-search]');
+  const sortField = catalog.querySelector('[data-course-sort]');
+  const emptyNode = catalog.querySelector('[data-course-empty]');
+  const cardsGrid = cards[0]?.parentElement;
+  if (!buttons.length || !cards.length) return;
+
+  let activeGroup =
+    buttons.find((button) => button.classList.contains('is-active'))?.dataset.courseFilter || 'all';
+  let activeSort = sortField?.value || 'default';
+
+  const getNumericAttr = (card, attrName, fallback) => {
+    const value = Number(card.dataset[attrName]);
+    return Number.isFinite(value) ? value : fallback;
+  };
+
+  const applyCourseFilter = () => {
+    const query = (searchField?.value || '').trim().toLowerCase();
+    let visibleCount = 0;
+    const visibleCards = [];
+    cards.forEach((card) => {
+      const matchesGroup = activeGroup === 'all' || card.dataset.courseGroup === activeGroup;
+      const haystack = card.dataset.courseName || '';
+      const matchesQuery = !query || haystack.includes(query);
+      const isVisible = matchesGroup && matchesQuery;
+      card.hidden = !isVisible;
+      if (isVisible) {
+        visibleCount += 1;
+        visibleCards.push(card);
+      }
+    });
+
+    const comparators = {
+      default: (a, b) => cards.indexOf(a) - cards.indexOf(b),
+      'price-asc': (a, b) => getNumericAttr(a, 'coursePrice', 999999) - getNumericAttr(b, 'coursePrice', 999999),
+      'price-desc': (a, b) => getNumericAttr(b, 'coursePrice', 0) - getNumericAttr(a, 'coursePrice', 0),
+      'duration-asc': (a, b) => getNumericAttr(a, 'courseDuration', 999) - getNumericAttr(b, 'courseDuration', 999),
+      'duration-desc': (a, b) => getNumericAttr(b, 'courseDuration', 0) - getNumericAttr(a, 'courseDuration', 0),
+      direction: (a, b) => {
+        const byDirection = getNumericAttr(a, 'courseDirectionOrder', 999) - getNumericAttr(b, 'courseDirectionOrder', 999);
+        if (byDirection !== 0) return byDirection;
+        return (a.dataset.courseName || '').localeCompare(b.dataset.courseName || '', 'ru');
+      },
+    };
+    visibleCards
+      .sort(comparators[activeSort] || comparators.default)
+      .forEach((card) => {
+        cardsGrid?.appendChild(card);
+      });
+
+    cards.forEach((card) => {
+      if (card.hidden) {
+        cardsGrid?.appendChild(card);
+      }
+    });
+
+    if (countNode) {
+      countNode.textContent = `${visibleCount} курсов`;
+    }
+    if (emptyNode) {
+      emptyNode.hidden = visibleCount !== 0;
+    }
+  };
+
+  buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+      activeGroup = button.dataset.courseFilter || 'all';
+      buttons.forEach((item) => item.classList.toggle('is-active', item === button));
+      applyCourseFilter();
+    });
+  });
+
+  if (searchField) {
+    searchField.addEventListener('input', applyCourseFilter);
+  }
+
+  if (sortField) {
+    sortField.addEventListener('change', () => {
+      activeSort = sortField.value || 'default';
+      applyCourseFilter();
+    });
+  }
+
+  applyCourseFilter();
 });

@@ -13,7 +13,7 @@ from routes.journal_content import (
     build_posts_page_content,
     get_journal_posts,
 )
-from routes.course_content import COURSE_PAGES
+from routes.course_content import COURSE_PAGES, HOME_COURSE_KEYS, build_course_catalog_content
 from routes.homepage_content import CALENDAR_PREVIEW
 
 router = APIRouter()
@@ -47,6 +47,7 @@ async def index(request: Request):
         {
             "amp_css": _load_amp_css(),
             "calendar_preview": CALENDAR_PREVIEW,
+            "home_courses": [COURSE_PAGES[key] for key in HOME_COURSE_KEYS],
         },
     )
 
@@ -59,6 +60,7 @@ async def index_alias(request: Request):
         {
             "amp_css": _load_amp_css(),
             "calendar_preview": CALENDAR_PREVIEW,
+            "home_courses": [COURSE_PAGES[key] for key in HOME_COURSE_KEYS],
         },
     )
 
@@ -144,11 +146,9 @@ async def sitemap(request: Request):
         ("", "1.0"),
         ("blog", "0.85"),
         ("posts", "0.8"),
-        ("courses/fullstack", "0.85"),
-        ("courses/data-science", "0.85"),
-        ("courses/business", "0.85"),
-        ("courses/python-beginners", "0.85"),
+        ("courses", "0.9"),
     ]
+    urls.extend((course["path"].lstrip("/"), "0.85") for course in COURSE_PAGES.values())
     urls.extend((f"posts/{post['slug']}", "0.72") for post in get_journal_posts())
     entries = "\n".join(
         [
@@ -171,6 +171,19 @@ async def sitemap(request: Request):
 @router.get("/course-fullstack.html", include_in_schema=False)
 async def course_fullstack_legacy(request: Request):
     return RedirectResponse("/courses/fullstack", status_code=HTTP_302_FOUND)
+
+
+@router.get("/courses", include_in_schema=False)
+@router.get("/courses/", include_in_schema=False)
+async def courses_catalog(request: Request):
+    return render(
+        request,
+        "courses_catalog.html",
+        {
+            "amp_css": _load_amp_css(),
+            "courses_page": build_course_catalog_content(),
+        },
+    )
 
 
 @router.get("/courses/fullstack", include_in_schema=False)
@@ -210,6 +223,17 @@ async def course_business(request: Request):
 @router.get("/courses/python-beginners/", include_in_schema=False)
 async def course_python_beginners(request: Request):
     return _render_course(request, "python_start", "Python для новичков")
+
+
+@router.get("/courses/{slug}", include_in_schema=False)
+@router.get("/courses/{slug}/", include_in_schema=False)
+async def course_dynamic(request: Request, slug: str):
+    for course_key, course in COURSE_PAGES.items():
+        if course["path"].rstrip("/").endswith("/" + slug):
+            return _render_course(request, course_key, course["name"])
+    response = render(request, "404.html", {"amp_css": _load_amp_css()})
+    response.status_code = 404
+    return response
 
 
 @router.get("/healthz", include_in_schema=False)
