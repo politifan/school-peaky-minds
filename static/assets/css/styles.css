@@ -295,7 +295,7 @@ section {
   bottom: -6px;
   width: 100%;
   height: 2px;
-  background: linear-gradient(120deg, var(--accent-2), var(--accent-1), var(--accent-3));
+  background: linear-gradient(120deg, var(--pm-accent-2), var(--pm-accent-1), var(--pm-accent-3));
   border-radius: 999px;
   opacity: 0;
   transition: opacity 0.2s var(--ease-out);
@@ -7024,6 +7024,17 @@ body.shell-student .site-header--student .nav-user--marketing .avatar {
 
 body.shell-student .site-main--student {
   padding: 34px 0 88px;
+}
+
+body.shell-student .btn-primary {
+  background: var(--pm-gradient-main);
+  color: #ffffff;
+  box-shadow: 0 16px 36px rgba(85, 78, 255, 0.22);
+  border: none;
+}
+
+body.shell-student .btn-primary:hover {
+  box-shadow: 0 22px 44px rgba(85, 78, 255, 0.28);
 }
 
 body.shell-student .site-footer--student {
