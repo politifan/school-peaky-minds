@@ -5141,12 +5141,21 @@ body.shell-marketing .pm-calendar-month,
 body.shell-marketing .pm-calendar-agenda-tab {
   min-height: 38px;
   padding: 0 14px;
-  border: 1px solid rgba(17, 18, 24, 0.1);
+  border: 1px solid rgba(17, 18, 24, 0.18);
   border-radius: 999px;
-  background: rgba(17, 18, 24, 0.04);
-  color: #323746;
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.82);
   font-size: 0.9rem;
   font-weight: 700;
+}
+
+body.shell-marketing .pm-calendar-month:hover,
+body.shell-marketing .pm-calendar-month:focus-visible,
+body.shell-marketing .pm-calendar-agenda-tab:hover,
+body.shell-marketing .pm-calendar-agenda-tab:focus-visible {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.26);
+  color: #ffffff;
 }
 
 body.shell-marketing .pm-calendar-month.is-active,
@@ -9446,6 +9455,10 @@ body.shell-marketing .pm-posts-empty {
   border-radius: var(--pm-radius-md);
   border: 1px dashed rgba(109, 82, 255, 0.28);
   background: rgba(109, 82, 255, 0.04);
+}
+
+body.shell-marketing .pm-posts-empty[hidden] {
+  display: none !important;
 }
 
 body.shell-marketing .pm-post-card[hidden] {

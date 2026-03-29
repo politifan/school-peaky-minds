@@ -179,7 +179,11 @@
         <p>Онлайн IT‑обучение с упором на реальные проекты, практику, портфолио и карьерный рост.</p>
         <div class="site-footer__actions">
           <button class="btn btn-primary" type="button" data-open-modal="apply">Получить консультацию</button>
+          {% if user %}
+          <a class="btn btn-secondary" href="/account">Личный кабинет</a>
+          {% else %}
           <a class="btn btn-secondary" href="/login">Войти</a>
+          {% endif %}
         </div>
       </div>
 
