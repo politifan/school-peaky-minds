@@ -183,11 +183,11 @@ def format_moscow_date(dt: Optional[datetime] = None) -> str:
 def duration_discount_percent(duration: Optional[str]) -> int:
     value = (duration or "").strip().lower()
     mapping = {
-        "??????": 0,
-        "1 ?????": 5,
-        "3 ??????": 10,
-        "6 ???????": 15,
-        "12 ???????": 20,
+        "разово": 0,
+        "1 месяц": 5,
+        "3 месяца": 10,
+        "6 месяцев": 15,
+        "12 месяцев": 20,
     }
     return int(mapping.get(value, 0))
 
@@ -197,15 +197,47 @@ def course_rate(course: Optional[str], duration: Optional[str] = None) -> Option
     if not value:
         return None
 
-    base_rate: Optional[int] = None
-    if "full" in value:
-        base_rate = 1500
-    elif "data" in value or "science" in value or "????????" in value:
-        base_rate = 2000
-    elif "business" in value or "??????" in value or "???????????" in value:
-        base_rate = 2000
-    elif "python" in value:
-        base_rate = 1000
+    course_rates = {
+        "python для новичков": 500,
+        "front-end разработчик": 700,
+        "backend разработчик": 800,
+        "full-stack разработчик": 1000,
+        "тестировщик": 700,
+        "аналитик данных": 700,
+        "бизнес-аналитик": 800,
+        "системный аналитик": 700,
+        "data science / ml engineer": 1000,
+        "data science / ml": 1000,
+        "системный администратор": 700,
+        "devops инженер": 1000,
+        "автоматизация бизнеса": 1000,
+        "программирование для бизнеса": 1000,
+    }
+
+    base_rate = course_rates.get(value)
+    if base_rate is None:
+        alias_matches = [
+            ("python", 500),
+            ("front", 700),
+            ("backend", 800),
+            ("full", 1000),
+            ("qa", 700),
+            ("test", 700),
+            ("data science", 1000),
+            ("ml", 1000),
+            ("data analyst", 700),
+            ("business analyst", 800),
+            ("system analyst", 700),
+            ("sysadmin", 700),
+            ("administrator", 700),
+            ("devops", 1000),
+            ("business", 1000),
+            ("automation", 1000),
+        ]
+        for marker, rate in alias_matches:
+            if marker in value:
+                base_rate = rate
+                break
 
     if base_rate is None:
         return None
