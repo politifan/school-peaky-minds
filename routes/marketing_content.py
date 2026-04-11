@@ -574,6 +574,12 @@ def _extract_numeric_value(raw: Any) -> int:
     return int(match.group(0).replace(" ", ""))
 
 
+def _extract_numeric_values(raw: Any) -> List[int]:
+    if raw is None:
+        return []
+    return [int(item.replace(" ", "")) for item in re.findall(r"\d[\d\s]*", str(raw))]
+
+
 def _format_number(value: int) -> str:
     return f"{max(0, int(value)):,}".replace(",", " ")
 
@@ -822,14 +828,48 @@ def build_homepage_marketing() -> Dict[str, Any]:
     payload["video"] = deepcopy(MARKETING_RUNTIME["video"])
     payload["intent_nav"] = _build_home_intent_nav()
     payload["compare_tracks"] = _build_home_compare_tracks()
+    roi_visuals = {
+        "python_start": {
+            "accent": "#ff9a62",
+            "accent_soft": "rgba(255, 154, 98, 0.18)",
+            "href": "/courses/python-beginners",
+        },
+        "fullstack": {
+            "accent": "#6a8dff",
+            "accent_soft": "rgba(106, 141, 255, 0.18)",
+            "href": "/courses/fullstack",
+        },
+        "data_science": {
+            "accent": "#26b89a",
+            "accent_soft": "rgba(38, 184, 154, 0.18)",
+            "href": "/courses/data-science",
+        },
+        "business": {
+            "accent": "#ff6d8f",
+            "accent_soft": "rgba(255, 109, 143, 0.18)",
+            "href": "/courses/business",
+        },
+    }
     payload["roi_tracks"] = [
         {
             "key": key,
             "label": label,
             "salary_range": meta["salary"]["range"],
+            "salary_note": meta["salary"]["label"],
+            "salary_min": (_extract_numeric_values(meta["salary"]["range"]) + [meta["roi"]["entry_salary"]])[0],
+            "salary_max": (
+                _extract_numeric_values(meta["salary"]["range"]) + [meta["roi"]["entry_salary"], meta["roi"]["entry_salary"]]
+            )[-1],
             "course_cost": meta["roi"]["course_cost"],
             "time_to_offer": meta["roi"]["time_to_offer"],
             "entry_salary": meta["roi"]["entry_salary"],
+            "summary": meta["summary"],
+            "slogan": meta["slogan"],
+            "alumni_result": meta["alumni"]["result"],
+            "alumni_timeline": meta["alumni"]["timeline"],
+            "accent": roi_visuals[key]["accent"],
+            "accent_soft": roi_visuals[key]["accent_soft"],
+            "href": roi_visuals[key]["href"],
         }
         for key, label, meta in (
             ("python_start", "Python Start", TRACK_MARKETING["python_start"]),
@@ -837,6 +877,32 @@ def build_homepage_marketing() -> Dict[str, Any]:
             ("data_science", "Data Science / ML", TRACK_MARKETING["data_science"]),
             ("business", "Automation / Business", TRACK_MARKETING["business"]),
         )
+    ]
+    payload["roi_scenarios"] = [
+        {
+            "key": "steady",
+            "label": "Спокойный темп",
+            "description": "Комфортный ритм с мягким входом и запасом по срокам.",
+            "offer_shift": 1,
+            "salary_factor": 0.9,
+            "payback_share": 0.25,
+        },
+        {
+            "key": "balanced",
+            "label": "Рабочий ритм",
+            "description": "Базовый сценарий: стабильная практика и нормальный темп.",
+            "offer_shift": 0,
+            "salary_factor": 0.97,
+            "payback_share": 0.35,
+        },
+        {
+            "key": "intense",
+            "label": "Интенсив",
+            "description": "Плотная практика и более быстрый выход на коммерцию.",
+            "offer_shift": -1,
+            "salary_factor": 1.05,
+            "payback_share": 0.45,
+        },
     ]
     return payload
 

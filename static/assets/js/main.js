@@ -1414,50 +1414,254 @@ if (quizCard && pageMarketing?.quiz?.results) {
 
 const roiCalculator = document.querySelector('[data-roi-calculator]');
 
-if (roiCalculator && Array.isArray(pageMarketing?.roi_tracks) && pageMarketing.roi_tracks.length) {
-  const trackField = roiCalculator.querySelector('[data-roi-track]');
+if (
+  roiCalculator &&
+  Array.isArray(pageMarketing?.roi_tracks) &&
+  pageMarketing.roi_tracks.length &&
+  Array.isArray(pageMarketing?.roi_scenarios) &&
+  pageMarketing.roi_scenarios.length
+) {
+  const roundToStep = (value, step = 5000) => Math.round(value / step) * step;
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+  const trackButtons = Array.from(roiCalculator.querySelectorAll('[data-roi-track-option]'));
+  const scenarioButtons = Array.from(roiCalculator.querySelectorAll('[data-roi-scenario]'));
+  const presetButtons = Array.from(roiCalculator.querySelectorAll('[data-roi-salary-preset]'));
   const salaryField = roiCalculator.querySelector('[data-roi-salary]');
+  const salaryRangeField = roiCalculator.querySelector('[data-roi-salary-range]');
+  const salaryValueNode = roiCalculator.querySelector('[data-roi-salary-value]');
+  const salaryRangeLabel = roiCalculator.querySelector('[data-roi-salary-range-label]');
   const resultTitle = roiCalculator.querySelector('[data-roi-result-title]');
   const resultText = roiCalculator.querySelector('[data-roi-result-text]');
+  const activeTrackChip = roiCalculator.querySelector('[data-roi-active-track]');
+  const activeScenarioChip = roiCalculator.querySelector('[data-roi-active-scenario]');
+  const metricOffer = roiCalculator.querySelector('[data-roi-metric-offer]');
+  const metricSalary = roiCalculator.querySelector('[data-roi-metric-salary]');
+  const metricRange = roiCalculator.querySelector('[data-roi-metric-range]');
+  const metricPayback = roiCalculator.querySelector('[data-roi-metric-payback]');
+  const metricShare = roiCalculator.querySelector('[data-roi-metric-share]');
+  const metricYear = roiCalculator.querySelector('[data-roi-metric-year]');
+  const timelineTotal = roiCalculator.querySelector('[data-roi-timeline-total]');
+  const studySegment = roiCalculator.querySelector('[data-roi-study-segment]');
+  const paybackSegment = roiCalculator.querySelector('[data-roi-payback-segment]');
+  const studyMonths = roiCalculator.querySelector('[data-roi-study-months]');
+  const paybackMonthsNode = roiCalculator.querySelector('[data-roi-payback-months]');
+  const proofTitle = roiCalculator.querySelector('[data-roi-proof-title]');
+  const proofText = roiCalculator.querySelector('[data-roi-proof-text]');
+  const trackLink = roiCalculator.querySelector('[data-roi-track-link]');
   const tracks = pageMarketing.roi_tracks.reduce((acc, item) => {
     acc[item.key] = item;
     return acc;
   }, {});
+  const scenarios = pageMarketing.roi_scenarios.reduce((acc, item) => {
+    acc[item.key] = item;
+    return acc;
+  }, {});
+  const defaultTrack = tracks.fullstack || pageMarketing.roi_tracks[0];
+  const defaultScenario = scenarios.balanced || pageMarketing.roi_scenarios[0];
+  let activeTrackKey = defaultTrack?.key || pageMarketing.roi_tracks[0].key;
+  let activeScenarioKey = defaultScenario?.key || pageMarketing.roi_scenarios[0].key;
 
-  const updateRoi = () => {
-    const activeTrack = tracks[trackField?.value] || pageMarketing.roi_tracks[0];
-    if (!activeTrack) return;
+  const getTrackBounds = (track) => {
+    const min = roundToStep(Math.max(50000, Number(track.salary_min) || track.entry_salary || 60000));
+    const coreMax = Math.max(Number(track.salary_max) || track.entry_salary, track.entry_salary * 1.15);
+    const max = roundToStep(Math.max(min + 30000, coreMax));
+    const stretch = roundToStep(Math.max(max + 20000, max * 1.2));
+    return { min, max, stretch };
+  };
 
-    const desiredSalary = Math.max(parseNumber(salaryField?.value), activeTrack.entry_salary);
-    const paybackMonths = Math.max(1, Math.ceil(activeTrack.course_cost / desiredSalary));
-    const totalMonths = activeTrack.time_to_offer + paybackMonths;
+  const getPresetSalary = (track, preset) => {
+    const bounds = getTrackBounds(track);
+    if (preset === 'entry') {
+      return clamp(roundToStep(track.entry_salary), bounds.min, bounds.stretch);
+    }
+    if (preset === 'stretch') {
+      return clamp(roundToStep(Math.max(bounds.max, track.entry_salary * 1.15)), bounds.min, bounds.stretch);
+    }
+    return clamp(roundToStep((track.entry_salary + bounds.max) / 2), bounds.min, bounds.stretch);
+  };
 
-    if (resultTitle) {
-      resultTitle.textContent = `Окупаемость примерно за ${paybackMonths} мес. работы`;
+  const applySalaryValue = (value, track) => {
+    const bounds = getTrackBounds(track);
+    const normalized = clamp(roundToStep(value || track.entry_salary), bounds.min, bounds.stretch);
+
+    if (salaryField) {
+      salaryField.value = formatNumber(normalized);
+    }
+    if (salaryRangeField) {
+      salaryRangeField.min = String(bounds.min);
+      salaryRangeField.max = String(bounds.stretch);
+      salaryRangeField.step = '5000';
+      salaryRangeField.value = String(normalized);
+    }
+    if (salaryValueNode) {
+      salaryValueNode.textContent = formatCurrency(normalized);
+    }
+    if (salaryRangeLabel) {
+      salaryRangeLabel.textContent = `${formatCurrency(bounds.min)} - ${formatCurrency(bounds.max)} реалистичный старт`;
     }
 
+    presetButtons.forEach((button) => {
+      const presetSalary = getPresetSalary(track, button.dataset.roiSalaryPreset || 'middle');
+      const baseLabel = button.dataset.baseLabel || button.textContent.trim();
+      button.dataset.baseLabel = baseLabel;
+      button.innerHTML = `<span>${baseLabel}</span><strong>${formatCurrency(presetSalary)}</strong>`;
+      button.classList.toggle('is-active', presetSalary === normalized);
+    });
+
+    return normalized;
+  };
+
+  const computeRoi = (track, scenario, desiredSalary) => {
+    const bounds = getTrackBounds(track);
+    const salaryTarget = clamp(roundToStep(desiredSalary || track.entry_salary), bounds.min, bounds.stretch);
+    const timeToOffer = Math.max(2, track.time_to_offer + Number(scenario.offer_shift || 0));
+    const salaryFactor = Number(scenario.salary_factor || 1);
+    const paybackShare = Math.max(0.2, Number(scenario.payback_share || 0.35));
+    const firstSalary = clamp(
+      roundToStep(Math.max(track.entry_salary, salaryTarget * salaryFactor)),
+      bounds.min,
+      bounds.stretch,
+    );
+    const monthlyReturn = Math.max(12000, roundToStep(firstSalary * paybackShare, 1000));
+    const paybackMonths = Math.max(1, Math.ceil(track.course_cost / monthlyReturn));
+    const totalMonths = timeToOffer + paybackMonths;
+    const firstYearIncome = Math.max(0, Math.round(Math.max(0, 12 - timeToOffer) * firstSalary - track.course_cost));
+
+    return {
+      bounds,
+      salaryTarget,
+      timeToOffer,
+      firstSalary,
+      paybackMonths,
+      totalMonths,
+      firstYearIncome,
+      monthlyReturn,
+      paybackShare,
+    };
+  };
+
+  const renderRoi = () => {
+    const activeTrack = tracks[activeTrackKey] || defaultTrack;
+    const activeScenario = scenarios[activeScenarioKey] || defaultScenario;
+    if (!activeTrack || !activeScenario) return;
+
+    const normalizedSalary = applySalaryValue(
+      parseNumber(salaryField?.value || salaryRangeField?.value) || activeTrack.entry_salary,
+      activeTrack,
+    );
+    const roi = computeRoi(activeTrack, activeScenario, normalizedSalary);
+
+    roiCalculator.style.setProperty('--pm-roi-accent', activeTrack.accent || '#111111');
+    roiCalculator.style.setProperty('--pm-roi-accent-soft', activeTrack.accent_soft || 'rgba(17, 17, 17, 0.08)');
+
+    trackButtons.forEach((button) => {
+      const isActive = button.dataset.roiTrackOption === activeTrack.key;
+      button.classList.toggle('is-active', isActive);
+      button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    scenarioButtons.forEach((button) => {
+      const isActive = button.dataset.roiScenario === activeScenario.key;
+      button.classList.toggle('is-active', isActive);
+      button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    if (activeTrackChip) {
+      activeTrackChip.textContent = activeTrack.label;
+    }
+    if (activeScenarioChip) {
+      activeScenarioChip.textContent = activeScenario.label;
+    }
+    if (resultTitle) {
+      resultTitle.textContent = `Выход в плюс примерно на ${roi.totalMonths}-м месяце от старта`;
+    }
     if (resultText) {
       resultText.textContent =
-        `${activeTrack.label}: первая оплачиваемая роль обычно приходит через ${activeTrack.time_to_offer} мес. ` +
-        `При зарплате ${formatCurrency(desiredSalary)} курс за ${formatCurrency(activeTrack.course_cost)} ` +
-        `обычно отбивается за ${paybackMonths} мес., полный горизонт от старта — около ${totalMonths} мес.`;
+        `${activeTrack.label}: первая оплачиваемая роль обычно появляется через ${roi.timeToOffer} мес. ` +
+        `Ориентир на стартовый доход — ${formatCurrency(roi.firstSalary)}. Если направлять ${Math.round(roi.paybackShare * 100)}% ` +
+        `этого дохода на возврат вложений, курс за ${formatCurrency(activeTrack.course_cost)} обычно закрывается ещё за ${roi.paybackMonths} мес. работы.`;
+    }
+
+    if (metricOffer) metricOffer.textContent = `${roi.timeToOffer} мес.`;
+    if (metricSalary) metricSalary.textContent = formatCurrency(roi.firstSalary);
+    if (metricRange) metricRange.textContent = `${activeTrack.salary_range} • ${activeTrack.salary_note}`;
+    if (metricPayback) metricPayback.textContent = `${roi.paybackMonths} мес.`;
+    if (metricShare) metricShare.textContent = `${Math.round(roi.paybackShare * 100)}% первого дохода идёт на ROI`;
+    if (metricYear) metricYear.textContent = formatCurrency(roi.firstYearIncome);
+    if (timelineTotal) timelineTotal.textContent = `${roi.totalMonths} мес. до выхода в плюс`;
+    if (studyMonths) studyMonths.textContent = `${roi.timeToOffer} мес.`;
+    if (paybackMonthsNode) paybackMonthsNode.textContent = `${roi.paybackMonths} мес.`;
+    if (studySegment) {
+      studySegment.style.flexGrow = String(roi.timeToOffer);
+      studySegment.style.setProperty('--pm-roi-accent', activeTrack.accent || '#111111');
+    }
+    if (paybackSegment) {
+      paybackSegment.style.flexGrow = String(roi.paybackMonths);
+      paybackSegment.style.setProperty('--pm-roi-accent', activeTrack.accent || '#111111');
+    }
+    if (proofTitle) {
+      proofTitle.textContent = activeTrack.slogan || activeTrack.label;
+    }
+    if (proofText) {
+      proofText.textContent =
+        `${activeTrack.summary} Кейс выпускника: ${activeTrack.alumni_result} — ${activeTrack.alumni_timeline}.`;
+    }
+    if (trackLink) {
+      trackLink.href = activeTrack.href || '#courses';
+      trackLink.textContent = `Открыть ${activeTrack.label}`;
     }
   };
 
-  if (salaryField) {
-    salaryField.value = formatNumber(parseNumber(salaryField.value) || pageMarketing.roi_tracks[0].entry_salary);
-    salaryField.addEventListener('input', updateRoi);
-    salaryField.addEventListener('blur', () => {
-      salaryField.value = formatNumber(parseNumber(salaryField.value) || pageMarketing.roi_tracks[0].entry_salary);
-      updateRoi();
+  trackButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      activeTrackKey = button.dataset.roiTrackOption || activeTrackKey;
+      renderRoi();
+    });
+  });
+
+  scenarioButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      activeScenarioKey = button.dataset.roiScenario || activeScenarioKey;
+      renderRoi();
+    });
+  });
+
+  presetButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const activeTrack = tracks[activeTrackKey] || defaultTrack;
+      if (!activeTrack) return;
+      const salary = getPresetSalary(activeTrack, button.dataset.roiSalaryPreset || 'middle');
+      applySalaryValue(salary, activeTrack);
+      renderRoi();
+    });
+  });
+
+  if (salaryRangeField) {
+    salaryRangeField.addEventListener('input', () => {
+      const activeTrack = tracks[activeTrackKey] || defaultTrack;
+      if (!activeTrack) return;
+      applySalaryValue(parseNumber(salaryRangeField.value), activeTrack);
+      renderRoi();
     });
   }
 
-  if (trackField) {
-    trackField.addEventListener('change', updateRoi);
+  if (salaryField) {
+    salaryField.addEventListener('input', () => {
+      const activeTrack = tracks[activeTrackKey] || defaultTrack;
+      if (!activeTrack) return;
+      applySalaryValue(parseNumber(salaryField.value), activeTrack);
+      renderRoi();
+    });
+    salaryField.addEventListener('blur', () => {
+      const activeTrack = tracks[activeTrackKey] || defaultTrack;
+      if (!activeTrack) return;
+      applySalaryValue(parseNumber(salaryField.value) || activeTrack.entry_salary, activeTrack);
+      renderRoi();
+    });
   }
 
-  updateRoi();
+  applySalaryValue(defaultTrack.entry_salary, defaultTrack);
+  renderRoi();
 }
 
 const sectionJumpNavs = document.querySelectorAll('[data-section-jump-nav]');

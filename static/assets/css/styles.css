@@ -10137,7 +10137,7 @@ body.shell-marketing .pm-roi-card {
 body.shell-marketing .pm-video-showcase__copy,
 body.shell-marketing .pm-video-showcase__stage,
 body.shell-marketing .pm-roi-card__copy,
-body.shell-marketing .pm-roi-card__form {
+body.shell-marketing .pm-roi-card__shell {
   display: grid;
   gap: 16px;
 }
@@ -10275,30 +10275,468 @@ body.shell-marketing .pm-it-facts__item strong {
 }
 
 body.shell-marketing .pm-roi-card {
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.9fr);
-  align-items: center;
+  --pm-roi-accent: #6a8dff;
+  --pm-roi-accent-soft: rgba(106, 141, 255, 0.18);
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+  gap: 24px;
+  align-items: stretch;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, var(--pm-roi-accent-soft), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(16, 16, 16, 0.06), transparent 32%),
+    linear-gradient(180deg, #ffffff, #fcfcfe);
 }
 
-body.shell-marketing .pm-roi-card__form label {
+body.shell-marketing .pm-roi-card::before,
+body.shell-marketing .pm-roi-card::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+body.shell-marketing .pm-roi-card::before {
+  top: -84px;
+  right: -44px;
+  width: 220px;
+  height: 220px;
+  border: 1px solid color-mix(in srgb, var(--pm-roi-accent) 26%, transparent);
+  opacity: 0.42;
+}
+
+body.shell-marketing .pm-roi-card::after {
+  bottom: 34px;
+  left: 42%;
+  width: 86px;
+  height: 86px;
+  background: radial-gradient(circle, var(--pm-roi-accent-soft), transparent 72%);
+  opacity: 0.7;
+}
+
+body.shell-marketing .pm-roi-card__copy {
+  position: relative;
+  z-index: 1;
+  align-content: start;
+}
+
+body.shell-marketing .pm-roi-card__copy h3 {
+  max-width: 12ch;
+}
+
+body.shell-marketing .pm-roi-card__bullets {
+  display: grid;
+  gap: 12px;
+}
+
+body.shell-marketing .pm-roi-bullet {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(17, 17, 17, 0.07);
+  background: rgba(255, 255, 255, 0.86);
+}
+
+body.shell-marketing .pm-roi-bullet strong {
+  font-size: 0.98rem;
+  color: var(--pm-ink);
+}
+
+body.shell-marketing .pm-roi-bullet span {
+  color: var(--pm-ink-soft);
+  line-height: 1.5;
+}
+
+body.shell-marketing .pm-roi-card__shell {
+  position: relative;
+  z-index: 1;
+  gap: 18px;
+}
+
+body.shell-marketing .pm-roi-track-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+body.shell-marketing .pm-roi-track {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  min-height: 124px;
+  padding: 18px;
+  border: 1px solid rgba(17, 17, 17, 0.07);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, #ffffff, rgba(248, 249, 252, 0.96)),
+    radial-gradient(circle at top right, var(--pm-roi-accent-soft), transparent 46%);
+  color: var(--pm-ink);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+body.shell-marketing .pm-roi-track::after {
+  content: "";
+  position: absolute;
+  inset: 12px 12px auto auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--pm-roi-accent) 14%, #ffffff);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pm-roi-accent) 18%, transparent);
+}
+
+body.shell-marketing .pm-roi-track strong {
+  font-size: 1rem;
+}
+
+body.shell-marketing .pm-roi-track span {
+  color: var(--pm-ink);
+  font-weight: 700;
+}
+
+body.shell-marketing .pm-roi-track small {
+  color: var(--pm-ink-soft);
+  line-height: 1.45;
+}
+
+body.shell-marketing .pm-roi-track:hover,
+body.shell-marketing .pm-roi-track:focus-visible,
+body.shell-marketing .pm-roi-track.is-active {
+  border-color: color-mix(in srgb, var(--pm-roi-accent) 52%, transparent);
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--pm-roi-accent) 18%, transparent);
+  transform: translateY(-2px);
+}
+
+body.shell-marketing .pm-roi-track.is-active {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 251, 255, 0.98)),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--pm-roi-accent) 18%, transparent), transparent 48%);
+}
+
+body.shell-marketing .pm-roi-card__controls {
+  display: grid;
+  grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
+  gap: 14px;
+}
+
+body.shell-marketing .pm-roi-card__control,
+body.shell-marketing .pm-roi-stage {
+  padding: 20px;
+  border-radius: 26px;
+  border: 1px solid rgba(17, 17, 17, 0.07);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+body.shell-marketing .pm-roi-card__label {
+  display: inline-flex;
+  margin-bottom: 10px;
+  color: var(--pm-ink-soft);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body.shell-marketing .pm-roi-scenario-grid {
+  display: grid;
+  gap: 10px;
+}
+
+body.shell-marketing .pm-roi-scenario {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid rgba(17, 17, 17, 0.07);
+  border-radius: 18px;
+  background: var(--pm-surface-soft);
+  color: var(--pm-ink);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+body.shell-marketing .pm-roi-scenario strong {
+  font-size: 0.98rem;
+}
+
+body.shell-marketing .pm-roi-scenario span {
+  color: var(--pm-ink-soft);
+  line-height: 1.45;
+}
+
+body.shell-marketing .pm-roi-scenario:hover,
+body.shell-marketing .pm-roi-scenario:focus-visible,
+body.shell-marketing .pm-roi-scenario.is-active {
+  border-color: color-mix(in srgb, var(--pm-roi-accent) 46%, transparent);
+  background: color-mix(in srgb, var(--pm-roi-accent) 8%, #ffffff);
+  transform: translateY(-1px);
+}
+
+body.shell-marketing .pm-roi-card__control--salary {
+  display: grid;
+  gap: 14px;
+}
+
+body.shell-marketing .pm-roi-salary-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: end;
+}
+
+body.shell-marketing .pm-roi-salary-head strong {
+  display: block;
+  margin-top: 6px;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  line-height: 0.94;
+  letter-spacing: -0.05em;
+  color: var(--pm-ink);
+}
+
+body.shell-marketing .pm-roi-salary-head small,
+body.shell-marketing .pm-roi-card__assumption {
+  color: var(--pm-ink-soft);
+}
+
+body.shell-marketing .pm-roi-card__control--salary input[type="range"] {
+  width: 100%;
+  accent-color: var(--pm-roi-accent);
+}
+
+body.shell-marketing .pm-roi-salary-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+body.shell-marketing .pm-roi-salary-presets button {
+  display: grid;
+  gap: 3px;
+  min-width: 116px;
+  padding: 12px 14px;
+  border: 1px solid rgba(17, 17, 17, 0.07);
+  border-radius: 18px;
+  background: #ffffff;
+  color: var(--pm-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+body.shell-marketing .pm-roi-salary-presets button span {
+  color: var(--pm-ink-soft);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body.shell-marketing .pm-roi-salary-presets button strong {
+  font-size: 0.96rem;
+}
+
+body.shell-marketing .pm-roi-salary-presets button.is-active {
+  border-color: color-mix(in srgb, var(--pm-roi-accent) 46%, transparent);
+  background: color-mix(in srgb, var(--pm-roi-accent) 10%, #ffffff);
+}
+
+body.shell-marketing .pm-roi-card__manual {
   display: grid;
   gap: 8px;
 }
 
-body.shell-marketing .pm-roi-card__form input,
-body.shell-marketing .pm-roi-card__form select {
+body.shell-marketing .pm-roi-card__manual input {
   width: 100%;
   padding: 14px 16px;
-  border: 1px solid var(--pm-stroke);
+  border: 1px solid rgba(17, 17, 17, 0.08);
   border-radius: 16px;
   background: #ffffff;
   color: var(--pm-ink);
   font: inherit;
 }
 
-body.shell-marketing .pm-roi-card__result {
-  padding: 18px;
+body.shell-marketing .pm-roi-card__assumption {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+body.shell-marketing .pm-roi-stage {
+  display: grid;
+  gap: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 250, 253, 0.98)),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--pm-roi-accent) 12%, transparent), transparent 38%);
+}
+
+body.shell-marketing .pm-roi-stage__hero,
+body.shell-marketing .pm-roi-stage__foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+body.shell-marketing .pm-roi-stage__headline {
+  display: grid;
+  gap: 10px;
+  max-width: 64ch;
+}
+
+body.shell-marketing .pm-roi-stage__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+body.shell-marketing .pm-roi-stage__chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--pm-roi-accent) 12%, #ffffff);
+  color: var(--pm-ink);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+body.shell-marketing .pm-roi-stage__chip--soft {
+  background: rgba(17, 17, 17, 0.05);
+  color: var(--pm-ink-soft);
+}
+
+body.shell-marketing .pm-roi-stage__headline strong {
+  font-size: clamp(1.65rem, 2.8vw, 2.4rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+}
+
+body.shell-marketing .pm-roi-stage__headline p {
+  margin: 0;
+  color: var(--pm-ink-soft);
+  line-height: 1.65;
+}
+
+body.shell-marketing .pm-roi-stage__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  background: #ffffff;
+  color: var(--pm-ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+body.shell-marketing .pm-roi-stage__metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+body.shell-marketing .pm-roi-metric {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
   border-radius: 20px;
   background: var(--pm-surface-soft);
+  border: 1px solid rgba(17, 17, 17, 0.05);
+}
+
+body.shell-marketing .pm-roi-metric span,
+body.shell-marketing .pm-roi-metric small,
+body.shell-marketing .pm-roi-stage__timeline-head span {
+  color: var(--pm-ink-soft);
+}
+
+body.shell-marketing .pm-roi-metric strong {
+  font-size: 1.3rem;
+  line-height: 1.05;
+  color: var(--pm-ink);
+}
+
+body.shell-marketing .pm-roi-stage__timeline {
+  display: grid;
+  gap: 12px;
+}
+
+body.shell-marketing .pm-roi-stage__timeline-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+body.shell-marketing .pm-roi-stage__timeline-head strong {
+  font-size: 1rem;
+  color: var(--pm-ink);
+}
+
+body.shell-marketing .pm-roi-timeline {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+body.shell-marketing .pm-roi-timeline__segment {
+  min-width: 0;
+  min-height: 120px;
+  padding: 18px;
+  border-radius: 22px;
+  display: grid;
+  align-content: end;
+  gap: 6px;
+  border: 1px solid rgba(17, 17, 17, 0.05);
+}
+
+body.shell-marketing .pm-roi-timeline__segment span {
+  color: var(--pm-ink-soft);
+}
+
+body.shell-marketing .pm-roi-timeline__segment strong {
+  font-size: 1.12rem;
+  color: var(--pm-ink);
+}
+
+body.shell-marketing .pm-roi-timeline__segment--study {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--pm-roi-accent) 10%, #ffffff), #ffffff),
+    radial-gradient(circle at top left, color-mix(in srgb, var(--pm-roi-accent) 12%, transparent), transparent 50%);
+}
+
+body.shell-marketing .pm-roi-timeline__segment--payback {
+  background:
+    linear-gradient(180deg, rgba(17, 17, 17, 0.03), rgba(17, 17, 17, 0.06)),
+    radial-gradient(circle at bottom right, color-mix(in srgb, var(--pm-roi-accent) 12%, transparent), transparent 56%);
+}
+
+body.shell-marketing .pm-roi-proof {
+  display: grid;
+  gap: 8px;
+  max-width: 50ch;
+}
+
+body.shell-marketing .pm-roi-proof p {
+  margin: 0;
+  color: var(--pm-ink-soft);
+  line-height: 1.6;
 }
 
 body.shell-marketing .pm-alumni-card__meta {
@@ -10570,6 +11008,15 @@ body.shell-marketing .pm-sticky-telegram__close {
     grid-template-columns: 1fr;
   }
 
+  body.shell-marketing .pm-roi-card__copy h3 {
+    max-width: none;
+  }
+
+  body.shell-marketing .pm-roi-card__controls,
+  body.shell-marketing .pm-roi-stage__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   body.shell-marketing .pm-audience-spotlight__grid,
   body.shell-marketing .pm-salary-guide__list,
   body.shell-marketing .pm-it-facts,
@@ -10582,6 +11029,35 @@ body.shell-marketing .pm-sticky-telegram__close {
 @media (max-width: 760px) {
   body.shell-marketing .pm-countdown {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.shell-marketing .pm-roi-track-grid,
+  body.shell-marketing .pm-roi-card__controls,
+  body.shell-marketing .pm-roi-stage__metrics,
+  body.shell-marketing .pm-roi-timeline {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-marketing .pm-roi-timeline {
+    display: grid;
+  }
+
+  body.shell-marketing .pm-roi-salary-head,
+  body.shell-marketing .pm-roi-stage__timeline-head,
+  body.shell-marketing .pm-roi-stage__hero,
+  body.shell-marketing .pm-roi-stage__foot {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-marketing .pm-roi-salary-presets button,
+  body.shell-marketing .pm-roi-stage__link,
+  body.shell-marketing .pm-roi-stage__foot .btn {
+    width: 100%;
+  }
+
+  body.shell-marketing .pm-roi-stage__headline strong {
+    font-size: 1.9rem;
   }
 
   body.shell-marketing .pm-promo-window,
