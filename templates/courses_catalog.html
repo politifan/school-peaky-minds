@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <div class="pm-posts-catalog pm-courses-catalog" data-course-catalog>
+    <div class="pm-posts-catalog pm-courses-catalog" id="course-catalog" data-course-catalog>
       <div class="pm-journal-chip-row">
         {% for category in courses_page.categories %}
         <button class="pm-journal-chip{% if category.key == 'all' %} is-active{% endif %}" type="button" data-course-filter="{{ category.key }}">

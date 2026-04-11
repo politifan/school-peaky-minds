@@ -9980,6 +9980,12 @@ body.shell-marketing .pm-course-manifesto span {
 
 body.shell-marketing .pm-urgency-card {
   margin-top: 18px;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top right, rgba(255, 138, 91, 0.14), transparent 34%),
+    radial-gradient(circle at bottom left, rgba(111, 92, 255, 0.1), transparent 36%),
+    #ffffff;
 }
 
 body.shell-marketing .pm-urgency-card__head,
@@ -9989,6 +9995,23 @@ body.shell-marketing .pm-urgency-card__foot {
   gap: 10px;
   align-items: center;
   justify-content: space-between;
+}
+
+body.shell-marketing .pm-urgency-card__live,
+body.shell-marketing .pm-promo-window__live {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+body.shell-marketing .pm-live-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff7a45;
+  box-shadow: 0 0 0 0 rgba(255, 122, 69, 0.42);
+  animation: pmPromoPulse 1.8s ease-out infinite;
 }
 
 body.shell-marketing .pm-urgency-card__head span,
@@ -10030,6 +10053,16 @@ body.shell-marketing .pm-countdown__item span {
   font-size: 0.82rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+body.shell-marketing .pm-countdown--compact .pm-countdown__item {
+  padding: 12px 10px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+body.shell-marketing .pm-countdown--compact .pm-countdown__item strong {
+  font-size: clamp(1.05rem, 1.6vw, 1.45rem);
 }
 
 body.shell-marketing .pm-video-showcase,
@@ -10367,6 +10400,172 @@ body.shell-marketing .pm-sticky-telegram {
   backdrop-filter: blur(16px);
 }
 
+body.shell-marketing .pm-promo-window,
+body.shell-marketing .pm-promo-teaser {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 59;
+}
+
+body.shell-marketing .pm-promo-window {
+  width: min(420px, calc(100vw - 32px));
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 138, 91, 0.22), transparent 32%),
+    radial-gradient(circle at left bottom, rgba(86, 198, 255, 0.18), transparent 34%),
+    rgba(255, 255, 255, 0.96);
+  box-shadow: 0 28px 80px rgba(16, 16, 16, 0.18);
+  backdrop-filter: blur(18px);
+  opacity: 0;
+  transform: translateY(18px) scale(0.98);
+  pointer-events: none;
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+body.shell-marketing .pm-promo-window.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+body.shell-marketing .pm-promo-window[hidden],
+body.shell-marketing .pm-promo-teaser[hidden] {
+  display: none !important;
+}
+
+body.shell-marketing .pm-promo-window__controls {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  gap: 8px;
+}
+
+body.shell-marketing .pm-promo-window__control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.74);
+  color: #111111;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+body.shell-marketing .pm-promo-window__live {
+  padding-right: 86px;
+}
+
+body.shell-marketing .pm-promo-window__live strong {
+  font-size: 0.88rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body.shell-marketing .pm-promo-window__live span:last-child {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #111111;
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+body.shell-marketing .pm-promo-window h3 {
+  margin: 0;
+  font-size: clamp(1.45rem, 2vw, 1.95rem);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  color: #111111;
+}
+
+body.shell-marketing .pm-promo-window p,
+body.shell-marketing .pm-promo-window__note {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.72);
+  line-height: 1.55;
+}
+
+body.shell-marketing .pm-promo-window__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+body.shell-marketing .pm-promo-window__facts span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+  color: #111111;
+  font-weight: 700;
+}
+
+body.shell-marketing .pm-promo-window__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+body.shell-marketing .pm-promo-window__actions .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+body.shell-marketing .pm-promo-teaser {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 10px 14px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 64px rgba(16, 16, 16, 0.14);
+  color: #111111;
+  cursor: pointer;
+  backdrop-filter: blur(16px);
+}
+
+body.shell-marketing .pm-promo-teaser__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #111111;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+body.shell-marketing .pm-promo-teaser__copy {
+  flex: 1 1 auto;
+  text-align: left;
+  font-weight: 700;
+}
+
+body.shell-marketing .pm-promo-teaser__action {
+  color: rgba(17, 17, 17, 0.6);
+  font-weight: 700;
+}
+
 body.shell-marketing .pm-sticky-telegram[hidden] {
   display: none !important;
 }
@@ -10407,6 +10606,26 @@ body.shell-marketing .pm-sticky-telegram__close {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  body.shell-marketing .pm-promo-window,
+  body.shell-marketing .pm-promo-teaser {
+    left: 16px;
+    right: 16px;
+    bottom: 104px;
+    width: auto;
+    max-width: none;
+  }
+
+  body.shell-marketing .pm-promo-window__actions {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-marketing .pm-promo-teaser {
+    min-height: 0;
+    border-radius: 24px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
   body.shell-marketing .pm-sticky-telegram {
     left: 16px;
     right: 16px;
@@ -10440,6 +10659,27 @@ body.shell-marketing .pm-sticky-telegram__close {
   body.shell-marketing .pm-alumni-grid,
   body.shell-marketing .pm-course-insights {
     grid-template-columns: 1fr;
+  }
+
+  body.shell-marketing .pm-promo-window {
+    padding: 18px;
+    border-radius: 24px;
+  }
+
+  body.shell-marketing .pm-promo-window__live {
+    padding-right: 76px;
+  }
+}
+
+@keyframes pmPromoPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 122, 69, 0.42);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(255, 122, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 122, 69, 0);
   }
 }
 

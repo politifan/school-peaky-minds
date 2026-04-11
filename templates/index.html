@@ -102,7 +102,10 @@
       </div>
       <div class="pm-urgency-card" data-countdown data-deadline="{{ marketing.promo.deadline_iso }}">
         <div class="pm-urgency-card__head">
-          <strong>{{ marketing.promo.label }}</strong>
+          <div class="pm-urgency-card__live">
+            <span class="pm-live-dot" aria-hidden="true"></span>
+            <strong>{{ marketing.promo.label }}</strong>
+          </div>
           <span>{{ marketing.promo.discount }} на длинные пакеты</span>
         </div>
         <div class="pm-countdown" aria-live="polite">

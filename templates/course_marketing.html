@@ -89,7 +89,10 @@
       </div>
       <div class="pm-urgency-card" data-countdown data-deadline="{{ course.marketing.offer.deadline_iso }}">
         <div class="pm-urgency-card__head">
-          <strong>{{ marketing_runtime.promo.label }}</strong>
+          <div class="pm-urgency-card__live">
+            <span class="pm-live-dot" aria-hidden="true"></span>
+            <strong>{{ marketing_runtime.promo.label }}</strong>
+          </div>
           <span>{{ course.marketing.offer.discount }} на этот трек</span>
         </div>
         <div class="pm-countdown" aria-live="polite">

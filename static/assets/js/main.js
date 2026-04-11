@@ -1214,6 +1214,104 @@ if (stickyTelegram && stickyTelegramClose) {
   });
 }
 
+const promoWindow = document.querySelector('[data-promo-window]');
+const promoTeaser = document.querySelector('[data-promo-teaser]');
+
+if (promoWindow && promoTeaser) {
+  const pageKey = `${window.location.pathname || '/'}`;
+  const promoDismissKey = `pm-promo-dismissed:${pageKey}`;
+  const promoMinimizeKey = `pm-promo-minimized:${pageKey}`;
+  const minimizeButton = promoWindow.querySelector('[data-promo-minimize]');
+  const dismissButton = promoWindow.querySelector('[data-promo-dismiss]');
+  const pageType = promoWindow.dataset.promoPage || 'home';
+  const launchDelay = pageType === 'course' ? 1400 : 3200;
+  const revealScroll = pageType === 'course' ? 140 : 260;
+  let launchTriggered = false;
+
+  const hideWindow = () => {
+    promoWindow.classList.remove('is-visible');
+    window.setTimeout(() => {
+      if (!promoWindow.classList.contains('is-visible')) {
+        promoWindow.hidden = true;
+      }
+    }, 220);
+  };
+
+  const showWindow = () => {
+    promoWindow.hidden = false;
+    promoTeaser.hidden = true;
+    window.requestAnimationFrame(() => {
+      promoWindow.classList.add('is-visible');
+    });
+  };
+
+  const showTeaser = () => {
+    hideWindow();
+    promoTeaser.hidden = false;
+  };
+
+  const dismissPromo = () => {
+    hideWindow();
+    promoTeaser.hidden = true;
+    safeSessionStorage.set(promoDismissKey, '1');
+    safeSessionStorage.set(promoMinimizeKey, '0');
+  };
+
+  const minimizePromo = () => {
+    showTeaser();
+    safeSessionStorage.set(promoMinimizeKey, '1');
+  };
+
+  const restorePromo = () => {
+    showWindow();
+    safeSessionStorage.set(promoMinimizeKey, '0');
+  };
+
+  const launchPromo = () => {
+    if (launchTriggered || safeSessionStorage.get(promoDismissKey) === '1') return;
+    launchTriggered = true;
+
+    if (safeSessionStorage.get(promoMinimizeKey) === '1') {
+      promoTeaser.hidden = false;
+      return;
+    }
+
+    showWindow();
+  };
+
+  if (safeSessionStorage.get(promoDismissKey) === '1') {
+    promoWindow.hidden = true;
+    promoTeaser.hidden = true;
+  } else if (safeSessionStorage.get(promoMinimizeKey) === '1') {
+    promoWindow.hidden = true;
+    promoTeaser.hidden = false;
+    launchTriggered = true;
+  } else {
+    const onScrollLaunch = () => {
+      if (window.scrollY >= revealScroll) {
+        launchPromo();
+        window.removeEventListener('scroll', onScrollLaunch);
+      }
+    };
+
+    window.addEventListener('scroll', onScrollLaunch, { passive: true });
+    window.setTimeout(() => {
+      launchPromo();
+      window.removeEventListener('scroll', onScrollLaunch);
+    }, launchDelay);
+  }
+
+  if (minimizeButton) {
+    minimizeButton.addEventListener('click', minimizePromo);
+  }
+
+  if (dismissButton) {
+    dismissButton.addEventListener('click', dismissPromo);
+  }
+
+  promoTeaser.addEventListener('click', restorePromo);
+}
+
 const coursePresetButtons = document.querySelectorAll('[data-course-preset]');
 
 coursePresetButtons.forEach((button) => {
