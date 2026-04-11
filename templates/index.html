@@ -221,6 +221,39 @@
   </div>
 </section>
 
+<section class="pm-section pm-section--compact pm-intent-rail-section">
+  <div class="container">
+    <div class="pm-intent-rail reveal">
+      <div class="pm-intent-rail__copy">
+        <div class="eyebrow eyebrow--dark">Быстрый маршрут</div>
+        <strong>Не листайте сайт вслепую. Начните с вашего сценария.</strong>
+        <p>Сначала намерение, потом каталог, цифры и конкретный трек. Так выбирать проще и быстрее.</p>
+      </div>
+      <div class="pm-intent-rail__actions">
+        {% for item in marketing.intent_nav %}
+        {% if item.href %}
+        <a class="pm-intent-pill" href="{{ item.href }}">
+          <strong>{{ item.label }}</strong>
+          <span>{{ item.hint }}</span>
+        </a>
+        {% else %}
+        <button
+          class="pm-intent-pill"
+          type="button"
+          data-course-preset
+          data-course-preset-group="{{ item.group }}"
+          data-course-preset-search="{{ item.search }}"
+        >
+          <strong>{{ item.label }}</strong>
+          <span>{{ item.hint }}</span>
+        </button>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="pm-section pm-section--soft">
   <div class="container">
     <div class="pm-section-head reveal">
@@ -316,7 +349,7 @@
   </div>
 </section>
 
-<section class="pm-section pm-section--compact">
+<section class="pm-section pm-section--compact" id="audience">
   <div class="container">
     <div class="pm-audience-spotlight reveal">
       <div class="pm-section-head">
@@ -349,6 +382,69 @@
         </article>
         {% endfor %}
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--soft" id="compare-tracks">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Сравнение треков</div>
+        <h2 class="display-title">Понять разницу между направлениями за один экран</h2>
+      </div>
+      <p>Это слой, которого часто не хватает на обучающих сайтах: не просто список курсов, а быстрый способ увидеть, какой маршрут ближе по темпу, логике и ожидаемому результату.</p>
+    </div>
+
+    <div class="pm-compare-grid reveal">
+      {% for item in marketing.compare_tracks %}
+      <article class="pm-compare-card">
+        <div class="pm-compare-card__head">
+          <span class="course-meta">{{ item.badge }}</span>
+          <h3>{{ item.label }}</h3>
+          <p>{{ item.summary }}</p>
+        </div>
+
+        <div class="pm-compare-card__stats">
+          <div>
+            <span>Ориентир</span>
+            <strong>{{ item.salary_range }}</strong>
+          </div>
+          <div>
+            <span>Горизонт</span>
+            <strong>{{ item.time_to_offer }} мес. до первой роли</strong>
+          </div>
+          <div>
+            <span>Вход</span>
+            <strong>от {{ item.course_cost }} ₽ в траекторию</strong>
+          </div>
+        </div>
+
+        <div class="pm-compare-card__audience">
+          <strong>{{ item.audience }}</strong>
+          <span>{{ item.outcome }}</span>
+        </div>
+
+        <ul class="pm-bullet-list">
+          {% for point in item.points %}
+          <li>{{ point }}</li>
+          {% endfor %}
+        </ul>
+
+        <div class="pm-compare-card__actions">
+          <button
+            class="btn btn-secondary"
+            type="button"
+            data-course-preset
+            data-course-preset-group="{{ item.group }}"
+            data-course-preset-search="{{ item.search }}"
+          >
+            Показать в каталоге
+          </button>
+          <a class="btn btn-primary" href="{{ item.href }}">Открыть трек</a>
+        </div>
+      </article>
+      {% endfor %}
     </div>
   </div>
 </section>
@@ -669,7 +765,7 @@
   </div>
 </section>
 
-<section class="pm-section pm-section--compact">
+<section class="pm-section pm-section--compact" id="discovery">
   <div class="container">
     <div class="pm-discovery-grid reveal">
       <article class="pm-discovery-card">

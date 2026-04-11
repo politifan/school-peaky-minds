@@ -1361,3 +1361,69 @@ if (roiCalculator && Array.isArray(pageMarketing?.roi_tracks) && pageMarketing.r
 
   updateRoi();
 }
+
+const sectionJumpNavs = document.querySelectorAll('[data-section-jump-nav]');
+
+sectionJumpNavs.forEach((nav) => {
+  const links = Array.from(nav.querySelectorAll('[data-section-link]'));
+  if (!links.length) return;
+
+  const linkMap = links
+    .map((link) => {
+      const href = link.getAttribute('href') || '';
+      if (!href.startsWith('#')) return null;
+      const section = document.querySelector(href);
+      if (!section) return null;
+      return { link, href, section };
+    })
+    .filter(Boolean);
+
+  if (!linkMap.length) return;
+
+  const setActiveLink = (href) => {
+    linkMap.forEach(({ link, href: currentHref }) => {
+      link.classList.toggle('is-active', currentHref === href);
+    });
+  };
+
+  linkMap.forEach(({ link, href, section }) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (window.history?.replaceState) {
+        window.history.replaceState(null, '', href);
+      }
+      setActiveLink(href);
+    });
+  });
+
+  const initialHash = window.location.hash;
+  if (initialHash && linkMap.some(({ href }) => href === initialHash)) {
+    setActiveLink(initialHash);
+  } else {
+    setActiveLink(linkMap[0].href);
+  }
+
+  if (!('IntersectionObserver' in window)) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const activeEntry = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((left, right) => left.boundingClientRect.top - right.boundingClientRect.top)[0];
+
+      if (!activeEntry) return;
+
+      const match = linkMap.find(({ section }) => section === activeEntry.target);
+      if (match) {
+        setActiveLink(match.href);
+      }
+    },
+    {
+      rootMargin: '-30% 0px -55% 0px',
+      threshold: 0.01,
+    },
+  );
+
+  linkMap.forEach(({ section }) => observer.observe(section));
+});

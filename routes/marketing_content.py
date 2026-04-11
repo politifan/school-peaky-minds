@@ -1,7 +1,8 @@
 import json
+import re
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -471,6 +472,70 @@ HOME_MARKETING: Dict[str, Any] = {
 }
 
 
+HOME_COMPARE_BLUEPRINT: List[Dict[str, Any]] = [
+    {
+        "key": "python_start",
+        "label": "Python Start",
+        "badge": "Самый мягкий вход",
+        "audience": "Для первого входа в IT и раннего старта для подростков.",
+        "outcome": "База, маленькие проекты и уверенный следующий шаг.",
+        "href": "/courses/python-beginners",
+        "group": "start",
+        "search": "с нуля новичкам python детям",
+        "points": [
+            "Понятная база без перегруза терминологией.",
+            "Первые боты, мини-сервисы и прикладные задачи.",
+            "Хороший маршрут, если важна мягкая скорость.",
+        ],
+    },
+    {
+        "key": "fullstack",
+        "label": "Full-stack",
+        "badge": "Для смены профессии",
+        "audience": "Для взрослых, которым нужен системный карьерный переход.",
+        "outcome": "Широкий стек, сильное портфолио и выход на собеседования.",
+        "href": "/courses/fullstack",
+        "group": "development",
+        "search": "смена профессии fullstack backend",
+        "points": [
+            "Один из самых понятных маршрутов к junior-роли.",
+            "Сильная связка фронта, бэка и инженерной логики.",
+            "Подходит тем, кто хочет менять работу, а не просто учиться.",
+        ],
+    },
+    {
+        "key": "data_science",
+        "label": "Data Science / ML",
+        "badge": "Высокий потолок",
+        "audience": "Для тех, кого тянет в данные, модели и техничную глубину.",
+        "outcome": "Портфолио под стажировку, junior ML и прикладной DS.",
+        "href": "/courses/data-science",
+        "group": "analytics",
+        "search": "data science ml данные высокий потолок",
+        "points": [
+            "Нужен интерес к данным, логике и экспериментам.",
+            "Более длинный, но и более высокий потолок дохода.",
+            "Маршрут для тех, кому важна техничная глубина.",
+        ],
+    },
+    {
+        "key": "business",
+        "label": "Automation / Business",
+        "badge": "Самый прикладной путь",
+        "audience": "Для тех, кому важны быстрые задачи, польза и первые деньги.",
+        "outcome": "Боты, интеграции и реальные automation-кейсы для бизнеса.",
+        "href": "/courses/business",
+        "group": "business",
+        "search": "automation telegram боты бизнес быстрый старт",
+        "points": [
+            "Короткий путь к прикладной пользе и фриланс-задачам.",
+            "Больше реальных сценариев, меньше абстрактной теории.",
+            "Подходит тем, кто хочет увидеть отдачу быстрее.",
+        ],
+    },
+]
+
+
 def _deep_merge(base: Any, override: Any) -> Any:
     if not isinstance(base, dict) or not isinstance(override, dict):
         return deepcopy(override)
@@ -500,6 +565,247 @@ def _load_marketing_overrides() -> Dict[str, Any]:
     return payload if isinstance(payload, dict) else {}
 
 
+def _extract_numeric_value(raw: Any) -> int:
+    if raw is None:
+        return 0
+    match = re.search(r"\d[\d\s]*", str(raw))
+    if not match:
+        return 0
+    return int(match.group(0).replace(" ", ""))
+
+
+def _format_number(value: int) -> str:
+    return f"{max(0, int(value)):,}".replace(",", " ")
+
+
+def _build_home_intent_nav() -> List[Dict[str, Any]]:
+    return [
+        {
+            "label": "С нуля",
+            "hint": "Мягкий вход и база",
+            "group": "start",
+            "search": "с нуля новичкам python",
+        },
+        {
+            "label": "Смена профессии",
+            "hint": "Взрослый карьерный переход",
+            "group": "development",
+            "search": "смена профессии fullstack backend",
+        },
+        {
+            "label": "Для детей",
+            "hint": "Аккуратный ранний старт",
+            "group": "start",
+            "search": "детям подросткам python",
+        },
+        {
+            "label": "Быстрый старт",
+            "hint": "Больше пользы и первых задач",
+            "group": "business",
+            "search": "automation telegram боты",
+        },
+        {
+            "label": "Сравнить треки",
+            "hint": "Увидеть разницу за 1 экран",
+            "href": "#compare-tracks",
+        },
+    ]
+
+
+def _build_home_compare_tracks() -> List[Dict[str, Any]]:
+    tracks: List[Dict[str, Any]] = []
+    for item in HOME_COMPARE_BLUEPRINT:
+        marketing = get_track_marketing(item["key"])
+        tracks.append(
+            {
+                **item,
+                "salary_range": marketing["salary"]["range"],
+                "time_to_offer": marketing["roi"]["time_to_offer"],
+                "course_cost": _format_number(marketing["roi"]["course_cost"]),
+                "summary": marketing["summary"],
+                "slogan": marketing["slogan"],
+            }
+        )
+    return tracks
+
+
+def _build_course_decision_support(course: Dict[str, Any], marketing: Dict[str, Any]) -> Dict[str, Any]:
+    category = marketing.get("category", "general")
+    price_options = course.get("prices", [])
+    featured_price = next(
+        (_extract_numeric_value(item.get("new")) for item in price_options if item.get("featured")),
+        0,
+    )
+    fallback_price = next((_extract_numeric_value(item.get("new")) for item in price_options), 0)
+    price_from = featured_price or fallback_price
+    package_options = [item for item in course.get("duration_options", []) if item != "Разово"]
+    package_text = ", ".join(package_options[:4]) if package_options else "индивидуальному графику"
+    pace_value = ""
+    hero_bullets = course.get("hero_bullets", [])
+    if len(hero_bullets) > 1:
+        pace_value = hero_bullets[1].get("value", "")
+
+    not_for_map = {
+        "start": [
+            {
+                "title": "Если нужен мгновенный результат без базы",
+                "text": "Стартовый трек всё равно требует регулярной практики и терпения к основам.",
+            },
+            {
+                "title": "Если не хочется делать задания руками",
+                "text": "Здесь быстро начинается практика, а не пассивный просмотр уроков.",
+            },
+            {
+                "title": "Если нет времени на устойчивый ритм",
+                "text": "Даже мягкий формат требует хотя бы нескольких часов в неделю на закрепление.",
+            },
+        ],
+        "development": [
+            {
+                "title": "Если нужен только обзор без глубины",
+                "text": "Трек рассчитан на код, архитектуру и проектную дисциплину, а не на поверхностное знакомство.",
+            },
+            {
+                "title": "Если не хочется разбираться в ошибках и рефакторинге",
+                "text": "Рост в разработке идёт через разбор кода, а не только через просмотр готовых решений.",
+            },
+            {
+                "title": "Если нет ресурса на практику каждую неделю",
+                "text": "Маршрут работает только при регулярном ритме, особенно если цель — смена профессии.",
+            },
+        ],
+        "analytics": [
+            {
+                "title": "Если не нравятся цифры и логика",
+                "text": "Здесь много внимательности к данным, гипотезам и структурированным выводам.",
+            },
+            {
+                "title": "Если нужен только визуальный результат без анализа",
+                "text": "Основная ценность трека — в мышлении, моделях и интерпретации, а не в внешнем эффекте.",
+            },
+            {
+                "title": "Если не готовы к более длинному горизонту роста",
+                "text": "Сильные data-направления окупаются хорошо, но требуют больше концентрации и времени.",
+            },
+        ],
+        "quality": [
+            {
+                "title": "Если не любите детали",
+                "text": "QA требует внимательности, системности и привычки замечать слабые места продукта.",
+            },
+            {
+                "title": "Если нужен только креатив без структуры",
+                "text": "Здесь важны сценарии, проверки и дисциплина мышления.",
+            },
+            {
+                "title": "Если не готовы работать с документацией и кейсами",
+                "text": "Проверка качества опирается на понятные артефакты, а не только на интуицию.",
+            },
+        ],
+        "infrastructure": [
+            {
+                "title": "Если не нравится системность",
+                "text": "Инфраструктурные роли требуют аккуратности, стабильности и внимания к окружению.",
+            },
+            {
+                "title": "Если хочется только быстрых визуальных результатов",
+                "text": "Здесь ценность чаще скрыта внутри процессов, надёжности и автоматизации.",
+            },
+            {
+                "title": "Если не готовы разбираться с настройками и средой",
+                "text": "Трек опирается на реальные серверные и platform-задачи, а не на облегчённые демо.",
+            },
+        ],
+        "business": [
+            {
+                "title": "Если хочется только теории про бизнес без реализации",
+                "text": "Основной результат здесь — работающие боты, интеграции и automation-сценарии.",
+            },
+            {
+                "title": "Если неинтересны прикладные задачи клиентов",
+                "text": "Этот маршрут сильнее всего раскрывается именно в реальных кейсах и пользе.",
+            },
+            {
+                "title": "Если не готовы быстро пробовать и тестировать гипотезы",
+                "text": "Здесь важна инициативность и желание быстрее увидеть рабочий результат.",
+            },
+        ],
+    }
+
+    return {
+        "section_nav": [
+            {"label": "Рынок", "href": "#market"},
+            {"label": "Стоимость", "href": "#pricing"},
+            {"label": "Программа", "href": "#program"},
+            {"label": "Траектория", "href": "#journey"},
+            {"label": "FAQ", "href": "#faq"},
+            {"label": "Запись", "href": "#enroll"},
+        ],
+        "finance_facts": [
+            {
+                "title": "Формат оплаты",
+                "text": f"Можно идти разово или пакетами на {package_text}. Чем стабильнее горизонт, тем выгоднее ставка.",
+            },
+            {
+                "title": "Что входит в цену",
+                "text": "Мини-группа, практика, разбор кода, карьерный слой, помощь с GitHub, резюме и техническими интервью.",
+            },
+            {
+                "title": "Как быстро стартуем",
+                "text": "После оплаты фиксируем место, смотрим уровень, согласуем ритм и выдаём стартовый маршрут уже на первую неделю.",
+            },
+            {
+                "title": "Финансовый ориентир",
+                "text": (
+                    f"Текущий вход от {_format_number(price_from)} ₽ и горизонт до первой оплачиваемой роли около "
+                    f"{marketing['roi']['time_to_offer']} мес."
+                    if price_from
+                    else f"Первая оплачиваемая роль обычно появляется через {marketing['roi']['time_to_offer']} мес."
+                ),
+            },
+        ],
+        "next_steps": [
+            {
+                "title": "Оставляете заявку",
+                "text": "Фиксируем интерес к треку, отвечаем на вопросы и бронируем место по текущему офферу.",
+            },
+            {
+                "title": "Подтверждаем оплату",
+                "text": "Высылаем документы, закрепляем формат и проговариваем удобный ритм занятий.",
+            },
+            {
+                "title": "Собираем стартовый план",
+                "text": "Смотрим текущий уровень, график и цель, чтобы не вести вас по чужому шаблону.",
+            },
+            {
+                "title": "Входим в рабочий контур",
+                "text": (
+                    f"Подключаем к практике, задаём первый вектор и выходим в устойчивый темп {pace_value}."
+                    if pace_value
+                    else "Подключаем к практике, задаём первый вектор и выходим в устойчивый темп."
+                ),
+            },
+        ],
+        "not_for": not_for_map.get(
+            category,
+            [
+                {
+                    "title": "Если нужен только пассивный просмотр",
+                    "text": "Формат построен на практике, а не на накоплении непрожитой теории.",
+                },
+                {
+                    "title": "Если не готовы выделять время каждую неделю",
+                    "text": "Даже гибкий маршрут требует устойчивого ритма, иначе прогресс размывается.",
+                },
+                {
+                    "title": "Если важна только бумага, а не навык",
+                    "text": "Здесь основной результат — проекты, портфолио и рыночная уверенность.",
+                },
+            ],
+        ),
+    }
+
+
 _MARKETING_OVERRIDES = _load_marketing_overrides()
 MARKETING_RUNTIME = _deep_merge(MARKETING_RUNTIME, _MARKETING_OVERRIDES.get("runtime", {}))
 TRACK_MARKETING = _deep_merge(TRACK_MARKETING, _MARKETING_OVERRIDES.get("tracks", {}))
@@ -514,6 +820,8 @@ def build_homepage_marketing() -> Dict[str, Any]:
     payload = deepcopy(HOME_MARKETING)
     payload["promo"] = deepcopy(MARKETING_RUNTIME["promo"])
     payload["video"] = deepcopy(MARKETING_RUNTIME["video"])
+    payload["intent_nav"] = _build_home_intent_nav()
+    payload["compare_tracks"] = _build_home_compare_tracks()
     payload["roi_tracks"] = [
         {
             "key": key,
@@ -559,6 +867,7 @@ def get_track_marketing(course_key: str) -> Dict[str, Any]:
 def decorate_course(course_key: str, course: Dict[str, Any]) -> Dict[str, Any]:
     payload = deepcopy(course)
     payload["marketing"] = get_track_marketing(course_key)
+    payload["decision_support"] = _build_course_decision_support(payload, payload["marketing"])
     return payload
 
 

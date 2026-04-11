@@ -164,7 +164,17 @@
   </div>
 </section>
 
-<section class="pm-section pm-section--compact">
+<div class="pm-section-jump-wrap">
+  <div class="container">
+    <nav class="pm-section-jump" data-section-jump-nav aria-label="Быстрая навигация по странице курса">
+      {% for item in course.decision_support.section_nav %}
+      <a class="pm-section-jump__link{% if loop.first %} is-active{% endif %}" href="{{ item.href }}" data-section-link>{{ item.label }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+</div>
+
+<section class="pm-section pm-section--compact" id="market">
   <div class="container">
     <div class="pm-course-insights reveal">
       <article class="pm-course-insight">
@@ -187,7 +197,7 @@
   </div>
 </section>
 
-<section class="pm-section pm-section--soft">
+<section class="pm-section pm-section--soft" id="pricing">
   <div class="container">
     <div class="pm-section-head reveal">
       <div>
@@ -229,10 +239,41 @@
         </ul>
       </article>
     </div>
+
+    <div class="pm-decision-grid reveal">
+      <article class="pm-decision-card pm-decision-card--finance">
+        <div class="eyebrow eyebrow--dark">Прозрачная экономика</div>
+        <h3>Что вы понимаете ещё до старта</h3>
+        <div class="pm-decision-card__grid">
+          {% for item in course.decision_support.finance_facts %}
+          <div class="pm-decision-fact">
+            <strong>{{ item.title }}</strong>
+            <p>{{ item.text }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="pm-decision-card pm-decision-card--journey">
+        <div class="eyebrow eyebrow--dark">После оплаты</div>
+        <h3>Как вы входите в обучение без хаоса</h3>
+        <div class="pm-start-map">
+          {% for item in course.decision_support.next_steps %}
+          <article class="pm-start-step">
+            <div class="pm-start-step__number">{{ "%02d"|format(loop.index) }}</div>
+            <div>
+              <strong>{{ item.title }}</strong>
+              <p>{{ item.text }}</p>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+      </article>
+    </div>
   </div>
 </section>
 
-<section class="pm-section">
+<section class="pm-section" id="fit">
   <div class="container">
     <div class="pm-section-head reveal">
       <div>
@@ -250,6 +291,21 @@
         <button class="btn btn-secondary" type="button" data-open-modal="apply">Обсудить формат</button>
       </article>
       {% endfor %}
+    </div>
+    <div class="pm-fit-check reveal">
+      <div class="pm-fit-check__copy">
+        <div class="eyebrow eyebrow--dark">Честно</div>
+        <h3>Кому этот маршрут, скорее всего, не подойдёт</h3>
+        <p>Этот блок нужен не чтобы отговорить, а чтобы заранее снять лишние ожидания. Чем точнее совпадает формат с вашим сценарием, тем быстрее будет реальный прогресс.</p>
+      </div>
+      <div class="pm-fit-check__grid">
+        {% for item in course.decision_support.not_for %}
+        <article class="pm-fit-check__card">
+          <strong>{{ item.title }}</strong>
+          <p>{{ item.text }}</p>
+        </article>
+        {% endfor %}
+      </div>
     </div>
   </div>
 </section>
@@ -287,7 +343,7 @@
   </div>
 </section>
 
-<section class="pm-section">
+<section class="pm-section" id="journey">
   <div class="container">
     <div class="pm-section-head reveal">
       <div>
