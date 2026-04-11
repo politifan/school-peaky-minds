@@ -1,5 +1,11 @@
+import json
 from copy import deepcopy
+from pathlib import Path
 from typing import Any, Dict
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+MARKETING_CONFIG_FILE = BASE_DIR / "config" / "marketing_config.json"
 
 
 MARKETING_RUNTIME: Dict[str, Any] = {
@@ -409,6 +415,29 @@ HOME_MARKETING: Dict[str, Any] = {
             "href": "/posts/sql-interview-task-breakdown",
         },
     ],
+    "audience_spotlight": {
+        "eyebrow": "Форматы",
+        "title": "Отдельный маршрут для взрослых и для детей",
+        "description": "Взрослым важны скорость, рынок и понятный переход в профессию. Детям и подросткам важны интерес, практика и ранний вход в техническое мышление без перегруза.",
+        "cards": [
+            {
+                "title": "Для взрослых",
+                "text": "Смена профессии, быстрый маршрут в сильный стек, практика, портфолио и собеседования без лишней теории.",
+                "facts": ["смена профессии", "full-stack / backend", "карьерный переход"],
+                "group": "development",
+                "search": "смена профессии fullstack backend",
+                "cta": "Показать взрослые маршруты",
+            },
+            {
+                "title": "Для детей и подростков",
+                "text": "Аккуратный старт через Python, проекты, ботов и понятные цифровые сценарии, где видно результат, а не только уроки.",
+                "facts": ["Python Start", "проекты руками", "мягкий темп"],
+                "group": "start",
+                "search": "детям подросткам python",
+                "cta": "Показать детские форматы",
+            },
+        ],
+    },
     "quiz": {
         "title": "Какое направление тебе подходит?",
         "description": "4 коротких ответа и система сама покажет, где ты быстрее увидишь результат.",
@@ -440,6 +469,41 @@ HOME_MARKETING: Dict[str, Any] = {
         },
     },
 }
+
+
+def _deep_merge(base: Any, override: Any) -> Any:
+    if not isinstance(base, dict) or not isinstance(override, dict):
+        return deepcopy(override)
+
+    payload = deepcopy(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(payload.get(key), dict):
+            payload[key] = _deep_merge(payload[key], value)
+        else:
+            payload[key] = deepcopy(value)
+    return payload
+
+
+def _load_marketing_overrides() -> Dict[str, Any]:
+    try:
+        raw = MARKETING_CONFIG_FILE.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return {}
+    except OSError:
+        return {}
+
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        return {}
+
+    return payload if isinstance(payload, dict) else {}
+
+
+_MARKETING_OVERRIDES = _load_marketing_overrides()
+MARKETING_RUNTIME = _deep_merge(MARKETING_RUNTIME, _MARKETING_OVERRIDES.get("runtime", {}))
+TRACK_MARKETING = _deep_merge(TRACK_MARKETING, _MARKETING_OVERRIDES.get("tracks", {}))
+HOME_MARKETING = _deep_merge(HOME_MARKETING, _MARKETING_OVERRIDES.get("home", {}))
 
 
 def build_marketing_runtime() -> Dict[str, Any]:

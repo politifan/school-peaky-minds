@@ -10036,7 +10036,8 @@ body.shell-marketing .pm-video-showcase,
 body.shell-marketing .pm-discovery-grid,
 body.shell-marketing .pm-economics-grid,
 body.shell-marketing .pm-alumni-grid,
-body.shell-marketing .pm-course-insights {
+body.shell-marketing .pm-course-insights,
+body.shell-marketing .pm-audience-spotlight {
   display: grid;
   gap: 20px;
 }
@@ -10045,6 +10046,49 @@ body.shell-marketing .pm-video-showcase,
 body.shell-marketing .pm-discovery-grid,
 body.shell-marketing .pm-economics-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.shell-marketing .pm-audience-spotlight__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+body.shell-marketing .pm-audience-spotlight__card {
+  display: grid;
+  gap: 16px;
+  padding: 28px;
+  border: 1px solid var(--pm-stroke);
+  border-radius: 28px;
+  background: #ffffff;
+}
+
+body.shell-marketing .pm-audience-spotlight__card h3 {
+  margin: 0;
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  line-height: 1.2;
+}
+
+body.shell-marketing .pm-audience-spotlight__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+body.shell-marketing .pm-audience-spotlight__facts span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--pm-stroke);
+  background: var(--pm-surface-soft);
+  color: var(--pm-ink);
+  font-weight: 700;
+}
+
+body.shell-marketing .pm-audience-spotlight__card .btn {
+  width: fit-content;
 }
 
 body.shell-marketing .pm-video-showcase,
@@ -10349,6 +10393,7 @@ body.shell-marketing .pm-sticky-telegram__close {
     grid-template-columns: 1fr;
   }
 
+  body.shell-marketing .pm-audience-spotlight__grid,
   body.shell-marketing .pm-salary-guide__list,
   body.shell-marketing .pm-it-facts,
   body.shell-marketing .pm-alumni-grid,
@@ -10382,12 +10427,14 @@ body.shell-marketing .pm-sticky-telegram__close {
   body.shell-marketing .pm-salary-guide,
   body.shell-marketing .pm-it-facts,
   body.shell-marketing .pm-roi-card,
+  body.shell-marketing .pm-audience-spotlight__card,
   body.shell-marketing .pm-home-hero__visual,
   body.shell-marketing .pm-course-hero__visual {
     padding: 22px;
     border-radius: 24px;
   }
 
+  body.shell-marketing .pm-audience-spotlight__grid,
   body.shell-marketing .pm-salary-guide__list,
   body.shell-marketing .pm-it-facts,
   body.shell-marketing .pm-alumni-grid,

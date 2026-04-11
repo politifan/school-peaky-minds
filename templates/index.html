@@ -262,6 +262,43 @@
 
 <section class="pm-section pm-section--compact">
   <div class="container">
+    <div class="pm-audience-spotlight reveal">
+      <div class="pm-section-head">
+        <div>
+          <div class="eyebrow eyebrow--dark">{{ marketing.audience_spotlight.eyebrow }}</div>
+          <h2 class="display-title">{{ marketing.audience_spotlight.title }}</h2>
+        </div>
+        <p>{{ marketing.audience_spotlight.description }}</p>
+      </div>
+
+      <div class="pm-audience-spotlight__grid">
+        {% for item in marketing.audience_spotlight.cards %}
+        <article class="pm-audience-spotlight__card">
+          <div class="course-meta">{{ item.title }}</div>
+          <h3>{{ item.text }}</h3>
+          <div class="pm-audience-spotlight__facts">
+            {% for fact in item.facts %}
+            <span>{{ fact }}</span>
+            {% endfor %}
+          </div>
+          <button
+            class="btn btn-secondary"
+            type="button"
+            data-course-preset
+            data-course-preset-group="{{ item.group }}"
+            data-course-preset-search="{{ item.search }}"
+          >
+            {{ item.cta }}
+          </button>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--compact">
+  <div class="container">
     <div class="pm-section-head reveal">
       <div>
         <div class="eyebrow eyebrow--dark">Траектории</div>
