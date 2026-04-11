@@ -10403,33 +10403,30 @@ body.shell-marketing .pm-sticky-telegram {
 body.shell-marketing .pm-promo-window,
 body.shell-marketing .pm-promo-teaser {
   position: fixed;
-  left: 24px;
-  bottom: 24px;
   z-index: 59;
 }
 
 body.shell-marketing .pm-promo-window {
-  width: min(420px, calc(100vw - 32px));
-  display: grid;
-  gap: 16px;
-  padding: 22px;
-  border: 1px solid rgba(17, 17, 17, 0.08);
-  border-radius: 28px;
+  top: 86px;
+  left: 50%;
+  width: min(1180px, calc(100vw - 36px));
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 138, 91, 0.24);
+  border-radius: 20px;
   background:
-    radial-gradient(circle at top right, rgba(255, 138, 91, 0.22), transparent 32%),
-    radial-gradient(circle at left bottom, rgba(86, 198, 255, 0.18), transparent 34%),
-    rgba(255, 255, 255, 0.96);
-  box-shadow: 0 28px 80px rgba(16, 16, 16, 0.18);
-  backdrop-filter: blur(18px);
+    linear-gradient(90deg, rgba(255, 138, 91, 0.18), transparent 20%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.98));
+  box-shadow: 0 18px 54px rgba(16, 16, 16, 0.12);
+  backdrop-filter: blur(14px);
   opacity: 0;
-  transform: translateY(18px) scale(0.98);
+  transform: translateX(-50%) translateY(-12px);
   pointer-events: none;
   transition: opacity 220ms ease, transform 220ms ease;
 }
 
 body.shell-marketing .pm-promo-window.is-visible {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateX(-50%) translateY(0);
   pointer-events: auto;
 }
 
@@ -10440,103 +10437,82 @@ body.shell-marketing .pm-promo-teaser[hidden] {
 
 body.shell-marketing .pm-promo-window__controls {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
   display: inline-flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 body.shell-marketing .pm-promo-window__control {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   border: 1px solid rgba(17, 17, 17, 0.08);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.74);
+  border-radius: 10px;
+  background: rgba(17, 17, 17, 0.04);
   color: #111111;
-  font-size: 1.25rem;
+  font-size: 1rem;
   cursor: pointer;
 }
 
-body.shell-marketing .pm-promo-window__live {
-  padding-right: 86px;
+body.shell-marketing .pm-promo-window__main {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 14px;
+  align-items: center;
+  padding-right: 72px;
 }
 
 body.shell-marketing .pm-promo-window__live strong {
-  font-size: 0.88rem;
-  letter-spacing: 0.08em;
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-body.shell-marketing .pm-promo-window__live span:last-child {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: #111111;
-  color: #ffffff;
-  font-size: 0.84rem;
-  font-weight: 700;
+body.shell-marketing .pm-promo-window__message {
+  display: grid;
+  gap: 2px;
 }
 
-body.shell-marketing .pm-promo-window h3 {
-  margin: 0;
-  font-size: clamp(1.45rem, 2vw, 1.95rem);
-  line-height: 1.08;
-  letter-spacing: -0.04em;
+body.shell-marketing .pm-promo-window__message strong {
+  font-size: 1rem;
+  line-height: 1.1;
   color: #111111;
 }
 
-body.shell-marketing .pm-promo-window p,
-body.shell-marketing .pm-promo-window__note {
-  margin: 0;
-  color: rgba(17, 17, 17, 0.72);
-  line-height: 1.55;
-}
-
-body.shell-marketing .pm-promo-window__facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-body.shell-marketing .pm-promo-window__facts span {
-  display: inline-flex;
-  align-items: center;
-  min-height: 34px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(17, 17, 17, 0.08);
-  background: rgba(255, 255, 255, 0.72);
-  color: #111111;
-  font-weight: 700;
+body.shell-marketing .pm-promo-window__message span {
+  color: rgba(17, 17, 17, 0.68);
+  font-size: 0.92rem;
 }
 
 body.shell-marketing .pm-promo-window__actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 body.shell-marketing .pm-promo-window__actions .btn {
-  width: 100%;
-  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  white-space: nowrap;
 }
 
 body.shell-marketing .pm-promo-teaser {
+  top: 86px;
+  right: 18px;
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  min-height: 56px;
-  max-width: min(420px, calc(100vw - 32px));
-  padding: 10px 14px;
+  gap: 10px;
+  min-height: 44px;
+  max-width: min(460px, calc(100vw - 32px));
+  padding: 8px 12px;
   border: 1px solid rgba(17, 17, 17, 0.08);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 24px 64px rgba(16, 16, 16, 0.14);
+  box-shadow: 0 16px 44px rgba(16, 16, 16, 0.12);
   color: #111111;
   cursor: pointer;
   backdrop-filter: blur(16px);
@@ -10546,8 +10522,8 @@ body.shell-marketing .pm-promo-teaser__badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 64px;
-  min-height: 36px;
+  min-width: 58px;
+  min-height: 30px;
   padding: 0 12px;
   border-radius: 999px;
   background: #111111;
@@ -10559,11 +10535,13 @@ body.shell-marketing .pm-promo-teaser__copy {
   flex: 1 1 auto;
   text-align: left;
   font-weight: 700;
+  font-size: 0.92rem;
 }
 
 body.shell-marketing .pm-promo-teaser__action {
   color: rgba(17, 17, 17, 0.6);
   font-weight: 700;
+  font-size: 0.88rem;
 }
 
 body.shell-marketing .pm-sticky-telegram[hidden] {
@@ -10608,22 +10586,44 @@ body.shell-marketing .pm-sticky-telegram__close {
 
   body.shell-marketing .pm-promo-window,
   body.shell-marketing .pm-promo-teaser {
-    left: 16px;
-    right: 16px;
-    bottom: 104px;
-    width: auto;
-    max-width: none;
+    top: 72px;
+  }
+
+  body.shell-marketing .pm-promo-window {
+    width: calc(100vw - 20px);
+    padding: 10px 12px;
+  }
+
+  body.shell-marketing .pm-promo-window__main {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding-right: 56px;
+  }
+
+  body.shell-marketing .pm-promo-window__message strong,
+  body.shell-marketing .pm-promo-window__message span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  body.shell-marketing .pm-promo-window__countdown {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   body.shell-marketing .pm-promo-window__actions {
-    grid-template-columns: 1fr;
+    display: flex;
+    width: 100%;
+  }
+
+  body.shell-marketing .pm-promo-window__actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
   }
 
   body.shell-marketing .pm-promo-teaser {
-    min-height: 0;
-    border-radius: 24px;
-    align-items: flex-start;
-    flex-wrap: wrap;
+    right: 10px;
+    max-width: calc(100vw - 20px);
   }
 
   body.shell-marketing .pm-sticky-telegram {
@@ -10662,12 +10662,35 @@ body.shell-marketing .pm-sticky-telegram__close {
   }
 
   body.shell-marketing .pm-promo-window {
-    padding: 18px;
-    border-radius: 24px;
+    width: calc(100vw - 12px);
+    padding: 9px 10px;
+    border-radius: 18px;
   }
 
-  body.shell-marketing .pm-promo-window__live {
-    padding-right: 76px;
+  body.shell-marketing .pm-promo-window__main {
+    gap: 8px;
+    padding-right: 48px;
+  }
+
+  body.shell-marketing .pm-promo-window__countdown {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.shell-marketing .pm-promo-window__actions {
+    gap: 6px;
+  }
+
+  body.shell-marketing .pm-promo-window__actions .btn {
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 0.84rem;
+  }
+
+  body.shell-marketing .pm-promo-teaser {
+    top: 72px;
+    right: 6px;
+    left: 6px;
+    max-width: none;
   }
 }
 

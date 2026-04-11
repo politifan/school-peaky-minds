@@ -186,56 +186,52 @@
       <button class="pm-promo-window__control" type="button" data-promo-minimize aria-label="Свернуть окно">−</button>
       <button class="pm-promo-window__control" type="button" data-promo-dismiss aria-label="Закрыть окно">×</button>
     </div>
-    <div class="pm-promo-window__live">
-      <span class="pm-live-dot" aria-hidden="true"></span>
-      <strong>{{ marketing_runtime.promo.label }}</strong>
-      <span>{{ promo_discount }} до {{ promo_deadline_label }}</span>
-    </div>
-    {% if course is defined %}
-    <h3>Осталось {{ promo_seats_left }} мест по спеццене на {{ course.breadcrumb_name }}</h3>
-    <p>Если трек вам подходит, сейчас лучший момент зафиксировать цену и место в мини‑группе, пока окно акции ещё открыто.</p>
-    {% else %}
-    <h3>Спецпредложение закрывается скоро: успейте зайти по текущей цене</h3>
-    <p>Таймер ниже постоянно напоминает, что скидка и количество мест ограничены. После заявки мы фиксируем цену и помогаем выбрать лучший трек.</p>
-    {% endif %}
-    <div class="pm-promo-window__countdown pm-countdown pm-countdown--compact" aria-live="polite">
-      <div class="pm-countdown__item">
-        <strong data-countdown-days>00</strong>
-        <span>дней</span>
+    <div class="pm-promo-window__main">
+      <div class="pm-promo-window__live">
+        <span class="pm-live-dot" aria-hidden="true"></span>
+        <strong>{{ marketing_runtime.promo.label }}</strong>
       </div>
-      <div class="pm-countdown__item">
-        <strong data-countdown-hours>00</strong>
-        <span>часов</span>
+      <div class="pm-promo-window__message">
+        {% if course is defined %}
+        <strong>{{ promo_discount }} на {{ course.breadcrumb_name }}</strong>
+        <span>До {{ promo_deadline_label }} • осталось {{ promo_seats_left }} мест по спеццене</span>
+        {% else %}
+        <strong>{{ promo_discount }} на обучение</strong>
+        <span>До {{ promo_deadline_label }} • осталось {{ promo_seats_left }} мест по текущей цене</span>
+        {% endif %}
       </div>
-      <div class="pm-countdown__item">
-        <strong data-countdown-minutes>00</strong>
-        <span>минут</span>
+      <div class="pm-promo-window__countdown pm-countdown pm-countdown--compact" aria-live="polite">
+        <div class="pm-countdown__item">
+          <strong data-countdown-days>00</strong>
+          <span>дней</span>
+        </div>
+        <div class="pm-countdown__item">
+          <strong data-countdown-hours>00</strong>
+          <span>часов</span>
+        </div>
+        <div class="pm-countdown__item">
+          <strong data-countdown-minutes>00</strong>
+          <span>минут</span>
+        </div>
+        <div class="pm-countdown__item">
+          <strong data-countdown-seconds>00</strong>
+          <span>секунд</span>
+        </div>
       </div>
-      <div class="pm-countdown__item">
-        <strong data-countdown-seconds>00</strong>
-        <span>секунд</span>
+      <div class="pm-promo-window__actions">
+        {% if course is defined %}
+        <a class="btn btn-primary" href="#enroll">Забронировать</a>
+        {% else %}
+        <button class="btn btn-primary" type="button" data-open-modal="apply">Зафиксировать цену</button>
+        <a class="btn btn-secondary" href="{{ promo_secondary_href }}">{{ promo_secondary_label }}</a>
+        {% endif %}
       </div>
     </div>
-    <div class="pm-promo-window__facts">
-      <span><strong>{{ promo_seats_left }}</strong> мест по спеццене</span>
-      <span>Мини‑группа и живой разбор</span>
-      <span>Цена фиксируется после заявки</span>
-    </div>
-    <div class="pm-promo-window__actions">
-      {% if course is defined %}
-      <a class="btn btn-primary" href="#enroll">Забронировать место</a>
-      <button class="btn btn-secondary" type="button" data-open-modal="apply">Задать вопрос</button>
-      {% else %}
-      <button class="btn btn-primary" type="button" data-open-modal="apply">Зафиксировать спеццену</button>
-      <a class="btn btn-secondary" href="{{ promo_secondary_href }}">{{ promo_secondary_label }}</a>
-      {% endif %}
-    </div>
-    <div class="pm-promo-window__note">Окно предложения обновляется в реальном времени и опирается на текущий дедлайн акции и остаток мест в мини‑группах.</div>
   </div>
 
   <button class="pm-promo-teaser" type="button" data-promo-teaser hidden>
     <span class="pm-promo-teaser__badge">{{ promo_discount }}</span>
-    <span class="pm-promo-teaser__copy">До {{ promo_deadline_label }} • {{ promo_seats_left }} мест по спеццене</span>
+    <span class="pm-promo-teaser__copy">До {{ promo_deadline_label }} • {{ promo_seats_left }} мест</span>
     <span class="pm-promo-teaser__action">Открыть</span>
   </button>
   {% endif %}
