@@ -37,7 +37,7 @@
         </div>
       </div>
       <div class="pm-student-metrics">
-        {% for metric in account_hero.metrics %}
+        {% for metric in account_hero.metrics[:4] %}
         <div class="pm-student-metric">
           <span>{{ metric.label }}</span>
           <strong>{{ metric.value }}</strong>
@@ -53,6 +53,26 @@
     <div class="pm-inline-alert">Оплата принята. Статус обновится после подтверждения платежа.</div>
     {% endif %}
 
+    <section class="pm-student-focus">
+      <div class="pm-section-head">
+        <div>
+          <div class="pm-kicker">Focus</div>
+          <h2 class="section-title">{{ account_focus.title }}</h2>
+        </div>
+        <span class="pm-tag">{{ account_focus.text }}</span>
+      </div>
+      <div class="pm-student-focus__grid">
+        {% for card in account_focus.cards %}
+        <article class="pm-surface-card pm-student-focus-card">
+          <div class="course-meta">{{ card.label }}</div>
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.text }}</p>
+          <a class="btn btn-secondary" href="{{ card.href }}">{{ card.action }}</a>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
     <section id="student-workspace" class="pm-student-section">
       <div class="pm-section-head">
         <div>
@@ -62,6 +82,16 @@
         <span class="pm-tag">Единый контур: календарь, ДЗ, лекции, преподаватели и настройки</span>
       </div>
       <div class="pm-surface-card pm-workspace" data-workspace-carousel>
+        <div class="pm-workspace__intro">
+          <div>
+            <div class="course-meta">Workspace</div>
+            <strong>Один экран для ближайших действий, материалов и сервисных задач.</strong>
+          </div>
+          <div class="pm-workspace__links">
+            <a href="#student-courses">Мои курсы</a>
+            <a href="{% if agreements %}#student-contracts{% else %}/#courses{% endif %}">Договоры</a>
+          </div>
+        </div>
         <div class="pm-workspace__toolbar">
           <div class="pm-workspace__tabs" role="tablist" aria-label="Разделы кабинета">
             {% for tab in account_workspace_tabs %}

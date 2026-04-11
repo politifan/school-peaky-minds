@@ -36,6 +36,20 @@
         {% endfor %}
       </div>
 
+      <div class="pm-course-quick-filters">
+        {% for item in courses_page.quick_filters %}
+        <button
+          class="pm-course-quick-filter"
+          type="button"
+          data-course-preset
+          data-course-preset-group="{{ item.group }}"
+          data-course-preset-search="{{ item.search }}"
+        >
+          {{ item.label }}
+        </button>
+        {% endfor %}
+      </div>
+
       <div class="pm-journal-toolbar">
         <label class="pm-journal-search">
           <input type="search" placeholder="Поиск по ролям, стеку и названиям курсов" data-course-search>
@@ -73,7 +87,7 @@
           class="pm-course-card pm-course-card--catalog"
           data-course-card
           data-course-group="{{ course.group }}"
-          data-course-name="{{ (course.name ~ ' ' ~ course.track_label ~ ' ' ~ course.group_label ~ ' ' ~ course.chips|join(' ')) | lower }}"
+          data-course-name="{{ (course.name ~ ' ' ~ course.track_label ~ ' ' ~ course.group_label ~ ' ' ~ course.chips|join(' ') ~ ' ' ~ course.marketing.search_tags|join(' ')) | lower }}"
           data-course-price="{{ course.price_value }}"
           data-course-duration="{{ course.duration_value }}"
           data-course-direction-order="{{ course.direction_order }}"
@@ -83,13 +97,18 @@
             <span class="pm-course-card__price">от {{ course.price }}</span>
           </div>
           <h3>{{ course.name }}</h3>
-          <p>{{ course.lead }}</p>
+          <p>{{ course.marketing.summary }}</p>
           <div class="pm-course-card__chips">
+            <span>{{ course.marketing.salary.range }}</span>
             <span>{{ course.group_label }}</span>
             <span>{{ course.duration }}</span>
             {% for chip in course.chips %}
             <span>{{ chip }}</span>
             {% endfor %}
+          </div>
+          <div class="pm-course-card__micro">
+            <strong>{{ course.marketing.slogan }}</strong>
+            <span>{{ course.marketing.offer.discount }} и {{ course.marketing.offer.seats_left }} мест по спеццене</span>
           </div>
           <div class="pm-course-card__actions">
             <a class="btn btn-secondary" href="{{ course.path }}">Смотреть программу</a>

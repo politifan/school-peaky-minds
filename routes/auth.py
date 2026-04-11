@@ -675,6 +675,7 @@ async def account(request: Request):
             "account_teachers": teacher_items,
             "account_api": account_content["api"],
             "account_hero": account_content["hero"],
+            "account_focus": account_content["focus"],
             "account_overview": account_content["overview"],
             "account_sections": account_content["sections"],
             "account_stats": account_content["stats"],

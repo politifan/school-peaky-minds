@@ -1145,3 +1145,219 @@ courseCatalogs.forEach((catalog) => {
 
   applyCourseFilter();
 });
+
+const safeSessionStorage = {
+  get(key) {
+    try {
+      return window.sessionStorage.getItem(key);
+    } catch (error) {
+      return null;
+    }
+  },
+  set(key, value) {
+    try {
+      window.sessionStorage.setItem(key, value);
+    } catch (error) {
+      // Ignore storage failures in private mode.
+    }
+  },
+};
+
+const numberFormatter = new Intl.NumberFormat('ru-RU');
+const formatNumber = (value) => numberFormatter.format(Math.max(0, Math.round(Number(value) || 0)));
+const formatCurrency = (value) => `${formatNumber(value)} ₽`;
+const parseNumber = (value) => Number(String(value || '').replace(/[^\d]/g, '')) || 0;
+
+const countdownCards = document.querySelectorAll('[data-countdown]');
+
+countdownCards.forEach((card) => {
+  const deadline = new Date(card.dataset.deadline || '');
+  if (Number.isNaN(deadline.getTime())) return;
+
+  const daysNode = card.querySelector('[data-countdown-days]');
+  const hoursNode = card.querySelector('[data-countdown-hours]');
+  const minutesNode = card.querySelector('[data-countdown-minutes]');
+  const secondsNode = card.querySelector('[data-countdown-seconds]');
+
+  const updateCountdown = () => {
+    const diff = Math.max(0, deadline.getTime() - Date.now());
+    const totalSeconds = Math.floor(diff / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (daysNode) daysNode.textContent = String(days).padStart(2, '0');
+    if (hoursNode) hoursNode.textContent = String(hours).padStart(2, '0');
+    if (minutesNode) minutesNode.textContent = String(minutes).padStart(2, '0');
+    if (secondsNode) secondsNode.textContent = String(seconds).padStart(2, '0');
+
+    card.classList.toggle('is-expired', diff <= 0);
+  };
+
+  updateCountdown();
+  window.setInterval(updateCountdown, 1000);
+});
+
+const stickyTelegram = document.querySelector('[data-sticky-telegram]');
+const stickyTelegramClose = document.querySelector('[data-sticky-telegram-close]');
+const stickyTelegramStorageKey = 'pm-sticky-telegram-hidden';
+
+if (stickyTelegram && safeSessionStorage.get(stickyTelegramStorageKey) === '1') {
+  stickyTelegram.hidden = true;
+}
+
+if (stickyTelegram && stickyTelegramClose) {
+  stickyTelegramClose.addEventListener('click', () => {
+    stickyTelegram.hidden = true;
+    safeSessionStorage.set(stickyTelegramStorageKey, '1');
+  });
+}
+
+const coursePresetButtons = document.querySelectorAll('[data-course-preset]');
+
+coursePresetButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const catalog = document.querySelector('[data-course-catalog]');
+    if (!catalog) return;
+
+    const group = button.dataset.coursePresetGroup || 'all';
+    const search = button.dataset.coursePresetSearch || '';
+    const filterButton = catalog.querySelector(`[data-course-filter="${group}"]`);
+    const searchField = catalog.querySelector('[data-course-search]');
+    const presetScope =
+      button.closest('.pm-discovery-card, .pm-course-quick-filters') || button.parentElement || document;
+
+    presetScope.querySelectorAll('[data-course-preset]').forEach((item) => {
+      item.classList.toggle('is-active', item === button);
+    });
+
+    if (filterButton) filterButton.click();
+    if (searchField) {
+      searchField.value = search;
+      searchField.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    const targetSection = document.getElementById('courses') || catalog;
+    targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+const pageMarketing = pmRuntimeConfig.pageMarketing || null;
+const quizCard = document.querySelector('[data-quiz]');
+
+if (quizCard && pageMarketing?.quiz?.results) {
+  const steps = Array.from(quizCard.querySelectorAll('[data-quiz-step]'));
+  const resultNode = quizCard.querySelector('[data-quiz-result]');
+  const resultTitle = quizCard.querySelector('[data-quiz-result-title]');
+  const resultText = quizCard.querySelector('[data-quiz-result-text]');
+  const resultLink = quizCard.querySelector('[data-quiz-result-link]');
+  const scoreMap = {
+    python_start: 'scorePythonStart',
+    fullstack: 'scoreFullstack',
+    data_science: 'scoreDataScience',
+    business: 'scoreBusiness',
+  };
+  const scores = {
+    python_start: 0,
+    fullstack: 0,
+    data_science: 0,
+    business: 0,
+  };
+  let currentStep = 0;
+
+  const syncQuiz = () => {
+    steps.forEach((step, index) => {
+      const isActive = index === currentStep;
+      step.classList.toggle('is-active', isActive);
+      step.hidden = !isActive;
+    });
+  };
+
+  const renderQuizResult = () => {
+    const winner =
+      Object.entries(scores)
+        .sort((left, right) => right[1] - left[1])[0]?.[0] || 'fullstack';
+    const payload = pageMarketing.quiz.results[winner] || pageMarketing.quiz.results.fullstack;
+    if (!payload) return;
+
+    if (resultTitle) resultTitle.textContent = payload.title;
+    if (resultText) resultText.textContent = payload.text;
+    if (resultLink) {
+      resultLink.href = payload.href;
+      resultLink.textContent = payload.button;
+    }
+    if (resultNode) resultNode.hidden = false;
+    steps.forEach((step) => {
+      step.classList.remove('is-active');
+      step.hidden = true;
+    });
+  };
+
+  quizCard.addEventListener('click', (event) => {
+    const choice = event.target.closest('[data-quiz-choice]');
+    if (!choice || !quizCard.contains(choice)) return;
+
+    Object.entries(scoreMap).forEach(([track, datasetKey]) => {
+      scores[track] += Number(choice.dataset[datasetKey] || 0);
+    });
+
+    if (currentStep >= steps.length - 1) {
+      renderQuizResult();
+      return;
+    }
+
+    currentStep += 1;
+    syncQuiz();
+  });
+
+  syncQuiz();
+}
+
+const roiCalculator = document.querySelector('[data-roi-calculator]');
+
+if (roiCalculator && Array.isArray(pageMarketing?.roi_tracks) && pageMarketing.roi_tracks.length) {
+  const trackField = roiCalculator.querySelector('[data-roi-track]');
+  const salaryField = roiCalculator.querySelector('[data-roi-salary]');
+  const resultTitle = roiCalculator.querySelector('[data-roi-result-title]');
+  const resultText = roiCalculator.querySelector('[data-roi-result-text]');
+  const tracks = pageMarketing.roi_tracks.reduce((acc, item) => {
+    acc[item.key] = item;
+    return acc;
+  }, {});
+
+  const updateRoi = () => {
+    const activeTrack = tracks[trackField?.value] || pageMarketing.roi_tracks[0];
+    if (!activeTrack) return;
+
+    const desiredSalary = Math.max(parseNumber(salaryField?.value), activeTrack.entry_salary);
+    const paybackMonths = Math.max(1, Math.ceil(activeTrack.course_cost / desiredSalary));
+    const totalMonths = activeTrack.time_to_offer + paybackMonths;
+
+    if (resultTitle) {
+      resultTitle.textContent = `Окупаемость примерно за ${paybackMonths} мес. работы`;
+    }
+
+    if (resultText) {
+      resultText.textContent =
+        `${activeTrack.label}: первая оплачиваемая роль обычно приходит через ${activeTrack.time_to_offer} мес. ` +
+        `При зарплате ${formatCurrency(desiredSalary)} курс за ${formatCurrency(activeTrack.course_cost)} ` +
+        `обычно отбивается за ${paybackMonths} мес., полный горизонт от старта — около ${totalMonths} мес.`;
+    }
+  };
+
+  if (salaryField) {
+    salaryField.value = formatNumber(parseNumber(salaryField.value) || pageMarketing.roi_tracks[0].entry_salary);
+    salaryField.addEventListener('input', updateRoi);
+    salaryField.addEventListener('blur', () => {
+      salaryField.value = formatNumber(parseNumber(salaryField.value) || pageMarketing.roi_tracks[0].entry_salary);
+      updateRoi();
+    });
+  }
+
+  if (trackField) {
+    trackField.addEventListener('change', updateRoi);
+  }
+
+  updateRoi();
+}

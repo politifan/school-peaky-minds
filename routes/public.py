@@ -15,6 +15,7 @@ from routes.journal_content import (
 )
 from routes.course_content import COURSE_PAGES, HOME_COURSE_KEYS, build_course_catalog_content
 from routes.homepage_content import CALENDAR_PREVIEW
+from routes.marketing_content import build_homepage_marketing, decorate_catalog_page, decorate_course
 
 router = APIRouter()
 
@@ -32,7 +33,7 @@ def _render_course(request: Request, course_key: str, course_slug: str):
         request,
         "course_marketing.html",
         {
-            "course": COURSE_PAGES[course_key],
+            "course": decorate_course(course_key, COURSE_PAGES[course_key]),
             "course_slug": course_slug,
             "amp_css": _load_amp_css(),
         },
@@ -47,7 +48,8 @@ async def index(request: Request):
         {
             "amp_css": _load_amp_css(),
             "calendar_preview": CALENDAR_PREVIEW,
-            "home_courses": [COURSE_PAGES[key] for key in HOME_COURSE_KEYS],
+            "home_courses": [decorate_course(key, COURSE_PAGES[key]) for key in HOME_COURSE_KEYS],
+            "marketing": build_homepage_marketing(),
         },
     )
 
@@ -60,7 +62,8 @@ async def index_alias(request: Request):
         {
             "amp_css": _load_amp_css(),
             "calendar_preview": CALENDAR_PREVIEW,
-            "home_courses": [COURSE_PAGES[key] for key in HOME_COURSE_KEYS],
+            "home_courses": [decorate_course(key, COURSE_PAGES[key]) for key in HOME_COURSE_KEYS],
+            "marketing": build_homepage_marketing(),
         },
     )
 
@@ -181,7 +184,7 @@ async def courses_catalog(request: Request):
         "courses_catalog.html",
         {
             "amp_css": _load_amp_css(),
-            "courses_page": build_course_catalog_content(),
+            "courses_page": decorate_catalog_page(build_course_catalog_content()),
         },
     )
 

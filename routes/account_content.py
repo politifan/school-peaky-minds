@@ -1431,6 +1431,78 @@ def _build_account_hero(
     }
 
 
+def _build_account_focus(
+    *,
+    has_agreements: bool,
+    payments_enabled: bool,
+    total_courses: int,
+    signed_contracts: int,
+    upcoming_events: int,
+    homework_open: int,
+    lecture_records: int,
+) -> Dict[str, Any]:
+    if has_agreements:
+        next_step = {
+            "label": "Сейчас",
+            "title": "Откройте workspace и проверьте ближайший фокус.",
+            "text": "Календарь, ДЗ, лекции и преподаватели уже собраны внутри кабинета.",
+            "action": "Открыть workspace",
+            "href": "#student-workspace",
+        }
+    else:
+        next_step = {
+            "label": "Старт",
+            "title": "Пока нет активного курса.",
+            "text": "После записи здесь автоматически появятся календарь, материалы и оплата.",
+            "action": "Выбрать курс",
+            "href": "/#courses",
+        }
+
+    if upcoming_events or homework_open:
+        attention_title = f"{upcoming_events} событий и {homework_open} активных ДЗ"
+        attention_text = "Начните с календаря и блока домашних заданий, чтобы сразу понять темп на ближайшие дни."
+    else:
+        attention_title = "Сейчас всё спокойно"
+        attention_text = "Новых дедлайнов пока нет, значит можно спокойно догнать материалы и записи лекций."
+
+    if payments_enabled:
+        docs_title = f"{signed_contracts} договоров и онлайн-оплата в одном месте"
+        docs_text = "Документы, PDF и оплата через СБП открываются из карточки курса."
+    else:
+        docs_title = f"{signed_contracts} договоров и материалы под рукой"
+        docs_text = "Онлайн-оплата появится позже, но все учебные материалы и договоры уже останутся здесь."
+
+    return {
+        "title": "Короткий фокус на сейчас",
+        "text": "Личный кабинет пересобран так, чтобы вы быстро видели свой следующий шаг, а не тонули в панелях.",
+        "workspace_note": "Одна панель для календаря, ДЗ, лекций, преподавателей и настроек.",
+        "cards": [
+            next_step,
+            {
+                "label": "Внимание",
+                "title": attention_title,
+                "text": attention_text,
+                "action": "Перейти к workspace",
+                "href": "#student-workspace",
+            },
+            {
+                "label": "Документы и оплата",
+                "title": docs_title,
+                "text": docs_text,
+                "action": "Открыть курсы",
+                "href": "#student-courses" if total_courses else "/#courses",
+            },
+            {
+                "label": "Материалы",
+                "title": f"{lecture_records} записей лекций и учебный контур под рукой",
+                "text": "Записи, ссылки и преподаватели открываются из workspace без длинного поиска.",
+                "action": "Открыть лекции",
+                "href": "#student-workspace",
+            },
+        ],
+    }
+
+
 def _build_account_overview(*, has_agreements: bool, payments_enabled: bool) -> Dict[str, Any]:
     return {
         "kicker": "Overview",
@@ -1562,6 +1634,15 @@ def build_account_content(
             homework_open=stats["homework_open"],
             lecture_records=stats["lecture_records"],
             teachers_count=stats["teachers_count"],
+        ),
+        "focus": _build_account_focus(
+            has_agreements=bool(agreements),
+            payments_enabled=payments_enabled,
+            total_courses=stats["total_courses"],
+            signed_contracts=stats["signed_contracts"],
+            upcoming_events=stats["upcoming_events"],
+            homework_open=stats["homework_open"],
+            lecture_records=stats["lecture_records"],
         ),
         "overview": _build_account_overview(
             has_agreements=bool(agreements),

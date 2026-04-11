@@ -38,6 +38,9 @@
   <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
   <link rel="shortcut icon" href="/assets/img/favicon.ico">
   <link rel="apple-touch-icon" href="/assets/img/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -168,6 +171,17 @@
   <main id="top" class="site-main site-main--marketing">
     {% block content %}{% endblock %}
   </main>
+
+  {% if contact_telegram_link %}
+  <div class="pm-sticky-telegram" data-sticky-telegram>
+    <div class="pm-sticky-telegram__copy">
+      <strong>{{ marketing_runtime.sticky_bar.title }}</strong>
+      <span>Ответим без длинной формы и лишних шагов.</span>
+    </div>
+    <a class="btn btn-secondary" href="{{ contact_telegram_link }}" target="_blank" rel="noopener">{{ marketing_runtime.sticky_bar.button }}</a>
+    <button class="pm-sticky-telegram__close" type="button" data-sticky-telegram-close aria-label="Закрыть">×</button>
+  </div>
+  {% endif %}
 
   <footer class="site-footer site-footer--marketing">
     <div class="container site-footer__inner">
@@ -385,7 +399,10 @@
       analytics: {
         yandexMetrikaId: "{{ yandex_metrika_id }}",
         gaMeasurementId: "{{ ga_measurement_id }}"
-      }
+      },
+      marketing: {{ marketing_runtime | tojson }},
+      pageMarketing: {% if marketing is defined %}{{ marketing | tojson }}{% else %}null{% endif %},
+      pageCourseMarketing: {% if course is defined %}{{ course.marketing | tojson }}{% else %}null{% endif %}
     });
   </script>
   <script>

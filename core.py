@@ -24,6 +24,7 @@ from fastapi import Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from starlette.status import HTTP_302_FOUND
+from routes.marketing_content import build_marketing_runtime
 
 try:
     from authlib.integrations.starlette_client import OAuth, OAuthError
@@ -1904,6 +1905,7 @@ def render(request: Request, template_name: str, context: Optional[Dict[str, Any
         "antibot_token_field": ANTIBOT_TOKEN_FIELD,
         "antibot_honeypot_field": ANTIBOT_HONEYPOT_FIELD,
         "antibot_tokens": {flow: create_antibot_token(flow) for flow in ANTIBOT_FLOWS},
+        "marketing_runtime": build_marketing_runtime(),
     }
     if context:
         ctx.update(context)

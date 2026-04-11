@@ -9794,3 +9794,1108 @@ body.shell-marketing .pm-post-author span {
     max-width: 10ch;
   }
 }
+
+/* Monochrome conversion layer */
+
+body.shell-marketing {
+  --pm-surface: #ffffff;
+  --pm-surface-soft: #f2f2ee;
+  --pm-surface-muted: #e7e7e1;
+  --pm-ink: #101010;
+  --pm-ink-soft: #5d5d57;
+  --pm-stroke: rgba(16, 16, 16, 0.12);
+  --pm-stroke-strong: rgba(16, 16, 16, 0.22);
+  background: #f6f6f2;
+  color: var(--pm-ink);
+  font-family: "Manrope", "Segoe UI", sans-serif;
+}
+
+body.shell-marketing .shape-stage,
+body.shell-marketing .site-bg,
+body.shell-marketing .pm-journal-art__glow {
+  display: none;
+}
+
+body.shell-marketing .display-title,
+body.shell-marketing h1,
+body.shell-marketing h2,
+body.shell-marketing h3,
+body.shell-marketing strong {
+  color: var(--pm-ink);
+}
+
+body.shell-marketing p,
+body.shell-marketing .lead-text,
+body.shell-marketing li,
+body.shell-marketing small,
+body.shell-marketing .pm-section-head p,
+body.shell-marketing .pm-post-detail__excerpt,
+body.shell-marketing .pm-story-card__head span,
+body.shell-marketing .pm-post-author span {
+  color: var(--pm-ink-soft);
+}
+
+body.shell-marketing .pm-section--soft,
+body.shell-marketing .pm-blog-section--soft {
+  background: #efefe9;
+}
+
+body.shell-marketing .btn-primary {
+  border-color: #101010;
+  background: #101010;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+body.shell-marketing .btn-primary:hover,
+body.shell-marketing .btn-primary:focus-visible {
+  background: #232323;
+}
+
+body.shell-marketing .btn-secondary {
+  border-color: var(--pm-stroke-strong);
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--pm-ink);
+  box-shadow: none;
+}
+
+body.shell-marketing .btn-secondary:hover,
+body.shell-marketing .btn-secondary:focus-visible {
+  border-color: #101010;
+  background: #ffffff;
+}
+
+body.shell-marketing .eyebrow,
+body.shell-marketing .eyebrow--dark,
+body.shell-marketing .eyebrow--light {
+  color: var(--pm-ink-soft);
+}
+
+body.shell-marketing .c-pill,
+body.shell-marketing .pm-home-hero__visual-pills span,
+body.shell-marketing .pm-chip-cloud span,
+body.shell-marketing .pm-career-banner__chips span {
+  border: 1px solid var(--pm-stroke);
+  background: #ffffff;
+  color: var(--pm-ink);
+}
+
+body.shell-marketing .c-pill.is-active,
+body.shell-marketing .pm-course-quick-filter.is-active {
+  border-color: #101010;
+  background: #101010;
+  color: #ffffff;
+}
+
+body.shell-marketing .pm-home-hero__visual,
+body.shell-marketing .pm-course-hero__visual,
+body.shell-marketing .pm-video-showcase,
+body.shell-marketing .pm-discovery-card,
+body.shell-marketing .pm-quiz-card,
+body.shell-marketing .pm-salary-guide,
+body.shell-marketing .pm-it-facts,
+body.shell-marketing .pm-roi-card,
+body.shell-marketing .pm-alumni-card,
+body.shell-marketing .pm-course-fact,
+body.shell-marketing .pm-course-insight,
+body.shell-marketing .pm-price-card,
+body.shell-marketing .pm-price-note,
+body.shell-marketing .pm-audience-card,
+body.shell-marketing .pm-outcomes-card,
+body.shell-marketing .pm-stack-card,
+body.shell-marketing .pm-project-card,
+body.shell-marketing .pm-module-card,
+body.shell-marketing .pm-step-card,
+body.shell-marketing .faq-item,
+body.shell-marketing .pm-post-card,
+body.shell-marketing .pm-blog-card,
+body.shell-marketing .pm-story-card,
+body.shell-marketing .pm-collection-card,
+body.shell-marketing .pm-post-detail__article,
+body.shell-marketing .pm-post-aside-card,
+body.shell-marketing .pm-course-card {
+  border: 1px solid var(--pm-stroke);
+  background: #ffffff;
+  box-shadow: none;
+}
+
+body.shell-marketing .pm-home-hero__visual,
+body.shell-marketing .pm-course-hero__visual {
+  padding: 28px;
+  border-radius: 34px;
+}
+
+body.shell-marketing .pm-hero-card,
+body.shell-marketing .pm-course-glance,
+body.shell-marketing .pm-course-glance--dark,
+body.shell-marketing .pm-course-glance--gradient {
+  border: 1px solid var(--pm-stroke);
+  background: #ffffff;
+  color: var(--pm-ink);
+  box-shadow: none;
+}
+
+body.shell-marketing .pm-home-hero__trust li,
+body.shell-marketing .pm-enroll-panel__proof span,
+body.shell-marketing .pm-video-showcase__facts span {
+  border: 1px solid var(--pm-stroke);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--pm-ink);
+}
+
+body.shell-marketing .pm-hero-manifesto,
+body.shell-marketing .pm-course-manifesto,
+body.shell-marketing .pm-urgency-card {
+  display: grid;
+  gap: 12px;
+  padding: 20px 22px;
+  border: 1px solid var(--pm-stroke);
+  border-radius: 24px;
+  background: #ffffff;
+}
+
+body.shell-marketing .pm-hero-manifesto__eyebrow {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pm-ink-soft);
+}
+
+body.shell-marketing .pm-hero-manifesto__lines {
+  display: grid;
+  gap: 6px;
+}
+
+body.shell-marketing .pm-hero-manifesto__lines span,
+body.shell-marketing .pm-course-manifesto strong {
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+body.shell-marketing .pm-course-manifesto span {
+  font-size: 0.98rem;
+}
+
+body.shell-marketing .pm-urgency-card {
+  margin-top: 18px;
+}
+
+body.shell-marketing .pm-urgency-card__head,
+body.shell-marketing .pm-urgency-card__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+body.shell-marketing .pm-urgency-card__head span,
+body.shell-marketing .pm-urgency-card__foot strong,
+body.shell-marketing .pm-price-row__discount,
+body.shell-marketing .pm-course-card__micro span,
+body.shell-marketing .pm-course-card__price {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #101010;
+  color: #ffffff;
+}
+
+body.shell-marketing .pm-countdown {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+body.shell-marketing .pm-countdown__item {
+  display: grid;
+  gap: 4px;
+  padding: 16px 12px;
+  border-radius: 18px;
+  background: var(--pm-surface-soft);
+  text-align: center;
+}
+
+body.shell-marketing .pm-countdown__item strong {
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  line-height: 1;
+}
+
+body.shell-marketing .pm-countdown__item span {
+  color: var(--pm-ink-soft);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+body.shell-marketing .pm-video-showcase,
+body.shell-marketing .pm-discovery-grid,
+body.shell-marketing .pm-economics-grid,
+body.shell-marketing .pm-alumni-grid,
+body.shell-marketing .pm-course-insights {
+  display: grid;
+  gap: 20px;
+}
+
+body.shell-marketing .pm-video-showcase,
+body.shell-marketing .pm-discovery-grid,
+body.shell-marketing .pm-economics-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.shell-marketing .pm-video-showcase,
+body.shell-marketing .pm-discovery-card,
+body.shell-marketing .pm-quiz-card,
+body.shell-marketing .pm-salary-guide,
+body.shell-marketing .pm-it-facts,
+body.shell-marketing .pm-roi-card {
+  padding: 28px;
+  border-radius: 30px;
+}
+
+body.shell-marketing .pm-video-showcase__copy,
+body.shell-marketing .pm-video-showcase__stage,
+body.shell-marketing .pm-roi-card__copy,
+body.shell-marketing .pm-roi-card__form {
+  display: grid;
+  gap: 16px;
+}
+
+body.shell-marketing .pm-video-showcase__stage video,
+body.shell-marketing .pm-video-showcase__placeholder {
+  width: 100%;
+  min-height: 100%;
+  border-radius: 26px;
+}
+
+body.shell-marketing .pm-video-showcase__placeholder {
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  padding: 38px;
+  border: 1px dashed var(--pm-stroke-strong);
+  background: var(--pm-surface-soft);
+  text-align: center;
+}
+
+body.shell-marketing .pm-video-showcase__play {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: #101010;
+  color: #ffffff;
+  font-size: 1.2rem;
+}
+
+body.shell-marketing .pm-discovery-card,
+body.shell-marketing .pm-quiz-card,
+body.shell-marketing .pm-it-facts {
+  align-content: start;
+}
+
+body.shell-marketing .pm-preset-grid,
+body.shell-marketing .pm-course-quick-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+body.shell-marketing .pm-course-quick-filters {
+  margin-top: 14px;
+}
+
+body.shell-marketing .pm-course-quick-filter {
+  padding: 10px 16px;
+  border: 1px solid var(--pm-stroke);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--pm-ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+body.shell-marketing .pm-quiz-question {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--pm-ink);
+}
+
+body.shell-marketing .pm-quiz-options {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+body.shell-marketing .pm-quiz-options button {
+  padding: 14px 16px;
+  border: 1px solid var(--pm-stroke);
+  border-radius: 18px;
+  background: var(--pm-surface-soft);
+  color: var(--pm-ink);
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+body.shell-marketing .pm-quiz-options button:hover,
+body.shell-marketing .pm-quiz-options button:focus-visible {
+  border-color: #101010;
+  background: #ffffff;
+}
+
+body.shell-marketing .pm-quiz-result {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 20px;
+  border-radius: 22px;
+  background: var(--pm-surface-soft);
+}
+
+body.shell-marketing .pm-quiz-result__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+body.shell-marketing .pm-salary-guide__list,
+body.shell-marketing .pm-it-facts,
+body.shell-marketing .pm-alumni-grid,
+body.shell-marketing .pm-course-insights {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+body.shell-marketing .pm-salary-guide__list,
+body.shell-marketing .pm-it-facts {
+  display: grid;
+  gap: 14px;
+}
+
+body.shell-marketing .pm-salary-guide__row,
+body.shell-marketing .pm-it-facts__item,
+body.shell-marketing .pm-alumni-card,
+body.shell-marketing .pm-course-insight {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  border-radius: 22px;
+  background: var(--pm-surface-soft);
+}
+
+body.shell-marketing .pm-salary-guide__row span,
+body.shell-marketing .pm-it-facts__item strong {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--pm-ink);
+}
+
+body.shell-marketing .pm-roi-card {
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.9fr);
+  align-items: center;
+}
+
+body.shell-marketing .pm-roi-card__form label {
+  display: grid;
+  gap: 8px;
+}
+
+body.shell-marketing .pm-roi-card__form input,
+body.shell-marketing .pm-roi-card__form select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--pm-stroke);
+  border-radius: 16px;
+  background: #ffffff;
+  color: var(--pm-ink);
+  font: inherit;
+}
+
+body.shell-marketing .pm-roi-card__result {
+  padding: 18px;
+  border-radius: 20px;
+  background: var(--pm-surface-soft);
+}
+
+body.shell-marketing .pm-alumni-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+body.shell-marketing .pm-course-card__micro {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+body.shell-marketing .pm-course-card__micro strong {
+  font-size: 0.98rem;
+  line-height: 1.4;
+}
+
+body.shell-marketing .pm-course-insight a,
+body.shell-marketing .pm-alumni-card a,
+body.shell-marketing .pm-enroll-panel__docs a {
+  color: var(--pm-ink);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+body.shell-marketing .pm-price-row {
+  border-radius: 22px;
+  border: 1px solid var(--pm-stroke);
+  background: var(--pm-surface-soft);
+}
+
+body.shell-marketing .pm-price-row--featured {
+  border-color: #101010;
+}
+
+body.shell-marketing .pm-career-banner,
+body.shell-marketing .pm-enroll-panel {
+  border: 1px solid #101010;
+  background: #101010;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+body.shell-marketing .pm-career-banner h2,
+body.shell-marketing .pm-career-banner h3,
+body.shell-marketing .pm-enroll-panel h2,
+body.shell-marketing .pm-enroll-panel strong,
+body.shell-marketing .pm-enroll-panel a,
+body.shell-marketing .pm-career-banner .eyebrow--light {
+  color: #ffffff;
+}
+
+body.shell-marketing .pm-career-banner p,
+body.shell-marketing .pm-enroll-panel p,
+body.shell-marketing .pm-enroll-panel__note,
+body.shell-marketing .pm-enroll-panel__copy span {
+  color: rgba(255, 255, 255, 0.76);
+}
+
+body.shell-marketing .pm-career-banner__card,
+body.shell-marketing .pm-career-banner__card--light,
+body.shell-marketing .pm-enroll-panel__form {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+body.shell-marketing .pm-enroll-panel__proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+body.shell-marketing .pm-enroll-panel__proof span {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+body.shell-marketing .pm-sticky-telegram {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: min(760px, calc(100vw - 32px));
+  padding: 16px 18px;
+  border: 1px solid var(--pm-stroke);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 70px rgba(16, 16, 16, 0.12);
+  backdrop-filter: blur(16px);
+}
+
+body.shell-marketing .pm-sticky-telegram[hidden] {
+  display: none !important;
+}
+
+body.shell-marketing .pm-sticky-telegram__copy {
+  flex: 1 1 auto;
+  display: grid;
+  gap: 4px;
+}
+
+body.shell-marketing .pm-sticky-telegram__close {
+  border: 0;
+  background: transparent;
+  color: var(--pm-ink-soft);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+@media (max-width: 1080px) {
+  body.shell-marketing .pm-video-showcase,
+  body.shell-marketing .pm-discovery-grid,
+  body.shell-marketing .pm-economics-grid,
+  body.shell-marketing .pm-roi-card {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-marketing .pm-salary-guide__list,
+  body.shell-marketing .pm-it-facts,
+  body.shell-marketing .pm-alumni-grid,
+  body.shell-marketing .pm-course-insights {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  body.shell-marketing .pm-countdown {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.shell-marketing .pm-sticky-telegram {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    width: auto;
+    flex-wrap: wrap;
+  }
+
+  body.shell-marketing .pm-sticky-telegram .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  body.shell-marketing .pm-video-showcase,
+  body.shell-marketing .pm-discovery-card,
+  body.shell-marketing .pm-quiz-card,
+  body.shell-marketing .pm-salary-guide,
+  body.shell-marketing .pm-it-facts,
+  body.shell-marketing .pm-roi-card,
+  body.shell-marketing .pm-home-hero__visual,
+  body.shell-marketing .pm-course-hero__visual {
+    padding: 22px;
+    border-radius: 24px;
+  }
+
+  body.shell-marketing .pm-salary-guide__list,
+  body.shell-marketing .pm-it-facts,
+  body.shell-marketing .pm-alumni-grid,
+  body.shell-marketing .pm-course-insights {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Student monochrome conversion layer */
+
+body.shell-student {
+  --pm-student-bg: #f6f6f1;
+  --pm-student-surface: #ffffff;
+  --pm-student-surface-soft: #f1f1eb;
+  --pm-student-border: rgba(17, 17, 17, 0.1);
+  --pm-student-border-strong: rgba(17, 17, 17, 0.18);
+  --pm-student-text: #111111;
+  --pm-student-text-soft: #64645d;
+  --pm-student-shadow: 0 20px 50px rgba(17, 17, 17, 0.06);
+  background: var(--pm-student-bg);
+  color: var(--pm-student-text);
+  font-family: "Manrope", "Segoe UI", sans-serif;
+}
+
+body.shell-student .site-header--student {
+  border-bottom: 1px solid var(--pm-student-border);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(18px);
+}
+
+body.shell-student .site-header--student .logo--marketing,
+body.shell-student .site-header--student .logo span,
+body.shell-student .nav-links--student a,
+body.shell-student .site-header--student .nav-user__label {
+  color: var(--pm-student-text);
+}
+
+body.shell-student .nav-links--student a {
+  color: var(--pm-student-text-soft);
+}
+
+body.shell-student .nav-links--student a:hover {
+  color: var(--pm-student-text);
+}
+
+body.shell-student .site-header--student .nav-user--marketing,
+body.shell-student .site-header--student .btn-secondary {
+  background: #ffffff;
+  color: var(--pm-student-text);
+  border-color: var(--pm-student-border);
+}
+
+body.shell-student .site-main--student {
+  padding: 28px 0 80px;
+}
+
+body.shell-student .site-footer--student {
+  background: #efefe8;
+  color: var(--pm-student-text);
+}
+
+body.shell-student .site-footer--student .logo--marketing,
+body.shell-student .site-footer--student .logo--marketing span,
+body.shell-student .site-footer--student .site-footer__column h4 {
+  color: var(--pm-student-text);
+}
+
+body.shell-student .site-footer--student .site-footer__intro p,
+body.shell-student .site-footer--student .site-footer__column a,
+body.shell-student .site-footer--student .site-footer__column span {
+  color: var(--pm-student-text-soft);
+}
+
+body.shell-student .site-footer--student .site-footer__column a:hover {
+  color: var(--pm-student-text);
+}
+
+body.shell-student .btn-primary {
+  background: #111111;
+  color: #ffffff;
+  border: 1px solid #111111;
+  box-shadow: none;
+}
+
+body.shell-student .btn-primary:hover,
+body.shell-student .btn-primary:focus-visible {
+  background: #262626;
+  box-shadow: none;
+}
+
+body.shell-student .btn-secondary {
+  background: #ffffff;
+  color: var(--pm-student-text);
+  border: 1px solid var(--pm-student-border);
+  box-shadow: none;
+}
+
+body.shell-student .btn-secondary:hover,
+body.shell-student .btn-secondary:focus-visible {
+  border-color: var(--pm-student-border-strong);
+  background: #ffffff;
+}
+
+body.shell-student .pm-surface-card,
+body.shell-student .pm-student-subcard,
+body.shell-student .pm-inline-alert {
+  border: 1px solid var(--pm-student-border);
+  background: var(--pm-student-surface);
+  box-shadow: var(--pm-student-shadow);
+}
+
+body.shell-student .pm-inline-alert {
+  color: var(--pm-student-text);
+}
+
+body.shell-student .pm-inline-alert--error {
+  background: #f9f1f1;
+  border-color: rgba(120, 45, 45, 0.16);
+}
+
+body.shell-student .display-title,
+body.shell-student .section-title,
+body.shell-student h1,
+body.shell-student h2,
+body.shell-student h3,
+body.shell-student h4,
+body.shell-student strong {
+  color: var(--pm-student-text);
+}
+
+body.shell-student .section-lead,
+body.shell-student p,
+body.shell-student .pm-tag,
+body.shell-student .course-meta,
+body.shell-student .pm-student-note,
+body.shell-student .lesson-legend__item,
+body.shell-student .pm-workspace__position,
+body.shell-student .admin-list span,
+body.shell-student .pm-settings-card p,
+body.shell-student .pm-teacher-card p,
+body.shell-student .pm-homework-card p {
+  color: var(--pm-student-text-soft);
+}
+
+body.shell-student .pm-kicker {
+  background: var(--pm-student-surface-soft);
+  color: var(--pm-student-text-soft);
+}
+
+body.shell-student .pm-student-page,
+body.shell-student .pm-student-section,
+body.shell-student .pm-student-focus {
+  display: grid;
+  gap: 18px;
+}
+
+body.shell-student .pm-student-hero {
+  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.75fr);
+  gap: 20px;
+  padding: 28px;
+}
+
+body.shell-student .pm-student-hero__summary,
+body.shell-student .pm-student-hero__actions {
+  margin-top: 8px;
+}
+
+body.shell-student .pm-student-badge,
+body.shell-student .pm-student-mini-tag,
+body.shell-student .pm-tag {
+  background: var(--pm-student-surface-soft);
+  border: 1px solid var(--pm-student-border);
+  color: var(--pm-student-text);
+}
+
+body.shell-student .pm-student-metrics {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-width: min(100%, 320px);
+}
+
+body.shell-student .pm-student-metric {
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid var(--pm-student-border);
+  background: var(--pm-student-surface-soft);
+  box-shadow: none;
+}
+
+body.shell-student .pm-student-metric span {
+  color: var(--pm-student-text-soft);
+}
+
+body.shell-student .pm-student-focus__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+body.shell-student .pm-student-focus-card,
+body.shell-student .pm-student-overview-card,
+body.shell-student .pm-student-schedule-card,
+body.shell-student .pm-student-lecture-card,
+body.shell-student .pm-homework-card,
+body.shell-student .pm-teacher-card,
+body.shell-student .pm-settings-card,
+body.shell-student .pm-contract-card,
+body.shell-student .pm-student-course-card,
+body.shell-student .pm-workspace-calendar-card,
+body.shell-student .pm-student-empty {
+  padding: 22px;
+  border-radius: 24px;
+  box-shadow: none;
+}
+
+body.shell-student .pm-student-focus-card {
+  display: grid;
+  gap: 12px;
+}
+
+body.shell-student .pm-student-focus-card .btn {
+  width: fit-content;
+}
+
+body.shell-student .pm-workspace {
+  padding: 24px;
+  gap: 18px;
+}
+
+body.shell-student .pm-workspace__intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--pm-student-border);
+}
+
+body.shell-student .pm-workspace__intro strong {
+  display: block;
+  max-width: 40rem;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+body.shell-student .pm-workspace__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+body.shell-student .pm-workspace__links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--pm-student-border);
+  background: #ffffff;
+  color: var(--pm-student-text);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+body.shell-student .pm-workspace__tabs {
+  gap: 8px;
+}
+
+body.shell-student .pm-workspace__tab {
+  background: var(--pm-student-surface-soft);
+  border: 1px solid var(--pm-student-border);
+  color: var(--pm-student-text);
+}
+
+body.shell-student .pm-workspace__tab.is-active {
+  background: #111111;
+  border-color: #111111;
+  color: #ffffff;
+}
+
+body.shell-student .pm-workspace__count {
+  background: rgba(17, 17, 17, 0.08);
+  color: inherit;
+}
+
+body.shell-student .pm-workspace__tab.is-active .pm-workspace__count {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+body.shell-student .pm-workspace__arrow {
+  border-color: var(--pm-student-border);
+  background: #ffffff;
+  color: var(--pm-student-text);
+}
+
+body.shell-student .pm-student-overview,
+body.shell-student .pm-student-schedule-grid,
+body.shell-student .pm-student-lecture-grid,
+body.shell-student .pm-workspace-calendars,
+body.shell-student .pm-teacher-grid,
+body.shell-student .pm-settings-grid,
+body.shell-student .pm-settings-grid--wide {
+  gap: 16px;
+}
+
+body.shell-student .pm-student-overview,
+body.shell-student .pm-settings-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+body.shell-student .pm-student-schedule-grid,
+body.shell-student .pm-student-lecture-grid,
+body.shell-student .pm-workspace-calendars,
+body.shell-student .pm-teacher-grid,
+body.shell-student .pm-settings-grid--wide {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.shell-student .pm-student-course-grid {
+  display: grid;
+  gap: 18px;
+}
+
+body.shell-student .pm-student-course-card__head,
+body.shell-student .pm-student-subcard__head,
+body.shell-student .pm-contract-card__head {
+  align-items: flex-start;
+}
+
+body.shell-student .pm-student-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+body.shell-student .pm-student-facts > div {
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--pm-student-surface-soft);
+  border: 1px solid var(--pm-student-border);
+}
+
+body.shell-student .pm-student-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: 16px;
+}
+
+body.shell-student .pm-student-layout__main,
+body.shell-student .pm-student-layout__side {
+  display: grid;
+  gap: 16px;
+}
+
+body.shell-student .pm-student-subcard,
+body.shell-student .pm-student-form,
+body.shell-student .month-picker,
+body.shell-student .lesson-calendar,
+body.shell-student .pm-student-total {
+  border: 1px solid var(--pm-student-border);
+  background: #ffffff;
+  box-shadow: none;
+}
+
+body.shell-student .pm-student-total {
+  color: var(--pm-student-text);
+}
+
+body.shell-student .month-pill {
+  border-color: var(--pm-student-border);
+  background: var(--pm-student-surface-soft);
+  color: var(--pm-student-text);
+}
+
+body.shell-student .month-pill.is-active {
+  background: #111111;
+  border-color: #111111;
+  color: #ffffff;
+}
+
+body.shell-student input,
+body.shell-student select,
+body.shell-student textarea {
+  border: 1px solid var(--pm-student-border);
+  background: #ffffff;
+  color: var(--pm-student-text);
+}
+
+body.shell-student .admin-status,
+body.shell-student .admin-copy {
+  border-color: var(--pm-student-border);
+}
+
+body.shell-student .admin-copy {
+  background: #ffffff;
+  color: var(--pm-student-text);
+}
+
+body.shell-student .pm-homework-status {
+  border: 1px solid var(--pm-student-border);
+}
+
+body.shell-student .pm-homework-status--violet {
+  background: #111111;
+  color: #ffffff;
+}
+
+body.shell-student .pm-homework-status--sky,
+body.shell-student .pm-homework-status--mint {
+  background: #ecece6;
+  color: var(--pm-student-text);
+}
+
+body.shell-student .pm-homework-status--warm {
+  background: #deded7;
+  color: var(--pm-student-text);
+}
+
+body.shell-student .pm-homework-status--good {
+  background: #cfcfc7;
+  color: var(--pm-student-text);
+}
+
+body.shell-student .pm-teacher-card__avatar--violet,
+body.shell-student .pm-teacher-card__avatar--mint,
+body.shell-student .pm-teacher-card__avatar--sky,
+body.shell-student .pm-teacher-card__avatar--sunset {
+  background: linear-gradient(135deg, #111111, #4c4c46);
+}
+
+body.shell-student .lesson-day {
+  background: #ffffff;
+  border-color: var(--pm-student-border);
+}
+
+body.shell-student .lesson-day--proposed,
+body.shell-student .lesson-dot--proposed {
+  background: #efefe9;
+  color: var(--pm-student-text);
+}
+
+body.shell-student .lesson-day--approved,
+body.shell-student .lesson-dot--approved {
+  background: #111111;
+  color: #ffffff;
+}
+
+body.shell-student .lesson-day--missed,
+body.shell-student .lesson-dot--missed {
+  background: #d8d8d1;
+  color: var(--pm-student-text);
+}
+
+body.shell-student .lesson-day--excused,
+body.shell-student .lesson-dot--excused {
+  background: #e5e5de;
+  color: var(--pm-student-text);
+}
+
+body.shell-student .lesson-day__tooltip {
+  background: rgba(17, 17, 17, 0.92);
+  color: #ffffff;
+}
+
+@media (max-width: 1180px) {
+  body.shell-student .pm-student-focus__grid,
+  body.shell-student .pm-student-overview,
+  body.shell-student .pm-settings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  body.shell-student .pm-student-layout,
+  body.shell-student .pm-student-hero,
+  body.shell-student .pm-student-schedule-grid,
+  body.shell-student .pm-student-lecture-grid,
+  body.shell-student .pm-workspace-calendars,
+  body.shell-student .pm-teacher-grid,
+  body.shell-student .pm-settings-grid,
+  body.shell-student .pm-settings-grid--wide,
+  body.shell-student .pm-student-focus__grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-student .pm-student-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  body.shell-student .pm-workspace__intro,
+  body.shell-student .pm-student-hero__actions,
+  body.shell-student .pm-inline-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  body.shell-student .pm-workspace__links a,
+  body.shell-student .pm-student-focus-card .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  body.shell-student .pm-student-facts,
+  body.shell-student .pm-student-metrics {
+    grid-template-columns: 1fr;
+  }
+}

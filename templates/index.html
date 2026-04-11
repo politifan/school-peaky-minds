@@ -87,9 +87,46 @@
       <div class="eyebrow">Peaky Minds</div>
       <h1 class="display-title display-title--hero">Учитесь разработке на реальных проектах, а не на наборе уроков</h1>
       <p class="lead-text">Мы помогаем не просто изучать код, а собирать портфолио, разбираться в инженерной логике, выходить на практику и уверенно расти до первых коммерческих задач.</p>
+      <div class="pm-hero-manifesto">
+        <div class="pm-hero-manifesto__eyebrow">{{ marketing.hero_manifesto.eyebrow }}</div>
+        <div class="pm-hero-manifesto__lines">
+          {% for line in marketing.hero_manifesto.lines %}
+          <span>{{ line }}</span>
+          {% endfor %}
+        </div>
+        <p>{{ marketing.hero_manifesto.value }}</p>
+      </div>
       <div class="hero-actions">
         <button class="btn btn-primary" type="button" data-open-modal="apply">Выбрать направление</button>
         <a class="btn btn-secondary" href="#courses">Смотреть курсы</a>
+      </div>
+      <div class="pm-urgency-card" data-countdown data-deadline="{{ marketing.promo.deadline_iso }}">
+        <div class="pm-urgency-card__head">
+          <strong>{{ marketing.promo.label }}</strong>
+          <span>{{ marketing.promo.discount }} на длинные пакеты</span>
+        </div>
+        <div class="pm-countdown" aria-live="polite">
+          <div class="pm-countdown__item">
+            <strong data-countdown-days>00</strong>
+            <span>дней</span>
+          </div>
+          <div class="pm-countdown__item">
+            <strong data-countdown-hours>00</strong>
+            <span>часов</span>
+          </div>
+          <div class="pm-countdown__item">
+            <strong data-countdown-minutes>00</strong>
+            <span>минут</span>
+          </div>
+          <div class="pm-countdown__item">
+            <strong data-countdown-seconds>00</strong>
+            <span>секунд</span>
+          </div>
+        </div>
+        <div class="pm-urgency-card__foot">
+          <span>{{ marketing.promo.summary }}</span>
+          <strong>Осталось <span data-seats-left>{{ marketing.promo.seats_left }}</span> места по спеццене</strong>
+        </div>
       </div>
       <ul class="pm-home-hero__trust">
         <li>
@@ -123,6 +160,101 @@
         <div class="pm-hero-card__kicker">Формат</div>
         <strong>Python, backend, ML, автоматизация</strong>
         <span>Под ваш стартовый уровень и конкретную цель.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--soft">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Выгода IT</div>
+        <h2 class="display-title">Короткий гид по зарплатам, смыслу и окупаемости</h2>
+      </div>
+      <p>{{ marketing.benefits_summary.text }}</p>
+    </div>
+
+    <div class="pm-economics-grid reveal">
+      <article class="pm-salary-guide">
+        <div class="pm-salary-guide__head">
+          <div class="eyebrow eyebrow--dark">{{ marketing.benefits_summary.title }}</div>
+          <h3>Прозрачные ориентиры по направлениям</h3>
+        </div>
+        <div class="pm-salary-guide__list">
+          {% for item in marketing.salary_guide %}
+          <div class="pm-salary-guide__row">
+            <strong>{{ item.track }}</strong>
+            <span>{{ item.range }}</span>
+            <small>{{ item.note }}</small>
+          </div>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="pm-it-facts">
+        {% for item in marketing.it_benefits %}
+        <div class="pm-it-facts__item">
+          <strong>{{ item.value }}</strong>
+          <span>{{ item.title }}</span>
+          <small>{{ item.text }}</small>
+        </div>
+        {% endfor %}
+      </article>
+    </div>
+
+    <div class="pm-roi-card reveal" data-roi-calculator>
+      <div class="pm-roi-card__copy">
+        <div class="eyebrow eyebrow--dark">ROI-калькулятор</div>
+        <h3>За сколько месяцев обучение “отобьётся”</h3>
+        <p>Выберите трек и желаемую зарплату. Система покажет, когда обычно появляется первая оплачиваемая роль и через сколько месяцев вложения окупаются.</p>
+      </div>
+      <div class="pm-roi-card__form">
+        <label>
+          <span>Направление</span>
+          <select data-roi-track>
+            {% for item in marketing.roi_tracks %}
+            <option value="{{ item.key }}">{{ item.label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          <span>Желаемая зарплата, ₽</span>
+          <input type="text" value="120000" inputmode="numeric" data-roi-salary>
+        </label>
+        <div class="pm-roi-card__result" data-roi-result>
+          <strong data-roi-result-title>Считаем окупаемость…</strong>
+          <p data-roi-result-text></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--compact">
+  <div class="container">
+    <div class="pm-video-showcase reveal">
+      <div class="pm-video-showcase__copy">
+        <div class="eyebrow eyebrow--dark">{{ marketing.video.eyebrow }}</div>
+        <h2 class="display-title">Промо-блок под эффектный ролик уже готов</h2>
+        <p>{{ marketing.video.description }}</p>
+        <div class="pm-video-showcase__facts">
+          <span>Формат: главный экран + autoplay off</span>
+          <span>Длина: {{ marketing.video.duration }}</span>
+        </div>
+      </div>
+      <div class="pm-video-showcase__stage">
+        {% if marketing.video.video_url %}
+        <video controls preload="metadata" poster="{{ marketing.video.poster }}">
+          <source src="{{ marketing.video.video_url }}" type="video/mp4">
+        </video>
+        {% else %}
+        <div class="pm-video-showcase__placeholder">
+          <div class="pm-video-showcase__play">▶</div>
+          <strong>{{ marketing.video.title }}</strong>
+          <span>После загрузки мастер-ролика сюда встанет реальный промо-файл без изменения верстки.</span>
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -444,6 +576,84 @@
   </div>
 </section>
 
+<section class="pm-section pm-section--compact">
+  <div class="container">
+    <div class="pm-discovery-grid reveal">
+      <article class="pm-discovery-card">
+        <div class="eyebrow eyebrow--dark">Быстрый поиск</div>
+        <h2>Найди направление за несколько кликов</h2>
+        <p>Вместо долгого чтения просто выбери сценарий. Каталог ниже сразу перестроится под твой запрос.</p>
+        <div class="pm-preset-grid">
+          {% for item in marketing.quick_filters %}
+          <button
+            class="c-pill"
+            type="button"
+            data-course-preset
+            data-course-preset-group="{{ item.group }}"
+            data-course-preset-search="{{ item.search }}"
+          >{{ item.label }}</button>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="pm-quiz-card" data-quiz>
+        <div class="eyebrow eyebrow--dark">Тест-навигатор</div>
+        <h2>{{ marketing.quiz.title }}</h2>
+        <p>{{ marketing.quiz.description }}</p>
+
+        <div class="pm-quiz-step is-active" data-quiz-step="1">
+          <div class="pm-quiz-question">1. Что для тебя важнее прямо сейчас?</div>
+          <div class="pm-quiz-options">
+            <button type="button" data-quiz-choice data-score-python-start="2" data-score-fullstack="1">Мягко войти с нуля</button>
+            <button type="button" data-quiz-choice data-score-business="2" data-score-python-start="1">Быстро выйти на пользу и деньги</button>
+            <button type="button" data-quiz-choice data-score-fullstack="2" data-score-data-science="1">Сменить профессию системно</button>
+            <button type="button" data-quiz-choice data-score-data-science="2">Идти в данные и высокий потолок</button>
+          </div>
+        </div>
+
+        <div class="pm-quiz-step" data-quiz-step="2" hidden>
+          <div class="pm-quiz-question">2. Какой формат тебе ближе?</div>
+          <div class="pm-quiz-options">
+            <button type="button" data-quiz-choice data-score-python-start="2">Понятная база и маленькие проекты</button>
+            <button type="button" data-quiz-choice data-score-fullstack="2">Сильная профессия и широкий стек</button>
+            <button type="button" data-quiz-choice data-score-business="2">Боты, интеграции и automation</button>
+            <button type="button" data-quiz-choice data-score-data-science="2">Модели, метрики и датасеты</button>
+          </div>
+        </div>
+
+        <div class="pm-quiz-step" data-quiz-step="3" hidden>
+          <div class="pm-quiz-question">3. Где тебе важнее увидеть результат?</div>
+          <div class="pm-quiz-options">
+            <button type="button" data-quiz-choice data-score-business="2" data-score-python-start="1">В первых оплачиваемых задачах</button>
+            <button type="button" data-quiz-choice data-score-fullstack="2">В найме и сильных собеседованиях</button>
+            <button type="button" data-quiz-choice data-score-data-science="2">В ML-стажировке и данных</button>
+            <button type="button" data-quiz-choice data-score-python-start="2">В уверенной базе без спешки</button>
+          </div>
+        </div>
+
+        <div class="pm-quiz-step" data-quiz-step="4" hidden>
+          <div class="pm-quiz-question">4. Какой темп тебе комфортен?</div>
+          <div class="pm-quiz-options">
+            <button type="button" data-quiz-choice data-score-python-start="2">Постепенный и спокойный</button>
+            <button type="button" data-quiz-choice data-score-business="2">Максимально прикладной</button>
+            <button type="button" data-quiz-choice data-score-fullstack="2">Интенсивный взрослый маршрут</button>
+            <button type="button" data-quiz-choice data-score-data-science="2">Глубокий техничный трек</button>
+          </div>
+        </div>
+
+        <div class="pm-quiz-result" data-quiz-result hidden>
+          <strong data-quiz-result-title>Тебе подходит направление</strong>
+          <p data-quiz-result-text></p>
+          <div class="pm-quiz-result__actions">
+            <a class="btn btn-primary" href="#" data-quiz-result-link>Открыть направление</a>
+            <button class="btn btn-secondary" type="button" data-open-modal="apply">Помочь выбрать вручную</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
 <section class="pm-section" id="courses">
   <div class="container" data-course-catalog>
     <div class="pm-section-head reveal">
@@ -493,7 +703,7 @@
         class="pm-course-card"
         data-course-card
         data-course-group="{{ course.catalog_group }}"
-        data-course-name="{{ (course.name ~ ' ' ~ course.track_label ~ ' ' ~ course.catalog_label ~ ' ' ~ course.hero_stack|join(' ')) | lower }}"
+        data-course-name="{{ (course.name ~ ' ' ~ course.track_label ~ ' ' ~ course.catalog_label ~ ' ' ~ course.hero_stack|join(' ') ~ ' ' ~ course.marketing.search_tags|join(' ')) | lower }}"
         data-course-price="{{ course.prices[0].new.split('₽', 1)[0].replace(' ', '').strip() }}"
         data-course-duration="{{ course.hero_bullets[1].value.split('-', 1)[0].split()[0] }}"
         data-course-direction-order="{{ {'start': 1, 'development': 2, 'analytics': 3, 'quality': 4, 'infrastructure': 5, 'business': 6}.get(course.catalog_group, 99) }}"
@@ -503,11 +713,16 @@
           <span class="pm-course-card__price">от {{ course.prices[0].new }}</span>
         </div>
         <h3>{{ course.name }}</h3>
-        <p>{{ course.hero_lead }}</p>
+        <p>{{ course.marketing.summary }}</p>
         <div class="pm-course-card__chips">
+          <span>{{ course.marketing.salary.range }}</span>
           {% for chip in course.hero_stack[:4] %}
           <span>{{ chip }}</span>
           {% endfor %}
+        </div>
+        <div class="pm-course-card__micro">
+          <strong>{{ course.marketing.slogan }}</strong>
+          <small>Осталось {{ course.marketing.offer.seats_left }} места по спеццене {{ course.marketing.offer.discount }}</small>
         </div>
         <div class="pm-course-card__actions">
           <a class="btn btn-secondary" href="{{ course.path }}">Смотреть программу</a>
@@ -605,56 +820,24 @@
   <div class="container">
     <div class="pm-section-head reveal">
       <div>
-        <div class="eyebrow eyebrow--dark">Отзывы</div>
-        <h2 class="display-title">Как это выглядит у тех, кто уже прошёл путь вместе с нами</h2>
+        <div class="eyebrow eyebrow--dark">Истории выпускников</div>
+        <h2 class="display-title">У них получилось. И у вас обязательно получится.</h2>
       </div>
-      <p>Лучший способ понять школу — посмотреть не на обещания, а на то, что происходит со студентом после нескольких месяцев нормальной и честной практики.</p>
+      <p>Главный аргумент не в обещаниях школы, а в реальных маршрутах студентов: от первых кейсов до интервью, оплачиваемых задач и сильного портфолио.</p>
     </div>
 
-    <div class="pm-testimonials-grid reveal">
-      <article class="pm-testimonial">
-        <div class="pm-testimonial__head">
-          <div class="pm-testimonial__avatar">П</div>
-          <div>
-            <h3>Полина, 19</h3>
-            <span>Python с нуля</span>
-          </div>
+    <div class="pm-alumni-grid reveal">
+      {% for item in marketing.alumni_cases %}
+      <article class="pm-alumni-card">
+        <div class="pm-alumni-card__meta">
+          <span>{{ item.track }}</span>
+          <strong>{{ item.name }}</strong>
         </div>
-        <p>Сначала боялась даже простых задач, а потом мы собрали парсер и Telegram‑бота. Когда появился первый заказ, стало понятно, что это уже не “обучение ради обучения”.</p>
+        <h3>{{ item.result }}</h3>
+        <p>{{ item.company }}</p>
+        <a href="{{ item.href }}">Читать реальный кейс</a>
       </article>
-
-      <article class="pm-testimonial">
-        <div class="pm-testimonial__head">
-          <div class="pm-testimonial__avatar">Д</div>
-          <div>
-            <h3>Даниил, 22</h3>
-            <span>Full‑stack</span>
-          </div>
-        </div>
-        <p>Самое полезное было не в уроках, а в регулярном код‑ревью и разборе архитектуры. Через несколько месяцев стало проще проходить технические этапы и думать как разработчик.</p>
-      </article>
-
-      <article class="pm-testimonial">
-        <div class="pm-testimonial__head">
-          <div class="pm-testimonial__avatar">А</div>
-          <div>
-            <h3>Алина, 26</h3>
-            <span>Data Science / ML</span>
-          </div>
-        </div>
-        <p>Понравилось, что даже сложные темы разбирались через прикладные задачи. Не было ощущения “непонятной науки”, всё собиралось в реальные кейсы и понятную траекторию роста.</p>
-      </article>
-
-      <article class="pm-testimonial">
-        <div class="pm-testimonial__head">
-          <div class="pm-testimonial__avatar">О</div>
-          <div>
-            <h3>Ольга, 33</h3>
-            <span>Автоматизация бизнеса</span>
-          </div>
-        </div>
-        <p>Мне нужен был не сертификат, а рабочий инструмент для бизнеса. В итоге обучение быстро превратилось в проект, который реально экономит время и приносит пользу каждый день.</p>
-      </article>
+      {% endfor %}
     </div>
   </div>
 </section>

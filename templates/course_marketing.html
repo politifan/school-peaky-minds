@@ -79,9 +79,41 @@
       <div class="eyebrow">{{ course.track_label }}</div>
       <h1 class="display-title display-title--hero">{{ course.hero_title }}</h1>
       <p class="lead-text">{{ course.hero_lead }}</p>
+      <div class="pm-course-manifesto">
+        <strong>{{ course.marketing.slogan }}</strong>
+        <span>{{ course.marketing.summary }}</span>
+      </div>
       <div class="hero-actions">
         <button class="btn btn-primary" type="button" data-open-modal="apply">Записаться на курс</button>
         <a class="btn btn-secondary" href="#program">Смотреть программу</a>
+      </div>
+      <div class="pm-urgency-card" data-countdown data-deadline="{{ course.marketing.offer.deadline_iso }}">
+        <div class="pm-urgency-card__head">
+          <strong>{{ marketing_runtime.promo.label }}</strong>
+          <span>{{ course.marketing.offer.discount }} на этот трек</span>
+        </div>
+        <div class="pm-countdown" aria-live="polite">
+          <div class="pm-countdown__item">
+            <strong data-countdown-days>00</strong>
+            <span>дней</span>
+          </div>
+          <div class="pm-countdown__item">
+            <strong data-countdown-hours>00</strong>
+            <span>часов</span>
+          </div>
+          <div class="pm-countdown__item">
+            <strong data-countdown-minutes>00</strong>
+            <span>минут</span>
+          </div>
+          <div class="pm-countdown__item">
+            <strong data-countdown-seconds>00</strong>
+            <span>секунд</span>
+          </div>
+        </div>
+        <div class="pm-urgency-card__foot">
+          <span>Фиксируем спеццену {{ course.marketing.offer.deadline_label }} и сохраняем место в мини-группе.</span>
+          <strong>Осталось <span data-seats-left>{{ course.marketing.offer.seats_left }}</span> мест по спеццене</strong>
+        </div>
       </div>
       <ul class="pm-home-hero__trust">
         {% for item in course.hero_bullets %}
@@ -128,6 +160,29 @@
         <p>{{ item.text }}</p>
       </article>
       {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--compact">
+  <div class="container">
+    <div class="pm-course-insights reveal">
+      <article class="pm-course-insight">
+        <div class="eyebrow eyebrow--dark">Зарплатный ориентир</div>
+        <strong>{{ course.marketing.salary.range }}</strong>
+        <p>{{ course.marketing.salary.label }}</p>
+      </article>
+      <article class="pm-course-insight">
+        <div class="eyebrow eyebrow--dark">Окупаемость</div>
+        <strong>{{ course.marketing.roi.time_to_offer }}-{{ course.marketing.roi.time_to_offer + 1 }} месяцев до первой оплачиваемой роли</strong>
+        <p>Маршрут рассчитан так, чтобы после выхода на {{ course.marketing.salary.range }} вложение в курс отбивалось за первые месяцы практики и работы.</p>
+      </article>
+      <article class="pm-course-insight">
+        <div class="eyebrow eyebrow--dark">История выпускника</div>
+        <strong>{{ course.marketing.alumni.name }}: {{ course.marketing.alumni.result }}</strong>
+        <p>{{ course.marketing.alumni.timeline }}</p>
+        <a href="{{ course.marketing.alumni.href }}">Смотреть реальный кейс</a>
+      </article>
     </div>
   </div>
 </section>
@@ -366,6 +421,11 @@
         <p>{{ course.enroll_text }}</p>
         <div class="pm-enroll-panel__docs">
           <a href="/documents/dogovor.pdf" target="_blank" rel="noopener">Договор и пользовательское соглашение</a>
+        </div>
+        <div class="pm-enroll-panel__proof">
+          <span>{{ course.marketing.salary.range }}</span>
+          <span>{{ course.marketing.offer.discount }} до {{ course.marketing.offer.deadline_label }}</span>
+          <span>{{ course.marketing.alumni.timeline }}</span>
         </div>
         <div class="pm-enroll-panel__note">
           Оплата онлайн через СБП. После подтверждения платежа добавляем вас в рабочий контур и согласуем расписание. Услуги оказываются онлайн, доставка не требуется.
