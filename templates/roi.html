@@ -1,0 +1,152 @@
+{% extends "base_marketing.html" %}
+
+{% block title %}Калькулятор окупаемости курсов IT-школы Peaky Minds{% endblock %}
+{% block description %}Отдельная страница с калькулятором окупаемости курсов Peaky Minds: сравните направления, стартовые зарплаты, срок до первой оплачиваемой роли и горизонт возврата вложений.{% endblock %}
+
+{% block content %}
+<section class="pm-section pm-roi-page">
+  <div class="container">
+    <div class="pm-roi-page__hero reveal">
+      <div class="pm-roi-page__copy">
+        <div class="eyebrow eyebrow--dark">{{ marketing.page_intro.eyebrow }}</div>
+        <h1 class="display-title">{{ marketing.page_intro.title }}</h1>
+        <p>{{ marketing.page_intro.text }}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#roi-calculator">Открыть калькулятор</a>
+          <button class="btn btn-secondary" type="button" data-open-modal="apply" data-modal-default="consult">Получить персональный расчёт</button>
+        </div>
+      </div>
+
+      <div class="pm-roi-page__highlights">
+        {% for item in marketing.page_intro.highlights %}
+        <article class="pm-roi-page__highlight">
+          <strong>{{ item.title }}</strong>
+          <p>{{ item.text }}</p>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--compact" id="roi-calculator">
+  <div class="container">
+    {% include "_roi_calculator_block.html" %}
+  </div>
+</section>
+
+<section class="pm-section pm-section--soft">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Как читать расчёт</div>
+        <h2 class="display-title">Три шага, чтобы увидеть реальную картину по деньгам</h2>
+      </div>
+      <p>Сама цифра payback мало что значит без контекста. Поэтому страница сначала помогает понять сценарий входа, а уже потом показывает окупаемость.</p>
+    </div>
+
+    <div class="pm-decision-grid reveal">
+      <article class="pm-decision-card">
+        <div class="eyebrow eyebrow--dark">Порядок расчёта</div>
+        <h3>Что именно считает калькулятор</h3>
+        <div class="pm-start-map">
+          {% for item in marketing.explanation_steps %}
+          <article class="pm-start-step">
+            <div class="pm-start-step__number">{{ "%02d"|format(loop.index) }}</div>
+            <div>
+              <strong>{{ item.title }}</strong>
+              <p>{{ item.text }}</p>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="pm-decision-card">
+        <div class="eyebrow eyebrow--dark">Важно</div>
+        <h3>Почему расчёт выглядит честнее большинства лендингов</h3>
+        <div class="pm-decision-card__grid">
+          {% for item in marketing.decision_notes %}
+          <div class="pm-decision-fact">
+            <strong>{{ item.title }}</strong>
+            <p>{{ item.text }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section" id="compare-tracks">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Сравнение треков</div>
+        <h2 class="display-title">Какой маршрут быстрее даёт первый денежный результат</h2>
+      </div>
+      <p>Ниже можно быстро понять, где мягче вход, где выше потолок по зарплате и какой трек больше подходит под быстрый прикладной старт.</p>
+    </div>
+
+    <div class="pm-compare-grid reveal">
+      {% for item in marketing.compare_tracks %}
+      <article class="pm-compare-card">
+        <div class="pm-compare-card__head">
+          <span class="course-meta">{{ item.badge }}</span>
+          <h3>{{ item.label }}</h3>
+          <p>{{ item.summary }}</p>
+        </div>
+
+        <div class="pm-compare-card__stats">
+          <div>
+            <span>Ориентир</span>
+            <strong>{{ item.salary_range }}</strong>
+          </div>
+          <div>
+            <span>Горизонт</span>
+            <strong>{{ item.time_to_offer }} мес. до первой роли</strong>
+          </div>
+          <div>
+            <span>Вход</span>
+            <strong>от {{ item.course_cost }} ₽</strong>
+          </div>
+        </div>
+
+        <div class="pm-compare-card__audience">
+          <strong>{{ item.audience }}</strong>
+          <span>{{ item.outcome }}</span>
+        </div>
+
+        <ul class="pm-bullet-list">
+          {% for point in item.points %}
+          <li>{{ point }}</li>
+          {% endfor %}
+        </ul>
+
+        <div class="pm-compare-card__actions">
+          <a class="btn btn-secondary" href="{{ item.href }}">Открыть трек</a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="pm-section">
+  <div class="container">
+    <div class="pm-final-cta reveal">
+      <div class="pm-final-cta__copy">
+        <div class="eyebrow eyebrow--dark">Персональный сценарий</div>
+        <h2>{{ marketing.cta.title }}</h2>
+        <p>{{ marketing.cta.text }}</p>
+      </div>
+      <div class="pm-final-cta__form">
+        <strong>Нужен расчёт именно под ваш график и цель?</strong>
+        <p>Напишите, сколько времени готовы уделять обучению и какую роль хотите получить первой. Мы поможем выбрать трек и темп.</p>
+        <button class="btn btn-primary" type="button" data-open-modal="apply" data-modal-default="consult">{{ marketing.cta.button }}</button>
+        <a class="btn btn-secondary" href="/courses">Посмотреть все курсы</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

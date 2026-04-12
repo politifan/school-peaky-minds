@@ -74,6 +74,7 @@
     </div>
     <nav class="marketing-drawer__nav">
       <a href="/#courses">Направления</a>
+      <a href="/roi" {% if request.url.path.startswith('/roi') %}aria-current="page"{% endif %}>Окупаемость курса</a>
       <a href="/#portfolio">Проекты</a>
       <a href="/blog" {% if request.url.path.startswith('/blog') or request.url.path.startswith('/posts') %}aria-current="page"{% endif %}>Журнал</a>
       <a href="/#method">Как учимся</a>
@@ -116,6 +117,7 @@
 
       <nav class="nav-links nav-links--marketing">
         <a href="/#courses">Направления</a>
+        <a href="/roi" {% if request.url.path.startswith('/roi') %}aria-current="page"{% endif %}>Окупаемость курса</a>
         <a href="/#portfolio">Проекты</a>
         <a href="/blog" {% if request.url.path.startswith('/blog') or request.url.path.startswith('/posts') %}aria-current="page"{% endif %}>Журнал</a>
         <a href="/#method">Как учимся</a>

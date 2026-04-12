@@ -295,139 +295,25 @@
       </article>
     </div>
 
-    <div class="pm-roi-card reveal" data-roi-calculator>
-      <div class="pm-roi-card__copy">
-        <div class="eyebrow eyebrow--dark">ROI-калькулятор</div>
-        <h3>Когда обучение начинает возвращать деньги</h3>
-        <p>Выберите направление, сценарий входа и цель по доходу. Калькулятор покажет первую реалистичную зарплату, срок до первой роли и момент, когда вложение в курс перестаёт быть расходом.</p>
-        <div class="pm-roi-card__bullets">
-          <div class="pm-roi-bullet">
-            <strong>Не абстракция</strong>
-            <span>Считаем не по “идеальной мечте”, а по стартовому сценарию входа в рынок.</span>
-          </div>
-          <div class="pm-roi-bullet">
-            <strong>Наглядный горизонт</strong>
-            <span>Отдельно показываем путь до первой роли и отдельно до полного возврата вложений.</span>
-          </div>
-          <div class="pm-roi-bullet">
-            <strong>Понятный следующий шаг</strong>
-            <span>Сразу видно, какой трек быстрее всего даёт первый денежный результат.</span>
-          </div>
+    <div class="pm-roi-entry reveal">
+      <div class="pm-roi-entry__copy">
+        <div class="eyebrow eyebrow--dark">Калькулятор дохода</div>
+        <h3>Полный расчёт окупаемости вынесен на отдельную страницу</h3>
+        <p>На отдельной странице проще спокойно сравнить треки, сценарии темпа, стартовые зарплаты и увидеть, когда курс перестаёт быть расходом. Главная остаётся легче, а расчёт становится глубже и честнее.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/roi">Открыть калькулятор окупаемости</a>
+          <button class="btn btn-secondary" type="button" data-open-modal="apply" data-modal-default="consult">Получить персональный расчёт</button>
         </div>
       </div>
 
-      <div class="pm-roi-card__shell">
-        <div class="pm-roi-track-grid" role="tablist" aria-label="Выбор направления">
-          {% for item in marketing.roi_tracks %}
-          <button
-            class="pm-roi-track"
-            type="button"
-            data-roi-track-option="{{ item.key }}"
-            style="--pm-roi-accent: {{ item.accent }}; --pm-roi-accent-soft: {{ item.accent_soft }};"
-          >
-            <strong>{{ item.label }}</strong>
-            <span>{{ item.salary_range }}</span>
-            <small>{{ item.time_to_offer }} мес. до первой оплачиваемой роли</small>
-          </button>
-          {% endfor %}
-        </div>
-
-        <div class="pm-roi-card__controls">
-          <div class="pm-roi-card__control">
-            <div class="pm-roi-card__label">Сценарий входа</div>
-            <div class="pm-roi-scenario-grid" role="tablist" aria-label="Сценарий окупаемости">
-              {% for item in marketing.roi_scenarios %}
-              <button class="pm-roi-scenario" type="button" data-roi-scenario="{{ item.key }}">
-                <strong>{{ item.label }}</strong>
-                <span>{{ item.description }}</span>
-              </button>
-              {% endfor %}
-            </div>
-          </div>
-
-          <div class="pm-roi-card__control pm-roi-card__control--salary">
-            <div class="pm-roi-salary-head">
-              <div>
-                <span class="pm-roi-card__label">Цель по доходу</span>
-                <strong data-roi-salary-value>120 000 ₽</strong>
-              </div>
-              <small data-roi-salary-range-label>Реалистичный стартовый диапазон</small>
-            </div>
-            <input type="range" min="60000" max="220000" step="5000" value="120000" data-roi-salary-range>
-            <div class="pm-roi-salary-presets">
-              <button type="button" data-roi-salary-preset="entry">Старт</button>
-              <button type="button" data-roi-salary-preset="middle">Комфорт</button>
-              <button type="button" data-roi-salary-preset="stretch">Амбициозно</button>
-            </div>
-            <label class="pm-roi-card__manual">
-              <span class="pm-roi-card__label">Своя цифра</span>
-              <input type="text" value="120000" inputmode="numeric" data-roi-salary>
-            </label>
-            <p class="pm-roi-card__assumption">Честная модель: считаем, что на возврат инвестиций идёт только часть первого дохода, а не вся зарплата целиком.</p>
-          </div>
-        </div>
-
-        <div class="pm-roi-stage" data-roi-result>
-          <div class="pm-roi-stage__hero">
-            <div class="pm-roi-stage__headline">
-              <div class="pm-roi-stage__chips">
-                <span class="pm-roi-stage__chip" data-roi-active-track>Направление</span>
-                <span class="pm-roi-stage__chip pm-roi-stage__chip--soft" data-roi-active-scenario>Сценарий</span>
-              </div>
-              <strong data-roi-result-title>Считаем окупаемость…</strong>
-              <p data-roi-result-text></p>
-            </div>
-            <a class="pm-roi-stage__link" href="#courses" data-roi-track-link>Открыть трек</a>
-          </div>
-
-          <div class="pm-roi-stage__metrics">
-            <div class="pm-roi-metric">
-              <span>Первая роль</span>
-              <strong data-roi-metric-offer>0 мес.</strong>
-              <small>до первых оплачиваемых задач</small>
-            </div>
-            <div class="pm-roi-metric">
-              <span>Стартовый доход</span>
-              <strong data-roi-metric-salary>0 ₽</strong>
-              <small data-roi-metric-range>диапазон трека</small>
-            </div>
-            <div class="pm-roi-metric">
-              <span>Возврат вложений</span>
-              <strong data-roi-metric-payback>0 мес.</strong>
-              <small data-roi-metric-share>часть дохода идёт на ROI</small>
-            </div>
-            <div class="pm-roi-metric">
-              <span>Итог за 12 мес.</span>
-              <strong data-roi-metric-year>0 ₽</strong>
-              <small>потенциал валового дохода за первый год от старта</small>
-            </div>
-          </div>
-
-          <div class="pm-roi-stage__timeline">
-            <div class="pm-roi-stage__timeline-head">
-              <span>Маршрут окупаемости</span>
-              <strong data-roi-timeline-total>0 мес. до выхода в плюс</strong>
-            </div>
-            <div class="pm-roi-timeline">
-              <div class="pm-roi-timeline__segment pm-roi-timeline__segment--study" data-roi-study-segment>
-                <span>Учёба и кейсы</span>
-                <strong data-roi-study-months>0 мес.</strong>
-              </div>
-              <div class="pm-roi-timeline__segment pm-roi-timeline__segment--payback" data-roi-payback-segment>
-                <span>Возврат инвестиций</span>
-                <strong data-roi-payback-months>0 мес.</strong>
-              </div>
-            </div>
-          </div>
-
-          <div class="pm-roi-stage__foot">
-            <div class="pm-roi-proof">
-              <strong data-roi-proof-title>Практика и портфолио</strong>
-              <p data-roi-proof-text>Сначала подбираем трек, затем считаем реальный сценарий выхода на окупаемость.</p>
-            </div>
-            <button class="btn btn-primary" type="button" data-open-modal="apply" data-modal-default="consult">Получить персональный расчёт</button>
-          </div>
-        </div>
+      <div class="pm-roi-entry__tracks">
+        {% for item in marketing.roi_tracks %}
+        <article class="pm-roi-entry__track" style="--pm-roi-accent: {{ item.accent }}; --pm-roi-accent-soft: {{ item.accent_soft }};">
+          <strong>{{ item.label }}</strong>
+          <span>{{ item.salary_range }}</span>
+          <small>{{ item.time_to_offer }} мес. до первой оплачиваемой роли</small>
+        </article>
+        {% endfor %}
       </div>
     </div>
   </div>

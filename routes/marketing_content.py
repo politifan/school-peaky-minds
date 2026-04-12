@@ -812,10 +812,61 @@ def _build_course_decision_support(course: Dict[str, Any], marketing: Dict[str, 
     }
 
 
+ROI_PAGE_MARKETING: Dict[str, Any] = {
+    "page_intro": {
+        "eyebrow": "Окупаемость курса",
+        "title": "Поймите не только чему учиться, но и когда обучение начинает приносить деньги",
+        "text": (
+            "Это отдельная страница для честного финансового сценария: какой трек выбрать, через сколько месяцев "
+            "обычно появляется первая оплачиваемая роль и в какой момент курс перестаёт быть расходом."
+        ),
+        "highlights": [
+            {"title": "Сценарии темпа", "text": "Спокойный, рабочий и интенсивный режим входа без магических обещаний."},
+            {"title": "Стартовый доход", "text": "Ориентиры по реальным junior-ролям, а не по абстрактному потолку рынка."},
+            {"title": "Доход за первый год", "text": "Показываем не только payback, но и потенциальный денежный горизонт после старта."},
+        ],
+    },
+    "explanation_steps": [
+        {
+            "title": "1. Выбираете трек",
+            "text": "Сравниваете направления по стартовой вилке, скорости выхода на первую роль и входному чеку.",
+        },
+        {
+            "title": "2. Ставите цель по доходу",
+            "text": "Можно взять стартовую цифру, комфортный сценарий или свою конкретную зарплатную цель.",
+        },
+        {
+            "title": "3. Видите горизонт окупаемости",
+            "text": "Калькулятор отдельно считает время до первой оплачиваемой задачи и время до возврата вложений.",
+        },
+    ],
+    "decision_notes": [
+        {
+            "title": "Окупаемость не равна зарплате",
+            "text": "Мы закладываем только часть первого дохода на возврат курса, чтобы расчёт был ближе к реальной жизни.",
+        },
+        {
+            "title": "Первый доход важнее идеального оффера",
+            "text": "Для многих треков быстрее приходят первые проекты, фриланс или стажировки, а уже потом сильный найм.",
+        },
+        {
+            "title": "Темп критичен",
+            "text": "Один и тот же курс даёт разный горизонт окупаемости в зависимости от плотности практики и регулярности.",
+        },
+    ],
+    "cta": {
+        "title": "Нужен расчёт под вашу ситуацию?",
+        "text": "Подберём трек, темп и стартовый маршрут так, чтобы окупаемость считалась не в вакууме, а под ваш график и цель.",
+        "button": "Получить персональный расчёт",
+    },
+}
+
+
 _MARKETING_OVERRIDES = _load_marketing_overrides()
 MARKETING_RUNTIME = _deep_merge(MARKETING_RUNTIME, _MARKETING_OVERRIDES.get("runtime", {}))
 TRACK_MARKETING = _deep_merge(TRACK_MARKETING, _MARKETING_OVERRIDES.get("tracks", {}))
 HOME_MARKETING = _deep_merge(HOME_MARKETING, _MARKETING_OVERRIDES.get("home", {}))
+ROI_PAGE_MARKETING = _deep_merge(ROI_PAGE_MARKETING, _MARKETING_OVERRIDES.get("roi_page", {}))
 
 
 def build_marketing_runtime() -> Dict[str, Any]:
@@ -904,6 +955,12 @@ def build_homepage_marketing() -> Dict[str, Any]:
             "payback_share": 0.45,
         },
     ]
+    return payload
+
+
+def build_roi_page_marketing() -> Dict[str, Any]:
+    payload = build_homepage_marketing()
+    payload.update(deepcopy(ROI_PAGE_MARKETING))
     return payload
 
 

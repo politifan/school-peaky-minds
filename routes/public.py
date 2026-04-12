@@ -15,7 +15,12 @@ from routes.journal_content import (
 )
 from routes.course_content import COURSE_PAGES, HOME_COURSE_KEYS, build_course_catalog_content
 from routes.homepage_content import CALENDAR_PREVIEW
-from routes.marketing_content import build_homepage_marketing, decorate_catalog_page, decorate_course
+from routes.marketing_content import (
+    build_homepage_marketing,
+    build_roi_page_marketing,
+    decorate_catalog_page,
+    decorate_course,
+)
 
 router = APIRouter()
 
@@ -64,6 +69,19 @@ async def index_alias(request: Request):
             "calendar_preview": CALENDAR_PREVIEW,
             "home_courses": [decorate_course(key, COURSE_PAGES[key]) for key in HOME_COURSE_KEYS],
             "marketing": build_homepage_marketing(),
+        },
+    )
+
+
+@router.get("/roi", include_in_schema=False)
+@router.get("/roi/", include_in_schema=False)
+async def roi_page(request: Request):
+    return render(
+        request,
+        "roi.html",
+        {
+            "amp_css": _load_amp_css(),
+            "marketing": build_roi_page_marketing(),
         },
     )
 
@@ -147,6 +165,7 @@ async def sitemap(request: Request):
     lastmod = date.today().isoformat()
     urls = [
         ("", "1.0"),
+        ("roi", "0.82"),
         ("blog", "0.85"),
         ("posts", "0.8"),
         ("courses", "0.9"),
