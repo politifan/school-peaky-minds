@@ -193,6 +193,35 @@
   </div>
 </section>
 
+<section class="pm-section pm-section--compact">
+  <div class="container">
+    <div class="pm-video-showcase reveal">
+      <div class="pm-video-showcase__copy">
+        <div class="eyebrow eyebrow--dark">{{ marketing.video.eyebrow }}</div>
+        <h2 class="display-title">Промо-блок под эффектный ролик уже готов</h2>
+        <p>{{ marketing.video.description }}</p>
+        <div class="pm-video-showcase__facts">
+          <span>Формат: главный экран + autoplay off</span>
+          <span>Длина: {{ marketing.video.duration }}</span>
+        </div>
+      </div>
+      <div class="pm-video-showcase__stage">
+        {% if marketing.video.video_url %}
+        <video controls preload="metadata" poster="{{ marketing.video.poster }}">
+          <source src="{{ marketing.video.video_url }}" type="video/mp4">
+        </video>
+        {% else %}
+        <div class="pm-video-showcase__placeholder">
+          <div class="pm-video-showcase__play">▶</div>
+          <strong>{{ marketing.video.title }}</strong>
+          <span>После загрузки мастер-ролика сюда встанет реальный промо-файл без изменения верстки.</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="pm-section pm-section--compact pm-intent-rail-section">
   <div class="container">
     <div class="pm-intent-rail reveal">
@@ -283,35 +312,6 @@
           <small>{{ item.time_to_offer }} мес. до первой оплачиваемой роли</small>
         </article>
         {% endfor %}
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="pm-section pm-section--compact">
-  <div class="container">
-    <div class="pm-video-showcase reveal">
-      <div class="pm-video-showcase__copy">
-        <div class="eyebrow eyebrow--dark">{{ marketing.video.eyebrow }}</div>
-        <h2 class="display-title">Промо-блок под эффектный ролик уже готов</h2>
-        <p>{{ marketing.video.description }}</p>
-        <div class="pm-video-showcase__facts">
-          <span>Формат: главный экран + autoplay off</span>
-          <span>Длина: {{ marketing.video.duration }}</span>
-        </div>
-      </div>
-      <div class="pm-video-showcase__stage">
-        {% if marketing.video.video_url %}
-        <video controls preload="metadata" poster="{{ marketing.video.poster }}">
-          <source src="{{ marketing.video.video_url }}" type="video/mp4">
-        </video>
-        {% else %}
-        <div class="pm-video-showcase__placeholder">
-          <div class="pm-video-showcase__play">▶</div>
-          <strong>{{ marketing.video.title }}</strong>
-          <span>После загрузки мастер-ролика сюда встанет реальный промо-файл без изменения верстки.</span>
-        </div>
-        {% endif %}
       </div>
     </div>
   </div>
