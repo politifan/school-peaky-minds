@@ -12358,6 +12358,7 @@ body.shell-marketing .pm-compare-grid {
 }
 
 body.shell-marketing .pm-compare-card {
+  container-type: inline-size;
   display: grid;
   gap: 18px;
   min-height: 100%;
@@ -12384,7 +12385,8 @@ body.shell-marketing .pm-fit-check__grid {
 }
 
 body.shell-marketing .pm-compare-card__stats {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(138px, 1fr));
+  gap: 10px;
 }
 
 body.shell-marketing .pm-compare-card__stats div,
@@ -12392,6 +12394,7 @@ body.shell-marketing .pm-decision-fact,
 body.shell-marketing .pm-fit-check__card {
   display: grid;
   gap: 6px;
+  min-width: 0;
   padding: 14px 16px;
   border-radius: 18px;
   border: 1px solid rgba(17, 17, 17, 0.08);
@@ -12403,6 +12406,17 @@ body.shell-marketing .pm-compare-card__stats span {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: rgba(17, 17, 17, 0.48);
+}
+
+body.shell-marketing .pm-compare-card__stats strong {
+  line-height: 1.35;
+  overflow-wrap: break-word;
+}
+
+@container (max-width: 360px) {
+  body.shell-marketing .pm-compare-card__stats {
+    grid-template-columns: 1fr;
+  }
 }
 
 body.shell-marketing .pm-compare-card__audience {
