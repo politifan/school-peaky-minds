@@ -606,6 +606,71 @@
   </div>
 </section>
 
+<section class="pm-section pm-section--compact" id="teachers">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">{{ marketing.teachers_showcase.eyebrow }}</div>
+        <h2 class="display-title">{{ marketing.teachers_showcase.title }}</h2>
+      </div>
+      <p>{{ marketing.teachers_showcase.description }}</p>
+    </div>
+
+    <div class="pm-faculty-grid reveal">
+      {% for item in marketing.teachers_showcase.cards %}
+      <article
+        class="pm-faculty-card pm-faculty-card--{{ item.variant }}"
+        style="--pm-faculty-accent: {{ item.accent }}; --pm-faculty-accent-soft: {{ item.accent_soft }};"
+      >
+        <div class="pm-faculty-card__media">
+          {% if item.photo %}
+          <img src="{{ item.photo }}" alt="{{ item.alt or item.name }}" loading="lazy">
+          {% else %}
+          <div class="pm-faculty-media__placeholder" aria-hidden="true">
+            <span class="pm-faculty-media__badge">{{ item.panel_name }}</span>
+            <strong>{{ item.initials }}</strong>
+            <small>Фото добавите позже</small>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="pm-faculty-card__body">
+          <div class="pm-faculty-card__variant">
+            <span>{{ item.panel_label }}</span>
+            <strong>{{ item.panel_name }}</strong>
+          </div>
+
+          <div class="pm-faculty-card__identity">
+            <h3>{{ item.name }}</h3>
+            <p class="pm-faculty-card__role">{{ item.role }}</p>
+          </div>
+
+          <strong class="pm-faculty-card__lead">{{ item.lead }}</strong>
+          <p>{{ item.bio }}</p>
+
+          <div class="pm-faculty-card__chips">
+            {% for chip in item.expertise %}
+            <span>{{ chip }}</span>
+            {% endfor %}
+          </div>
+
+          <div class="pm-faculty-card__facts">
+            {% for fact in item.facts %}
+            <span>{{ fact }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    <div class="pm-faculty-showcase__note reveal">
+      <strong>Тестовый showcase</strong>
+      <p>{{ marketing.teachers_showcase.note }}</p>
+    </div>
+  </div>
+</section>
+
 <section class="pm-section pm-section--compact" id="calendar-preview">
   <div class="container">
     <div class="pm-section-head reveal">

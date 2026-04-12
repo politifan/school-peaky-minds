@@ -10170,6 +10170,339 @@ body.shell-marketing .pm-video-showcase__play {
   font-size: 1.2rem;
 }
 
+body.shell-marketing .pm-faculty-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: stretch;
+}
+
+body.shell-marketing .pm-faculty-card {
+  --pm-faculty-accent: #6f5cff;
+  --pm-faculty-accent-soft: rgba(111, 92, 255, 0.18);
+  position: relative;
+  display: grid;
+  gap: 18px;
+  min-height: 100%;
+  padding: 24px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 32px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, var(--pm-faculty-accent-soft), transparent 30%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(247, 247, 241, 0.97));
+  box-shadow: 0 24px 60px rgba(17, 17, 17, 0.06);
+}
+
+body.shell-marketing .pm-faculty-card::before {
+  content: "";
+  position: absolute;
+  right: -52px;
+  bottom: -52px;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--pm-faculty-accent-soft), transparent 72%);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+body.shell-marketing .pm-faculty-card__media,
+body.shell-marketing .pm-faculty-card__body {
+  position: relative;
+  z-index: 1;
+}
+
+body.shell-marketing .pm-faculty-card__media {
+  min-height: 220px;
+  border-radius: 28px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--pm-faculty-accent) 16%, transparent), transparent 46%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(244, 244, 239, 0.98));
+}
+
+body.shell-marketing .pm-faculty-card__media img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+body.shell-marketing .pm-faculty-media__placeholder {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  min-height: inherit;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.92), transparent 26%),
+    radial-gradient(circle at 82% 20%, color-mix(in srgb, var(--pm-faculty-accent) 12%, transparent), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(246, 246, 240, 0.98));
+}
+
+body.shell-marketing .pm-faculty-media__placeholder::before,
+body.shell-marketing .pm-faculty-media__placeholder::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+body.shell-marketing .pm-faculty-media__placeholder::before {
+  width: 54%;
+  height: 54%;
+  left: 50%;
+  bottom: -16%;
+  transform: translateX(-50%);
+  border-radius: 999px 999px 24px 24px;
+  background: color-mix(in srgb, var(--pm-faculty-accent) 15%, #ffffff);
+}
+
+body.shell-marketing .pm-faculty-media__placeholder::after {
+  width: 34%;
+  aspect-ratio: 1;
+  left: 50%;
+  top: 18%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--pm-faculty-accent) 22%, #ffffff);
+  box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.72);
+}
+
+body.shell-marketing .pm-faculty-media__badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.9);
+  color: #ffffff;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body.shell-marketing .pm-faculty-media__placeholder strong {
+  position: relative;
+  z-index: 1;
+  margin-top: 36px;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 0.92;
+  letter-spacing: -0.06em;
+  color: #111111;
+}
+
+body.shell-marketing .pm-faculty-media__placeholder small {
+  position: relative;
+  z-index: 1;
+  color: rgba(17, 17, 17, 0.66);
+  font-weight: 700;
+}
+
+body.shell-marketing .pm-faculty-card__body {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  align-content: start;
+}
+
+body.shell-marketing .pm-faculty-card__variant {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+body.shell-marketing .pm-faculty-card__variant span,
+body.shell-marketing .pm-faculty-card__variant strong {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
+body.shell-marketing .pm-faculty-card__variant span {
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  background: rgba(255, 255, 255, 0.74);
+  color: rgba(17, 17, 17, 0.58);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+body.shell-marketing .pm-faculty-card__variant strong {
+  background: color-mix(in srgb, var(--pm-faculty-accent) 12%, #ffffff);
+  color: #111111;
+  font-weight: 800;
+}
+
+body.shell-marketing .pm-faculty-card__identity {
+  display: grid;
+  gap: 6px;
+}
+
+body.shell-marketing .pm-faculty-card__identity h3 {
+  margin: 0;
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+body.shell-marketing .pm-faculty-card__role {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.62);
+  font-weight: 700;
+}
+
+body.shell-marketing .pm-faculty-card__lead {
+  font-size: 1.02rem;
+  line-height: 1.45;
+  color: #111111;
+}
+
+body.shell-marketing .pm-faculty-card__chips,
+body.shell-marketing .pm-faculty-card__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+body.shell-marketing .pm-faculty-card__chips span,
+body.shell-marketing .pm-faculty-card__facts span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+  color: #111111;
+  font-weight: 700;
+}
+
+body.shell-marketing .pm-faculty-card__facts span {
+  background: rgba(17, 17, 17, 0.04);
+  color: rgba(17, 17, 17, 0.72);
+}
+
+body.shell-marketing .pm-faculty-card--avatar {
+  grid-template-columns: 112px minmax(0, 1fr);
+  align-items: start;
+}
+
+body.shell-marketing .pm-faculty-card--avatar .pm-faculty-card__media {
+  width: 112px;
+  min-height: 112px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+body.shell-marketing .pm-faculty-card--avatar .pm-faculty-media__placeholder {
+  padding: 14px;
+}
+
+body.shell-marketing .pm-faculty-card--avatar .pm-faculty-media__placeholder::before {
+  width: 58%;
+  height: 34%;
+  bottom: 10%;
+  border-radius: 999px;
+}
+
+body.shell-marketing .pm-faculty-card--avatar .pm-faculty-media__placeholder::after {
+  width: 44%;
+  top: 24%;
+  box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+body.shell-marketing .pm-faculty-card--avatar .pm-faculty-media__badge {
+  display: none;
+}
+
+body.shell-marketing .pm-faculty-card--avatar .pm-faculty-media__placeholder strong {
+  margin-top: 18px;
+  font-size: 1.4rem;
+}
+
+body.shell-marketing .pm-faculty-card--portrait .pm-faculty-card__media {
+  min-height: 310px;
+}
+
+body.shell-marketing .pm-faculty-card--editorial {
+  grid-template-columns: minmax(0, 1.1fr) minmax(180px, 0.9fr);
+  align-items: stretch;
+}
+
+body.shell-marketing .pm-faculty-card--editorial .pm-faculty-card__media {
+  order: 2;
+  min-height: 100%;
+}
+
+body.shell-marketing .pm-faculty-card--editorial .pm-faculty-card__body {
+  order: 1;
+}
+
+body.shell-marketing .pm-faculty-card--split {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(220px, 0.42fr) minmax(0, 0.58fr);
+  align-items: stretch;
+}
+
+body.shell-marketing .pm-faculty-card--split .pm-faculty-card__media {
+  min-height: 100%;
+}
+
+body.shell-marketing .pm-faculty-showcase__note {
+  display: grid;
+  gap: 8px;
+  max-width: 72ch;
+  margin-top: 18px;
+}
+
+body.shell-marketing .pm-faculty-showcase__note strong {
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(17, 17, 17, 0.54);
+}
+
+body.shell-marketing .pm-faculty-showcase__note p {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.68);
+}
+
+body.shell-marketing .pm-faculty-grid.reveal .pm-faculty-card {
+  opacity: 0;
+  transform: translateY(18px) scale(0.985);
+  transition: opacity 420ms ease, transform 420ms ease;
+}
+
+body.shell-marketing .pm-faculty-grid.reveal.in-view .pm-faculty-card {
+  opacity: 1;
+  transform: none;
+}
+
+body.shell-marketing .pm-faculty-grid.reveal.in-view .pm-faculty-card:nth-child(2) {
+  transition-delay: 90ms;
+}
+
+body.shell-marketing .pm-faculty-grid.reveal.in-view .pm-faculty-card:nth-child(3) {
+  transition-delay: 160ms;
+}
+
+body.shell-marketing .pm-faculty-grid.reveal.in-view .pm-faculty-card:nth-child(4) {
+  transition-delay: 220ms;
+}
+
 body.shell-marketing .pm-discovery-card,
 body.shell-marketing .pm-quiz-card,
 body.shell-marketing .pm-it-facts {
@@ -12552,6 +12885,19 @@ body.shell-marketing #enroll {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  body.shell-marketing .pm-faculty-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-marketing .pm-faculty-card--split {
+    grid-column: auto;
+  }
+
+  body.shell-marketing .pm-faculty-card--editorial,
+  body.shell-marketing .pm-faculty-card--split {
+    grid-template-columns: 1fr;
+  }
+
   body.shell-marketing .pm-intent-rail,
   body.shell-marketing .pm-fit-check,
   body.shell-marketing .pm-decision-grid {
@@ -12576,11 +12922,30 @@ body.shell-marketing #enroll {
 
 @media (max-width: 640px) {
   body.shell-marketing .pm-intent-rail,
+  body.shell-marketing .pm-faculty-card,
   body.shell-marketing .pm-compare-card,
   body.shell-marketing .pm-decision-card,
   body.shell-marketing .pm-fit-check {
     padding: 18px;
     border-radius: 24px;
+  }
+
+  body.shell-marketing .pm-faculty-card--avatar {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-marketing .pm-faculty-card--avatar .pm-faculty-card__media {
+    width: 96px;
+    min-height: 96px;
+  }
+
+  body.shell-marketing .pm-faculty-card__media {
+    min-height: 220px;
+    border-radius: 24px;
+  }
+
+  body.shell-marketing .pm-faculty-card--portrait .pm-faculty-card__media {
+    min-height: 250px;
   }
 
   body.shell-marketing .pm-intent-rail__actions,
