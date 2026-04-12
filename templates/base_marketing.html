@@ -231,9 +231,26 @@
     </div>
   </div>
 
-  <button class="pm-promo-teaser" type="button" data-promo-teaser hidden>
+  <button class="pm-promo-teaser" type="button" data-promo-teaser data-countdown data-deadline="{{ promo_deadline_iso }}" hidden>
     <span class="pm-promo-teaser__badge">{{ promo_discount }}</span>
-    <span class="pm-promo-teaser__copy">До {{ promo_deadline_label }} • {{ promo_seats_left }} мест</span>
+    <span class="pm-promo-teaser__copy">
+      <strong>{{ marketing_runtime.promo.label }}</strong>
+      <small>До {{ promo_deadline_label }} • {{ promo_seats_left }} мест</small>
+    </span>
+    <span class="pm-promo-teaser__countdown pm-countdown pm-countdown--teaser" aria-live="polite">
+      <span class="pm-countdown__item">
+        <strong data-countdown-days>00</strong>
+        <span>д</span>
+      </span>
+      <span class="pm-countdown__item">
+        <strong data-countdown-hours>00</strong>
+        <span>ч</span>
+      </span>
+      <span class="pm-countdown__item">
+        <strong data-countdown-minutes>00</strong>
+        <span>м</span>
+      </span>
+    </span>
     <span class="pm-promo-teaser__action">Открыть</span>
   </button>
   {% endif %}

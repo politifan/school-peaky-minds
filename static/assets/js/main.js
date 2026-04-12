@@ -1223,10 +1223,6 @@ if (promoWindow && promoTeaser) {
   const promoMinimizeKey = `pm-promo-minimized:${pageKey}`;
   const minimizeButton = promoWindow.querySelector('[data-promo-minimize]');
   const dismissButton = promoWindow.querySelector('[data-promo-dismiss]');
-  const pageType = promoWindow.dataset.promoPage || 'home';
-  const launchDelay = pageType === 'course' ? 1400 : 3200;
-  const revealScroll = pageType === 'course' ? 140 : 260;
-  let launchTriggered = false;
 
   const hideWindow = () => {
     promoWindow.classList.remove('is-visible');
@@ -1267,38 +1263,14 @@ if (promoWindow && promoTeaser) {
     safeSessionStorage.set(promoMinimizeKey, '0');
   };
 
-  const launchPromo = () => {
-    if (launchTriggered || safeSessionStorage.get(promoDismissKey) === '1') return;
-    launchTriggered = true;
-
-    if (safeSessionStorage.get(promoMinimizeKey) === '1') {
-      promoTeaser.hidden = false;
-      return;
-    }
-
-    showWindow();
-  };
-
   if (safeSessionStorage.get(promoDismissKey) === '1') {
     promoWindow.hidden = true;
     promoTeaser.hidden = true;
-  } else if (safeSessionStorage.get(promoMinimizeKey) === '1') {
-    promoWindow.hidden = true;
-    promoTeaser.hidden = false;
-    launchTriggered = true;
   } else {
-    const onScrollLaunch = () => {
-      if (window.scrollY >= revealScroll) {
-        launchPromo();
-        window.removeEventListener('scroll', onScrollLaunch);
-      }
-    };
-
-    window.addEventListener('scroll', onScrollLaunch, { passive: true });
-    window.setTimeout(() => {
-      launchPromo();
-      window.removeEventListener('scroll', onScrollLaunch);
-    }, launchDelay);
+    promoWindow.hidden = true;
+    promoWindow.classList.remove('is-visible');
+    promoTeaser.hidden = false;
+    safeSessionStorage.set(promoMinimizeKey, '1');
   }
 
   if (minimizeButton) {
