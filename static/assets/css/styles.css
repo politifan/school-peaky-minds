@@ -5111,6 +5111,29 @@ body.shell-marketing .pm-calendar-note h4 {
   letter-spacing: -0.03em;
 }
 
+body.shell-marketing .pm-calendar-window__top > div {
+  min-width: 0;
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-window__top h3 {
+  color: #111111;
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-window__top .course-meta {
+  color: rgba(17, 17, 17, 0.56);
+}
+
+body.shell-marketing .pm-calendar-window--dark .pm-calendar-window__top h3,
+body.shell-marketing .pm-calendar-window--dark .pm-calendar-note h4 {
+  color: #ffffff;
+}
+
+body.shell-marketing .pm-calendar-window--dark .pm-calendar-window__top .eyebrow--light {
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
 body.shell-marketing .pm-calendar-window__chips,
 body.shell-marketing .pm-calendar-toolbar,
 body.shell-marketing .pm-calendar-window__actions {
@@ -5165,6 +5188,27 @@ body.shell-marketing .pm-calendar-agenda-tab.is-active {
   color: #ffffff;
 }
 
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month,
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month[aria-selected="false"] {
+  background: rgba(17, 18, 24, 0.04);
+  border-color: rgba(17, 18, 24, 0.12);
+  color: rgba(17, 17, 17, 0.72);
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month:hover,
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month:focus-visible,
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month[aria-selected="false"]:hover,
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month[aria-selected="false"]:focus-visible {
+  background: rgba(17, 18, 24, 0.08);
+  border-color: rgba(17, 18, 24, 0.18);
+  color: #111111;
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month.is-active,
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month[aria-selected="true"] {
+  color: #ffffff;
+}
+
 body.shell-marketing .pm-calendar-chip {
   display: inline-flex;
   align-items: center;
@@ -5175,6 +5219,11 @@ body.shell-marketing .pm-calendar-chip {
   color: #3d4250;
   font-size: 0.84rem;
   font-weight: 700;
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-chip {
+  background: rgba(17, 18, 24, 0.07);
+  color: #202532;
 }
 
 body.shell-marketing .pm-calendar-toolbar {
