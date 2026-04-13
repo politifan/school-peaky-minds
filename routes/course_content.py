@@ -837,6 +837,53 @@ COURSE_PAGES.update(
 )
 
 
+def _build_price_rows(price_from):
+    price_int = int(price_from)
+    price_1 = int(round(price_int * 0.95))
+    price_3 = int(round(price_int * 0.9))
+    price_6 = int(round(price_int * 0.85))
+    price_12 = int(round(price_int * 0.8))
+    price_label = str(price_int) + " ₽ / час"
+    return [
+        {"plan": "Разовая оплата занятия", "new": price_label, "featured": True},
+        {"plan": "Пакет на 1 месяц", "old": price_label, "discount": "-5%", "new": str(price_1) + " ₽ / час"},
+        {"plan": "Пакет на 3 месяца", "old": price_label, "discount": "-10%", "new": str(price_3) + " ₽ / час"},
+        {"plan": "Пакет на 6 месяцев", "old": price_label, "discount": "-15%", "new": str(price_6) + " ₽ / час"},
+        {"plan": "Пакет на 12 месяцев", "old": price_label, "discount": "-20%", "new": str(price_12) + " ₽ / час"},
+    ]
+
+
+def _apply_course_base_price(course, price_from):
+    price_int = int(price_from)
+    course["offer_price"] = str(price_int)
+    course["prices"] = _build_price_rows(price_int)
+
+    for hero_card in course.get("hero_cards", []):
+        if str(hero_card.get("kicker") or "").strip() == "Цена":
+            hero_card["value"] = "от " + str(price_int) + " ₽ / час"
+            break
+
+
+COURSE_BASE_PRICES = {
+    "python_start": 750,
+    "frontend": 1000,
+    "backend": 1000,
+    "fullstack": 1200,
+    "qa_engineer": 1000,
+    "data_analyst": 800,
+    "business_analyst": 800,
+    "system_analyst": 1000,
+    "data_science": 1500,
+    "sysadmin": 800,
+    "devops": 1200,
+    "business": 1000,
+}
+
+for _course_key, _price_from in COURSE_BASE_PRICES.items():
+    if _course_key in COURSE_PAGES:
+        _apply_course_base_price(COURSE_PAGES[_course_key], _price_from)
+
+
 HOME_COURSE_KEYS = [
     "python_start",
     "frontend",
