@@ -11834,10 +11834,32 @@ body.shell-marketing .pm-hero-card--primary {
 
 body.shell-marketing .pm-hero-card--secondary {
   background:
-    radial-gradient(circle at top right, rgba(255, 216, 107, 0.22), transparent 36%),
-    linear-gradient(140deg, rgba(17, 17, 17, 0.92), rgba(36, 38, 50, 0.9));
-  border: 1px solid rgba(255, 255, 255, 0.08);
+    radial-gradient(circle at top right, rgba(255, 216, 107, 0.18), transparent 34%),
+    linear-gradient(140deg, rgba(14, 15, 20, 0.95), rgba(32, 35, 48, 0.94));
+  border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: 0 28px 80px rgba(17, 17, 17, 0.22);
+  gap: 12px;
+}
+
+body.shell-marketing .pm-hero-card--secondary .pm-hero-card__kicker {
+  color: rgba(132, 255, 226, 0.96);
+  text-shadow: 0 1px 10px rgba(57, 196, 170, 0.22);
+}
+
+body.shell-marketing .pm-hero-card--secondary strong {
+  display: block;
+  max-width: 16ch;
+  color: #ffffff;
+  line-height: 1.28;
+  text-wrap: balance;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+}
+
+body.shell-marketing .pm-hero-card--secondary span {
+  max-width: 24ch;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.6;
+  opacity: 1;
 }
 
 body.shell-marketing .pm-discovery-grid {
