@@ -13089,3 +13089,192 @@ body.shell-marketing #enroll {
     font-size: 0.92rem;
   }
 }
+
+@media (max-width: 720px) {
+  body.shell-marketing .pm-journal-chip-row,
+  body.shell-marketing .pm-course-filter__tabs,
+  body.shell-marketing .pm-intent-rail__actions,
+  body.shell-marketing .pm-home-hero__trust,
+  body.shell-marketing .pm-blog-stats,
+  body.shell-marketing .pm-journal-stats,
+  body.shell-marketing .pm-calendar-toolbar__meta,
+  body.shell-marketing .pm-calendar-legend,
+  body.shell-marketing .pm-career-banner__chips,
+  body.shell-marketing .pm-course-card__chips,
+  body.shell-marketing .pm-faculty-card__chips,
+  body.shell-marketing .pm-calendar-window__chips,
+  body.shell-marketing .pm-roi-stage__chips,
+  body.shell-marketing .pm-compare-card__stats,
+  body.shell-marketing .pm-decision-card__grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 2px 2px 10px;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 2px;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  body.shell-marketing .pm-journal-chip-row::-webkit-scrollbar,
+  body.shell-marketing .pm-course-filter__tabs::-webkit-scrollbar,
+  body.shell-marketing .pm-intent-rail__actions::-webkit-scrollbar,
+  body.shell-marketing .pm-home-hero__trust::-webkit-scrollbar,
+  body.shell-marketing .pm-blog-stats::-webkit-scrollbar,
+  body.shell-marketing .pm-journal-stats::-webkit-scrollbar,
+  body.shell-marketing .pm-calendar-toolbar__meta::-webkit-scrollbar,
+  body.shell-marketing .pm-calendar-legend::-webkit-scrollbar,
+  body.shell-marketing .pm-career-banner__chips::-webkit-scrollbar,
+  body.shell-marketing .pm-course-card__chips::-webkit-scrollbar,
+  body.shell-marketing .pm-faculty-card__chips::-webkit-scrollbar,
+  body.shell-marketing .pm-calendar-window__chips::-webkit-scrollbar,
+  body.shell-marketing .pm-roi-stage__chips::-webkit-scrollbar,
+  body.shell-marketing .pm-compare-card__stats::-webkit-scrollbar,
+  body.shell-marketing .pm-decision-card__grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  body.shell-marketing .pm-journal-chip-row > *,
+  body.shell-marketing .pm-course-filter__tabs > *,
+  body.shell-marketing .pm-intent-rail__actions > *,
+  body.shell-marketing .pm-home-hero__trust > *,
+  body.shell-marketing .pm-blog-stats > *,
+  body.shell-marketing .pm-journal-stats > *,
+  body.shell-marketing .pm-calendar-toolbar__meta > *,
+  body.shell-marketing .pm-calendar-legend > *,
+  body.shell-marketing .pm-career-banner__chips > *,
+  body.shell-marketing .pm-course-card__chips > *,
+  body.shell-marketing .pm-faculty-card__chips > *,
+  body.shell-marketing .pm-calendar-window__chips > *,
+  body.shell-marketing .pm-roi-stage__chips > *,
+  body.shell-marketing .pm-compare-card__stats > *,
+  body.shell-marketing .pm-decision-card__grid > * {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  body.shell-marketing .pm-home-hero__trust > li,
+  body.shell-marketing .pm-blog-stats > *,
+  body.shell-marketing .pm-journal-stats > *,
+  body.shell-marketing .pm-calendar-toolbar__meta > *,
+  body.shell-marketing .pm-calendar-legend > *,
+  body.shell-marketing .pm-compare-card__stats > *,
+  body.shell-marketing .pm-decision-card__grid > * {
+    width: min(240px, 72vw);
+  }
+
+  body.shell-marketing .pm-preset-grid,
+  body.shell-marketing .pm-roi-track-grid,
+  body.shell-marketing .pm-roi-scenario-grid,
+  body.shell-marketing .pm-roi-entry__tracks {
+    --pm-mobile-carousel-width: minmax(220px, 72vw);
+  }
+
+  body.shell-marketing .pm-course-grid,
+  body.shell-marketing .pm-feature-grid,
+  body.shell-marketing .pm-story-grid,
+  body.shell-marketing .pm-blog-card-grid,
+  body.shell-marketing .pm-posts-grid,
+  body.shell-marketing .pm-collection-grid,
+  body.shell-marketing .pm-projects-grid,
+  body.shell-marketing .pm-learning-flow,
+  body.shell-marketing .pm-metrics-grid,
+  body.shell-marketing .pm-audience-grid,
+  body.shell-marketing .pm-discovery-grid,
+  body.shell-marketing .pm-economics-grid,
+  body.shell-marketing .pm-alumni-grid,
+  body.shell-marketing .pm-audience-spotlight__grid,
+  body.shell-marketing .pm-preset-grid,
+  body.shell-marketing .trajectory-panel__grid,
+  body.shell-marketing .pm-price-grid,
+  body.shell-marketing .pm-outcomes-grid,
+  body.shell-marketing .pm-module-grid,
+  body.shell-marketing .pm-roi-track-grid,
+  body.shell-marketing .pm-roi-scenario-grid,
+  body.shell-marketing .pm-roi-entry__tracks,
+  body.shell-marketing .pm-compare-grid,
+  body.shell-marketing .pm-decision-grid,
+  body.shell-marketing .pm-fit-check__grid,
+  body.shell-marketing .pm-career-banner__grid,
+  body.shell-marketing .pm-faculty-grid:not(.pm-faculty-grid--single) {
+    --pm-mobile-carousel-width: minmax(280px, 84vw);
+    display: grid;
+    grid-template-columns: none !important;
+    grid-auto-flow: column;
+    grid-auto-columns: var(--pm-mobile-carousel-width);
+    gap: 14px;
+    align-items: stretch;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 2px 2px 12px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 2px;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  body.shell-marketing .pm-course-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-feature-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-story-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-blog-card-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-posts-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-collection-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-projects-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-learning-flow::-webkit-scrollbar,
+  body.shell-marketing .pm-metrics-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-audience-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-discovery-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-economics-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-alumni-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-audience-spotlight__grid::-webkit-scrollbar,
+  body.shell-marketing .pm-preset-grid::-webkit-scrollbar,
+  body.shell-marketing .trajectory-panel__grid::-webkit-scrollbar,
+  body.shell-marketing .pm-price-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-outcomes-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-module-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-roi-track-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-roi-scenario-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-roi-entry__tracks::-webkit-scrollbar,
+  body.shell-marketing .pm-compare-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-decision-grid::-webkit-scrollbar,
+  body.shell-marketing .pm-fit-check__grid::-webkit-scrollbar,
+  body.shell-marketing .pm-career-banner__grid::-webkit-scrollbar,
+  body.shell-marketing .pm-faculty-grid:not(.pm-faculty-grid--single)::-webkit-scrollbar {
+    display: none;
+  }
+
+  body.shell-marketing .pm-course-grid > *,
+  body.shell-marketing .pm-feature-grid > *,
+  body.shell-marketing .pm-story-grid > *,
+  body.shell-marketing .pm-blog-card-grid > *,
+  body.shell-marketing .pm-posts-grid > *,
+  body.shell-marketing .pm-collection-grid > *,
+  body.shell-marketing .pm-projects-grid > *,
+  body.shell-marketing .pm-learning-flow > *,
+  body.shell-marketing .pm-metrics-grid > *,
+  body.shell-marketing .pm-audience-grid > *,
+  body.shell-marketing .pm-discovery-grid > *,
+  body.shell-marketing .pm-economics-grid > *,
+  body.shell-marketing .pm-alumni-grid > *,
+  body.shell-marketing .pm-audience-spotlight__grid > *,
+  body.shell-marketing .pm-preset-grid > *,
+  body.shell-marketing .trajectory-panel__grid > *,
+  body.shell-marketing .pm-price-grid > *,
+  body.shell-marketing .pm-outcomes-grid > *,
+  body.shell-marketing .pm-module-grid > *,
+  body.shell-marketing .pm-roi-track-grid > *,
+  body.shell-marketing .pm-roi-scenario-grid > *,
+  body.shell-marketing .pm-roi-entry__tracks > *,
+  body.shell-marketing .pm-compare-grid > *,
+  body.shell-marketing .pm-decision-grid > *,
+  body.shell-marketing .pm-fit-check__grid > *,
+  body.shell-marketing .pm-career-banner__grid > *,
+  body.shell-marketing .pm-faculty-grid:not(.pm-faculty-grid--single) > * {
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+}
