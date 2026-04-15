@@ -478,6 +478,7 @@ def extract_source(page: str) -> str:
     page_lower = page.lower()
     for token, label in (
         ("google", "Google"),
+        ("github", "GitHub"),
         ("yandex", "Yandex"),
         ("vk.com", "VK"),
         ("vk", "VK"),

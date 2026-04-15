@@ -1447,9 +1447,8 @@ def send_email_message(recipient: str, subject: str, body: str) -> None:
 # OAuth setup
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-VK_CLIENT_ID = os.getenv("VK_CLIENT_ID")
-VK_CLIENT_SECRET = os.getenv("VK_CLIENT_SECRET")
-VK_SCOPE = os.getenv("VK_SCOPE", "")
+GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
+GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
 VK_MESSAGE_TOKEN = os.getenv("VK_MESSAGE_TOKEN")
 VK_API_VERSION = os.getenv("VK_API_VERSION", "5.131")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -1488,7 +1487,7 @@ TINKOFF_ENABLED = bool(TINKOFF_TERMINAL_KEY and TINKOFF_PASSWORD)
 
 providers = {
     "google": bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET),
-    "vk": bool(VK_CLIENT_ID and VK_CLIENT_SECRET),
+    "github": bool(GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET),
     "telegram": bool(TELEGRAM_BOT_TOKEN and TELEGRAM_BOT_USERNAME),
 }
 
@@ -1543,7 +1542,7 @@ def contract_channel_label(channel: Optional[str]) -> str:
 
 def default_contract_channel(user: Optional[Dict[str, Any]]) -> str:
     provider = (user or {}).get("provider") or ""
-    if provider in {"email", "google"}:
+    if provider in {"email", "google", "github"}:
         return "email"
     if provider == "telegram":
         return "telegram"
@@ -1644,18 +1643,15 @@ if oauth and providers["google"]:
         client_kwargs={"scope": "openid email profile"},
     )
 
-if oauth and providers["vk"]:
-    vk_kwargs = {"v": "5.131"}
-    if VK_SCOPE:
-        vk_kwargs["scope"] = VK_SCOPE
+if oauth and providers["github"]:
     oauth.register(
-        name="vk",
-        client_id=VK_CLIENT_ID,
-        client_secret=VK_CLIENT_SECRET,
-        authorize_url="https://oauth.vk.com/authorize",
-        access_token_url="https://oauth.vk.com/access_token",
-        api_base_url="https://api.vk.com/method/",
-        client_kwargs=vk_kwargs,
+        name="github",
+        client_id=GITHUB_CLIENT_ID,
+        client_secret=GITHUB_CLIENT_SECRET,
+        authorize_url="https://github.com/login/oauth/authorize",
+        access_token_url="https://github.com/login/oauth/access_token",
+        api_base_url="https://api.github.com/",
+        client_kwargs={"scope": "read:user user:email"},
     )
 
 

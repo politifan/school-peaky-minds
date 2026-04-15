@@ -1348,6 +1348,7 @@ def build_account_settings_payload(user: Optional[Dict[str, Any]], api_map: Dict
     user = user or {}
     provider_map = {
         "google": "Google",
+        "github": "GitHub",
         "email": "Email-код",
         "vk": "VK",
         "telegram": "Telegram",

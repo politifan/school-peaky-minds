@@ -1,7 +1,7 @@
 {% extends "base_marketing.html" %}
 
-{% block title %}Вход - IT‑школа Peaky Minds{% endblock %}
-{% block description %}Вход в аккаунт Peaky Minds: email-код, Google, VK и Telegram.{% endblock %}
+{% block title %}Вход - IT-школа Peaky Minds{% endblock %}
+{% block description %}Вход в аккаунт Peaky Minds: email-код, Google, GitHub и Telegram.{% endblock %}
 {% block body_class %}pm-auth-body{% endblock %}
 
 {% block content %}
@@ -13,7 +13,7 @@
       <p class="section-lead">Здесь вы входите в кабинет, продолжаете оформление курса и возвращаетесь к материалам без лишних шагов.</p>
       <ul class="pm-bullet-list pm-bullet-list--strong">
         <li>Код на email за 10 минут</li>
-        <li>Быстрый вход через Google, VK или Telegram</li>
+        <li>Быстрый вход через Google, GitHub или Telegram</li>
         <li>Доступ к договору, расписанию, материалам и оплате</li>
       </ul>
       <div class="pm-auth-hero__band">
@@ -67,15 +67,15 @@
         </span>
         {% endif %}
 
-        {% if providers.vk %}
-        <a class="pm-provider-button" href="/login/vk">
-          <span class="pm-provider-button__badge">VK</span>
-          <span>Войти через VK ID</span>
+        {% if providers.github %}
+        <a class="pm-provider-button" href="/login/github">
+          <span class="pm-provider-button__badge">GH</span>
+          <span>Войти через GitHub</span>
         </a>
         {% else %}
         <span class="pm-provider-button is-disabled">
-          <span class="pm-provider-button__badge">VK</span>
-          <span>VK недоступен</span>
+          <span class="pm-provider-button__badge">GH</span>
+          <span>GitHub недоступен</span>
         </span>
         {% endif %}
 
@@ -93,7 +93,7 @@
             data-request-access="write"
             data-onauth="onTelegramAuth(user)">
           </div>
-          <p class="pm-auth-form__hint">Виджет Telegram загружается после открытия страницы. Если он не появился, используйте email или VK.</p>
+          <p class="pm-auth-form__hint">Виджет Telegram загружается после открытия страницы. Если он не появился, используйте email или GitHub.</p>
         </div>
         {% else %}
         <span class="pm-provider-button is-disabled">

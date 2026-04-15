@@ -19,6 +19,8 @@ from routes.account_content import (
 )
 
 from core import (
+    GITHUB_CLIENT_ID,
+    GITHUB_CLIENT_SECRET,
     OAuthError,
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
@@ -94,13 +96,10 @@ async def login(request: Request):
     return render(request, "login.html", login_context(request, next_url=next_url))
 
 
-@router.get("/vk-app", include_in_schema=False)
-async def vk_app(request: Request):
-    return render(request, "vk_app.html", {"providers": providers})
-
-
 @router.post("/login/vk-bridge", include_in_schema=False)
 async def login_vk_bridge(request: Request):
+    return RedirectResponse("/login?error=Вход+через+VK+отключен", status_code=HTTP_302_FOUND)
+    return RedirectResponse("/login?error=Вход+через+VK+отключен", status_code=HTTP_302_FOUND)
     try:
         payload = await request.json()
     except Exception:
@@ -371,8 +370,79 @@ async def auth_google(request: Request):
     return RedirectResponse("/", status_code=HTTP_302_FOUND)
 
 
+@router.get("/login/github", include_in_schema=False)
+async def login_github(request: Request):
+    if not (oauth and providers["github"]):
+        return render(request, "login.html", login_context(request, error="GitHub OAuth не настроен"))
+    redirect_uri = build_redirect_uri(request, "auth_github")
+    return await oauth.github.authorize_redirect(request, redirect_uri)
+
+
+@router.get("/auth/github/callback", include_in_schema=False, name="auth_github")
+async def auth_github(request: Request):
+    if not (oauth and GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET):
+        return render(request, "login.html", login_context(request, error="GitHub OAuth не настроен"))
+    try:
+        token = await oauth.github.authorize_access_token(request)
+        profile_resp = await oauth.github.get("user", token=token)
+        profile = profile_resp.json()
+    except OAuthError as exc:
+        safe_detail = re.sub(r"[\r\n]+", " ", getattr(exc, "description", None) or str(exc) or "oauth_error")[:300]
+        return render(request, "login.html", login_context(request, error=f"Ошибка авторизации GitHub: {safe_detail}"))
+    except Exception as exc:
+        safe_detail = re.sub(r"[\r\n]+", " ", str(exc) or "unknown_error")[:300]
+        return render(request, "login.html", login_context(request, error=f"Ошибка авторизации GitHub: {safe_detail}"))
+
+    if not isinstance(profile, dict) or not profile.get("id"):
+        return render(request, "login.html", login_context(request, error="Ошибка авторизации GitHub: профиль не получен"))
+
+    email = profile.get("email")
+    if not email:
+        try:
+            emails_resp = await oauth.github.get("user/emails", token=token)
+            emails_payload = emails_resp.json()
+        except Exception:
+            emails_payload = []
+        if isinstance(emails_payload, list):
+            email = next(
+                (
+                    item.get("email")
+                    for item in emails_payload
+                    if isinstance(item, dict) and item.get("primary") and item.get("verified") and item.get("email")
+                ),
+                None,
+            ) or next(
+                (
+                    item.get("email")
+                    for item in emails_payload
+                    if isinstance(item, dict) and item.get("email")
+                ),
+                None,
+            )
+
+    users = load_json(USERS_FILE, {})
+    user_id = f"github:{profile.get('id')}"
+    existing = users.get(user_id) if isinstance(users, dict) else None
+    if not isinstance(existing, dict):
+        existing = {}
+    user = {
+        "id": user_id,
+        "email": email or existing.get("email"),
+        "name": profile.get("name") or profile.get("login") or existing.get("name") or email or "GitHub User",
+        "phone": existing.get("phone"),
+        "provider": "github",
+    }
+    users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}
+    save_json(USERS_FILE, users)
+
+    session_user = {**user, "photo_url": profile.get("avatar_url")}
+    set_current_user(request, session_user)
+    return RedirectResponse("/", status_code=HTTP_302_FOUND)
+
+
 @router.get("/login/vk", include_in_schema=False)
 async def login_vk(request: Request):
+    return render(request, "login.html", login_context(request, error="Вход через VK отключен"))
     if not (oauth and providers["vk"]):
         return render(request, "login.html", login_context(request, error="VK OAuth не настроен"))
     redirect_uri = build_redirect_uri(request, "auth_vk")
@@ -381,6 +451,7 @@ async def login_vk(request: Request):
 
 @router.get("/auth/vk/callback", include_in_schema=False, name="auth_vk")
 async def auth_vk(request: Request):
+    return render(request, "login.html", login_context(request, error="Вход через VK отключен"))
     if not oauth:
         return render(request, "login.html", login_context(request, error="VK OAuth не настроен"))
     try:
