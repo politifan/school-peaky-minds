@@ -96,6 +96,8 @@
         <a href="/courses/system-administrator">Системный администратор</a>
         <a href="/courses/devops">DevOps</a>
         <a href="/courses/business">Автоматизация и бизнес</a>
+        <a href="/courses/1c-developer">1C-разработчик</a>
+        <a href="/courses/product-manager">Product Manager</a>
       </div>
     </div>
     <div class="marketing-drawer__actions">
@@ -142,6 +144,8 @@
               <a href="/courses/system-administrator">Системный администратор</a>
               <a href="/courses/devops">DevOps</a>
               <a href="/courses/business">Автоматизация и бизнес</a>
+              <a href="/courses/1c-developer">1C-разработчик</a>
+              <a href="/courses/product-manager">Product Manager</a>
             </div>
           </div>
         </div>
@@ -299,6 +303,8 @@
           <a href="/courses/python-beginners">Python для новичков</a>
           <a href="/courses/data-science">Data Science / ML</a>
           <a href="/courses/business">Автоматизация и бизнес</a>
+          <a href="/courses/1c-developer">1C-разработчик</a>
+          <a href="/courses/product-manager">Product Manager</a>
         </div>
 
         <div class="site-footer__column">
@@ -389,6 +395,8 @@
               <option value="Python для новичков" {% if course_slug == "Python для новичков" %}selected{% endif %}>Python для новичков</option>
               <option value="Data Science / ML" {% if course_slug == "Data Science" %}selected{% endif %}>Data Science / ML</option>
               <option value="Автоматизация бизнеса" {% if course_slug == "Business" or course_slug == "Автоматизация бизнеса" %}selected{% endif %}>Автоматизация бизнеса</option>
+              <option value="1C-разработчик" {% if course_slug == "1c-developer" or course_slug == "1C-разработчик" %}selected{% endif %}>1C-разработчик</option>
+              <option value="Product Manager" {% if course_slug == "product-manager" or course_slug == "Product Manager" %}selected{% endif %}>Product Manager</option>
             </select>
             {% if turnstile_enabled %}
             <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
@@ -414,6 +422,8 @@
               <option value="Python для новичков" {% if course_slug == "Python для новичков" %}selected{% endif %}>Python для новичков</option>
               <option value="Data Science / ML" {% if course_slug == "Data Science" %}selected{% endif %}>Data Science / ML</option>
               <option value="Автоматизация бизнеса" {% if course_slug == "Business" or course_slug == "Автоматизация бизнеса" %}selected{% endif %}>Автоматизация бизнеса</option>
+              <option value="1C-разработчик" {% if course_slug == "1c-developer" or course_slug == "1C-разработчик" %}selected{% endif %}>1C-разработчик</option>
+              <option value="Product Manager" {% if course_slug == "product-manager" or course_slug == "Product Manager" %}selected{% endif %}>Product Manager</option>
             </select>
             <select name="duration">
               <option value="" selected>Выберите длительность курса (необязательно)</option>

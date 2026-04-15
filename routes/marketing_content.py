@@ -34,6 +34,60 @@ MARKETING_RUNTIME: Dict[str, Any] = {
 
 
 TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
+    "one_c_developer": {
+        "category": "business",
+        "slogan": "Практичный вход в корпоративную разработку через 1C и реальные процессы компаний.",
+        "summary": "Конфигурации, отчеты, доработки и обмены как понятный маршрут в прикладную разработку.",
+        "search_tags": ["1c", "1с", "1c разработчик", "корпоративные системы", "учет", "автоматизация учета"],
+        "salary": {
+            "range": "90 000 - 160 000 ₽",
+            "label": "Ориентир для junior 1C-разработчика",
+        },
+        "roi": {
+            "course_cost": 70000,
+            "time_to_offer": 5,
+            "entry_salary": 100000,
+        },
+        "offer": {
+            "discount": "-15%",
+            "deadline_iso": "2026-05-01T23:59:59+03:00",
+            "deadline_label": "до 1 мая",
+            "seats_left": 4,
+        },
+        "alumni": {
+            "name": "Дмитрий",
+            "result": "первый корпоративный кейс по 1C и уверенный вход в собеседования",
+            "timeline": "5-6 месяцев до первых 1C-интервью",
+            "href": "/blog",
+        },
+    },
+    "product_manager": {
+        "category": "business",
+        "slogan": "Продуктовое мышление, которое превращает идеи в релизы, метрики и рост.",
+        "summary": "Исследования, roadmap, MVP и коммуникация с командой без хаоса и воды.",
+        "search_tags": ["product manager", "продакт", "jtbd", "custdev", "mvp", "roadmap"],
+        "salary": {
+            "range": "90 000 - 170 000 ₽",
+            "label": "Ориентир для junior product manager",
+        },
+        "roi": {
+            "course_cost": 64000,
+            "time_to_offer": 5,
+            "entry_salary": 100000,
+        },
+        "offer": {
+            "discount": "-15%",
+            "deadline_iso": "2026-05-01T23:59:59+03:00",
+            "deadline_label": "до 1 мая",
+            "seats_left": 4,
+        },
+        "alumni": {
+            "name": "Юлия",
+            "result": "MVP-кейс, метрики и первые product-интервью",
+            "timeline": "5 месяцев до первых product-интервью",
+            "href": "/blog",
+        },
+    },
     "python_start": {
         "category": "start",
         "slogan": "Быстрый старт в коде без перегруза теорией.",
