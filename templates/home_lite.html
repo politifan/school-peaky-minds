@@ -1,0 +1,372 @@
+{% extends "base_marketing.html" %}
+
+{% block title %}IT‑школа Peaky Minds - курсы, преподаватели и реальные кейсы{% endblock %}
+{% block description %}Peaky Minds: короткая витрина школы без перегруза. Смотрите курсы, преподавателей, промо-ролик и реальные истории студентов, которые уже вышли к практике и первым результатам.{% endblock %}
+{% block body_class %}home-page{% endblock %}
+
+{% block content %}
+<section class="pm-home-hero pm-section">
+  <div class="container pm-home-hero__grid">
+    <div class="pm-home-hero__copy reveal">
+      <div class="eyebrow">Peaky Minds</div>
+      <h1 class="display-title display-title--hero">Учитесь разработке на реальных проектах, а не на наборе уроков</h1>
+      <p class="lead-text">Мы помогаем не просто изучать код, а собирать портфолио, разбираться в инженерной логике, выходить на практику и уверенно расти до первых коммерческих задач.</p>
+      <div class="pm-hero-manifesto">
+        <div class="pm-hero-manifesto__eyebrow">{{ marketing.hero_manifesto.eyebrow }}</div>
+        <div class="pm-hero-manifesto__lines">
+          {% for line in marketing.hero_manifesto.lines %}
+          <span>{{ line }}</span>
+          {% endfor %}
+        </div>
+        <p>{{ marketing.hero_manifesto.value }}</p>
+      </div>
+      <div class="hero-actions">
+        <button class="btn btn-primary" type="button" data-open-modal="apply">Выбрать направление</button>
+        <a class="btn btn-secondary" href="/courses">Открыть все курсы</a>
+      </div>
+      <ul class="pm-home-hero__trust">
+        <li>
+          <strong>До 5 человек</strong>
+          <span>комфортная мини‑группа</span>
+        </li>
+        <li>
+          <strong>Реальные проекты</strong>
+          <span>практика с первых модулей</span>
+        </li>
+        <li>
+          <strong>Портфолио и собесы</strong>
+          <span>подготовка к рынку, а не к диплому</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="pm-home-hero__visual reveal" aria-hidden="true">
+      <div class="pm-hero-visual-illustration">
+        <svg viewBox="0 0 640 560" role="presentation">
+          <defs>
+            <linearGradient id="pmHeroGlowA" x1="90" y1="96" x2="382" y2="298" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#6F5CFF"/>
+              <stop offset="0.48" stop-color="#56C6FF"/>
+              <stop offset="1" stop-color="#6BE7B1"/>
+            </linearGradient>
+            <linearGradient id="pmHeroGlowB" x1="300" y1="188" x2="592" y2="454" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FF8A5B"/>
+              <stop offset="0.52" stop-color="#FFD86B"/>
+              <stop offset="1" stop-color="#FF6FA8"/>
+            </linearGradient>
+            <linearGradient id="pmHeroLine" x1="132" y1="132" x2="528" y2="456" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#6F5CFF"/>
+              <stop offset="0.4" stop-color="#56C6FF"/>
+              <stop offset="0.78" stop-color="#6BE7B1"/>
+              <stop offset="1" stop-color="#FF8A5B"/>
+            </linearGradient>
+          </defs>
+          <g class="pm-hero-visual-illustration__blobs">
+            <path d="M146 136C180 84 286 68 348 104C410 140 414 228 364 266C314 304 216 290 164 240C112 190 112 188 146 136Z" fill="url(#pmHeroGlowA)" opacity="0.92"/>
+            <path d="M376 170C434 144 516 162 548 216C580 270 562 350 506 388C450 426 360 422 322 366C284 310 318 196 376 170Z" fill="url(#pmHeroGlowB)" opacity="0.9"/>
+            <circle cx="502" cy="124" r="32" fill="#FFF0A8" opacity="0.95"/>
+            <circle cx="138" cy="392" r="44" fill="#F4A7FF" opacity="0.52"/>
+          </g>
+          <g class="pm-hero-visual-illustration__lines" fill="none">
+            <path d="M90 410C152 340 226 324 290 338C354 352 420 396 520 324" stroke="url(#pmHeroLine)" stroke-width="10" stroke-linecap="round"/>
+            <path d="M172 126C226 158 260 222 298 248C336 274 386 278 470 248" stroke="#FFFFFF" stroke-opacity="0.72" stroke-width="4" stroke-linecap="round"/>
+            <path d="M192 426C250 378 304 378 356 392C408 406 444 436 494 426" stroke="#FFFFFF" stroke-opacity="0.46" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <g class="pm-hero-visual-illustration__windows">
+            <rect x="104" y="168" width="236" height="150" rx="30" fill="#FFFFFF" fill-opacity="0.84"/>
+            <rect x="304" y="276" width="194" height="118" rx="28" fill="#FFFFFF" fill-opacity="0.88"/>
+            <rect x="362" y="118" width="154" height="92" rx="24" fill="#111111" fill-opacity="0.9"/>
+            <rect x="132" y="196" width="78" height="10" rx="5" fill="#6F5CFF"/>
+            <rect x="132" y="220" width="126" height="10" rx="5" fill="#111111" fill-opacity="0.16"/>
+            <rect x="132" y="244" width="162" height="10" rx="5" fill="#111111" fill-opacity="0.08"/>
+            <rect x="132" y="272" width="140" height="26" rx="13" fill="#111111"/>
+            <rect x="328" y="302" width="88" height="10" rx="5" fill="#FF8A5B"/>
+            <rect x="328" y="326" width="142" height="10" rx="5" fill="#111111" fill-opacity="0.16"/>
+            <rect x="328" y="350" width="118" height="10" rx="5" fill="#111111" fill-opacity="0.08"/>
+            <circle cx="392" cy="164" r="10" fill="#FFFFFF"/>
+            <circle cx="426" cy="164" r="10" fill="#56C6FF"/>
+            <circle cx="460" cy="164" r="10" fill="#6BE7B1"/>
+          </g>
+          <g class="pm-hero-visual-illustration__signals">
+            <circle cx="288" cy="144" r="16" fill="#FFFFFF" fill-opacity="0.88"/>
+            <circle cx="288" cy="144" r="7" fill="#6F5CFF"/>
+            <circle cx="534" cy="254" r="18" fill="#FFFFFF" fill-opacity="0.84"/>
+            <circle cx="534" cy="254" r="8" fill="#FF8A5B"/>
+            <circle cx="244" cy="432" r="14" fill="#FFFFFF" fill-opacity="0.82"/>
+            <circle cx="244" cy="432" r="6" fill="#56C6FF"/>
+          </g>
+        </svg>
+      </div>
+      <div class="shape-stage shape-stage--hero">
+        <div class="shape-stage__arc"></div>
+        <div class="shape-stage__stair"></div>
+        <div class="shape-stage__slab"></div>
+        <div class="shape-stage__wave"></div>
+      </div>
+      <div class="pm-hero-card pm-hero-card--primary">
+        <div class="pm-hero-card__kicker">Траектория</div>
+        <strong>Практика → портфолио → рынок</strong>
+        <span>Без потока на 20 человек и без отрыва от реальных задач.</span>
+      </div>
+      <div class="pm-hero-card pm-hero-card--secondary">
+        <div class="pm-hero-card__kicker">Формат</div>
+        <strong>Python, backend, ML, автоматизация</strong>
+        <span>Под ваш стартовый уровень и конкретную цель.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--compact">
+  <div class="container">
+    <div class="pm-video-showcase reveal">
+      <div class="pm-video-showcase__copy">
+        <div class="eyebrow eyebrow--dark">{{ marketing.video.eyebrow }}</div>
+        <h2 class="display-title">Сначала смотрите, потом выбирайте маршрут</h2>
+        <p>{{ marketing.video.description }}</p>
+        <div class="pm-video-showcase__facts">
+          <span>Формат: главный экран + autoplay off</span>
+          <span>Длина: {{ marketing.video.duration }}</span>
+        </div>
+      </div>
+      <div class="pm-video-showcase__stage">
+        {% if marketing.video.video_url %}
+        <video controls preload="metadata" poster="{{ marketing.video.poster }}">
+          <source src="{{ marketing.video.video_url }}" type="video/mp4">
+        </video>
+        {% else %}
+        <div class="pm-video-showcase__placeholder">
+          <div class="pm-video-showcase__play">▶</div>
+          <strong>{{ marketing.video.title }}</strong>
+          <span>После загрузки мастер-ролика сюда встанет реальный промо-файл без изменения верстки.</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section" id="courses">
+  <div class="container" data-course-catalog>
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Направления</div>
+        <h2 class="display-title">Курсы под разный старт, роль и карьерную цель</h2>
+      </div>
+      <p>На главной только короткий срез. Для полного сравнения, поиска и фильтров есть отдельный каталог со всеми маршрутами.</p>
+    </div>
+
+    <div class="pm-course-grid reveal">
+      {% for course in home_courses %}
+      <article
+        class="pm-course-card"
+        data-course-card
+        data-course-group="{{ course.catalog_group }}"
+        data-course-name="{{ (course.name ~ ' ' ~ course.track_label ~ ' ' ~ course.catalog_label ~ ' ' ~ course.hero_stack|join(' ') ~ ' ' ~ course.marketing.search_tags|join(' ')) | lower }}"
+        data-course-price="{{ course.prices[0].new.split('₽', 1)[0].replace(' ', '').strip() }}"
+        data-course-duration="{{ course.hero_bullets[1].value.split('-', 1)[0].split()[0] }}"
+        data-course-direction-order="{{ {'start': 1, 'development': 2, 'analytics': 3, 'quality': 4, 'infrastructure': 5, 'business': 6}.get(course.catalog_group, 99) }}"
+      >
+        <div class="pm-course-card__top">
+          <span class="pm-course-card__label">{{ course.track_label }}</span>
+          <span class="pm-course-card__price">от {{ course.prices[0].new }}</span>
+        </div>
+        <h3>{{ course.name }}</h3>
+        <p>{{ course.marketing.summary }}</p>
+        <div class="pm-course-card__chips">
+          <span>{{ course.marketing.salary.range }}</span>
+          {% for chip in course.hero_stack[:4] %}
+          <span>{{ chip }}</span>
+          {% endfor %}
+        </div>
+        <div class="pm-course-card__micro">
+          <strong>{{ course.marketing.slogan }}</strong>
+          <small>Осталось {{ course.marketing.offer.seats_left }} места по спеццене {{ course.marketing.offer.discount }}</small>
+        </div>
+        <div class="pm-course-card__actions">
+          <a class="btn btn-secondary" href="{{ course.path }}">Смотреть программу</a>
+          <button class="btn btn-primary" type="button" data-open-modal="apply">Выбрать</button>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    <div class="hero-actions reveal">
+      <a class="btn btn-primary" href="/courses">Открыть каталог полностью</a>
+      <button class="btn btn-secondary" type="button" data-open-modal="apply" data-modal-default="consult">Помочь с выбором</button>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--compact" id="teachers">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">{{ marketing.teachers_showcase.eyebrow }}</div>
+        <h2 class="display-title">{{ marketing.teachers_showcase.title }}</h2>
+      </div>
+      <p>{{ marketing.teachers_showcase.description }}</p>
+    </div>
+
+    <div class="pm-faculty-grid{% if marketing.teachers_showcase.cards|length == 1 %} pm-faculty-grid--single{% endif %} reveal">
+      {% for item in marketing.teachers_showcase.cards %}
+      <article
+        class="pm-faculty-card pm-faculty-card--{{ item.variant }}"
+        style="--pm-faculty-accent: {{ item.accent }}; --pm-faculty-accent-soft: {{ item.accent_soft }};"
+      >
+        <div class="pm-faculty-card__media">
+          {% if item.photo %}
+          <img src="{{ item.photo }}" alt="{{ item.alt or item.name }}" loading="lazy">
+          {% else %}
+          <div class="pm-faculty-media__placeholder" aria-hidden="true">
+            {% if item.panel_name %}
+            <span class="pm-faculty-media__badge">{{ item.panel_name }}</span>
+            {% endif %}
+            <strong>{{ item.initials }}</strong>
+            <small>Фото добавите позже</small>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="pm-faculty-card__body">
+          {% if item.panel_label or item.panel_name %}
+          <div class="pm-faculty-card__variant">
+            {% if item.panel_label %}
+            <span>{{ item.panel_label }}</span>
+            {% endif %}
+            {% if item.panel_name %}
+            <strong>{{ item.panel_name }}</strong>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          <div class="pm-faculty-card__identity">
+            <h3>{{ item.name }}</h3>
+            <p class="pm-faculty-card__role">{{ item.role }}</p>
+          </div>
+
+          <strong class="pm-faculty-card__lead">{{ item.lead }}</strong>
+          <p>{{ item.bio }}</p>
+
+          <div class="pm-faculty-card__chips">
+            {% for chip in item.expertise %}
+            <span>{{ chip }}</span>
+            {% endfor %}
+          </div>
+
+          <div class="pm-faculty-card__facts">
+            {% for fact in item.facts %}
+            <span>{{ fact }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--soft">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Наши плюсы</div>
+        <h2 class="display-title">Только суть: почему этот формат реально работает</h2>
+      </div>
+      <p>Без длинных объяснений на главной. Здесь только короткие опоры, а детали по формату, календарю, записям и FAQ вынесены на отдельную страницу.</p>
+    </div>
+
+    <div class="pm-feature-grid reveal">
+      <article class="pm-feature-card">
+        <span>Практика</span>
+        <strong>Не смотрите уроки. Сразу делаете.</strong>
+        <p>Боты, интерфейсы, API и рабочие кейсы появляются в траектории раньше, чем успевает накопиться теория без результата.</p>
+      </article>
+      <article class="pm-feature-card">
+        <span>Формат</span>
+        <strong>Мини‑группы и личная обратная связь.</strong>
+        <p>Вы не растворяетесь в потоке: есть темп, разбор кода, внимание к вашим пробелам и понятный следующий шаг.</p>
+      </article>
+      <article class="pm-feature-card">
+        <span>Онлайн</span>
+        <strong>Гибкий ритм без потери контакта.</strong>
+        <p>Занятия проходят онлайн, расписание согласуется под занятость, а записи и материалы помогают не выпадать из процесса.</p>
+      </article>
+      <article class="pm-feature-card">
+        <span>Рынок</span>
+        <strong>Портфолио, GitHub и выход к первым задачам.</strong>
+        <p>Финальная цель не “досмотреть курс”, а собрать историю о себе, которую можно показать работодателю или заказчику.</p>
+      </article>
+    </div>
+
+    <div class="hero-actions reveal">
+      <a class="btn btn-secondary" href="/how-it-works">Смотреть, как устроено обучение</a>
+      <a class="btn btn-primary" href="/roi">Посчитать окупаемость курса</a>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--compact" id="reviews">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Отзывы и истории</div>
+        <h2 class="display-title">Живые маршруты студентов, а не обезличенные обещания</h2>
+      </div>
+      <p>Это последний блок на главной, потому что именно здесь лучше всего видно, как обучение превращается в проекты, уверенность и первые результаты.</p>
+    </div>
+
+    {% if blog_page.student_stories %}
+    <div class="pm-story-grid pm-story-grid--triple reveal">
+      {% for story in blog_page.student_stories[:3] %}
+      <article class="pm-story-card">
+        <a href="{{ story.href }}">
+          <div class="pm-story-card__head">
+            <span class="pm-story-avatar" style="--story-accent: {{ story.accent }};">{{ story.initials }}</span>
+            <div>
+              <strong>{{ story.name }}</strong>
+              <span>{{ story.role }}</span>
+            </div>
+          </div>
+          <h3>{{ story.title }}</h3>
+          <small>{{ story.date }}</small>
+          <p>{{ story.excerpt }}</p>
+          <span class="pm-story-link">Читать отзыв</span>
+        </a>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="pm-alumni-grid reveal">
+      {% for item in marketing.alumni_cases %}
+      <article class="pm-alumni-card pm-alumni-card--{{ loop.cycle('violet', 'sunrise', 'ocean') }}">
+        <div class="pm-alumni-card__art" aria-hidden="true">
+          <svg viewBox="0 0 320 168" role="presentation">
+            <path class="tone-stroke" d="M34 118C74 78 118 68 154 84C190 100 212 136 248 132C270 130 286 118 292 102" fill="none" stroke-width="10" stroke-linecap="round"/>
+            <path class="tone-fade" d="M34 138C74 126 110 128 148 116C186 104 222 80 286 74" fill="none" stroke-width="5" stroke-linecap="round"/>
+            <rect class="tone-surface" x="30" y="28" width="110" height="52" rx="22"/>
+            <rect class="tone-panel" x="168" y="82" width="118" height="48" rx="24"/>
+            <circle class="tone-a" cx="86" cy="118" r="18"/>
+            <circle class="tone-b" cx="162" cy="86" r="14"/>
+            <circle class="tone-c" cx="258" cy="62" r="12"/>
+          </svg>
+        </div>
+        <div class="pm-alumni-card__meta">
+          <span>{{ item.track }}</span>
+          <strong>{{ item.name }}</strong>
+        </div>
+        <h3>{{ item.result }}</h3>
+        <p>{{ item.company }}</p>
+        <a href="{{ item.href }}">Читать реальный кейс</a>
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="hero-actions reveal">
+      <a class="btn btn-primary" href="/reviews">Открыть все отзывы</a>
+      <a class="btn btn-secondary" href="/blog">Перейти в журнал</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

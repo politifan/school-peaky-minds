@@ -73,12 +73,12 @@
       <button class="marketing-drawer__close" type="button" data-drawer-close aria-label="Закрыть меню">×</button>
     </div>
     <nav class="marketing-drawer__nav">
-      <a href="/#courses">Направления</a>
+      <a href="/courses" {% if request.url.path.startswith('/courses') %}aria-current="page"{% endif %}>Направления</a>
       <a href="/roi" {% if request.url.path.startswith('/roi') %}aria-current="page"{% endif %}>Окупаемость курса</a>
-      <a href="/#portfolio">Проекты</a>
+      <a href="/reviews" {% if request.url.path.startswith('/reviews') %}aria-current="page"{% endif %}>Отзывы</a>
       <a href="/blog" {% if request.url.path.startswith('/blog') or request.url.path.startswith('/posts') %}aria-current="page"{% endif %}>Журнал</a>
-      <a href="/#method">Как учимся</a>
-      <a href="/#faq">FAQ</a>
+      <a href="/how-it-works" {% if request.url.path.startswith('/how-it-works') %}aria-current="page"{% endif %}>Как учимся</a>
+      <a href="/how-it-works#faq">FAQ</a>
     </nav>
     <div class="marketing-drawer__courses">
       <div class="marketing-drawer__label">Каталог курсов</div>
@@ -118,12 +118,12 @@
       </a>
 
       <nav class="nav-links nav-links--marketing">
-        <a href="/#courses">Направления</a>
+        <a href="/courses" {% if request.url.path.startswith('/courses') %}aria-current="page"{% endif %}>Направления</a>
         <a href="/roi" {% if request.url.path.startswith('/roi') %}aria-current="page"{% endif %}>Окупаемость курса</a>
-        <a href="/#portfolio">Проекты</a>
+        <a href="/reviews" {% if request.url.path.startswith('/reviews') %}aria-current="page"{% endif %}>Отзывы</a>
         <a href="/blog" {% if request.url.path.startswith('/blog') or request.url.path.startswith('/posts') %}aria-current="page"{% endif %}>Журнал</a>
-        <a href="/#method">Как учимся</a>
-        <a href="/#faq">FAQ</a>
+        <a href="/how-it-works" {% if request.url.path.startswith('/how-it-works') %}aria-current="page"{% endif %}>Как учимся</a>
+        <a href="/how-it-works#faq">FAQ</a>
       </nav>
 
       <div class="site-header__actions">
@@ -309,11 +309,12 @@
 
         <div class="site-footer__column">
           <h4>Школа</h4>
-          <a href="/#portfolio">Проекты</a>
+          <a href="/how-it-works#portfolio">Проекты</a>
+          <a href="/reviews">Отзывы</a>
           <a href="/blog">Блог</a>
           <a href="/posts">Посты и материалы</a>
-          <a href="/#method">Как учимся</a>
-          <a href="/#faq">FAQ</a>
+          <a href="/how-it-works">Как учимся</a>
+          <a href="/how-it-works#faq">FAQ</a>
           <a href="/account">Личный кабинет</a>
         </div>
 

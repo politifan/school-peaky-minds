@@ -5608,6 +5608,44 @@ body.shell-marketing .pm-metrics-grid {
   gap: 18px;
 }
 
+body.shell-marketing .pm-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+body.shell-marketing .pm-feature-card {
+  min-height: 210px;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 28px;
+  border-radius: var(--pm-radius-md);
+  border: 1px solid var(--pm-border);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--pm-shadow-soft);
+}
+
+body.shell-marketing .pm-feature-card strong {
+  font-size: clamp(1.2rem, 1.9vw, 1.65rem);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+body.shell-marketing .pm-feature-card span {
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(17, 17, 17, 0.48);
+}
+
+body.shell-marketing .pm-feature-card p {
+  margin: 0;
+  color: #545b6c;
+  line-height: 1.6;
+}
+
 body.shell-marketing .pm-metric-card {
   min-height: 210px;
   display: grid;
@@ -5978,6 +6016,10 @@ body.shell-marketing .contact-item {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  body.shell-marketing .pm-feature-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   body.shell-marketing .site-footer__intro,
   body.shell-marketing .site-footer__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -6050,6 +6092,10 @@ body.shell-marketing .contact-item {
   }
 
   body.shell-marketing .site-footer__intro {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-marketing .pm-feature-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -6821,7 +6867,7 @@ body.shell-marketing .pm-auth-verify h1 {
 
 body.shell-marketing .pm-auth-card__head p {
   margin: 0;
-  color: #ffffff;
+  color: #545b6c;
   line-height: 1.6;
 }
 
@@ -9574,6 +9620,10 @@ body.shell-marketing .pm-collection-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
+}
+
+body.shell-marketing .pm-story-grid--triple {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 body.shell-marketing .pm-collection-grid {

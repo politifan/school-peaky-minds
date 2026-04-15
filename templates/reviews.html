@@ -1,0 +1,131 @@
+{% extends "base_marketing.html" %}
+
+{% block title %}Отзывы и истории студентов Peaky Minds{% endblock %}
+{% block description %}Реальные истории студентов Peaky Minds: смена профессии, первые проекты, первые деньги на фрилансе, интервью и рост до уверенного уровня в IT.{% endblock %}
+{% block body_class %}reviews-page{% endblock %}
+
+{% block content %}
+<section class="pm-blog-page">
+  <div class="container">
+    <div class="pm-journal-breadcrumbs">
+      <a href="/">Главная</a>
+      <span>/</span>
+      <strong>Отзывы</strong>
+    </div>
+
+    <div class="pm-blog-hero">
+      <div class="pm-blog-hero__copy">
+        <div class="pm-journal-kicker">Отзывы и истории</div>
+        <h1>Здесь видно не обещания школы, а реальный маршрут студентов</h1>
+        <p>Отзывы важны не как “красивые слова”, а как доказательство движения: человек пришёл с одним уровнем, прошёл практику, собрал проекты, вышел к интервью, фрилансу или первой роли. Именно поэтому мы вынесли social proof в отдельную страницу.</p>
+
+        <div class="pm-blog-hero__actions">
+          <a class="btn btn-primary" href="/courses">Открыть курсы</a>
+          <button class="btn btn-secondary" type="button" data-open-modal="apply">Подобрать маршрут</button>
+        </div>
+
+        <div class="pm-blog-stats">
+          <div class="pm-blog-stat">
+            <strong>{{ blog_page.student_stories|length }}</strong>
+            <span>историй студентов в подборке</span>
+          </div>
+          <div class="pm-blog-stat">
+            <strong>{{ marketing.alumni_cases|length }}</strong>
+            <span>коротких кейсов на первом экране</span>
+          </div>
+          <div class="pm-blog-stat">
+            <strong>реальные посты</strong>
+            <span>каждая карточка ведёт в живой материал, а не в декоративный отзыв</span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="pm-journal-art pm-journal-art--hero"
+        style="--journal-primary: #ff8a5b; --journal-secondary: #ffd86b; --journal-tertiary: #6f5cff;"
+      >
+        <span class="pm-journal-art__badge">Social proof</span>
+        <strong class="pm-journal-art__headline">У них получилось. И у вас тоже может получиться.</strong>
+        <span class="pm-journal-art__note">Не обезличенный рейтинг, а истории с понятной отправной точкой, маршрутом и результатом.</span>
+      </div>
+    </div>
+
+    <section class="pm-blog-section pm-blog-section--soft">
+      <div class="pm-section-head">
+        <div>
+          <div class="pm-journal-kicker">Истории студентов</div>
+          <h2>Полные маршруты с контекстом, задачами и результатом</h2>
+        </div>
+        <a href="/posts?category=stories" class="pm-section-link">Открыть все истории</a>
+      </div>
+
+      <div class="pm-story-grid">
+        {% for story in blog_page.student_stories %}
+        <article class="pm-story-card">
+          <a href="{{ story.href }}">
+            <div class="pm-story-card__head">
+              <span class="pm-story-avatar" style="--story-accent: {{ story.accent }};">{{ story.initials }}</span>
+              <div>
+                <strong>{{ story.name }}</strong>
+                <span>{{ story.role }}</span>
+              </div>
+            </div>
+            <h3>{{ story.title }}</h3>
+            <small>{{ story.date }}</small>
+            <p>{{ story.excerpt }}</p>
+            <span class="pm-story-link">Читать историю</span>
+          </a>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="pm-blog-section">
+      <div class="pm-section-head">
+        <div>
+          <div class="pm-journal-kicker">Короткие кейсы</div>
+          <h2>Быстрый срез результатов по разным трекам</h2>
+        </div>
+        <a href="/blog" class="pm-section-link">Открыть журнал</a>
+      </div>
+
+      <div class="pm-alumni-grid">
+        {% for item in marketing.alumni_cases %}
+        <article class="pm-alumni-card pm-alumni-card--{{ loop.cycle('violet', 'sunrise', 'ocean') }}">
+          <div class="pm-alumni-card__art" aria-hidden="true">
+            <svg viewBox="0 0 320 168" role="presentation">
+              <path class="tone-stroke" d="M34 118C74 78 118 68 154 84C190 100 212 136 248 132C270 130 286 118 292 102" fill="none" stroke-width="10" stroke-linecap="round"/>
+              <path class="tone-fade" d="M34 138C74 126 110 128 148 116C186 104 222 80 286 74" fill="none" stroke-width="5" stroke-linecap="round"/>
+              <rect class="tone-surface" x="30" y="28" width="110" height="52" rx="22"/>
+              <rect class="tone-panel" x="168" y="82" width="118" height="48" rx="24"/>
+              <circle class="tone-a" cx="86" cy="118" r="18"/>
+              <circle class="tone-b" cx="162" cy="86" r="14"/>
+              <circle class="tone-c" cx="258" cy="62" r="12"/>
+            </svg>
+          </div>
+          <div class="pm-alumni-card__meta">
+            <span>{{ item.track }}</span>
+            <strong>{{ item.name }}</strong>
+          </div>
+          <h3>{{ item.result }}</h3>
+          <p>{{ item.company }}</p>
+          <a href="{{ item.href }}">Читать реальный кейс</a>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="pm-blog-section">
+      <div class="pm-journal-cta">
+        <div class="pm-journal-kicker">Следующий шаг</div>
+        <h2>Посмотрите истории, а потом выбирайте свой маршрут без догадок</h2>
+        <p>Когда видно реальные кейсы, проще понять, какой трек ближе именно вам: быстрый старт, системный карьерный переход, аналитика, backend или прикладная автоматизация.</p>
+        <div class="pm-journal-cta__actions">
+          <a class="btn btn-primary" href="/courses">Перейти к курсам</a>
+          <a class="btn btn-secondary" href="/roi">Посчитать окупаемость</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+{% endblock %}

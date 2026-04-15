@@ -1,0 +1,445 @@
+{% extends "base_marketing.html" %}
+
+{% block title %}Как учимся в Peaky Minds - онлайн формат, календарь, записи и путь к рынку{% endblock %}
+{% block description %}Подробная страница о формате обучения в Peaky Minds: как устроены занятия онлайн, расписание, записи, практика, проекты, портфолио и подготовка к первым задачам рынка.{% endblock %}
+{% block body_class %}how-it-works-page{% endblock %}
+
+{% block extra_head %}
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Можно ли начать с нуля?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Да. Мы начинаем с базовых тем и сразу применяем их на практике. Темп и глубина подстраиваются под ваш уровень."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Сколько времени нужно в неделю?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Обычно 2-5 занятий в неделю и 4-6 часов практики. Если времени меньше, адаптируем план."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Будут ли реальные проекты?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Да. Проекты идут постоянно: от учебных и тестовых задач до прикладных кейсов в формате фриланса и продуктовой разработки."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Есть ли помощь с трудоустройством?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Да. Мы помогаем с резюме, GitHub, тестовыми заданиями и подготовкой к техническим собеседованиям."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Можно ли учиться при работе или учёбе?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Да. График гибкий, занятия обычно идут в интервале 16:00-21:00 по Москве. Мы подстраиваем план под занятость."
+        }
+      }
+    ]
+  }
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="pm-blog-page">
+  <div class="container">
+    <div class="pm-journal-breadcrumbs">
+      <a href="/">Главная</a>
+      <span>/</span>
+      <strong>Как учимся</strong>
+    </div>
+
+    <div class="pm-blog-hero">
+      <div class="pm-blog-hero__copy">
+        <div class="pm-journal-kicker">Как учимся</div>
+        <h1>Вся механика обучения на одной странице: онлайн, записи, практика и путь к рынку</h1>
+        <p>Здесь собраны не обещания, а сам формат: как выглядит календарь, что происходит на занятиях, как мы ведём практику, как собирается портфолио и зачем всё это приводит к реальным задачам, а не только к просмотру уроков.</p>
+
+        <div class="pm-blog-hero__actions">
+          <a class="btn btn-primary" href="/courses">Открыть каталог курсов</a>
+          <button class="btn btn-secondary" type="button" data-open-modal="apply">Обсудить формат</button>
+        </div>
+
+        <div class="pm-blog-stats">
+          <div class="pm-blog-stat">
+            <strong>live online</strong>
+            <span>занятия и разборы в живом формате</span>
+          </div>
+          <div class="pm-blog-stat">
+            <strong>записи</strong>
+            <span>ключевые встречи и материалы остаются под рукой</span>
+          </div>
+          <div class="pm-blog-stat">
+            <strong>портфолио</strong>
+            <span>путь от базы к рабочим проектам и собеседованиям</span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="pm-journal-art pm-journal-art--hero"
+        style="--journal-primary: #6f5cff; --journal-secondary: #56c6ff; --journal-tertiary: #ff8a5b;"
+      >
+        <span class="pm-journal-art__badge">Формат</span>
+        <strong class="pm-journal-art__headline">Онлайн, практика, записи, карьерный вектор</strong>
+        <span class="pm-journal-art__note">Не одна “база знаний”, а живая система, где видно ритм, задачи и следующую точку роста.</span>
+      </div>
+    </div>
+
+    <section class="pm-blog-section pm-blog-section--soft">
+      <div class="pm-section-head">
+        <div>
+          <div class="pm-journal-kicker">Что важно</div>
+          <h2>Коротко о формате, без длинного лендинга</h2>
+        </div>
+      </div>
+
+      <div class="pm-feature-grid">
+        <article class="pm-feature-card">
+          <span>Онлайн</span>
+          <strong>Учимся живьём, а не в одиночку.</strong>
+          <p>Основной формат построен вокруг живых встреч, вопросов, объяснений и регулярной обратной связи, а не вокруг пассивного просмотра записей.</p>
+        </article>
+        <article class="pm-feature-card">
+          <span>Календарь</span>
+          <strong>Расписание заранее видно и не теряется.</strong>
+          <p>Есть понятный календарный контур: ближайшие занятия, темп, формат встреч и история записей, к которым можно вернуться.</p>
+        </article>
+        <article class="pm-feature-card">
+          <span>Практика</span>
+          <strong>Программа строится через задачи.</strong>
+          <p>Каждый этап переводится в действие: код, проект, тестовое, GitHub, разбор ошибок и защита решений, а не только конспект.</p>
+        </article>
+        <article class="pm-feature-card">
+          <span>Рынок</span>
+          <strong>Финишная цель — работающий навык.</strong>
+          <p>Мы ведём к портфолио, откликам, интервью и первым коммерческим задачам, а не просто к завершённому учебному модулю.</p>
+        </article>
+      </div>
+    </section>
+  </div>
+</section>
+
+<section class="pm-section pm-section--soft" id="method">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Как учимся</div>
+        <h2 class="display-title">От базы к рынку через понятную и инженерную траекторию</h2>
+      </div>
+      <p>Мы строим обучение не вокруг “просмотра курса”, а вокруг реального прогресса: от основ к проектам, от проектов к портфолио, от портфолио к коммерческим задачам и собеседованиям.</p>
+    </div>
+
+    <div class="pm-learning-flow reveal">
+      <article class="pm-step-card">
+        <div class="pm-step-card__number">01</div>
+        <h3>База</h3>
+        <p>Осваиваем Python, инструменты разработчика, логику кода и техническую дисциплину.</p>
+      </article>
+      <article class="pm-step-card">
+        <div class="pm-step-card__number">02</div>
+        <h3>Практика</h3>
+        <p>Переходим к задачам и маленьким продуктам, где нужно принимать инженерные решения.</p>
+      </article>
+      <article class="pm-step-card">
+        <div class="pm-step-card__number">03</div>
+        <h3>Портфолио</h3>
+        <p>Собираем проекты, оформляем GitHub, приводим код к читаемому и защищаемому виду.</p>
+      </article>
+      <article class="pm-step-card">
+        <div class="pm-step-card__number">04</div>
+        <h3>Выход в работу</h3>
+        <p>Тестовые, отклики, собеседования, фриланс или коммерческие задачи в рамках роста.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--compact" id="calendar-preview">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">{{ calendar_preview.eyebrow }}</div>
+        <h2 class="display-title">{{ calendar_preview.title }}</h2>
+      </div>
+      <p>{{ calendar_preview.description }}</p>
+    </div>
+
+    <div class="pm-calendar-showcase reveal" data-calendar-preview>
+      <article class="pm-calendar-window pm-calendar-window--light">
+        <div class="pm-calendar-window__top">
+          <div>
+            <div class="course-meta">{{ calendar_preview.window.meta }}</div>
+            <h3 data-calendar-month-label>{{ calendar_preview.window.months[0].title }}</h3>
+          </div>
+          <div class="pm-calendar-window__chips">
+            <span class="pm-calendar-chip">{{ calendar_preview.window.track_name }}</span>
+            <span class="pm-calendar-chip">{{ calendar_preview.window.pace }}</span>
+          </div>
+        </div>
+
+        <div class="pm-calendar-toolbar">
+          <div class="pm-calendar-months" role="tablist" aria-label="Месяц расписания">
+            {% for month in calendar_preview.window.months %}
+            <button
+              class="pm-calendar-month{% if loop.first %} is-active{% endif %}"
+              type="button"
+              data-calendar-tab="{{ month.key }}"
+              data-calendar-label="{{ month.title }}"
+              data-calendar-track-value="{{ month.track }}"
+              data-calendar-time-value="{{ month.time }}"
+              data-calendar-format-value="{{ month.format }}"
+              aria-selected="{{ 'true' if loop.first else 'false' }}"
+            >
+              <strong>{{ month.short }}</strong>
+              <span>{{ month.days }}</span>
+            </button>
+            {% endfor %}
+          </div>
+
+          <div class="pm-calendar-toolbar__meta">
+            <span class="pm-student-mini-tag" data-calendar-track>{{ calendar_preview.window.months[0].track }}</span>
+            <span class="pm-student-mini-tag" data-calendar-time>{{ calendar_preview.window.months[0].time }}</span>
+            <span class="pm-student-mini-tag" data-calendar-format>{{ calendar_preview.window.months[0].format }}</span>
+          </div>
+        </div>
+
+        <div class="pm-calendar-grid-preview pm-calendar-grid-preview--head">
+          {% for weekday in calendar_preview.window.weekdays %}
+          <div>{{ weekday }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="pm-calendar-grid-preview-wrap">
+          {% for month in calendar_preview.window.months %}
+          <div class="pm-calendar-grid-preview{% if loop.first %} is-active{% endif %}" data-calendar-panel="{{ month.key }}"{% if not loop.first %} hidden{% endif %}>
+            {% for day in month.days_grid %}
+            <div class="pm-calendar-day-preview{% if day.empty %} is-empty{% elif day.status %} is-{{ day.status }}{% endif %}">
+              {% if not day.empty %}
+              <span>{{ day.label }}</span>
+              {% if day.note %}
+              <small>{{ day.note }}</small>
+              {% endif %}
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="pm-calendar-legend">
+          {% for item in calendar_preview.window.legend %}
+          <span><i class="is-{{ item.status }}"></i>{{ item.label }}</span>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="pm-calendar-window pm-calendar-window--dark">
+        <div class="pm-calendar-window__top">
+          <div>
+            <div class="eyebrow eyebrow--light">{{ calendar_preview.agenda.eyebrow }}</div>
+            <h3>{{ calendar_preview.agenda.title }}</h3>
+          </div>
+        </div>
+
+        <div class="pm-calendar-agenda-tabs">
+          {% for tab in calendar_preview.agenda.tabs %}
+          <button class="pm-calendar-agenda-tab{% if loop.first %} is-active{% endif %}" type="button" data-calendar-agenda-tab="{{ tab.key }}">{{ tab.label }}</button>
+          {% endfor %}
+        </div>
+
+        <div class="pm-calendar-agenda is-active" data-calendar-agenda-panel="upcoming">
+          {% for item in calendar_preview.agenda.upcoming %}
+          <article class="pm-calendar-agenda__item{% if item.soft %} pm-calendar-agenda__item--soft{% endif %}">
+            <strong>{{ item.title }}</strong>
+            <span>{{ item.time }}</span>
+            <small>{{ item.note }}</small>
+          </article>
+          {% endfor %}
+        </div>
+
+        <div class="pm-calendar-records" data-calendar-agenda-panel="records" hidden>
+          {% for item in calendar_preview.agenda.records %}
+          <article class="pm-calendar-record-card">
+            <div class="pm-calendar-record-card__meta">
+              <strong>{{ item.title }}</strong>
+              <span>{{ item.duration }}</span>
+            </div>
+            <p>{{ item.note }}</p>
+          </article>
+          {% endfor %}
+        </div>
+
+        <div class="pm-calendar-note">
+          <h4>{{ calendar_preview.agenda.note_title }}</h4>
+          <p>{{ calendar_preview.agenda.note_text }}</p>
+        </div>
+
+        <div class="pm-calendar-window__actions">
+          <button class="btn btn-primary" type="button" data-open-modal="apply">Получить расписание</button>
+          <a class="btn btn-secondary" href="/account">Посмотреть кабинет</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section" id="portfolio">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Проекты</div>
+        <h2 class="display-title">Учимся на реальных задачах, а не на абстрактных упражнениях</h2>
+      </div>
+      <p>Каждое направление опирается на практику. Задача не в том, чтобы просто изучить синтаксис, а в том, чтобы собирать вещи, которые можно показывать, обсуждать и улучшать как настоящий продукт.</p>
+    </div>
+
+    <div class="pm-projects-grid reveal">
+      <article class="pm-project-card">
+        <div class="pm-project-card__meta">Python • Telegram • API</div>
+        <h3>Бот поддержки и заявок</h3>
+        <p>Сценарии диалога, обработка заявок, интеграция с внешними сервисами и быстрая обратная связь.</p>
+      </article>
+      <article class="pm-project-card">
+        <div class="pm-project-card__meta">FastAPI • PostgreSQL</div>
+        <h3>API‑сервис для внутреннего продукта</h3>
+        <p>Авторизация, роли, работа с базой, документация и структура backend‑приложения.</p>
+      </article>
+      <article class="pm-project-card">
+        <div class="pm-project-card__meta">ML • Hugging Face • NLP</div>
+        <h3>Анализ текста и классификация</h3>
+        <p>Сбор данных, baseline‑модель, inference и прикладной кейс для бизнеса или аналитики.</p>
+      </article>
+      <article class="pm-project-card">
+        <div class="pm-project-card__meta">Automation • Parsing • Reports</div>
+        <h3>Автоматизация процессов компании</h3>
+        <p>Сбор данных, отчёты, бот или сервис, который реально экономит время и деньги.</p>
+      </article>
+      <article class="pm-project-card">
+        <div class="pm-project-card__meta">Web • HTML • CSS • JS</div>
+        <h3>Небольшой продуктовый интерфейс</h3>
+        <p>Структура, адаптивность, состояния и взаимодействие с формами и контентом.</p>
+      </article>
+      <article class="pm-project-card">
+        <div class="pm-project-card__meta">CV • OpenCV • Edge devices</div>
+        <h3>Компьютерное зрение и обработка видео</h3>
+        <p>Пайплайн обработки, эксперименты с моделью и прикладная техническая реализация.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section pm-section--compact">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">Карьерный трек</div>
+        <h2 class="display-title">Подготовка к реальным собеседованиям и реальным задачам рынка</h2>
+      </div>
+      <p>Разбираем не только проекты, но и то, как объяснять свои решения, проходить технические этапы, структурировать знания и уверенно чувствовать себя перед работодателем или заказчиком.</p>
+    </div>
+
+    <div class="pm-career-banner reveal">
+      <div class="shape-stage shape-stage--banner" aria-hidden="true">
+        <div class="shape-stage__wave"></div>
+        <div class="shape-stage__stair"></div>
+      </div>
+
+      <div class="pm-career-banner__content">
+        <div class="pm-career-banner__chips">
+          <span class="c-pill c-pill--dark">Алгоритмы</span>
+          <span class="c-pill c-pill--dark">ООП</span>
+          <span class="c-pill c-pill--dark">API и backend</span>
+          <span class="c-pill c-pill--dark">Работа с данными</span>
+          <span class="c-pill c-pill--dark">Архитектура</span>
+          <span class="c-pill c-pill--dark">DevOps basics</span>
+        </div>
+        <div class="pm-career-banner__grid">
+          <article class="pm-career-banner__card">
+            <div class="eyebrow eyebrow--light">Что отрабатываем</div>
+            <h3>Технические вопросы, объяснение решений, разбор кода и логики задач</h3>
+            <p>Важно не просто что-то выучить, а уметь спокойно объяснить, почему вы написали именно так и как бы улучшали решение в реальном проекте.</p>
+          </article>
+          <article class="pm-career-banner__card pm-career-banner__card--light">
+            <div class="eyebrow eyebrow--dark">Результат</div>
+            <h3>Уверенность на интервью и понятная история о себе как о разработчике</h3>
+            <p>Портфолио, GitHub, привычка работать с задачами и готовность разговаривать на языке рынка, а не только на языке конспекта.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pm-section" id="faq">
+  <div class="container">
+    <div class="pm-section-head reveal">
+      <div>
+        <div class="eyebrow eyebrow--dark">FAQ</div>
+        <h2 class="display-title">Частые вопросы про формат, ритм и результат</h2>
+      </div>
+      <p>Ответы вынесены сюда, чтобы главная не превращалась в длинную справку. Здесь остаются только те вопросы, которые действительно помогают снять тревогу перед стартом.</p>
+    </div>
+
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <button type="button" class="faq-question">Можно ли начать с нуля?</button>
+        <div class="faq-answer">Да. Мы начинаем с базы и сразу переводим её в практику. Темп и глубина зависят от вашего старта и целей.</div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-question">Сколько времени нужно в неделю?</button>
+        <div class="faq-answer">Обычно 2-5 занятий в неделю и ещё несколько часов на практику. Если вы совмещаете обучение с работой или учёбой, план можно адаптировать.</div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-question">Будут ли реальные проекты?</button>
+        <div class="faq-answer">Да. Это одна из базовых частей программы. Проекты нужны не ради галочки, а чтобы накапливать опыт и портфолио.</div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-question">Есть ли помощь с трудоустройством?</button>
+        <div class="faq-answer">Да. Мы помогаем с GitHub, резюме, тестовыми заданиями и подготовкой к техническим интервью.</div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-question">Можно ли учиться параллельно с работой?</button>
+        <div class="faq-answer">Да. График гибкий, обычно занятия проходят вечером по Москве. Главное — удерживать понятный и устойчивый ритм.</div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-question">Что будет, если пропустил занятие?</button>
+        <div class="faq-answer">Подстроим расписание или дадим разбор ключевых моментов так, чтобы вы не выпадали из потока и не теряли контекст.</div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-question">Можно ли сменить трек по ходу?</button>
+        <div class="faq-answer">Да, если по мере практики стало понятно, что лучше подходит другой трек. Мы корректируем траекторию и переносим всё полезное, что уже успели пройти.</div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-question">Какой нужен компьютер?</button>
+        <div class="faq-answer">Обычного ноутбука на 8-16 ГБ ОЗУ достаточно для большинства задач. Для тяжёлого ML поможем настроить облачную среду.</div>
+      </div>
+    </div>
+
+    <div class="pm-journal-cta reveal">
+      <div class="pm-journal-kicker">Следующий шаг</div>
+      <h2>Если формат подходит, дальше остаётся только выбрать маршрут</h2>
+      <p>После этого уже проще открывать каталог и смотреть конкретные программы под ваш старт, темп и карьерную цель.</p>
+      <div class="pm-journal-cta__actions">
+        <a class="btn btn-primary" href="/courses">Открыть курсы</a>
+        <button class="btn btn-secondary" type="button" data-open-modal="apply">Задать вопрос</button>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

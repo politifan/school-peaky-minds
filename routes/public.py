@@ -49,11 +49,12 @@ def _render_course(request: Request, course_key: str, course_slug: str):
 async def index(request: Request):
     return render(
         request,
-        "index.html",
+        "home_lite.html",
         {
             "amp_css": _load_amp_css(),
             "calendar_preview": CALENDAR_PREVIEW,
             "home_courses": [decorate_course(key, COURSE_PAGES[key]) for key in HOME_COURSE_KEYS],
+            "blog_page": build_blog_page_content(),
             "marketing": build_homepage_marketing(),
         },
     )
@@ -63,11 +64,12 @@ async def index(request: Request):
 async def index_alias(request: Request):
     return render(
         request,
-        "index.html",
+        "home_lite.html",
         {
             "amp_css": _load_amp_css(),
             "calendar_preview": CALENDAR_PREVIEW,
             "home_courses": [decorate_course(key, COURSE_PAGES[key]) for key in HOME_COURSE_KEYS],
+            "blog_page": build_blog_page_content(),
             "marketing": build_homepage_marketing(),
         },
     )
@@ -82,6 +84,34 @@ async def roi_page(request: Request):
         {
             "amp_css": _load_amp_css(),
             "marketing": build_roi_page_marketing(),
+        },
+    )
+
+
+@router.get("/how-it-works", include_in_schema=False)
+@router.get("/how-it-works/", include_in_schema=False)
+async def how_it_works_page(request: Request):
+    return render(
+        request,
+        "how_it_works.html",
+        {
+            "amp_css": _load_amp_css(),
+            "calendar_preview": CALENDAR_PREVIEW,
+            "marketing": build_homepage_marketing(),
+        },
+    )
+
+
+@router.get("/reviews", include_in_schema=False)
+@router.get("/reviews/", include_in_schema=False)
+async def reviews_page(request: Request):
+    return render(
+        request,
+        "reviews.html",
+        {
+            "amp_css": _load_amp_css(),
+            "blog_page": build_blog_page_content(),
+            "marketing": build_homepage_marketing(),
         },
     )
 
@@ -165,6 +195,8 @@ async def sitemap(request: Request):
     lastmod = date.today().isoformat()
     urls = [
         ("", "1.0"),
+        ("how-it-works", "0.86"),
+        ("reviews", "0.84"),
         ("roi", "0.82"),
         ("blog", "0.85"),
         ("posts", "0.8"),
