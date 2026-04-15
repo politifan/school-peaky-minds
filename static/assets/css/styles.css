@@ -10226,6 +10226,11 @@ body.shell-marketing .pm-faculty-grid {
   align-items: stretch;
 }
 
+body.shell-marketing .pm-faculty-grid--single {
+  grid-template-columns: minmax(0, 880px);
+  justify-content: center;
+}
+
 body.shell-marketing .pm-faculty-card {
   --pm-faculty-accent: #6f5cff;
   --pm-faculty-accent-soft: rgba(111, 92, 255, 0.18);

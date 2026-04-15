@@ -616,7 +616,7 @@
       <p>{{ marketing.teachers_showcase.description }}</p>
     </div>
 
-    <div class="pm-faculty-grid reveal">
+    <div class="pm-faculty-grid{% if marketing.teachers_showcase.cards|length == 1 %} pm-faculty-grid--single{% endif %} reveal">
       {% for item in marketing.teachers_showcase.cards %}
       <article
         class="pm-faculty-card pm-faculty-card--{{ item.variant }}"
@@ -635,10 +635,16 @@
         </div>
 
         <div class="pm-faculty-card__body">
+          {% if item.panel_label or item.panel_name %}
           <div class="pm-faculty-card__variant">
+            {% if item.panel_label %}
             <span>{{ item.panel_label }}</span>
+            {% endif %}
+            {% if item.panel_name %}
             <strong>{{ item.panel_name }}</strong>
+            {% endif %}
           </div>
+          {% endif %}
 
           <div class="pm-faculty-card__identity">
             <h3>{{ item.name }}</h3>
@@ -664,10 +670,12 @@
       {% endfor %}
     </div>
 
+    {% if marketing.teachers_showcase.note %}
     <div class="pm-faculty-showcase__note reveal">
       <strong>Тестовый showcase</strong>
       <p>{{ marketing.teachers_showcase.note }}</p>
     </div>
+    {% endif %}
   </div>
 </section>
 
