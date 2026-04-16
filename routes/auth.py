@@ -4,6 +4,7 @@ import secrets
 import time
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
+from urllib.parse import urlencode
 
 import httpx
 from fastapi import APIRouter, Request
@@ -67,6 +68,90 @@ from core import (
 
 router = APIRouter()
 
+ACCOUNT_WORKSPACE_ROUTE_MAP = {
+    "overview": "/account",
+    "calendar": "/account/calendar",
+    "homework": "/account/homework",
+    "lectures": "/account/lectures",
+    "teachers": "/account/teachers",
+    "settings": "/account/profile",
+}
+
+ACCOUNT_SHELL_PAGES = [
+    {
+        "key": "overview",
+        "label": "Сегодня",
+        "href": "/account",
+        "workspace": "overview",
+        "count_key": "upcoming_events",
+        "note": "Следующий шаг, ближайшие события и быстрый обзор обучения.",
+    },
+    {
+        "key": "courses",
+        "label": "Курсы",
+        "href": "/account/courses",
+        "workspace": "overview",
+        "count_key": "total_courses",
+        "scroll_target": "student-courses",
+        "note": "Все траектории, прогресс по модулям и точки входа в материалы.",
+    },
+    {
+        "key": "calendar",
+        "label": "Календарь",
+        "href": "/account/calendar",
+        "workspace": "calendar",
+        "count_key": "upcoming_events",
+        "scroll_target": "student-workspace",
+        "note": "Ближайшие занятия и помесячный ритм обучения без лишнего шума.",
+    },
+    {
+        "key": "homework",
+        "label": "ДЗ",
+        "href": "/account/homework",
+        "workspace": "homework",
+        "count_key": "homework_open",
+        "scroll_target": "student-workspace",
+        "note": "Активные домашние задания, дедлайны и нужные материалы в одном месте.",
+    },
+    {
+        "key": "lectures",
+        "label": "Лекции",
+        "href": "/account/lectures",
+        "workspace": "lectures",
+        "count_key": "lecture_records",
+        "scroll_target": "student-workspace",
+        "note": "Записи занятий, фильтры и быстрый возврат к нужной теме.",
+    },
+    {
+        "key": "teachers",
+        "label": "Преподаватели",
+        "href": "/account/teachers",
+        "workspace": "teachers",
+        "count_key": "teachers_count",
+        "scroll_target": "student-workspace",
+        "note": "Кто ведёт занятия, за что отвечает и как быстро связаться.",
+    },
+    {
+        "key": "documents",
+        "label": "Документы",
+        "href": "/account/documents",
+        "workspace": "overview",
+        "count_key": "signed_contracts",
+        "scroll_target": "student-contracts",
+        "note": "Договоры, PDF и сервисные детали без поиска по длинной странице.",
+    },
+    {
+        "key": "profile",
+        "label": "Профиль",
+        "href": "/account/profile",
+        "workspace": "settings",
+        "scroll_target": "student-workspace",
+        "note": "Способ входа, данные аккаунта и системные настройки кабинета.",
+    },
+]
+
+ACCOUNT_SHELL_PAGE_MAP = {item["key"]: item for item in ACCOUNT_SHELL_PAGES}
+
 
 def _load_current_user_agreements(user: Dict[str, Any]) -> List[Dict[str, Any]]:
     user_id = user.get("id")
@@ -88,6 +173,262 @@ def _antibot_error_message(reason: str) -> str:
     if reason in {"missing_turnstile", "turnstile_failed", "turnstile_unavailable"}:
         return "Подтвердите, что вы не робот, и отправьте форму снова."
     return "Запрос отклонен защитой от ботов. Обновите страницу и повторите попытку."
+
+
+def _legacy_account_workspace_redirect(request: Request) -> Optional[RedirectResponse]:
+    workspace = str(request.query_params.get("workspace") or "").strip()
+    if not workspace:
+        return None
+    target = ACCOUNT_WORKSPACE_ROUTE_MAP.get(workspace)
+    if not target:
+        return None
+    query_items = [(key, value) for key, value in request.query_params.multi_items() if key != "workspace"]
+    location = target
+    if query_items:
+        location = f"{location}?{urlencode(query_items, doseq=True)}"
+    return RedirectResponse(location, status_code=HTTP_302_FOUND)
+
+
+def _build_account_shell(*, active_key: str, stats: Dict[str, Any]) -> Dict[str, Any]:
+    active_page = ACCOUNT_SHELL_PAGE_MAP.get(active_key) or ACCOUNT_SHELL_PAGES[0]
+    items: List[Dict[str, Any]] = []
+    for page in ACCOUNT_SHELL_PAGES:
+        count_value = stats.get(page.get("count_key", "")) if page.get("count_key") else None
+        count = str(count_value) if isinstance(count_value, int) and count_value > 0 else ""
+        items.append(
+            {
+                "key": page["key"],
+                "label": page["label"],
+                "href": page["href"],
+                "count": count,
+                "active": page["key"] == active_key,
+            }
+        )
+    return {
+        "eyebrow": "Student shell",
+        "title": "Личный кабинет",
+        "subtitle": active_page.get("note", ""),
+        "active": active_key,
+        "items": items,
+        "scroll_target": active_page.get("scroll_target"),
+    }
+
+
+def _build_account_page_context(
+    request: Request,
+    *,
+    user: Dict[str, Any],
+    workspace_active: str,
+    shell_active: str,
+) -> Dict[str, Any]:
+    agreements_all = load_agreements()
+    user_id = user.get("id")
+    user_email = (user.get("email") or "").strip().lower()
+
+    def safe_int(value: Any) -> Optional[int]:
+        try:
+            return int(value)
+        except Exception:
+            return None
+
+    def format_ts(value: Any) -> str:
+        if not value:
+            return "-"
+        try:
+            return datetime.fromtimestamp(int(value)).strftime("%d.%m.%Y %H:%M")
+        except Exception:
+            return "-"
+
+    agreements_view = []
+    calendar_month = str(request.query_params.get("month") or "").strip()
+    if not re.match(r"^\d{4}-\d{2}$", calendar_month or ""):
+        calendar_month = month_key()
+    lecture_q = str(request.query_params.get("lecture_q") or "").strip()
+    lecture_source = str(request.query_params.get("lecture_source") or "").strip()
+    lecture_course = str(request.query_params.get("lecture_course") or "").strip()
+    try:
+        lecture_page = max(int(request.query_params.get("lecture_page") or 1), 1)
+    except Exception:
+        lecture_page = 1
+    referrals_data = load_referrals()
+    referrals_students = referrals_data.get("students") if isinstance(referrals_data, dict) else {}
+    if not isinstance(referrals_students, dict):
+        referrals_students = {}
+    payments_data = load_payments()
+    payments = payments_data.get("payments") if isinstance(payments_data, dict) else {}
+    if not isinstance(payments, dict):
+        payments = {}
+    for item in agreements_all:
+        item_user = item.get("user") or {}
+        matches = False
+        if user_id and item_user.get("id") == user_id:
+            matches = True
+        elif user_email and (item.get("email") or "").strip().lower() == user_email:
+            matches = True
+        if not matches:
+            continue
+
+        status_key, status_label, status_class = contract_status_from_item(item)
+        total_lessons = safe_int(item.get("total_lessons"))
+        paid_lessons = safe_int(item.get("paid_lessons"))
+        attended_lessons = safe_int(item.get("attended_lessons"))
+        current_paid = None
+        if paid_lessons is not None and attended_lessons is not None:
+            current_paid = max(paid_lessons - attended_lessons, 0)
+        remaining = None
+        if total_lessons is not None and paid_lessons is not None:
+            remaining = max(total_lessons - paid_lessons, 0)
+        materials = normalize_materials(item.get("materials"))
+        saved_rate = safe_int(item.get("price_per_lesson"))
+        price_per_lesson = saved_rate if saved_rate else course_rate(item.get("course"), item.get("duration"))
+        discount_percent = 0
+        discount_value = None
+        discounted_price = None
+        student = None
+        primary_course = ""
+        if referrals_students:
+            student = find_student_by_phone(referrals_students, item.get("phone") or "")
+        if student:
+            primary_course = student.get("primary_course") or ""
+            if price_per_lesson and student.get("referral_code"):
+                discount_percent = referral_effective_percent(student, item.get("course") or "", month_key())
+        if price_per_lesson and discount_percent:
+            discount_value = int(round(price_per_lesson * (discount_percent / 100)))
+            discounted_price = max(price_per_lesson - discount_value, 0)
+        payment_list = []
+        active_payment = None
+        item_phone = normalize_phone(item.get("phone") or "")
+        for payment in payments.values():
+            if not isinstance(payment, dict):
+                continue
+            if payment.get("agreement_file") != item.get("_file"):
+                continue
+            if user_id and str(payment.get("user_id") or "") != str(user_id):
+                if item_phone and normalize_phone(payment.get("phone") or "") != item_phone:
+                    continue
+            status = str(payment.get("status") or "")
+            status_labels = {
+                "NEW": "Создан",
+                "FORM_SHOWED": "Ожидает оплаты",
+                "AUTHORIZING": "Ожидает подтверждения",
+                "AUTHORIZED": "Ожидает подтверждения",
+                "CONFIRMED": "Оплачен",
+                "CANCELED": "Отменён",
+                "REJECTED": "Отказ",
+                "DEADLINE_EXPIRED": "Истёк срок",
+                "REFUNDED": "Возврат",
+            }
+            payment_item = {
+                "id": payment.get("id"),
+                "status": status,
+                "status_label": status_labels.get(status, status),
+                "amount": (payment.get("amount") or {}).get("value") or "-",
+                "lessons": payment.get("lessons"),
+                "discount_percent": payment.get("discount_percent") or 0,
+                "created_at": format_ts(payment.get("created_at")),
+                "created_at_ts": int(payment.get("created_at") or 0),
+                "confirmation_url": payment.get("confirmation_url"),
+                "test_mode": bool(payment.get("test_mode")),
+            }
+            payment_list.append(payment_item)
+            if not active_payment and status in {"pending", "waiting_for_capture", "waiting_for_confirmation"}:
+                active_payment = payment_item
+
+        payment_list.sort(key=lambda entry: entry.get("created_at_ts") or 0, reverse=True)
+
+        lesson_calendar = item.get("lesson_calendar") if isinstance(item.get("lesson_calendar"), dict) else {}
+        calendar_weeks = build_month_calendar(calendar_month, lesson_calendar)
+        agreements_view.append(
+            {
+                **item,
+                "file": item.get("_file"),
+                "agreement_file": item.get("_file"),
+                "contract_url": build_contract_url(item.get("contract_token"), request),
+                "contract_pdf_url": item.get("contract_pdf_url"),
+                "contract_status_key": status_key,
+                "contract_status_label": status_label,
+                "contract_status_class": status_class,
+                "contract_channel_label": contract_channel_label(item.get("contract_channel")),
+                "total_lessons": total_lessons,
+                "paid_lessons": paid_lessons,
+                "attended_lessons": attended_lessons,
+                "current_paid_lessons": current_paid,
+                "remaining_lessons": remaining,
+                "current_module": item.get("current_module") or "-",
+                "materials": materials,
+                "price_per_lesson": price_per_lesson,
+                "discount_percent": discount_percent,
+                "discount_value": discount_value,
+                "discounted_price": discounted_price,
+                "primary_course": primary_course,
+                "lesson_month": calendar_month,
+                "lesson_calendar_map": lesson_calendar,
+                "lesson_calendar": calendar_weeks,
+                "payments": payment_list,
+                "active_payment": active_payment,
+            }
+        )
+
+    user_display = user.get("name") or user.get("email") or "Пользователь"
+    account_content = build_account_content(
+        agreements_view,
+        user_display=user_display,
+        payments_enabled=TINKOFF_ENABLED,
+        user=user,
+        lectures_query=lecture_q,
+        lectures_source=lecture_source,
+        lectures_course=lecture_course,
+        lectures_page=lecture_page,
+    )
+    allowed_workspace_keys = {item["key"] for item in account_content["workspace_tabs"]}
+    if workspace_active not in allowed_workspace_keys:
+        workspace_active = "overview"
+    schedule_items = account_content["schedule"]
+    homework_items = account_content["homework"]
+    lecture_items = account_content["lectures"]
+    teacher_items = account_content["teachers"]
+    return {
+        "agreements": agreements_view,
+        "account_schedule": schedule_items,
+        "account_homework": homework_items,
+        "account_lectures": lecture_items,
+        "account_teachers": teacher_items,
+        "account_api": account_content["api"],
+        "account_hero": account_content["hero"],
+        "account_focus": account_content["focus"],
+        "account_overview": account_content["overview"],
+        "account_sections": account_content["sections"],
+        "account_stats": account_content["stats"],
+        "account_schedule_payload": account_content["schedule_payload"],
+        "account_homework_payload": account_content["homework_payload"],
+        "account_lectures_payload": account_content["lectures_payload"],
+        "account_teachers_payload": account_content["teachers_payload"],
+        "account_settings": account_content["settings_payload"],
+        "account_workspace_tabs": account_content["workspace_tabs"],
+        "account_workspace_active": workspace_active,
+        "account_shell": _build_account_shell(active_key=shell_active, stats=account_content["stats"]),
+        "payments_enabled": TINKOFF_ENABLED,
+        "payment_status": request.query_params.get("payment"),
+        "payment_error": request.query_params.get("payment_error"),
+    }
+
+
+def _render_account_page(
+    request: Request,
+    *,
+    workspace_active: str,
+    shell_active: str,
+):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse("/login", status_code=HTTP_302_FOUND)
+    context = _build_account_page_context(
+        request,
+        user=user,
+        workspace_active=workspace_active,
+        shell_active=shell_active,
+    )
+    return render(request, "account.html", context)
 
 
 @router.get("/login", include_in_schema=False)
@@ -568,6 +909,10 @@ async def account(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse("/login", status_code=HTTP_302_FOUND)
+    legacy_redirect = _legacy_account_workspace_redirect(request)
+    if legacy_redirect:
+        return legacy_redirect
+    return _render_account_page(request, workspace_active="overview", shell_active="overview")
     agreements_all = load_agreements()
     user_id = user.get("id")
     user_email = (user.get("email") or "").strip().lower()
@@ -762,6 +1107,41 @@ async def account(request: Request):
             "payment_error": request.query_params.get("payment_error"),
         },
     )
+
+
+@router.get("/account/courses", include_in_schema=False)
+async def account_courses(request: Request):
+    return _render_account_page(request, workspace_active="overview", shell_active="courses")
+
+
+@router.get("/account/calendar", include_in_schema=False)
+async def account_calendar(request: Request):
+    return _render_account_page(request, workspace_active="calendar", shell_active="calendar")
+
+
+@router.get("/account/homework", include_in_schema=False)
+async def account_homework_page(request: Request):
+    return _render_account_page(request, workspace_active="homework", shell_active="homework")
+
+
+@router.get("/account/lectures", include_in_schema=False)
+async def account_lectures_page(request: Request):
+    return _render_account_page(request, workspace_active="lectures", shell_active="lectures")
+
+
+@router.get("/account/teachers", include_in_schema=False)
+async def account_teachers_page(request: Request):
+    return _render_account_page(request, workspace_active="teachers", shell_active="teachers")
+
+
+@router.get("/account/documents", include_in_schema=False)
+async def account_documents(request: Request):
+    return _render_account_page(request, workspace_active="overview", shell_active="documents")
+
+
+@router.get("/account/profile", include_in_schema=False)
+async def account_profile(request: Request):
+    return _render_account_page(request, workspace_active="settings", shell_active="profile")
 
 
 @router.get("/api/account/schedule", include_in_schema=False)

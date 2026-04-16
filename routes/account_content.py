@@ -1409,12 +1409,12 @@ def _build_account_hero(
         "actions": [
             {
                 "label": "Открыть мои курсы" if has_agreements else "Выбрать курс",
-                "href": "#student-courses" if has_agreements else "/#courses",
+                "href": "/account/courses" if has_agreements else "/courses",
                 "variant": "primary",
             },
             {
                 "label": "Рабочее пространство",
-                "href": "#student-workspace",
+                "href": "/account/calendar",
                 "variant": "secondary",
                 "show": has_agreements,
             },
@@ -1448,7 +1448,7 @@ def _build_account_focus(
             "title": "Откройте workspace и проверьте ближайший фокус.",
             "text": "Календарь, ДЗ, лекции и преподаватели уже собраны внутри кабинета.",
             "action": "Открыть workspace",
-            "href": "#student-workspace",
+            "href": "/account/calendar",
         }
     else:
         next_step = {
@@ -1456,7 +1456,7 @@ def _build_account_focus(
             "title": "Пока нет активного курса.",
             "text": "После записи здесь автоматически появятся календарь, материалы и оплата.",
             "action": "Выбрать курс",
-            "href": "/#courses",
+            "href": "/courses",
         }
 
     if upcoming_events or homework_open:
@@ -1484,21 +1484,21 @@ def _build_account_focus(
                 "title": attention_title,
                 "text": attention_text,
                 "action": "Перейти к workspace",
-                "href": "#student-workspace",
+                "href": "/account/homework" if homework_open else "/account/calendar",
             },
             {
                 "label": "Документы и оплата",
                 "title": docs_title,
                 "text": docs_text,
                 "action": "Открыть курсы",
-                "href": "#student-courses" if total_courses else "/#courses",
+                "href": "/account/documents" if total_courses else "/courses",
             },
             {
                 "label": "Материалы",
                 "title": f"{lecture_records} записей лекций и учебный контур под рукой",
                 "text": "Записи, ссылки и преподаватели открываются из workspace без длинного поиска.",
                 "action": "Открыть лекции",
-                "href": "#student-workspace",
+                "href": "/account/lectures",
             },
         ],
     }

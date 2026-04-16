@@ -4,8 +4,10 @@
 {% block description %}Личный кабинет Peaky Minds: договоры, курсы, календарь, материалы и оплата.{% endblock %}
 
 {% block content %}
-<section class="pm-student-page">
+<section class="pm-student-page{% if account_shell %} pm-student-page--shell{% endif %}">
+  {% if not account_shell %}
   <div class="container">
+  {% endif %}
     <section class="pm-student-hero pm-surface-card">
       <div class="pm-student-hero__main">
         <div class="account-profile">
@@ -739,7 +741,9 @@
       </div>
       {% endif %}
     </section>
+  {% if not account_shell %}
   </div>
+  {% endif %}
 </section>
 {% endblock %}
 
