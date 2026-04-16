@@ -1,0 +1,47 @@
+<script>
+  document.querySelectorAll("[data-payment-form]").forEach((form) => {
+    const priceRaw = form.getAttribute("data-price");
+    const price = Number(priceRaw || 0);
+    const input = form.querySelector("input[name='lessons']");
+    const total = form.querySelector("[data-payment-total]");
+    const update = () => {
+      if (!total) return;
+      const lessons = Number(input && input.value ? input.value : 0);
+      if (!price || !lessons) {
+        total.textContent = "Итого: -";
+        return;
+      }
+      const value = Math.round(price * lessons);
+      total.textContent = `Итого: ${value} ₽`;
+    };
+    if (input) {
+      input.addEventListener("input", update);
+      input.addEventListener("change", update);
+    }
+    update();
+  });
+
+  document.querySelectorAll("[data-month-picker]").forEach((form) => {
+    const yearSelect = form.querySelector("[data-month-year]");
+    const monthInput = form.querySelector("[data-month-input]");
+    const buttons = Array.from(form.querySelectorAll("[data-month]"));
+    if (!yearSelect || !monthInput || !buttons.length) return;
+    const submit = (monthValue) => {
+      const year = yearSelect.value;
+      monthInput.value = `${year}-${monthValue}`;
+      form.submit();
+    };
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        buttons.forEach((item) => item.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        submit(btn.dataset.month);
+      });
+    });
+    yearSelect.addEventListener("change", () => {
+      const active = form.querySelector(".month-pill.is-active");
+      const monthValue = active ? active.dataset.month : "01";
+      submit(monthValue);
+    });
+  });
+</script>

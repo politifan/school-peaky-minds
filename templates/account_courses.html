@@ -1,0 +1,219 @@
+{% extends "base_student.html" %}
+
+{% block title %}{{ account_page.seo_title }}{% endblock %}
+{% block description %}{{ account_page.seo_description }}{% endblock %}
+
+{% block content %}
+<section class="pm-student-page pm-student-page--shell">
+  {% include "account/_alerts.html" %}
+  {% include "account/_page_intro.html" %}
+
+  <section id="student-courses" class="pm-student-section">
+    <div class="pm-section-head">
+      <div>
+        <div class="pm-kicker">Courses</div>
+        <h2 class="section-title">Мои курсы</h2>
+      </div>
+      <span class="pm-tag">{{ agreements|length }} записей</span>
+    </div>
+
+    {% if agreements %}
+    <div class="pm-student-course-grid">
+      {% for item in agreements %}
+      <article class="pm-surface-card pm-student-course-card">
+        <header class="pm-student-course-card__head">
+          <div>
+            <div class="course-meta">Курс</div>
+            <h3>{{ item.course or "-" }}</h3>
+          </div>
+          <div class="pm-inline-actions">
+            <span class="admin-status {{ item.contract_status_class }}">{{ item.contract_status_label }}</span>
+            {% if item.contract_url %}
+            <a class="admin-copy" href="{{ item.contract_url }}" target="_blank" rel="noopener">Договор</a>
+            {% endif %}
+            {% if item.contract_pdf_url %}
+            <a class="admin-copy" href="{{ item.contract_pdf_url }}" target="_blank" rel="noopener">PDF</a>
+            {% endif %}
+          </div>
+        </header>
+
+        <div class="pm-student-facts">
+          <div><span>Оплачено занятий</span><strong>{{ item.paid_lessons if item.paid_lessons is not none else "-" }}</strong></div>
+          <div><span>Проведено</span><strong>{{ item.attended_lessons if item.attended_lessons is not none else "-" }}</strong></div>
+          <div><span>Осталось оплаченных</span><strong>{{ item.current_paid_lessons if item.current_paid_lessons is not none else "-" }}</strong></div>
+          <div><span>Текущий модуль</span><strong>{{ item.current_module }}</strong></div>
+        </div>
+
+        <div class="pm-student-layout">
+          <div class="pm-student-layout__main">
+            <section class="pm-student-subcard">
+              <div class="pm-student-subcard__head">
+                <div class="course-meta">Календарь занятий</div>
+                <span class="pm-student-mini-tag">{{ item.lesson_month }}</span>
+              </div>
+              <form class="pm-student-form" method="get" action="/account/courses" data-month-picker>
+                <div class="month-picker">
+                  {% set month_names = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] %}
+                  {% set current_year = item.lesson_month[:4] %}
+                  {% set current_month = item.lesson_month[5:7] %}
+                  <div class="month-picker__year">
+                    <label class="auth-label">Год</label>
+                    <select name="year" data-month-year>
+                      <option value="{{ (current_year|int) - 1 }}">{{ (current_year|int) - 1 }}</option>
+                      <option value="{{ current_year }}" selected>{{ current_year }}</option>
+                      <option value="{{ (current_year|int) + 1 }}">{{ (current_year|int) + 1 }}</option>
+                    </select>
+                  </div>
+                  <div class="month-picker__months">
+                    {% for idx in range(1, 13) %}
+                    {% set value = "%02d"|format(idx) %}
+                    <button type="button" class="month-pill{% if value == current_month %} is-active{% endif %}" data-month="{{ value }}">
+                      {{ month_names[idx - 1] }}
+                    </button>
+                    {% endfor %}
+                  </div>
+                  <input type="hidden" name="month" value="{{ item.lesson_month }}" data-month-input>
+                </div>
+              </form>
+              <div class="lesson-legend">
+                <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--proposed"></span>Предложено</span>
+                <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--approved"></span>Согласовано</span>
+                <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--missed"></span>Пропуск</span>
+                <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--excused">🌡️</span>Уважительная причина</span>
+              </div>
+              <div class="lesson-calendar">
+                <div class="lesson-calendar__grid lesson-calendar__grid--head">
+                  <div class="lesson-calendar__day" data-day="1"><span class="day-text">Пн</span><span class="day-num">1</span></div>
+                  <div class="lesson-calendar__day" data-day="2"><span class="day-text">Вт</span><span class="day-num">2</span></div>
+                  <div class="lesson-calendar__day" data-day="3"><span class="day-text">Ср</span><span class="day-num">3</span></div>
+                  <div class="lesson-calendar__day" data-day="4"><span class="day-text">Чт</span><span class="day-num">4</span></div>
+                  <div class="lesson-calendar__day" data-day="5"><span class="day-text">Пт</span><span class="day-num">5</span></div>
+                  <div class="lesson-calendar__day" data-day="6"><span class="day-text">Сб</span><span class="day-num">6</span></div>
+                  <div class="lesson-calendar__day" data-day="7"><span class="day-text">Вс</span><span class="day-num">7</span></div>
+                </div>
+                <div class="lesson-calendar__grid">
+                  {% for week in item.lesson_calendar %}
+                    {% for day in week %}
+                      {% if day %}
+                      <div class="lesson-day{% if day.status %} lesson-day--{{ day.status }}{% endif %}{% if day.time %} has-time{% endif %}{% if day.session_count > 1 %} has-multiple{% endif %}">
+                        <span class="lesson-day__num">{{ day.day }}</span>
+                        {% if day.time %}
+                        <span class="lesson-day__time">{{ day.time }}</span>
+                        {% endif %}
+                        {% if day.more_count %}
+                        <span class="lesson-day__more">+{{ day.more_count }}</span>
+                        {% endif %}
+                        {% if day.status == "excused" %}
+                        <span class="lesson-emoji">🌡️</span>
+                        {% endif %}
+                        {% if day.session_count > 1 %}
+                        <div class="lesson-day__tooltip" role="tooltip">
+                          {% for time in day.times %}
+                          <span class="lesson-day__tooltip-item">{{ time }}</span>
+                          {% endfor %}
+                        </div>
+                        {% endif %}
+                      </div>
+                      {% else %}
+                      <div class="lesson-day lesson-day--empty"></div>
+                      {% endif %}
+                    {% endfor %}
+                  {% endfor %}
+                </div>
+              </div>
+            </section>
+
+            <section class="pm-student-subcard">
+              <div class="pm-student-subcard__head">
+                <div class="course-meta">Материалы модуля</div>
+                <span class="pm-student-mini-tag">{{ item.materials|length if item.materials else 0 }}</span>
+              </div>
+              {% if item.materials %}
+              <ul class="admin-list admin-list--links">
+                {% for material in item.materials %}
+                <li>
+                  <span>{{ material.title or material.url }}</span>
+                  <a class="admin-copy" href="{{ material.url }}" target="_blank" rel="noopener">Открыть</a>
+                </li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              <p class="pm-student-note">Материалы будут доступны позже.</p>
+              {% endif %}
+            </section>
+          </div>
+
+          <aside class="pm-student-layout__side">
+            <section class="pm-student-subcard">
+              <div class="pm-student-subcard__head">
+                <div class="course-meta">Скидка текущего месяца</div>
+                <span class="pm-student-mini-tag">{{ item.discount_percent }}%</span>
+              </div>
+              <ul class="admin-list">
+                <li><span>Скидка</span><strong>{{ item.discount_percent }}%</strong></li>
+                <li><span>Основной курс</span><strong>{{ item.primary_course or "не выбран" }}</strong></li>
+              </ul>
+            </section>
+
+            <section class="pm-student-subcard">
+              <div class="pm-student-subcard__head">
+                <div class="course-meta">Оплата через СБП</div>
+                <span class="pm-student-mini-tag">{% if payments_enabled %}Online{% else %}Off{% endif %}</span>
+              </div>
+              {% if payments_enabled %}
+              {% set price_value = item.discounted_price if item.discounted_price is not none else item.price_per_lesson %}
+              <ul class="admin-list">
+                <li><span>Цена занятия</span><strong>{{ item.price_per_lesson if item.price_per_lesson is not none else "-" }} ₽</strong></li>
+                <li><span>Цена со скидкой</span><strong>{{ item.discounted_price if item.discounted_price is not none else item.price_per_lesson if item.price_per_lesson is not none else "-" }} ₽</strong></li>
+              </ul>
+              {% if item.active_payment %}
+              <div class="pm-student-note">
+                Есть незавершённый платёж.
+                {% if item.active_payment.confirmation_url %}
+                <a class="admin-copy" href="{{ item.active_payment.confirmation_url }}" target="_blank" rel="noopener">Продолжить</a>
+                {% endif %}
+              </div>
+              {% endif %}
+              <form class="pm-student-form" action="/payments/create" method="post" data-payment-form data-price="{{ price_value if price_value is not none else '' }}">
+                <input type="hidden" name="agreement_file" value="{{ item.file }}">
+                <div class="input-wrap">
+                  <label class="auth-label">Кол-во занятий</label>
+                  <input type="number" name="lessons" min="1" step="1" value="4" required>
+                </div>
+                <div class="pm-student-total" data-payment-total>Итого: -</div>
+                <button class="btn btn-primary" type="submit">Оплатить через СБП</button>
+              </form>
+              {% if item.payments %}
+              <div class="course-meta">История платежей</div>
+              <ul class="admin-list">
+                {% for pay in item.payments %}
+                <li>
+                  <span>{{ pay.created_at }} · {{ pay.status_label }}</span>
+                  <strong>{{ pay.amount }} ₽</strong>
+                </li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+              {% else %}
+              <p class="pm-student-note">Онлайн-оплата временно недоступна.</p>
+              {% endif %}
+            </section>
+          </aside>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="pm-student-empty pm-surface-card">
+      <h3>Пока нет оформленных договоров</h3>
+      <p>После записи на курс договор появится здесь, а вместе с ним откроются материалы и оплата.</p>
+      <a class="btn btn-primary" href="/#courses">Выбрать курс</a>
+    </div>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+{% include "account/_interactive_scripts.html" %}
+{% endblock %}

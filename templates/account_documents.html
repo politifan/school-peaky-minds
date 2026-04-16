@@ -1,0 +1,55 @@
+{% extends "base_student.html" %}
+
+{% block title %}{{ account_page.seo_title }}{% endblock %}
+{% block description %}{{ account_page.seo_description }}{% endblock %}
+
+{% block content %}
+<section class="pm-student-page pm-student-page--shell">
+  {% include "account/_alerts.html" %}
+  {% include "account/_page_intro.html" %}
+
+  <section id="student-contracts" class="pm-student-section">
+    <div class="pm-section-head">
+      <div>
+        <div class="pm-kicker">Contracts</div>
+        <h2 class="section-title">Мои договоры</h2>
+      </div>
+      <span class="pm-tag">{{ agreements|length }} активных</span>
+    </div>
+    {% if agreements %}
+    <div class="pm-student-grid pm-student-grid--contracts">
+      {% for item in agreements %}
+      <article class="pm-surface-card pm-contract-card">
+        <div class="pm-contract-card__head">
+          <div>
+            <div class="course-meta">Договор</div>
+            <h3>{{ item.course or "-" }}</h3>
+          </div>
+          <span class="admin-status {{ item.contract_status_class }}">{{ item.contract_status_label }}</span>
+        </div>
+        <p class="pm-contract-card__meta">Канал отправки: {{ item.contract_channel_label }}</p>
+        <div class="pm-inline-actions">
+          {% if item.contract_url %}
+          <a class="btn btn-secondary" href="{{ item.contract_url }}" target="_blank" rel="noopener">Открыть договор</a>
+          {% endif %}
+          {% if item.contract_pdf_url %}
+          <a class="btn btn-secondary" href="{{ item.contract_pdf_url }}" target="_blank" rel="noopener">PDF</a>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="pm-student-empty pm-surface-card">
+      <h3>Пока нет подписанных документов</h3>
+      <p>После записи на курс все договоры и PDF появятся в этом разделе отдельно от учебного контента.</p>
+      <a class="btn btn-primary" href="/#courses">Выбрать курс</a>
+    </div>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+{% include "account/_interactive_scripts.html" %}
+{% endblock %}

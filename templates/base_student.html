@@ -60,12 +60,12 @@
       <div class="pm-account-shell-layout">
         <aside class="pm-account-shell-nav pm-surface-card" aria-label="Навигация кабинета">
           <div class="pm-account-shell-nav__intro">
-            <div class="pm-kicker">{{ account_shell.eyebrow }}</div>
-            <h2 class="pm-account-shell-nav__title">{{ account_shell.title }}</h2>
-            <p class="pm-account-shell-nav__note">{{ account_shell.subtitle }}</p>
+            <div class="pm-kicker">{{ account_shell["eyebrow"] }}</div>
+            <h2 class="pm-account-shell-nav__title">{{ account_shell["title"] }}</h2>
+            <p class="pm-account-shell-nav__note">{{ account_shell["subtitle"] }}</p>
           </div>
           <nav class="pm-account-shell-nav__menu">
-            {% for item in account_shell.items %}
+            {% for item in account_shell["items"] %}
             <a class="pm-account-shell-nav__link{% if item.active %} is-active{% endif %}" href="{{ item.href }}">
               <span>{{ item.label }}</span>
               {% if item.count %}
@@ -123,11 +123,11 @@
       }
     });
   </script>
-  {% if account_shell and account_shell.scroll_target %}
+  {% if account_shell and account_shell["scroll_target"] %}
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       if (window.location.hash) return;
-      var target = document.getElementById({{ account_shell.scroll_target|tojson }});
+      var target = document.getElementById({{ account_shell["scroll_target"]|tojson }});
       if (!target) return;
       window.requestAnimationFrame(function () {
         var headerOffset = 112;

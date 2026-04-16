@@ -1654,6 +1654,360 @@ def build_account_content(
     }
 
 
+ACCOUNT_SHELL_PAGES = [
+    {
+        "key": "overview",
+        "label": "Сегодня",
+        "href": "/account",
+        "count_key": "upcoming_events",
+        "note": "Следующий шаг, ближайшие события и быстрый обзор обучения.",
+    },
+    {
+        "key": "courses",
+        "label": "Курсы",
+        "href": "/account/courses",
+        "count_key": "total_courses",
+        "note": "Все траектории, прогресс по модулям и точки входа в материалы.",
+    },
+    {
+        "key": "calendar",
+        "label": "Календарь",
+        "href": "/account/calendar",
+        "count_key": "upcoming_events",
+        "note": "Ближайшие занятия и помесячный ритм обучения без лишнего шума.",
+    },
+    {
+        "key": "homework",
+        "label": "ДЗ",
+        "href": "/account/homework",
+        "count_key": "homework_open",
+        "note": "Активные домашние задания, дедлайны и нужные материалы в одном месте.",
+    },
+    {
+        "key": "lectures",
+        "label": "Лекции",
+        "href": "/account/lectures",
+        "count_key": "lecture_records",
+        "note": "Записи занятий, фильтры и быстрый возврат к нужной теме.",
+    },
+    {
+        "key": "teachers",
+        "label": "Преподаватели",
+        "href": "/account/teachers",
+        "count_key": "teachers_count",
+        "note": "Кто ведёт занятия, за что отвечает и как быстро связаться.",
+    },
+    {
+        "key": "documents",
+        "label": "Документы",
+        "href": "/account/documents",
+        "count_key": "signed_contracts",
+        "note": "Договоры, PDF и сервисные детали без поиска по длинной странице.",
+    },
+    {
+        "key": "profile",
+        "label": "Профиль",
+        "href": "/account/profile",
+        "count_key": "",
+        "note": "Способ входа, данные аккаунта и системные настройки кабинета.",
+    },
+]
+
+ACCOUNT_WORKSPACE_ROUTE_MAP = {
+    "overview": "/account",
+    "calendar": "/account/calendar",
+    "homework": "/account/homework",
+    "lectures": "/account/lectures",
+    "teachers": "/account/teachers",
+    "settings": "/account/profile",
+}
+
+ACCOUNT_SHELL_PAGE_MAP = {item["key"]: item for item in ACCOUNT_SHELL_PAGES}
+
+
+def build_account_shell(*, active_key: str, stats: Dict[str, Any]) -> Dict[str, Any]:
+    active_page = ACCOUNT_SHELL_PAGE_MAP.get(active_key) or ACCOUNT_SHELL_PAGES[0]
+    items: List[Dict[str, Any]] = []
+    for page in ACCOUNT_SHELL_PAGES:
+        count_value = stats.get(page.get("count_key", "")) if page.get("count_key") else None
+        count = str(count_value) if isinstance(count_value, int) and count_value > 0 else ""
+        items.append(
+            {
+                "key": page["key"],
+                "label": page["label"],
+                "href": page["href"],
+                "count": count,
+                "active": page["key"] == active_key,
+            }
+        )
+    return {
+        "eyebrow": "Student shell",
+        "title": "Личный кабинет",
+        "subtitle": active_page.get("note", ""),
+        "active": active_key,
+        "items": items,
+        "scroll_target": "",
+    }
+
+
+def _account_page_meta(
+    *,
+    key: str,
+    kicker: str,
+    title: str,
+    lead: str,
+    metrics: Optional[List[Dict[str, Any]]] = None,
+    actions: Optional[List[Dict[str, Any]]] = None,
+) -> Dict[str, Any]:
+    return {
+        "key": key,
+        "kicker": kicker,
+        "title": title,
+        "lead": lead,
+        "metrics": metrics or [],
+        "actions": actions or [],
+        "seo_title": f"{title} - Личный кабинет Peaky Minds",
+        "seo_description": lead,
+    }
+
+
+def build_account_overview_page(
+    *,
+    account_content: Dict[str, Any],
+    agreements: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    stats = account_content["stats"]
+    schedule_preview = account_content["schedule_payload"]["items"][:3]
+    homework_preview = account_content["homework_payload"]["items"][:3]
+    lectures_preview = account_content["lectures_payload"]["items"][:3]
+    page = _account_page_meta(
+        key="overview",
+        kicker="Today",
+        title="Что важно сейчас",
+        lead="Короткий обзор следующего шага, ближайших занятий, домашних заданий и лекций.",
+        metrics=account_content["hero"]["metrics"][4:8],
+        actions=[
+            {"label": "Открыть календарь", "href": "/account/calendar", "variant": "secondary"},
+            {"label": "Все курсы", "href": "/account/courses", "variant": "secondary", "show": bool(agreements)},
+        ],
+    )
+    page.update(
+        {
+            "overview_cards": account_content["overview"]["cards"],
+            "schedule_preview": schedule_preview,
+            "homework_preview": homework_preview,
+            "lectures_preview": lectures_preview,
+            "schedule_total": stats["upcoming_events"],
+            "homework_total": stats["homework_open"],
+            "lecture_total": stats["lecture_records"],
+        }
+    )
+    return {
+        "template": "account_overview.html",
+        "account_page": page,
+        "account_shell": build_account_shell(active_key="overview", stats=stats),
+    }
+
+
+def build_account_courses_page(
+    *,
+    account_content: Dict[str, Any],
+    agreements: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    stats = account_content["stats"]
+    return {
+        "template": "account_courses.html",
+        "account_page": _account_page_meta(
+            key="courses",
+            kicker="Courses",
+            title="Все ваши курсы",
+            lead="Каждая траектория собрана как отдельный рабочий контур: прогресс, материалы, календарь и оплата рядом.",
+            metrics=[
+                {"label": "Курсов", "value": stats["total_courses"]},
+                {"label": "Договоров", "value": stats["signed_contracts"]},
+                {"label": "Занятий впереди", "value": stats["upcoming_events"]},
+                {"label": "Лекций", "value": stats["lecture_records"]},
+            ],
+            actions=[
+                {"label": "Календарь", "href": "/account/calendar", "variant": "secondary"},
+                {"label": "Документы", "href": "/account/documents", "variant": "secondary", "show": bool(agreements)},
+            ],
+        ),
+        "account_shell": build_account_shell(active_key="courses", stats=stats),
+    }
+
+
+def build_account_calendar_page(*, account_content: Dict[str, Any], agreements: List[Dict[str, Any]]) -> Dict[str, Any]:
+    stats = account_content["stats"]
+    return {
+        "template": "account_calendar.html",
+        "account_page": _account_page_meta(
+            key="calendar",
+            kicker="Calendar",
+            title="Календарь обучения",
+            lead="Только ближайшие занятия, помесячная сетка и преподаватели по каждой активной траектории.",
+            metrics=[
+                {"label": "Событий", "value": stats["upcoming_events"]},
+                {"label": "Курсов", "value": stats["total_courses"]},
+                {"label": "Преподавателей", "value": stats["teachers_count"]},
+                {"label": "ДЗ открыто", "value": stats["homework_open"]},
+            ],
+            actions=[
+                {"label": "Домашние задания", "href": "/account/homework", "variant": "secondary"},
+                {"label": "Лекции", "href": "/account/lectures", "variant": "secondary"},
+            ],
+        ),
+        "account_shell": build_account_shell(active_key="calendar", stats=stats),
+    }
+
+
+def build_account_homework_page(*, account_content: Dict[str, Any], agreements: List[Dict[str, Any]]) -> Dict[str, Any]:
+    stats = account_content["stats"]
+    return {
+        "template": "account_homework.html",
+        "account_page": _account_page_meta(
+            key="homework",
+            kicker="Homework",
+            title="Домашние задания",
+            lead="Все активные задачи, дедлайны, материалы и быстрые переходы к ответам без лишнего поиска.",
+            metrics=[
+                {"label": "Активных ДЗ", "value": stats["homework_open"]},
+                {"label": "Курсов", "value": stats["total_courses"]},
+                {"label": "Лекций", "value": stats["lecture_records"]},
+                {"label": "Событий", "value": stats["upcoming_events"]},
+            ],
+            actions=[
+                {"label": "Открыть календарь", "href": "/account/calendar", "variant": "secondary"},
+                {"label": "Открыть лекции", "href": "/account/lectures", "variant": "secondary"},
+            ],
+        ),
+        "account_shell": build_account_shell(active_key="homework", stats=stats),
+    }
+
+
+def build_account_lectures_page(*, account_content: Dict[str, Any], agreements: List[Dict[str, Any]]) -> Dict[str, Any]:
+    stats = account_content["stats"]
+    return {
+        "template": "account_lectures.html",
+        "account_page": _account_page_meta(
+            key="lectures",
+            kicker="Lectures",
+            title="Библиотека лекций",
+            lead="Записи занятий, фильтры по курсам и быстрый возврат к нужной теме в отдельной спокойной странице.",
+            metrics=[
+                {"label": "Записей", "value": stats["lecture_records"]},
+                {"label": "Курсов", "value": stats["total_courses"]},
+                {"label": "Преподавателей", "value": stats["teachers_count"]},
+                {"label": "ДЗ", "value": stats["homework_open"]},
+            ],
+            actions=[
+                {"label": "Домашние задания", "href": "/account/homework", "variant": "secondary"},
+                {"label": "Преподаватели", "href": "/account/teachers", "variant": "secondary"},
+            ],
+        ),
+        "account_shell": build_account_shell(active_key="lectures", stats=stats),
+    }
+
+
+def build_account_teachers_page(*, account_content: Dict[str, Any], agreements: List[Dict[str, Any]]) -> Dict[str, Any]:
+    stats = account_content["stats"]
+    return {
+        "template": "account_teachers.html",
+        "account_page": _account_page_meta(
+            key="teachers",
+            kicker="Teachers",
+            title="Ваши преподаватели",
+            lead="Кто ведёт занятия, какие курсы закрывает и как быстро выйти на связь по делу.",
+            metrics=[
+                {"label": "Преподавателей", "value": stats["teachers_count"]},
+                {"label": "Событий", "value": stats["upcoming_events"]},
+                {"label": "ДЗ", "value": stats["homework_open"]},
+                {"label": "Лекций", "value": stats["lecture_records"]},
+            ],
+            actions=[
+                {"label": "Календарь", "href": "/account/calendar", "variant": "secondary"},
+                {"label": "Лекции", "href": "/account/lectures", "variant": "secondary"},
+            ],
+        ),
+        "account_shell": build_account_shell(active_key="teachers", stats=stats),
+    }
+
+
+def build_account_documents_page(
+    *,
+    account_content: Dict[str, Any],
+    agreements: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    stats = account_content["stats"]
+    return {
+        "template": "account_documents.html",
+        "account_page": _account_page_meta(
+            key="documents",
+            kicker="Documents",
+            title="Договоры и PDF",
+            lead="Все подписанные документы, PDF и сервисные карточки оплаты собраны отдельно от учебного контента.",
+            metrics=[
+                {"label": "Договоров", "value": stats["signed_contracts"]},
+                {"label": "Курсов", "value": stats["total_courses"]},
+                {"label": "Оплата", "value": "СБП" if account_content["hero"]["metrics"][2]["value"] == "СБП" else "Offline"},
+                {"label": "Доступ", "value": account_content["hero"]["metrics"][3]["value"]},
+            ],
+            actions=[
+                {"label": "Все курсы", "href": "/account/courses", "variant": "secondary"},
+                {"label": "Профиль", "href": "/account/profile", "variant": "secondary"},
+            ],
+        ),
+        "account_shell": build_account_shell(active_key="documents", stats=stats),
+    }
+
+
+def build_account_profile_page(*, account_content: Dict[str, Any], agreements: List[Dict[str, Any]]) -> Dict[str, Any]:
+    stats = account_content["stats"]
+    provider_card = account_content["settings_payload"]["profile_cards"][2] if len(account_content["settings_payload"]["profile_cards"]) > 2 else {"value": "-"}
+    return {
+        "template": "account_profile.html",
+        "account_page": _account_page_meta(
+            key="profile",
+            kicker="Profile",
+            title="Профиль и настройки",
+            lead="Способ входа, базовые данные аккаунта и системные карточки кабинета без перемешивания с учебными блоками.",
+            metrics=[
+                {"label": "Способ входа", "value": provider_card.get("value", "-")},
+                {"label": "Курсов", "value": stats["total_courses"]},
+                {"label": "Лекций", "value": stats["lecture_records"]},
+                {"label": "Преподавателей", "value": stats["teachers_count"]},
+            ],
+            actions=[
+                {"label": "Документы", "href": "/account/documents", "variant": "secondary"},
+                {"label": "Выйти", "href": "/logout", "variant": "secondary"},
+            ],
+        ),
+        "account_shell": build_account_shell(active_key="profile", stats=stats),
+    }
+
+
+ACCOUNT_PAGE_BUILDERS = {
+    "overview": build_account_overview_page,
+    "courses": build_account_courses_page,
+    "calendar": build_account_calendar_page,
+    "homework": build_account_homework_page,
+    "lectures": build_account_lectures_page,
+    "teachers": build_account_teachers_page,
+    "documents": build_account_documents_page,
+    "profile": build_account_profile_page,
+}
+
+
+def build_account_page_payload(
+    *,
+    page_key: str,
+    account_content: Dict[str, Any],
+    agreements: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    builder = ACCOUNT_PAGE_BUILDERS.get(page_key) or build_account_overview_page
+    return builder(account_content=account_content, agreements=agreements)
+
+
 def build_account_schedule_mock(agreements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return build_account_schedule_items(agreements)
 

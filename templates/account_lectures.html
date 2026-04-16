@@ -1,0 +1,121 @@
+{% extends "base_student.html" %}
+
+{% block title %}{{ account_page.seo_title }}{% endblock %}
+{% block description %}{{ account_page.seo_description }}{% endblock %}
+
+{% block content %}
+<section class="pm-student-page pm-student-page--shell">
+  {% include "account/_alerts.html" %}
+  {% include "account/_page_intro.html" %}
+
+  <section class="pm-student-section">
+    <div class="pm-workspace__head">
+      <div>
+        <div class="pm-kicker">{{ account_sections.lectures.kicker }}</div>
+        <h3>{{ account_sections.lectures.title }}</h3>
+      </div>
+      <span class="pm-tag">API: {{ account_sections.lectures.api }}</span>
+    </div>
+    <form class="pm-student-form pm-student-form--wide" method="get" action="/account/lectures">
+      {% if request.query_params.get("month") %}
+      <input type="hidden" name="month" value="{{ request.query_params.get('month') }}">
+      {% endif %}
+      <div class="pm-form-row">
+        <div class="input-wrap">
+          <label class="auth-label">Поиск по лекциям</label>
+          <input type="text" name="lecture_q" value="{{ account_lectures_payload.filters.q }}" placeholder="Название, тема, преподаватель">
+        </div>
+        <div class="input-wrap">
+          <label class="auth-label">Источник</label>
+          <select name="lecture_source">
+            <option value="">Все</option>
+            {% for option in account_lectures_payload.source_options %}
+            <option value="{{ option }}" {% if account_lectures_payload.filters.source == option %}selected{% endif %}>
+              {% if option == 'upload' %}Файл на сервере{% else %}Внешняя ссылка{% endif %}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="pm-form-row">
+        <div class="input-wrap">
+          <label class="auth-label">Курс</label>
+          <select name="lecture_course">
+            <option value="">Все</option>
+            {% for option in account_lectures_payload.course_options %}
+            <option value="{{ option }}" {% if account_lectures_payload.filters.course == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="pm-inline-actions">
+        <button class="btn btn-secondary" type="submit">Применить</button>
+        <a class="btn btn-secondary" href="/account/lectures">Сбросить</a>
+      </div>
+    </form>
+    {% if account_sections.lectures["items"] %}
+    <div class="pm-student-lecture-grid">
+      {% for lecture in account_sections.lectures["items"] %}
+      <article class="pm-surface-card pm-student-lecture-card">
+        <div class="pm-student-subcard__head">
+          <div class="course-meta">{{ lecture.course }}</div>
+          <span class="pm-student-mini-tag">{{ lecture.duration_label }}</span>
+        </div>
+        <h3>{{ lecture.display_title }}</h3>
+        <div class="pm-inline-actions">
+          <span class="pm-student-mini-tag">{{ lecture.published_label }}</span>
+          <span class="pm-student-mini-tag">{{ lecture.source_label }}</span>
+        </div>
+        {% if lecture.topic %}
+        <div class="pm-inline-actions">
+          <span class="pm-student-mini-tag">Тема: {{ lecture.topic }}</span>
+        </div>
+        {% endif %}
+        <p>{{ lecture.description }}</p>
+        <div class="pm-inline-actions">
+          <a class="btn btn-secondary" href="{{ lecture.url }}" target="_blank" rel="noopener">Открыть запись</a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% if account_lectures_payload.pages > 1 %}
+    <div class="pm-inline-actions">
+      {% if account_lectures_payload.has_prev %}
+      <form method="get" action="/account/lectures">
+        <input type="hidden" name="lecture_q" value="{{ account_lectures_payload.filters.q }}">
+        <input type="hidden" name="lecture_source" value="{{ account_lectures_payload.filters.source }}">
+        <input type="hidden" name="lecture_course" value="{{ account_lectures_payload.filters.course }}">
+        <input type="hidden" name="lecture_page" value="{{ account_lectures_payload.prev_page }}">
+        <button class="btn btn-secondary" type="submit">Назад</button>
+      </form>
+      {% endif %}
+      <span class="pm-tag">Страница {{ account_lectures_payload.page }} / {{ account_lectures_payload.pages }}</span>
+      {% if account_lectures_payload.has_next %}
+      <form method="get" action="/account/lectures">
+        <input type="hidden" name="lecture_q" value="{{ account_lectures_payload.filters.q }}">
+        <input type="hidden" name="lecture_source" value="{{ account_lectures_payload.filters.source }}">
+        <input type="hidden" name="lecture_course" value="{{ account_lectures_payload.filters.course }}">
+        <input type="hidden" name="lecture_page" value="{{ account_lectures_payload.next_page }}">
+        <button class="btn btn-secondary" type="submit">Вперёд</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="pm-student-empty pm-surface-card">
+      {% if account_lectures_payload.total_all %}
+      <h3>По текущим фильтрам лекции не найдены</h3>
+      <p>Сбросьте фильтры или измените поисковый запрос. Все записи по-прежнему доступны в API кабинета.</p>
+      {% else %}
+      <h3>{{ account_sections.lectures.empty_title }}</h3>
+      <p>{{ account_sections.lectures.empty_text }}</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+{% include "account/_interactive_scripts.html" %}
+{% endblock %}

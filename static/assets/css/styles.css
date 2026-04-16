@@ -12458,6 +12458,18 @@ body.shell-student .pm-student-hero {
   padding: 28px;
 }
 
+body.shell-student .pm-student-hero--compact {
+  align-items: start;
+}
+
+body.shell-student .pm-student-hero--compact .section-title {
+  line-height: 0.96;
+}
+
+body.shell-student .pm-student-hero--compact .pm-student-metrics {
+  align-self: stretch;
+}
+
 body.shell-student .pm-student-hero__summary,
 body.shell-student .pm-student-hero__actions {
   margin-top: 8px;

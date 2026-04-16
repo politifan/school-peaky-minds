@@ -1,0 +1,142 @@
+{% extends "base_student.html" %}
+
+{% block title %}{{ account_page.seo_title }}{% endblock %}
+{% block description %}{{ account_page.seo_description }}{% endblock %}
+
+{% block content %}
+<section class="pm-student-page pm-student-page--shell">
+  {% include "account/_alerts.html" %}
+  {% include "account/_page_intro.html" %}
+
+  <section class="pm-student-section">
+    <div class="pm-workspace__head">
+      <div>
+        <div class="pm-kicker">{{ account_sections.schedule.kicker }}</div>
+        <h3>{{ account_sections.schedule.title }}</h3>
+      </div>
+      <span class="pm-tag">API: {{ account_sections.schedule.api }}</span>
+    </div>
+    <form class="pm-student-form pm-student-form--wide" method="get" action="/account/calendar" data-month-picker>
+      {% set month_names = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] %}
+      {% set current_year = account_schedule_payload.month[:4] %}
+      {% set current_month = account_schedule_payload.month[5:7] %}
+      <div class="month-picker">
+        <div class="month-picker__year">
+          <label class="auth-label">Год</label>
+          <select name="year" data-month-year>
+            <option value="{{ (current_year|int) - 1 }}">{{ (current_year|int) - 1 }}</option>
+            <option value="{{ current_year }}" selected>{{ current_year }}</option>
+            <option value="{{ (current_year|int) + 1 }}">{{ (current_year|int) + 1 }}</option>
+          </select>
+        </div>
+        <div class="month-picker__months">
+          {% for idx in range(1, 13) %}
+          {% set value = "%02d"|format(idx) %}
+          <button type="button" class="month-pill{% if value == current_month %} is-active{% endif %}" data-month="{{ value }}">
+            {{ month_names[idx - 1] }}
+          </button>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="month" value="{{ account_schedule_payload.month }}" data-month-input>
+      </div>
+    </form>
+
+    {% if account_schedule_payload["items"] %}
+    <div class="pm-student-schedule-grid">
+      {% for event in account_schedule_payload["items"] %}
+      <article class="pm-surface-card pm-student-schedule-card">
+        <div class="pm-student-subcard__head">
+          <div class="course-meta">{{ event.course }}</div>
+          <span class="pm-student-mini-tag">{{ event.duration_label }}</span>
+        </div>
+        <h3>{{ event.title }}</h3>
+        <div class="pm-student-schedule-meta">
+          <div><span>Старт</span><strong>{{ event.starts_label }}</strong></div>
+          <div><span>Формат</span><strong>{{ event.channel }}</strong></div>
+          <div><span>Преподаватель</span><strong>{{ event.teacher }}</strong></div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if account_schedule_payload.calendars %}
+    <div class="pm-workspace-calendars">
+      {% for calendar in account_schedule_payload.calendars %}
+      <article class="pm-surface-card pm-workspace-calendar-card">
+        <div class="pm-student-subcard__head">
+          <div>
+            <div class="course-meta">{{ calendar.course }}</div>
+            <h4>{{ calendar.month }}</h4>
+          </div>
+          <span class="pm-student-mini-tag">{{ calendar.items_count }} событий</span>
+        </div>
+        <div class="pm-inline-actions">
+          {% for teacher_name in calendar.teachers %}
+          <span class="pm-student-mini-tag">{{ teacher_name }}</span>
+          {% endfor %}
+        </div>
+        {% if calendar.next_event %}
+        <p class="pm-student-note">Ближайшее занятие: {{ calendar.next_event.starts_label }} · {{ calendar.next_event.teacher }}</p>
+        {% endif %}
+        <div class="lesson-legend">
+          {% for item in account_schedule_payload.legend %}
+          <span class="lesson-legend__item"><span class="lesson-dot lesson-dot--{{ item.key }}"></span>{{ item.label }}</span>
+          {% endfor %}
+        </div>
+        <div class="lesson-calendar">
+          <div class="lesson-calendar__grid lesson-calendar__grid--head">
+            <div class="lesson-calendar__day" data-day="1"><span class="day-text">Пн</span><span class="day-num">1</span></div>
+            <div class="lesson-calendar__day" data-day="2"><span class="day-text">Вт</span><span class="day-num">2</span></div>
+            <div class="lesson-calendar__day" data-day="3"><span class="day-text">Ср</span><span class="day-num">3</span></div>
+            <div class="lesson-calendar__day" data-day="4"><span class="day-text">Чт</span><span class="day-num">4</span></div>
+            <div class="lesson-calendar__day" data-day="5"><span class="day-text">Пт</span><span class="day-num">5</span></div>
+            <div class="lesson-calendar__day" data-day="6"><span class="day-text">Сб</span><span class="day-num">6</span></div>
+            <div class="lesson-calendar__day" data-day="7"><span class="day-text">Вс</span><span class="day-num">7</span></div>
+          </div>
+          <div class="lesson-calendar__grid">
+            {% for week in calendar.calendar %}
+              {% for day in week %}
+                {% if day %}
+                <div class="lesson-day{% if day.status %} lesson-day--{{ day.status }}{% endif %}{% if day.time %} has-time{% endif %}{% if day.session_count > 1 %} has-multiple{% endif %}">
+                  <span class="lesson-day__num">{{ day.day }}</span>
+                  {% if day.time %}
+                  <span class="lesson-day__time">{{ day.time }}</span>
+                  {% endif %}
+                  {% if day.more_count %}
+                  <span class="lesson-day__more">+{{ day.more_count }}</span>
+                  {% endif %}
+                  {% if day.status == "excused" %}
+                  <span class="lesson-emoji">🌡️</span>
+                  {% endif %}
+                  {% if day.session_count > 1 %}
+                  <div class="lesson-day__tooltip" role="tooltip">
+                    {% for time in day.times %}
+                    <span class="lesson-day__tooltip-item">{{ time }}</span>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+                {% else %}
+                <div class="lesson-day lesson-day--empty"></div>
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% elif not account_schedule_payload["items"] %}
+    <div class="pm-student-empty pm-surface-card">
+      <h3>{{ account_sections.schedule.empty_title }}</h3>
+      <p>{{ account_sections.schedule.empty_text }}</p>
+    </div>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+{% include "account/_interactive_scripts.html" %}
+{% endblock %}

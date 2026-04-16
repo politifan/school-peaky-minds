@@ -1,0 +1,60 @@
+{% extends "base_student.html" %}
+
+{% block title %}{{ account_page.seo_title }}{% endblock %}
+{% block description %}{{ account_page.seo_description }}{% endblock %}
+
+{% block content %}
+<section class="pm-student-page pm-student-page--shell">
+  {% include "account/_alerts.html" %}
+  {% include "account/_page_intro.html" %}
+
+  <section class="pm-student-section">
+    <div class="pm-workspace__head">
+      <div>
+        <div class="pm-kicker">{{ account_sections.homework.kicker }}</div>
+        <h3>{{ account_sections.homework.title }}</h3>
+      </div>
+      <span class="pm-tag">API: {{ account_sections.homework.api }}</span>
+    </div>
+    {% if account_sections.homework["items"] %}
+    <div class="pm-student-lecture-grid pm-student-lecture-grid--homework">
+      {% for item in account_sections.homework["items"] %}
+      <article class="pm-surface-card pm-homework-card">
+        <div class="pm-student-subcard__head">
+          <div class="course-meta">{{ item.course }}</div>
+          <span class="pm-homework-status pm-homework-status--{{ item.status_accent }}">{{ item.status_label }}</span>
+        </div>
+        <h3>{{ item.title }}</h3>
+        <div class="pm-inline-actions">
+          <span class="pm-student-mini-tag">{{ item.module }}</span>
+          <span class="pm-student-mini-tag">Дедлайн: {{ item.due_label }}</span>
+        </div>
+        <p>{{ item.description }}</p>
+        <div class="pm-student-schedule-meta">
+          <div><span>Преподаватель</span><strong>{{ item.teacher_name }}</strong></div>
+          <div><span>Роль</span><strong>{{ item.teacher_role }}</strong></div>
+        </div>
+        <div class="pm-inline-actions">
+          {% if item.resource_url %}
+          <a class="btn btn-secondary" href="{{ item.resource_url }}" target="_blank" rel="noopener">Материалы</a>
+          {% endif %}
+          {% if item.answer_url %}
+          <a class="btn btn-primary" href="{{ item.answer_url }}" target="_blank" rel="noopener">Мой ответ</a>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="pm-student-empty pm-surface-card">
+      <h3>{{ account_sections.homework.empty_title }}</h3>
+      <p>{{ account_sections.homework.empty_text }}</p>
+    </div>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+{% include "account/_interactive_scripts.html" %}
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base_student.html" %}
+
+{% block title %}{{ account_page.seo_title }}{% endblock %}
+{% block description %}{{ account_page.seo_description }}{% endblock %}
+
+{% block content %}
+<section class="pm-student-page pm-student-page--shell">
+  {% include "account/_alerts.html" %}
+  {% include "account/_page_intro.html" %}
+
+  <section class="pm-student-section">
+    <div class="pm-workspace__head">
+      <div>
+        <div class="pm-kicker">Settings</div>
+        <h3>Профиль и системные настройки</h3>
+      </div>
+      <span class="pm-tag">Учётная запись и сервисные карточки кабинета</span>
+    </div>
+    <div class="pm-settings-grid">
+      {% for card in account_settings.profile_cards %}
+      <article class="pm-surface-card pm-settings-card">
+        <div class="course-meta">{{ card.label }}</div>
+        <h4>{{ card.value }}</h4>
+      </article>
+      {% endfor %}
+    </div>
+    <div class="pm-settings-grid pm-settings-grid--wide">
+      {% for card in account_settings.utility_cards %}
+      <article class="pm-surface-card pm-settings-card pm-settings-card--utility">
+        <h4>{{ card.title }}</h4>
+        <p>{{ card.text }}</p>
+        <div class="pm-inline-actions">
+          {% for tag in card.tags %}
+          <span class="pm-student-mini-tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    <div class="pm-inline-actions">
+      <a class="btn btn-secondary" href="/account/documents">Документы</a>
+      <a class="btn btn-secondary" href="/logout">Выйти</a>
+    </div>
+  </section>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+{% include "account/_interactive_scripts.html" %}
+{% endblock %}

@@ -1,0 +1,6 @@
+{% if payment_error %}
+<div class="pm-inline-alert pm-inline-alert--error">{{ payment_error }}</div>
+{% endif %}
+{% if payment_status %}
+<div class="pm-inline-alert">Оплата принята. Статус обновится после подтверждения платежа.</div>
+{% endif %}

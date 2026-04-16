@@ -11,7 +11,9 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.status import HTTP_302_FOUND
 from routes.account_content import (
+    ACCOUNT_WORKSPACE_ROUTE_MAP,
     build_account_content,
+    build_account_page_payload,
     build_account_homework_payload,
     build_account_lectures_payload,
     build_account_schedule_payload,
@@ -67,15 +69,6 @@ from core import (
 )
 
 router = APIRouter()
-
-ACCOUNT_WORKSPACE_ROUTE_MAP = {
-    "overview": "/account",
-    "calendar": "/account/calendar",
-    "homework": "/account/homework",
-    "lectures": "/account/lectures",
-    "teachers": "/account/teachers",
-    "settings": "/account/profile",
-}
 
 ACCOUNT_SHELL_PAGES = [
     {
@@ -383,6 +376,11 @@ def _build_account_page_context(
     allowed_workspace_keys = {item["key"] for item in account_content["workspace_tabs"]}
     if workspace_active not in allowed_workspace_keys:
         workspace_active = "overview"
+    page_payload = build_account_page_payload(
+        page_key=shell_active,
+        account_content=account_content,
+        agreements=agreements_view,
+    )
     schedule_items = account_content["schedule"]
     homework_items = account_content["homework"]
     lecture_items = account_content["lectures"]
@@ -406,7 +404,9 @@ def _build_account_page_context(
         "account_settings": account_content["settings_payload"],
         "account_workspace_tabs": account_content["workspace_tabs"],
         "account_workspace_active": workspace_active,
-        "account_shell": _build_account_shell(active_key=shell_active, stats=account_content["stats"]),
+        "account_page": page_payload["account_page"],
+        "account_shell": page_payload["account_shell"],
+        "account_template": page_payload["template"],
         "payments_enabled": TINKOFF_ENABLED,
         "payment_status": request.query_params.get("payment"),
         "payment_error": request.query_params.get("payment_error"),
@@ -428,7 +428,7 @@ def _render_account_page(
         workspace_active=workspace_active,
         shell_active=shell_active,
     )
-    return render(request, "account.html", context)
+    return render(request, context["account_template"], context)
 
 
 @router.get("/login", include_in_schema=False)

@@ -1,0 +1,158 @@
+{% extends "base_student.html" %}
+
+{% block title %}{{ account_page.seo_title }}{% endblock %}
+{% block description %}{{ account_page.seo_description }}{% endblock %}
+
+{% block content %}
+<section class="pm-student-page pm-student-page--shell">
+  <section class="pm-student-hero pm-surface-card">
+    <div class="pm-student-hero__main">
+      <div class="account-profile">
+        <div class="avatar avatar--large {% if user_avatar.variant == 'email' %}avatar--email{% endif %}">
+          {% if user_avatar.url %}
+          <img src="{{ user_avatar.url }}" alt="Аватар профиля" loading="lazy"
+            onload="this.parentElement.classList.add('has-image')"
+            onerror="this.parentElement.classList.remove('has-image'); this.style.display='none'">
+          {% endif %}
+          <span class="avatar-initial">{{ user_avatar.initial }}</span>
+        </div>
+        <div>
+          <div class="pm-kicker">{{ account_hero.kicker }}</div>
+          <h1 class="display-title">{{ account_hero.title }}</h1>
+          <p class="section-lead">Вы вошли как <strong>{{ account_hero.user_display }}</strong>. {{ account_hero.lead }}</p>
+          <div class="pm-student-hero__summary">
+            {% for item in account_hero.summary %}
+            <span class="pm-student-badge">{{ item }}</span>
+            {% endfor %}
+          </div>
+          <div class="pm-student-hero__actions">
+            {% for action in account_hero.actions %}
+            {% if action.show is not defined or action.show %}
+            <a class="btn btn-{{ action.variant }}" href="{{ action.href }}">{{ action.label }}</a>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pm-student-metrics">
+      {% for metric in account_hero.metrics[:4] %}
+      <div class="pm-student-metric">
+        <span>{{ metric.label }}</span>
+        <strong>{{ metric.value }}</strong>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% include "account/_alerts.html" %}
+
+  <section class="pm-student-focus">
+    <div class="pm-section-head">
+      <div>
+        <div class="pm-kicker">Focus</div>
+        <h2 class="section-title">{{ account_focus.title }}</h2>
+      </div>
+      <span class="pm-tag">{{ account_focus.text }}</span>
+    </div>
+    <div class="pm-student-focus__grid">
+      {% for card in account_focus.cards %}
+      <article class="pm-surface-card pm-student-focus-card">
+        <div class="course-meta">{{ card.label }}</div>
+        <h3>{{ card.title }}</h3>
+        <p>{{ card.text }}</p>
+        <a class="btn btn-secondary" href="{{ card.href }}">{{ card.action }}</a>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="pm-student-section">
+    <div class="pm-section-head">
+      <div>
+        <div class="pm-kicker">{{ account_page.kicker }}</div>
+        <h2 class="section-title">{{ account_page.title }}</h2>
+      </div>
+      <span class="pm-tag">{{ account_page.lead }}</span>
+    </div>
+    <div class="pm-student-overview">
+      {% for card in account_page.overview_cards %}
+      <article class="pm-surface-card pm-student-overview-card">
+        <div class="course-meta">{{ card.kicker }}</div>
+        <h3>{{ card.title }}</h3>
+        <p>{{ card.text }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="pm-student-section">
+    <div class="pm-section-head">
+      <div>
+        <div class="pm-kicker">Quick access</div>
+        <h2 class="section-title">Главные действия под рукой</h2>
+      </div>
+      <span class="pm-tag">Только ближайшие задачи и быстрый переход в нужный раздел.</span>
+    </div>
+    <div class="pm-student-focus__grid">
+      <article class="pm-surface-card pm-student-overview-card">
+        <div class="course-meta">Calendar</div>
+        <h3>Ближайшие занятия</h3>
+        {% if account_page.schedule_preview %}
+        <ul class="admin-list">
+          {% for event in account_page.schedule_preview %}
+          <li>
+            <span>{{ event.course }}</span>
+            <strong>{{ event.starts_label }}</strong>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p>Как только преподаватель подтвердит дату, она появится здесь.</p>
+        {% endif %}
+        <a class="btn btn-secondary" href="/account/calendar">Открыть календарь</a>
+      </article>
+
+      <article class="pm-surface-card pm-student-overview-card">
+        <div class="course-meta">Homework</div>
+        <h3>Активные домашние задания</h3>
+        {% if account_page.homework_preview %}
+        <ul class="admin-list">
+          {% for item in account_page.homework_preview %}
+          <li>
+            <span>{{ item.title }}</span>
+            <strong>{{ item.due_label }}</strong>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p>Сейчас ничего не горит. Новые задания появятся после следующего модуля.</p>
+        {% endif %}
+        <a class="btn btn-secondary" href="/account/homework">Открыть ДЗ</a>
+      </article>
+
+      <article class="pm-surface-card pm-student-overview-card">
+        <div class="course-meta">Lectures</div>
+        <h3>Свежие записи</h3>
+        {% if account_page.lectures_preview %}
+        <ul class="admin-list">
+          {% for lecture in account_page.lectures_preview %}
+          <li>
+            <span>{{ lecture.display_title }}</span>
+            <strong>{{ lecture.published_label }}</strong>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p>Когда появятся записи занятий, они сразу соберутся здесь.</p>
+        {% endif %}
+        <a class="btn btn-secondary" href="/account/lectures">Открыть лекции</a>
+      </article>
+    </div>
+  </section>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+{% include "account/_interactive_scripts.html" %}
+{% endblock %}

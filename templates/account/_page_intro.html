@@ -1,0 +1,26 @@
+<section class="pm-student-hero pm-student-hero--compact pm-surface-card">
+  <div class="pm-student-hero__main">
+    <div class="pm-kicker">{{ account_page.kicker }}</div>
+    <h1 class="section-title">{{ account_page.title }}</h1>
+    <p class="section-lead">{{ account_page.lead }}</p>
+    {% if account_page.actions %}
+    <div class="pm-student-hero__actions">
+      {% for action in account_page.actions %}
+      {% if action.show is not defined or action.show %}
+      <a class="btn btn-{{ action.variant or 'secondary' }}" href="{{ action.href }}">{{ action.label }}</a>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% if account_page.metrics %}
+  <div class="pm-student-metrics">
+    {% for metric in account_page.metrics %}
+    <div class="pm-student-metric">
+      <span>{{ metric.label }}</span>
+      <strong>{{ metric.value }}</strong>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>

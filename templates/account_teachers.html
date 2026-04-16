@@ -1,0 +1,65 @@
+{% extends "base_student.html" %}
+
+{% block title %}{{ account_page.seo_title }}{% endblock %}
+{% block description %}{{ account_page.seo_description }}{% endblock %}
+
+{% block content %}
+<section class="pm-student-page pm-student-page--shell">
+  {% include "account/_alerts.html" %}
+  {% include "account/_page_intro.html" %}
+
+  <section class="pm-student-section">
+    <div class="pm-workspace__head">
+      <div>
+        <div class="pm-kicker">{{ account_sections.teachers.kicker }}</div>
+        <h3>{{ account_sections.teachers.title }}</h3>
+      </div>
+      <span class="pm-tag">API: {{ account_sections.teachers.api }}</span>
+    </div>
+    {% if account_sections.teachers["items"] %}
+    <div class="pm-teacher-grid">
+      {% for teacher in account_sections.teachers["items"] %}
+      <article class="pm-surface-card pm-teacher-card">
+        <div class="pm-teacher-card__head">
+          <div class="pm-teacher-card__avatar pm-teacher-card__avatar--{{ teacher.accent }}">{{ teacher.initials }}</div>
+          <div>
+            <h3>{{ teacher.name }}</h3>
+            <p>{{ teacher.role }}</p>
+          </div>
+        </div>
+        {% if teacher.bio %}
+        <p class="pm-teacher-card__bio">{{ teacher.bio }}</p>
+        {% endif %}
+        <div class="pm-inline-actions">
+          <span class="pm-student-mini-tag">Занятий: {{ teacher.upcoming_count }}</span>
+          <span class="pm-student-mini-tag">ДЗ: {{ teacher.homework_count }}</span>
+          <span class="pm-student-mini-tag">Ближайшее: {{ teacher.next_date_label }}</span>
+        </div>
+        {% if teacher.courses %}
+        <div class="pm-inline-actions">
+          {% for course in teacher.courses %}
+          <span class="pm-student-mini-tag">{{ course }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <div class="pm-inline-actions">
+          {% if teacher.contact_url %}
+          <a class="btn btn-secondary" href="{{ teacher.contact_url }}" target="_blank" rel="noopener">Связаться</a>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="pm-student-empty pm-surface-card">
+      <h3>{{ account_sections.teachers.empty_title }}</h3>
+      <p>{{ account_sections.teachers.empty_text }}</p>
+    </div>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+{% include "account/_interactive_scripts.html" %}
+{% endblock %}
