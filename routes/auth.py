@@ -193,6 +193,8 @@ def _build_account_shell(*, active_key: str, stats: Dict[str, Any]) -> Dict[str,
                 "key": page["key"],
                 "label": page["label"],
                 "href": page["href"],
+                "workspace": page.get("workspace", ""),
+                "scroll_target": page.get("scroll_target", ""),
                 "count": count,
                 "active": page["key"] == active_key,
             }
@@ -428,7 +430,7 @@ def _render_account_page(
         workspace_active=workspace_active,
         shell_active=shell_active,
     )
-    return render(request, context["account_template"], context)
+    return render(request, "account.html", context)
 
 
 @router.get("/login", include_in_schema=False)

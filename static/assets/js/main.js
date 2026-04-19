@@ -1007,6 +1007,101 @@ workspaceCarousels.forEach((workspace) => {
   syncWorkspace();
 });
 
+const accountShellPages = document.querySelectorAll('[data-account-shell-page]');
+
+accountShellPages.forEach((page) => {
+  const shellLinks = Array.from(document.querySelectorAll('[data-account-shell-link]'));
+  const shellPanels = Array.from(page.querySelectorAll('[data-account-shell-panel]'));
+  const workspace = page.querySelector('[data-workspace-carousel]');
+  if (!shellLinks.length) return;
+
+  const keyByPath = {
+    '/account': 'overview',
+    '/account/courses': 'courses',
+    '/account/calendar': 'calendar',
+    '/account/homework': 'homework',
+    '/account/lectures': 'lectures',
+    '/account/teachers': 'teachers',
+    '/account/documents': 'documents',
+    '/account/profile': 'profile',
+  };
+
+  const scrollToTarget = (targetId) => {
+    const target = targetId ? document.getElementById(targetId) : page;
+    if (!target) return;
+    const headerOffset = 112;
+    const y = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+    window.scrollTo({ top: Math.max(y, 0), behavior: 'smooth' });
+  };
+
+  const syncShellLink = (key) => {
+    shellLinks.forEach((link) => {
+      link.classList.toggle('is-active', link.dataset.accountShellKey === key);
+    });
+  };
+
+  const syncPanels = (key) => {
+    shellPanels.forEach((panel) => {
+      const keys = (panel.dataset.accountShellKeys || panel.dataset.accountShellPanel || '')
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean);
+      panel.hidden = !keys.includes(key);
+    });
+  };
+
+  const syncWorkspace = (workspaceKey) => {
+    if (!workspace || !workspaceKey) return;
+    const tab = workspace.querySelector(`[data-workspace-tab="${workspaceKey}"]`);
+    if (tab) tab.click();
+  };
+
+  const activateShell = (key, options = {}) => {
+    const settings = { history: true, scroll: true, ...options };
+    const link = shellLinks.find((item) => item.dataset.accountShellKey === key) || shellLinks[0];
+    if (!link) return;
+    syncShellLink(link.dataset.accountShellKey);
+    syncPanels(link.dataset.accountShellKey);
+    syncWorkspace(link.dataset.accountShellWorkspace);
+    if (settings.history) {
+      window.history.pushState({ accountShell: link.dataset.accountShellKey }, '', link.getAttribute('href'));
+    }
+    if (settings.scroll) {
+      scrollToTarget(link.dataset.accountShellTarget);
+    }
+  };
+
+  const resolveKeyFromLocation = () => {
+    const pathname = window.location.pathname.replace(/\/+$/, '') || '/account';
+    return keyByPath[pathname] || 'overview';
+  };
+
+  shellLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const url = new URL(link.href, window.location.origin);
+      if (!url.pathname.startsWith('/account')) return;
+      event.preventDefault();
+      activateShell(link.dataset.accountShellKey);
+    });
+  });
+
+  window.addEventListener('popstate', () => {
+    activateShell(resolveKeyFromLocation(), { history: false, scroll: false });
+  });
+
+  const workspaceTabs = Array.from(page.querySelectorAll('[data-workspace-tab]'));
+  workspaceTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const shellKey = tab.dataset.workspaceTab === 'settings' ? 'profile' : tab.dataset.workspaceTab;
+      if (!shellLinks.some((link) => link.dataset.accountShellKey === shellKey)) return;
+      syncShellLink(shellKey);
+      syncPanels(shellKey);
+    });
+  });
+
+  activateShell(resolveKeyFromLocation(), { history: false, scroll: false });
+});
+
 const postsCatalogs = document.querySelectorAll('[data-posts-catalog]');
 
 postsCatalogs.forEach((catalog) => {

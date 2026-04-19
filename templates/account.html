@@ -4,11 +4,11 @@
 {% block description %}Личный кабинет Peaky Minds: договоры, курсы, календарь, материалы и оплата.{% endblock %}
 
 {% block content %}
-<section class="pm-student-page{% if account_shell %} pm-student-page--shell{% endif %}">
+<section class="pm-student-page{% if account_shell %} pm-student-page--shell{% endif %}" data-account-shell-page>
   {% if not account_shell %}
   <div class="container">
   {% endif %}
-    <section class="pm-student-hero pm-surface-card">
+    <section class="pm-student-hero pm-surface-card" data-account-shell-panel="overview">
       <div class="pm-student-hero__main">
         <div class="account-profile">
           <div class="avatar avatar--large {% if user_avatar.variant == 'email' %}avatar--email{% endif %}">
@@ -55,7 +55,7 @@
     <div class="pm-inline-alert">Оплата принята. Статус обновится после подтверждения платежа.</div>
     {% endif %}
 
-    <section class="pm-student-focus">
+    <section class="pm-student-focus" data-account-shell-panel="overview">
       <div class="pm-section-head">
         <div>
           <div class="pm-kicker">Focus</div>
@@ -75,7 +75,7 @@
       </div>
     </section>
 
-    <section id="student-workspace" class="pm-student-section">
+    <section id="student-workspace" class="pm-student-section" data-account-shell-panel="workspace" data-account-shell-keys="overview,calendar,homework,lectures,teachers,profile">
       <div class="pm-section-head">
         <div>
           <div class="pm-kicker">Workspace</div>
@@ -125,7 +125,6 @@
                 <div class="pm-kicker">{{ account_overview.kicker }}</div>
                 <h3>{{ account_overview.title }}</h3>
               </div>
-              <span class="pm-tag">API hub: {{ account_api.schedule }}, {{ account_api.homework }}, {{ account_api.lectures }}, {{ account_api.teachers }}</span>
             </div>
             <div class="pm-student-overview">
               {% for card in account_overview.cards %}
@@ -144,7 +143,6 @@
                 <div class="pm-kicker">{{ account_sections.schedule.kicker }}</div>
                 <h3>{{ account_sections.schedule.title }}</h3>
               </div>
-              <span class="pm-tag">API: {{ account_sections.schedule.api }}</span>
             </div>
             <form class="pm-student-form pm-student-form--wide" method="get" action="/account" data-month-picker>
               {% set month_names = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] %}
@@ -272,7 +270,6 @@
                 <div class="pm-kicker">{{ account_sections.homework.kicker }}</div>
                 <h3>{{ account_sections.homework.title }}</h3>
               </div>
-              <span class="pm-tag">API: {{ account_sections.homework.api }}</span>
             </div>
             {% if account_sections.homework["items"] %}
             <div class="pm-student-lecture-grid pm-student-lecture-grid--homework">
@@ -317,7 +314,6 @@
                 <div class="pm-kicker">{{ account_sections.lectures.kicker }}</div>
                 <h3>{{ account_sections.lectures.title }}</h3>
               </div>
-              <span class="pm-tag">API: {{ account_sections.lectures.api }}</span>
             </div>
             <form class="pm-student-form pm-student-form--wide" method="get" action="/account">
               <input type="hidden" name="workspace" value="lectures">
@@ -426,7 +422,6 @@
                 <div class="pm-kicker">{{ account_sections.teachers.kicker }}</div>
                 <h3>{{ account_sections.teachers.title }}</h3>
               </div>
-              <span class="pm-tag">API: {{ account_sections.teachers.api }}</span>
             </div>
             {% if account_sections.teachers["items"] %}
             <div class="pm-teacher-grid">
@@ -504,29 +499,29 @@
       </div>
     </section>
 
-    {% if agreements %}
-    <section id="student-contracts" class="pm-student-section">
+    <section id="student-contracts" class="pm-student-section" data-account-shell-panel="documents">
       <div class="pm-section-head">
         <div>
-          <div class="pm-kicker">Contracts</div>
-          <h2 class="section-title">Мои договоры</h2>
+          <div class="pm-kicker">Documents</div>
+          <h2 class="section-title">My Contracts</h2>
         </div>
-        <span class="pm-tag">{{ agreements|length }} активных</span>
+        <span class="pm-tag">{{ agreements|length }} active</span>
       </div>
+      {% if agreements %}
       <div class="pm-student-grid pm-student-grid--contracts">
         {% for item in agreements %}
         <article class="pm-surface-card pm-contract-card">
           <div class="pm-contract-card__head">
             <div>
-              <div class="course-meta">Договор</div>
+              <div class="course-meta">Contract</div>
               <h3>{{ item.course or "-" }}</h3>
             </div>
             <span class="admin-status {{ item.contract_status_class }}">{{ item.contract_status_label }}</span>
           </div>
-          <p class="pm-contract-card__meta">Канал отправки: {{ item.contract_channel_label }}</p>
+          <p class="pm-contract-card__meta">Delivery channel: {{ item.contract_channel_label }}</p>
           <div class="pm-inline-actions">
             {% if item.contract_url %}
-            <a class="btn btn-secondary" href="{{ item.contract_url }}" target="_blank" rel="noopener">Открыть договор</a>
+            <a class="btn btn-secondary" href="{{ item.contract_url }}" target="_blank" rel="noopener">Open contract</a>
             {% endif %}
             {% if item.contract_pdf_url %}
             <a class="btn btn-secondary" href="{{ item.contract_pdf_url }}" target="_blank" rel="noopener">PDF</a>
@@ -535,10 +530,16 @@
         </article>
         {% endfor %}
       </div>
+      {% else %}
+      <div class="pm-student-empty pm-surface-card">
+        <h3>No signed documents yet</h3>
+        <p>After you enroll, contracts and PDFs will appear here as a separate document section.</p>
+        <a class="btn btn-primary" href="/#courses">Choose a course</a>
+      </div>
+      {% endif %}
     </section>
-    {% endif %}
 
-    <section id="student-courses" class="pm-student-section">
+    <section id="student-courses" class="pm-student-section" data-account-shell-panel="courses">
       <div class="pm-section-head">
         <div>
           <div class="pm-kicker">Courses</div>

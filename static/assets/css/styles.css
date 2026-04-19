@@ -397,6 +397,15 @@ section {
 .hero-actions .btn {
   font-size: 0.95rem;
 }
+.hero-actions.reveal {
+  margin-top: 0;
+  transition: margin-top 0.6s var(--ease-out);
+}
+
+.hero-actions.reveal.in-view {
+  margin-top: 18px;
+}
+
 
 .mini-benefits {
   display: flex;
@@ -10035,8 +10044,7 @@ body.shell-marketing .pm-course-glance--gradient {
 }
 
 body.shell-marketing .pm-home-hero__trust li,
-body.shell-marketing .pm-enroll-panel__proof span,
-body.shell-marketing .pm-video-showcase__facts span {
+body.shell-marketing .pm-enroll-panel__proof span {
   border: 1px solid var(--pm-stroke);
   background: rgba(255, 255, 255, 0.9);
   color: var(--pm-ink);

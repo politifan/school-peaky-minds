@@ -14,7 +14,6 @@
         <div class="pm-kicker">{{ account_sections.lectures.kicker }}</div>
         <h3>{{ account_sections.lectures.title }}</h3>
       </div>
-      <span class="pm-tag">API: {{ account_sections.lectures.api }}</span>
     </div>
     <form class="pm-student-form pm-student-form--wide" method="get" action="/account/lectures">
       {% if request.query_params.get("month") %}
