@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MARKETING_CONFIG_FILE = BASE_DIR / "config" / "marketing_config.json"
 
 
-MARKETING_RUNTIME: Dict[str, Any] = {
+DEFAULT_MARKETING_RUNTIME: Dict[str, Any] = {
     "promo": {
         "label": "Спецпредложение апреля",
         "discount": "-20%",
@@ -23,6 +23,7 @@ MARKETING_RUNTIME: Dict[str, Any] = {
         "button": "Открыть Telegram",
     },
     "video": {
+        "enabled": True,
         "title": "Промо-ролик Peaky Minds",
         "eyebrow": "Скоро на главном экране",
         "description": "Секция и видеоплеер готовы к интеграции мастер-ролика. После загрузки MP4 или YouTube-ссылки блок подхватит видео без перепаковки шаблона.",
@@ -947,7 +948,7 @@ ROI_PAGE_MARKETING: Dict[str, Any] = {
 
 
 _MARKETING_OVERRIDES = _load_marketing_overrides()
-MARKETING_RUNTIME = _deep_merge(MARKETING_RUNTIME, _MARKETING_OVERRIDES.get("runtime", {}))
+MARKETING_RUNTIME = _deep_merge(DEFAULT_MARKETING_RUNTIME, _MARKETING_OVERRIDES.get("runtime", {}))
 TRACK_MARKETING = _deep_merge(TRACK_MARKETING, _MARKETING_OVERRIDES.get("tracks", {}))
 HOME_MARKETING = _deep_merge(HOME_MARKETING, _MARKETING_OVERRIDES.get("home", {}))
 ROI_PAGE_MARKETING = _deep_merge(ROI_PAGE_MARKETING, _MARKETING_OVERRIDES.get("roi_page", {}))
@@ -955,6 +956,20 @@ ROI_PAGE_MARKETING = _deep_merge(ROI_PAGE_MARKETING, _MARKETING_OVERRIDES.get("r
 
 def build_marketing_runtime() -> Dict[str, Any]:
     return deepcopy(MARKETING_RUNTIME)
+
+
+def save_marketing_runtime_settings(updates: Dict[str, Any]) -> Dict[str, Any]:
+    global _MARKETING_OVERRIDES, MARKETING_RUNTIME
+
+    overrides = _load_marketing_overrides()
+    runtime_payload = _deep_merge(overrides.get("runtime", {}), updates)
+    overrides["runtime"] = runtime_payload
+    MARKETING_CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
+    MARKETING_CONFIG_FILE.write_text(json.dumps(overrides, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    _MARKETING_OVERRIDES = overrides
+    MARKETING_RUNTIME = _deep_merge(DEFAULT_MARKETING_RUNTIME, runtime_payload)
+    return build_marketing_runtime()
 
 
 def build_homepage_marketing() -> Dict[str, Any]:

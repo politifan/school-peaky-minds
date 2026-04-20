@@ -4521,6 +4521,23 @@ body.shell-marketing .header-courses__grid a:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
+body.shell-marketing .header-pill--active {
+  background: rgba(109, 82, 255, 0.38);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+body.shell-marketing .header-courses__panel--compact {
+  left: auto;
+  right: 0;
+  width: min(320px, 26vw);
+}
+
+body.shell-marketing .header-courses__grid--compact {
+  grid-template-columns: 1fr;
+}
+
+
+
 body.shell-marketing .header-burger {
   display: none;
   width: 48px;
@@ -4613,6 +4630,59 @@ body.shell-marketing .marketing-drawer__nav a {
   border: 1px solid rgba(17, 18, 24, 0.06);
   color: var(--pm-text);
   font-weight: 600;
+}
+
+body.shell-marketing .marketing-drawer__group {
+  border-radius: var(--pm-radius-xs);
+  background: var(--pm-surface-soft);
+  border: 1px solid rgba(17, 18, 24, 0.06);
+  overflow: hidden;
+}
+
+body.shell-marketing .marketing-drawer__group summary {
+  position: relative;
+  list-style: none;
+  padding: 16px 50px 16px 18px;
+  color: var(--pm-text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+body.shell-marketing .marketing-drawer__group summary::-webkit-details-marker {
+  display: none;
+}
+
+body.shell-marketing .marketing-drawer__group summary::after {
+  content: "+";
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(17, 18, 24, 0.08);
+  color: var(--pm-accent-1);
+  font-size: 1rem;
+}
+
+body.shell-marketing .marketing-drawer__group[open] summary::after {
+  transform: translateY(-50%) rotate(45deg);
+}
+
+body.shell-marketing .marketing-drawer__group-links {
+  display: grid;
+  gap: 8px;
+  padding: 0 14px 14px;
+}
+
+body.shell-marketing .marketing-drawer__group-links a {
+  min-height: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 0.95rem;
 }
 
 body.shell-marketing .marketing-drawer__actions {
@@ -8586,6 +8656,38 @@ body.shell-admin .admin-input {
   min-height: 42px;
   padding: 0 12px;
   border-radius: 14px;
+}
+
+body.shell-admin .admin-switch {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: flex-start;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.shell-admin .admin-switch input {
+  margin-top: 4px;
+  width: 18px;
+  height: 18px;
+  accent-color: #6d52ff;
+}
+
+body.shell-admin .admin-switch__copy {
+  display: grid;
+  gap: 6px;
+}
+
+body.shell-admin .admin-switch__copy strong {
+  color: #ffffff;
+}
+
+body.shell-admin .admin-switch__copy small {
+  color: rgba(255, 255, 255, 0.66);
+  line-height: 1.5;
 }
 
 body.shell-admin .admin-sort {

@@ -35,6 +35,7 @@ from routes.account_content import (
     upsert_teacher_record,
 )
 from routes.journal_content import load_journal_posts_payload
+from routes.marketing_content import build_marketing_runtime, save_marketing_runtime_settings
 from core import (
     EXECUTOR_EMAIL,
     USERS_FILE,
@@ -680,7 +681,7 @@ def _admin_panel_impl(request: Request):
         save_referrals(referrals_data)
 
     view = request.query_params.get("view") or "overview"
-    allowed_views = {"overview", "leads", "agreements", "users", "whitelist", "referrals", "lessons", "teachers"}
+    allowed_views = {"overview", "marketing", "leads", "agreements", "users", "whitelist", "referrals", "lessons", "teachers"}
     if view not in allowed_views:
         view = "overview"
     course = request.query_params.get("course") or ""
@@ -1541,6 +1542,7 @@ def _admin_panel_impl(request: Request):
             "kpis": kpis,
             "filters_label": filters_label,
             "filters_query": filters_query,
+            "marketing_runtime": build_marketing_runtime(),
             "export_query": export_query,
             "leads_total": leads_total,
             "agreements_total": agreements_total,
@@ -2624,6 +2626,24 @@ async def admin_referral_month_discount_move(request: Request):
     data["students"] = students
     save_referrals(data)
     return referral_redirect(message="Скидка перенесена")
+
+
+@router.post("/admin/marketing/video", include_in_schema=False)
+async def admin_marketing_video(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+
+    form = await request.form()
+    enabled = str(form.get("video_enabled") or "").strip().lower() in {"1", "true", "on", "yes"}
+
+    try:
+        runtime = save_marketing_runtime_settings({"video": {"enabled": enabled}})
+    except OSError:
+        return admin_notice_redirect("marketing", error="Could not save promo video setting")
+
+    status = "enabled" if runtime.get("video", {}).get("enabled") else "disabled"
+    return admin_notice_redirect("marketing", message=f"Promo video {status}")
 
 
 @router.post("/admin/lessons/update", include_in_schema=False)

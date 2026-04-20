@@ -73,12 +73,22 @@
       <button class="marketing-drawer__close" type="button" data-drawer-close aria-label="Закрыть меню">×</button>
     </div>
     <nav class="marketing-drawer__nav">
+
       <a href="/courses" {% if request.url.path.startswith('/courses') %}aria-current="page"{% endif %}>Направления</a>
+
       <a href="/roi" {% if request.url.path.startswith('/roi') %}aria-current="page"{% endif %}>Окупаемость курса</a>
+
       <a href="/reviews" {% if request.url.path.startswith('/reviews') %}aria-current="page"{% endif %}>Отзывы</a>
+      <details class="marketing-drawer__group" {% if request.url.path.startswith('/blog') or request.url.path.startswith('/posts') or request.url.path.startswith('/how-it-works') %}open{% endif %}>
+        <summary>Как учимся</summary>
+        <div class="marketing-drawer__group-links">
+
       <a href="/blog" {% if request.url.path.startswith('/blog') or request.url.path.startswith('/posts') %}aria-current="page"{% endif %}>Журнал</a>
+
       <a href="/how-it-works" {% if request.url.path.startswith('/how-it-works') %}aria-current="page"{% endif %}>Как учимся</a>
-      <a href="/how-it-works#faq">FAQ</a>
+          <a href="/how-it-works#faq" {% if request.url.path.startswith('/how-it-works') %}aria-current="page"{% endif %}>FAQ</a>
+        </div>
+      </details>
     </nav>
     <div class="marketing-drawer__courses">
       <div class="marketing-drawer__label">Каталог курсов</div>
@@ -118,12 +128,12 @@
       </a>
 
       <nav class="nav-links nav-links--marketing">
+
         <a href="/courses" {% if request.url.path.startswith('/courses') %}aria-current="page"{% endif %}>Направления</a>
+
         <a href="/roi" {% if request.url.path.startswith('/roi') %}aria-current="page"{% endif %}>Окупаемость курса</a>
+
         <a href="/reviews" {% if request.url.path.startswith('/reviews') %}aria-current="page"{% endif %}>Отзывы</a>
-        <a href="/blog" {% if request.url.path.startswith('/blog') or request.url.path.startswith('/posts') %}aria-current="page"{% endif %}>Журнал</a>
-        <a href="/how-it-works" {% if request.url.path.startswith('/how-it-works') %}aria-current="page"{% endif %}>Как учимся</a>
-        <a href="/how-it-works#faq">FAQ</a>
       </nav>
 
       <div class="site-header__actions">
@@ -146,6 +156,16 @@
               <a href="/courses/business">Автоматизация и бизнес</a>
               <a href="/courses/1c-developer">1C-разработчик</a>
               <a href="/courses/product-manager">Product Manager</a>
+            </div>
+          </div>
+        </div>
+                <div class="header-courses header-courses--compact" data-courses-menu>
+          <button class="header-pill header-courses__toggle {% if request.url.path.startswith('/blog') or request.url.path.startswith('/posts') or request.url.path.startswith('/how-it-works') %}header-pill--active{% endif %}" type="button" data-courses-toggle aria-expanded="false">Как учимся</button>
+          <div class="header-courses__panel header-courses__panel--compact" data-courses-panel hidden>
+            <div class="header-courses__grid header-courses__grid--compact">
+              <a href="/blog" {% if request.url.path.startswith('/blog') or request.url.path.startswith('/posts') %}aria-current="page"{% endif %}>Журнал</a>
+              <a href="/how-it-works" {% if request.url.path.startswith('/how-it-works') %}aria-current="page"{% endif %}>Как учимся</a>
+              <a href="/how-it-works#faq" {% if request.url.path.startswith('/how-it-works') %}aria-current="page"{% endif %}>FAQ</a>
             </div>
           </div>
         </div>

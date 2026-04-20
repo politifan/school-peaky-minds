@@ -13,6 +13,7 @@
         <div class="admin-sidebar__title">Админка</div>
         <nav class="admin-sidebar__nav">
           <a class="{% if view == 'overview' %}is-active{% endif %}" href="/admin">Обзор</a>
+          <a class="{% if view == 'marketing' %}is-active{% endif %}" href="/admin?view=marketing">Marketing</a>
           <a class="{% if view == 'leads' %}is-active{% endif %}" href="/admin?view=leads">Заявки</a>
           <a class="{% if view == 'agreements' %}is-active{% endif %}" href="/admin?view=agreements">Договоры</a>
           <a class="{% if view == 'users' %}is-active{% endif %}" href="/admin?view=users">Пользователи</a>
@@ -384,6 +385,49 @@
               <button class="btn btn-danger btn-danger--big" type="submit">Нажми меня</button>
             </div>
           </form>
+        </section>
+        {% endif %}
+
+        {% if view == 'marketing' %}
+        <section class="panel" id="admin-marketing" style="margin-top: 24px; margin-bottom: 140px;">
+          <div class="admin-section-head">
+            <div>
+              <div class="pm-kicker">Marketing controls</div>
+              <h2 class="section-title">Promo video</h2>
+            </div>
+            <div class="admin-section-actions">
+              <span class="admin-badge">Status: {{ 'enabled' if marketing_runtime.video.enabled else 'disabled' }}</span>
+            </div>
+          </div>
+          <div class="admin-grid two" style="margin-top: 18px;">
+            <div class="card">
+              <div class="course-meta">Section visibility</div>
+              <h3 style="margin: 10px 0 8px;">Show promo video on the site</h3>
+              <p class="admin-subtext">If disabled, the promo video block disappears from the homepage and from <code>/index.html</code> without leaving an empty gap.</p>
+              <form class="admin-filter" action="/admin/marketing/video" method="post" style="margin-top: 18px;">
+                <label class="admin-switch">
+                  <input type="checkbox" name="video_enabled" value="1" {% if marketing_runtime.video.enabled %}checked{% endif %}>
+                  <span class="admin-switch__copy">
+                    <strong>{{ 'Promo video is enabled' if marketing_runtime.video.enabled else 'Promo video is disabled' }}</strong>
+                    <small>This switch changes only section visibility. Video URL, poster and copy stay untouched.</small>
+                  </span>
+                </label>
+                <div class="admin-filter__actions">
+                  <button class="btn btn-primary" type="submit">Save</button>
+                </div>
+              </form>
+            </div>
+            <div class="card">
+              <div class="course-meta">Current config</div>
+              <ul class="admin-list" style="margin-top: 14px;">
+                <li><span>Eyebrow</span><strong class="admin-truncate" title="{{ marketing_runtime.video.eyebrow }}">{{ marketing_runtime.video.eyebrow }}</strong></li>
+                <li><span>Title</span><strong class="admin-truncate" title="{{ marketing_runtime.video.title }}">{{ marketing_runtime.video.title }}</strong></li>
+                <li><span>Video</span><strong class="admin-truncate" title="{{ marketing_runtime.video.video_url or 'Not set' }}">{{ marketing_runtime.video.video_url or 'Not set' }}</strong></li>
+                <li><span>Poster</span><strong class="admin-truncate" title="{{ marketing_runtime.video.poster or 'Not set' }}">{{ marketing_runtime.video.poster or 'Not set' }}</strong></li>
+              </ul>
+              <p class="admin-subtext" style="margin-top: 14px;">The homepage layout stays intact: when the block is off, nearby sections move up automatically.</p>
+            </div>
+          </div>
         </section>
         {% endif %}
 
