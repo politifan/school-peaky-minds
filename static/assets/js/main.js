@@ -218,6 +218,47 @@ if (mobileDrawer) {
 
 const coursesMenus = document.querySelectorAll('[data-courses-menu]');
 
+const resetMenuPanelPosition = (panel) => {
+  if (!panel) return;
+  panel.style.removeProperty('--panel-shift-x');
+  panel.style.removeProperty('--panel-max-height');
+};
+
+const syncMenuPanelPosition = (panel) => {
+  if (!panel || panel.hidden) return;
+  resetMenuPanelPosition(panel);
+  const viewportPadding = window.innerWidth <= 640 ? 12 : 20;
+  const initialRect = panel.getBoundingClientRect();
+  let shift = 0;
+
+  if (initialRect.right > window.innerWidth - viewportPadding) {
+    shift -= initialRect.right - (window.innerWidth - viewportPadding);
+  }
+  if (initialRect.left + shift < viewportPadding) {
+    shift += viewportPadding - (initialRect.left + shift);
+  }
+
+  panel.style.setProperty('--panel-shift-x', `${Math.round(shift)}px`);
+
+  const adjustedRect = panel.getBoundingClientRect();
+  const availableHeight = Math.max(180, window.innerHeight - adjustedRect.top - viewportPadding);
+  panel.style.setProperty('--panel-max-height', `${Math.round(availableHeight)}px`);
+};
+
+const closeAllCourseMenus = (excludeMenu = null) => {
+  coursesMenus.forEach((menu) => {
+    if (menu === excludeMenu) return;
+    menu.classList.remove('is-open');
+    const itemToggle = menu.querySelector('[data-courses-toggle]');
+    const itemPanel = menu.querySelector('[data-courses-panel]');
+    if (itemToggle) itemToggle.setAttribute('aria-expanded', 'false');
+    if (itemPanel) {
+      itemPanel.hidden = true;
+      resetMenuPanelPosition(itemPanel);
+    }
+  });
+};
+
 coursesMenus.forEach((menu) => {
   const toggle = menu.querySelector('[data-courses-toggle]');
   const panel = menu.querySelector('[data-courses-panel]');
@@ -227,12 +268,14 @@ coursesMenus.forEach((menu) => {
     menu.classList.remove('is-open');
     toggle.setAttribute('aria-expanded', 'false');
     panel.hidden = true;
+    resetMenuPanelPosition(panel);
   };
 
   const openMenu = () => {
     menu.classList.add('is-open');
     toggle.setAttribute('aria-expanded', 'true');
     panel.hidden = false;
+    window.requestAnimationFrame(() => syncMenuPanelPosition(panel));
   };
 
   toggle.addEventListener('click', (event) => {
@@ -241,15 +284,7 @@ coursesMenus.forEach((menu) => {
       closeMenu();
       return;
     }
-    coursesMenus.forEach((item) => {
-      if (item !== menu) {
-        item.classList.remove('is-open');
-        const itemToggle = item.querySelector('[data-courses-toggle]');
-        const itemPanel = item.querySelector('[data-courses-panel]');
-        if (itemToggle) itemToggle.setAttribute('aria-expanded', 'false');
-        if (itemPanel) itemPanel.hidden = true;
-      }
-    });
+    closeAllCourseMenus(menu);
     openMenu();
   });
 
@@ -265,20 +300,27 @@ document.addEventListener('keydown', (event) => {
     modals.forEach((modal) => {
       if (modal.classList.contains('open')) closeModal(modal);
     });
-    coursesMenus.forEach((menu) => {
-      menu.classList.remove('is-open');
-      const toggle = menu.querySelector('[data-courses-toggle]');
-      const panel = menu.querySelector('[data-courses-panel]');
-      if (toggle) toggle.setAttribute('aria-expanded', 'false');
-      if (panel) panel.hidden = true;
-    });
+    closeAllCourseMenus();
     if (document.body.classList.contains('drawer-open')) closeDrawer();
   }
 });
 
 window.addEventListener('resize', () => {
   if (window.innerWidth > 920) closeDrawer();
+  coursesMenus.forEach((menu) => {
+    if (!menu.classList.contains('is-open')) return;
+    const panel = menu.querySelector('[data-courses-panel]');
+    syncMenuPanelPosition(panel);
+  });
 });
+
+window.addEventListener('scroll', () => {
+  coursesMenus.forEach((menu) => {
+    if (!menu.classList.contains('is-open')) return;
+    const panel = menu.querySelector('[data-courses-panel]');
+    syncMenuPanelPosition(panel);
+  });
+}, { passive: true });
 
 const trajectorySwitchers = document.querySelectorAll('[data-trajectory-switcher]');
 
