@@ -1875,10 +1875,11 @@
       <div class="admin-section-head">
         <h2 class="section-title">Whitelist Telegram</h2>
         <div class="admin-section-actions">
-          <span class="admin-badge">Админы: {{ admin_ids|join(", ") }}</span>
+          <span class="admin-badge">Админ-доступ: {{ admin_ids|join(", ") or "не задан" }}</span>
+          <span class="admin-badge">Источник: {% if admin_ids_from_env %}ADMINS_IDS{% else %}legacy whitelist{% endif %}</span>
         </div>
       </div>
-      <p class="admin-subtext">Последний ID в списке не получает доступ к админке (только рассылка).</p>
+      <p class="admin-subtext">Права админки задаются в env: <code>ADMINS_IDS=11,22,33</code>. Список ниже используется для Telegram-уведомлений и команд бота.</p>
       <div class="tag-grid" style="margin: 12px 0 18px;">
         {% for item in whitelist %}
         <form action="/admin/whitelist/remove" method="post">
@@ -1895,12 +1896,12 @@
         <div class="admin-filter__row">
           <div class="input-wrap">
             <label class="auth-label">Telegram ID</label>
-            <input type="text" name="id" placeholder="Например, 1547353132" required>
+            <input type="text" name="id" placeholder="Например, 123456789" required>
           </div>
           <div class="input-wrap">
-            <label class="auth-label">Роль</label>
+            <label class="auth-label">Режим в боте</label>
             <select name="role">
-              <option value="admin" selected>Админ</option>
+              <option value="admin" selected>Уведомления + команды бота</option>
               <option value="broadcast">Только рассылка</option>
             </select>
           </div>

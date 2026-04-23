@@ -3,6 +3,7 @@ import html
 import json
 import logging
 import os
+import re
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -38,10 +39,25 @@ def load_env(path: Path) -> None:
 
 load_env(ENV_PATH)
 
+
+def parse_env_int_ids(value: Optional[str]) -> Set[int]:
+    ids: Set[int] = set()
+    for part in re.split(r"[,\s;]+", value or ""):
+        part = part.strip()
+        if not part:
+            continue
+        try:
+            ids.add(int(part))
+        except (TypeError, ValueError):
+            continue
+    return ids
+
+
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 APP_BASE_URL = os.getenv("APP_BASE_URL", "").rstrip("/")
-DEFAULT_WHITELIST = [980343575, 1065558838, 1547353132]
+ADMIN_IDS = parse_env_int_ids(os.getenv("ADMINS_IDS"))
+DEFAULT_WHITELIST = set(ADMIN_IDS)
 
 STATUS_META = {
     "new": "Новая",

