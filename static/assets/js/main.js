@@ -1001,81 +1001,16 @@ carousels.forEach((carousel) => {
   if (nextBtn) nextBtn.addEventListener('click', () => scrollToIndex(currentIndex + 1));
 });
 
-const workspaceCarousels = document.querySelectorAll('[data-workspace-carousel]');
-
-workspaceCarousels.forEach((workspace) => {
-  const tabs = Array.from(workspace.querySelectorAll('[data-workspace-tab]'));
-  const panels = Array.from(workspace.querySelectorAll('[data-workspace-panel]'));
-  if (!tabs.length || !panels.length) return;
-
-  const prevBtn = workspace.querySelector('[data-workspace-prev]');
-  const nextBtn = workspace.querySelector('[data-workspace-next]');
-  const position = workspace.querySelector('[data-workspace-current]');
-
-  let currentIndex = Math.max(
-    0,
-    tabs.findIndex((tab) => tab.classList.contains('is-active'))
-  );
-
-  const syncWorkspace = () => {
-    const activeTab = tabs[currentIndex];
-    if (!activeTab) return;
-    const activeKey = activeTab.dataset.workspaceTab;
-
-    tabs.forEach((tab, index) => {
-      const isActive = index === currentIndex;
-      tab.classList.toggle('is-active', isActive);
-      tab.setAttribute('aria-selected', String(isActive));
-      tab.setAttribute('tabindex', isActive ? '0' : '-1');
-    });
-
-    panels.forEach((panel) => {
-      const isActive = panel.dataset.workspacePanel === activeKey;
-      panel.classList.toggle('is-active', isActive);
-      panel.hidden = !isActive;
-    });
-
-    if (prevBtn) prevBtn.disabled = currentIndex === 0;
-    if (nextBtn) nextBtn.disabled = currentIndex === tabs.length - 1;
-    if (position) position.textContent = `${currentIndex + 1} / ${tabs.length}`;
-  };
-
-  tabs.forEach((tab, index) => {
-    tab.addEventListener('click', () => {
-      currentIndex = index;
-      syncWorkspace();
-    });
-  });
-
-  if (prevBtn) {
-    prevBtn.addEventListener('click', () => {
-      currentIndex = Math.max(0, currentIndex - 1);
-      syncWorkspace();
-    });
-  }
-
-  if (nextBtn) {
-    nextBtn.addEventListener('click', () => {
-      currentIndex = Math.min(tabs.length - 1, currentIndex + 1);
-      syncWorkspace();
-    });
-  }
-
-  syncWorkspace();
-});
-
 const accountShellPages = document.querySelectorAll('[data-account-shell-page]');
 
 accountShellPages.forEach((page) => {
   const shellLinks = Array.from(document.querySelectorAll('[data-account-shell-link]'));
-  const shellPanels = Array.from(page.querySelectorAll('[data-account-shell-panel]'));
-  const workspace = page.querySelector('[data-workspace-carousel]');
   const shellNote = document.querySelector('[data-account-shell-note]');
-  const focus = page.querySelector('[data-account-focus]');
-  const focusLabel = focus?.querySelector('[data-account-focus-label]');
-  const focusNote = focus?.querySelector('[data-account-focus-note]');
-  const focusCards = focus ? Array.from(focus.querySelectorAll('[data-account-focus-card]')) : [];
+  const refreshBtn = document.querySelector('[data-account-refresh-section]');
+  const refreshStatus = document.querySelector('[data-account-refresh-status]');
   if (!shellLinks.length) return;
+
+  let activeShellKey = '';
 
   const keyByPath = {
     '/account': 'overview',
@@ -1096,6 +1031,20 @@ accountShellPages.forEach((page) => {
     window.scrollTo({ top: Math.max(y, 0), behavior: 'smooth' });
   };
 
+  const getShellPanels = () => Array.from(page.querySelectorAll('[data-account-shell-panel]'));
+  const getWorkspacePanels = () => Array.from(page.querySelectorAll('[data-workspace-panel]'));
+
+  const escapeSelector = (value) => {
+    if (window.CSS && typeof window.CSS.escape === 'function') {
+      return window.CSS.escape(value);
+    }
+    return String(value).replace(/"/g, '\\"');
+  };
+
+  const setRefreshStatus = (text) => {
+    if (refreshStatus) refreshStatus.textContent = text;
+  };
+
   const syncShellLink = (key) => {
     shellLinks.forEach((link) => {
       link.classList.toggle('is-active', link.dataset.accountShellKey === key);
@@ -1103,7 +1052,7 @@ accountShellPages.forEach((page) => {
   };
 
   const syncPanels = (key) => {
-    shellPanels.forEach((panel) => {
+    getShellPanels().forEach((panel) => {
       const keys = (panel.dataset.accountShellKeys || panel.dataset.accountShellPanel || '')
         .split(',')
         .map((item) => item.trim())
@@ -1112,35 +1061,29 @@ accountShellPages.forEach((page) => {
     });
   };
 
-  const syncFocus = (link) => {
-    if (!link) return;
-    const key = link.dataset.accountShellKey;
-    const label = link.dataset.accountShellLabel || link.textContent.trim();
-    const note = link.dataset.accountShellNote || '';
-    if (focusLabel) focusLabel.textContent = label;
-    if (focusNote) focusNote.textContent = note;
-    if (shellNote) shellNote.textContent = note;
-    focusCards.forEach((card) => {
-      card.hidden = card.dataset.accountFocusCard !== key;
-    });
-  };
-
   const syncWorkspace = (workspaceKey) => {
-    if (!workspace || !workspaceKey) return;
-    const tab = workspace.querySelector(`[data-workspace-tab="${workspaceKey}"]`);
-    if (tab) tab.click();
+    if (!workspaceKey) return;
+    const panels = getWorkspacePanels();
+    if (!panels.length) return;
+    panels.forEach((panel) => {
+      const isActive = panel.dataset.workspacePanel === workspaceKey;
+      panel.classList.toggle('is-active', isActive);
+      panel.hidden = !isActive;
+    });
   };
 
   const activateShell = (key, options = {}) => {
     const settings = { history: true, scroll: true, ...options };
     const link = shellLinks.find((item) => item.dataset.accountShellKey === key) || shellLinks[0];
     if (!link) return;
-    syncShellLink(link.dataset.accountShellKey);
-    syncPanels(link.dataset.accountShellKey);
-    syncFocus(link);
+    activeShellKey = link.dataset.accountShellKey;
+    syncShellLink(activeShellKey);
+    syncPanels(activeShellKey);
     syncWorkspace(link.dataset.accountShellWorkspace);
+    if (shellNote) shellNote.textContent = link.dataset.accountShellNote || '';
+    setRefreshStatus(`Активен: ${link.dataset.accountShellLabel || link.textContent.trim()}`);
     if (settings.history) {
-      window.history.pushState({ accountShell: link.dataset.accountShellKey }, '', link.getAttribute('href'));
+      window.history.pushState({ accountShell: activeShellKey }, '', link.getAttribute('href'));
     }
     if (settings.scroll) {
       scrollToTarget(link.dataset.accountShellTarget);
@@ -1149,6 +1092,10 @@ accountShellPages.forEach((page) => {
 
   const resolveKeyFromLocation = () => {
     const pathname = window.location.pathname.replace(/\/+$/, '') || '/account';
+    const workspaceKey = new URLSearchParams(window.location.search).get('workspace');
+    if (workspaceKey) {
+      return workspaceKey === 'settings' ? 'profile' : workspaceKey;
+    }
     return keyByPath[pathname] || 'overview';
   };
 
@@ -1161,28 +1108,50 @@ accountShellPages.forEach((page) => {
     });
   });
 
-  page.querySelectorAll('[data-account-shell-jump]').forEach((link) => {
-    link.addEventListener('click', (event) => {
-      event.preventDefault();
-      activateShell(link.dataset.accountShellJump);
-    });
-  });
-
   window.addEventListener('popstate', () => {
     activateShell(resolveKeyFromLocation(), { history: false, scroll: false });
   });
 
-  const workspaceTabs = Array.from(page.querySelectorAll('[data-workspace-tab]'));
-  workspaceTabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      const shellKey = tab.dataset.workspaceTab === 'settings' ? 'profile' : tab.dataset.workspaceTab;
-      const shellLink = shellLinks.find((link) => link.dataset.accountShellKey === shellKey);
-      if (!shellLink) return;
-      syncShellLink(shellKey);
-      syncPanels(shellKey);
-      syncFocus(shellLink);
-    });
-  });
+  const getActiveRefreshTarget = () => {
+    const link = shellLinks.find((item) => item.dataset.accountShellKey === activeShellKey) || shellLinks[0];
+    if (!link) return null;
+    const workspaceKey = link.dataset.accountShellWorkspace || '';
+    const selector = workspaceKey
+      ? `[data-workspace-panel="${escapeSelector(workspaceKey)}"]`
+      : `[data-account-shell-panel="${escapeSelector(link.dataset.accountShellKey)}"]`;
+    const panel = page.querySelector(selector);
+    return { link, panel, selector };
+  };
+
+  const refreshActiveSection = async () => {
+    const target = getActiveRefreshTarget();
+    if (!target?.link || !target.panel) return;
+    if (refreshBtn) refreshBtn.disabled = true;
+    setRefreshStatus('Обновляем активный раздел...');
+    try {
+      const response = await fetch(target.link.href, {
+        credentials: 'same-origin',
+        headers: { 'X-Requested-With': 'fetch' },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const html = await response.text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const freshPanel = doc.querySelector(target.selector);
+      if (!freshPanel) throw new Error('panel not found');
+      target.panel.replaceWith(freshPanel);
+      activateShell(target.link.dataset.accountShellKey, { history: false, scroll: false });
+      document.dispatchEvent(new CustomEvent('pm:account-section-refreshed', { detail: { root: freshPanel } }));
+      setRefreshStatus(`Обновлено: ${new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`);
+    } catch (error) {
+      setRefreshStatus('Не удалось обновить. Попробуйте ещё раз.');
+    } finally {
+      if (refreshBtn) refreshBtn.disabled = false;
+    }
+  };
+
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', refreshActiveSection);
+  }
 
   activateShell(resolveKeyFromLocation(), { history: false, scroll: false });
 });

@@ -47,26 +47,6 @@
 
   {% include "account/_alerts.html" %}
 
-  <section class="pm-student-focus">
-    <div class="pm-section-head">
-      <div>
-        <div class="pm-kicker">Focus</div>
-        <h2 class="section-title">{{ account_focus.title }}</h2>
-      </div>
-      <span class="pm-tag">{{ account_focus.text }}</span>
-    </div>
-    <div class="pm-student-focus__grid">
-      {% for card in account_focus.cards %}
-      <article class="pm-surface-card pm-student-focus-card">
-        <div class="course-meta">{{ card.label }}</div>
-        <h3>{{ card.title }}</h3>
-        <p>{{ card.text }}</p>
-        <a class="btn btn-secondary" href="{{ card.href }}">{{ card.action }}</a>
-      </article>
-      {% endfor %}
-    </div>
-  </section>
-
   <section class="pm-student-section">
     <div class="pm-section-head">
       <div>
@@ -94,7 +74,7 @@
       </div>
       <span class="pm-tag">Только ближайшие задачи и быстрый переход в нужный раздел.</span>
     </div>
-    <div class="pm-student-focus__grid">
+    <div class="pm-student-overview">
       <article class="pm-surface-card pm-student-overview-card">
         <div class="course-meta">Calendar</div>
         <h3>Ближайшие занятия</h3>

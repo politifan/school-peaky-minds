@@ -12997,6 +12997,23 @@ body.shell-student .pm-account-shell-nav__link.is-active .pm-account-shell-nav__
   background: rgba(255, 255, 255, 0.16);
 }
 
+body.shell-student .pm-account-shell-nav__refresh {
+  display: grid;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+body.shell-student .pm-account-shell-nav__refresh .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+body.shell-student .pm-account-shell-nav__refresh span {
+  color: var(--pm-student-text-soft);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
 body.shell-student .site-footer--student {
   background: #efefe8;
   color: var(--pm-student-text);
@@ -13097,10 +13114,30 @@ body.shell-student .pm-student-focus {
   gap: 18px;
 }
 
+body.shell-student .pm-student-page--shell {
+  gap: 14px;
+}
+
 body.shell-student .pm-student-hero {
   grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.75fr);
   gap: 20px;
   padding: 28px;
+}
+
+body.shell-student .pm-student-page--shell .pm-student-hero {
+  gap: 16px;
+  padding: 20px;
+  border-radius: 26px;
+}
+
+body.shell-student .pm-student-page--shell .display-title {
+  font-size: clamp(2.1rem, 4vw, 3.35rem);
+  line-height: 0.92;
+}
+
+body.shell-student .pm-student-page--shell .section-lead {
+  margin-top: 8px;
+  font-size: 1rem;
 }
 
 body.shell-student .pm-student-hero--compact {
@@ -13140,6 +13177,11 @@ body.shell-student .pm-student-metric {
   border: 1px solid var(--pm-student-border);
   background: var(--pm-student-surface-soft);
   box-shadow: none;
+}
+
+body.shell-student .pm-student-page--shell .pm-student-metric {
+  padding: 14px;
+  border-radius: 18px;
 }
 
 body.shell-student .pm-student-metric span {
@@ -13189,6 +13231,15 @@ body.shell-student .pm-student-focus-card .btn {
 body.shell-student .pm-workspace {
   padding: 24px;
   gap: 18px;
+}
+
+body.shell-student .pm-student-page--shell .pm-workspace,
+body.shell-student .pm-student-page--shell .pm-student-section > .pm-section-head {
+  border-radius: 24px;
+}
+
+body.shell-student .pm-student-page--shell .pm-workspace {
+  padding: 20px;
 }
 
 body.shell-student .pm-workspace__intro {

@@ -55,85 +55,23 @@
     <div class="pm-inline-alert">Оплата принята. Статус обновится после подтверждения платежа.</div>
     {% endif %}
 
-    <section class="pm-student-focus" data-account-shell-panel="focus" data-account-shell-keys="{{ account_shell['keys'] if account_shell else 'overview' }}" data-account-focus>
-      <div class="pm-section-head">
-        <div>
-          <div class="pm-kicker">Focus</div>
-          <h2 class="section-title">
-            {% if account_shell %}
-            Фокус: <span data-account-focus-label>{{ account_shell["active_label"] }}</span>
-            {% else %}
-            {{ account_focus.title }}
-            {% endif %}
-          </h2>
-        </div>
-        <span class="pm-tag" data-account-focus-note>{{ account_shell["subtitle"] if account_shell else account_focus.text }}</span>
-      </div>
-      <div class="pm-student-focus__grid{% if account_shell %} pm-student-focus__grid--states{% endif %}">
-        {% if account_shell %}
-        {% for item in account_shell["items"] %}
-        <article class="pm-surface-card pm-student-focus-card pm-student-focus-card--state" data-account-focus-card="{{ item.key }}"{% if not item.active %} hidden{% endif %}>
-          <div>
-            <div class="course-meta">{{ item.label }}{% if item.count %} · {{ item.count }}{% endif %}</div>
-            <h3>Быстрый переход: {{ item.label }}</h3>
-            <p>{{ item.note }}</p>
-          </div>
-          <a class="btn btn-secondary" href="{{ item.href }}" data-account-shell-jump="{{ item.key }}">Открыть раздел</a>
-        </article>
-        {% endfor %}
-        {% else %}
-        {% for card in account_focus.cards %}
-        <article class="pm-surface-card pm-student-focus-card">
-          <div class="course-meta">{{ card.label }}</div>
-          <h3>{{ card.title }}</h3>
-          <p>{{ card.text }}</p>
-          <a class="btn btn-secondary" href="{{ card.href }}">{{ card.action }}</a>
-        </article>
-        {% endfor %}
-        {% endif %}
-      </div>
-    </section>
-
     <section id="student-workspace" class="pm-student-section" data-account-shell-panel="workspace" data-account-shell-keys="overview,calendar,homework,lectures,teachers,profile">
       <div class="pm-section-head">
         <div>
           <div class="pm-kicker">Workspace</div>
-          <h2 class="section-title">Рабочее пространство студента</h2>
+          <h2 class="section-title">Карусель разделов</h2>
         </div>
-        <span class="pm-tag">Единый контур: календарь, ДЗ, лекции, преподаватели и настройки</span>
+        <span class="pm-tag">Контент загружен заранее, обновление запускается вручную</span>
       </div>
-      <div class="pm-surface-card pm-workspace" data-workspace-carousel>
+      <div class="pm-surface-card pm-workspace" data-account-carousel>
         <div class="pm-workspace__intro">
           <div>
-            <div class="course-meta">Workspace</div>
-            <strong>Один экран для ближайших действий, материалов и сервисных задач.</strong>
+            <div class="course-meta">Live carousel</div>
+            <strong>Выберите раздел слева. Мы не грузим новую страницу, пока вы сами не нажмёте обновление.</strong>
           </div>
           <div class="pm-workspace__links">
             <a href="#student-courses">Мои курсы</a>
             <a href="{% if agreements %}#student-contracts{% else %}/#courses{% endif %}">Договоры</a>
-          </div>
-        </div>
-        <div class="pm-workspace__toolbar">
-          <div class="pm-workspace__tabs" role="tablist" aria-label="Разделы кабинета">
-            {% for tab in account_workspace_tabs %}
-            <button
-              type="button"
-              class="pm-workspace__tab{% if tab.key == account_workspace_active %} is-active{% endif %}"
-              data-workspace-tab="{{ tab.key }}"
-              role="tab"
-              aria-selected="{{ 'true' if tab.key == account_workspace_active else 'false' }}"
-            >
-              <span>{{ tab.label }}</span>
-              {% if tab.count %}
-              <span class="pm-workspace__count">{{ tab.count }}</span>
-              {% endif %}
-            </button>
-            {% endfor %}
-          </div>
-          <div class="pm-workspace__controls">
-            <button type="button" class="pm-workspace__arrow" data-workspace-prev aria-label="Предыдущий раздел">←</button>
-            <div class="pm-workspace__position" data-workspace-current>1 / {{ account_workspace_tabs|length }}</div>
-            <button type="button" class="pm-workspace__arrow" data-workspace-next aria-label="Следующий раздел">→</button>
           </div>
         </div>
 
@@ -623,6 +561,7 @@
                       {% endfor %}
                     </div>
                     <input type="hidden" name="month" value="{{ item.lesson_month }}" data-month-input>
+                    <input type="hidden" name="workspace" value="courses">
                   </div>
                 </form>
                 <div class="lesson-legend">
@@ -769,50 +708,62 @@
 
 {% block extra_scripts %}
 <script>
-  document.querySelectorAll("[data-payment-form]").forEach((form) => {
-    const priceRaw = form.getAttribute("data-price");
-    const price = Number(priceRaw || 0);
-    const input = form.querySelector("input[name='lessons']");
-    const total = form.querySelector("[data-payment-total]");
-    const update = () => {
-      if (!total) return;
-      const lessons = Number(input && input.value ? input.value : 0);
-      if (!price || !lessons) {
-        total.textContent = "Итого: -";
-        return;
+  window.pmInitAccountControls = function (root) {
+    const scope = root || document;
+    scope.querySelectorAll("[data-payment-form]").forEach((form) => {
+      if (form.dataset.pmBound === "true") return;
+      form.dataset.pmBound = "true";
+      const priceRaw = form.getAttribute("data-price");
+      const price = Number(priceRaw || 0);
+      const input = form.querySelector("input[name='lessons']");
+      const total = form.querySelector("[data-payment-total]");
+      const update = () => {
+        if (!total) return;
+        const lessons = Number(input && input.value ? input.value : 0);
+        if (!price || !lessons) {
+          total.textContent = "Итого: -";
+          return;
+        }
+        const value = Math.round(price * lessons);
+        total.textContent = `Итого: ${value} ₽`;
+      };
+      if (input) {
+        input.addEventListener("input", update);
+        input.addEventListener("change", update);
       }
-      const value = Math.round(price * lessons);
-      total.textContent = `Итого: ${value} ₽`;
-    };
-    if (input) {
-      input.addEventListener("input", update);
-      input.addEventListener("change", update);
-    }
-    update();
-  });
+      update();
+    });
 
-  document.querySelectorAll("[data-month-picker]").forEach((form) => {
-    const yearSelect = form.querySelector("[data-month-year]");
-    const monthInput = form.querySelector("[data-month-input]");
-    const buttons = Array.from(form.querySelectorAll("[data-month]"));
-    if (!yearSelect || !monthInput || !buttons.length) return;
-    const submit = (monthValue) => {
-      const year = yearSelect.value;
-      monthInput.value = `${year}-${monthValue}`;
-      form.submit();
-    };
-    buttons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        buttons.forEach((item) => item.classList.remove("is-active"));
-        btn.classList.add("is-active");
-        submit(btn.dataset.month);
+    scope.querySelectorAll("[data-month-picker]").forEach((form) => {
+      if (form.dataset.pmBound === "true") return;
+      form.dataset.pmBound = "true";
+      const yearSelect = form.querySelector("[data-month-year]");
+      const monthInput = form.querySelector("[data-month-input]");
+      const buttons = Array.from(form.querySelectorAll("[data-month]"));
+      if (!yearSelect || !monthInput || !buttons.length) return;
+      const submit = (monthValue) => {
+        const year = yearSelect.value;
+        monthInput.value = `${year}-${monthValue}`;
+        form.submit();
+      };
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          buttons.forEach((item) => item.classList.remove("is-active"));
+          btn.classList.add("is-active");
+          submit(btn.dataset.month);
+        });
+      });
+      yearSelect.addEventListener("change", () => {
+        const active = form.querySelector(".month-pill.is-active");
+        const monthValue = active ? active.dataset.month : "01";
+        submit(monthValue);
       });
     });
-    yearSelect.addEventListener("change", () => {
-      const active = form.querySelector(".month-pill.is-active");
-      const monthValue = active ? active.dataset.month : "01";
-      submit(monthValue);
-    });
+  };
+
+  window.pmInitAccountControls(document);
+  document.addEventListener("pm:account-section-refreshed", (event) => {
+    window.pmInitAccountControls(event.detail && event.detail.root ? event.detail.root : document);
   });
 </script>
 {% endblock %}
