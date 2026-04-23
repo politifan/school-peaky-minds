@@ -66,6 +66,12 @@ def load_env(path: Path) -> None:
 
 
 load_env(ENV_PATH)
+
+
+def normalize_env_telegram_username(value: Optional[str]) -> str:
+    return (value or "").strip().lstrip("@")
+
+
 DATA_DIR = BASE_DIR / "data"
 STATIC_DIR = BASE_DIR / "static"
 ASSETS_DIR = STATIC_DIR / "assets"
@@ -1560,7 +1566,7 @@ GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
 VK_MESSAGE_TOKEN = os.getenv("VK_MESSAGE_TOKEN")
 VK_API_VERSION = os.getenv("VK_API_VERSION", "5.131")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-TELEGRAM_BOT_USERNAME = os.getenv("TELEGRAM_BOT_USERNAME")
+TELEGRAM_BOT_USERNAME = normalize_env_telegram_username(os.getenv("TELEGRAM_BOT_USERNAME"))
 APP_BASE_URL = os.getenv("APP_BASE_URL")
 CONTACT_PHONE = os.getenv("CONTACT_PHONE", "")
 CONTACT_TELEGRAM = os.getenv("CONTACT_TELEGRAM", "")

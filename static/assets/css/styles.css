@@ -1949,7 +1949,8 @@ section {
 .auth-provider-label .tg-login-button--visible {
   position: absolute;
   inset: 0;
-  opacity: 0.001;
+  opacity: 1;
+  filter: opacity(0.01);
   z-index: 2;
 }
 
@@ -1998,7 +1999,8 @@ section {
 .auth-icon-telegram .tg-login-button {
   position: absolute;
   inset: 0;
-  opacity: 0;
+  opacity: 1;
+  filter: opacity(0.01);
   z-index: 2;
 }
 
@@ -7320,7 +7322,8 @@ body.shell-marketing .pm-provider-telegram .tg-login-button--visible {
   left: 0;
   right: 0;
   height: 56px;
-  opacity: 0.001;
+  opacity: 1;
+  filter: opacity(0.01);
   z-index: 3;
 }
 
@@ -7334,6 +7337,7 @@ body.shell-marketing .pm-provider-telegram .tg-login-button--error {
   position: static;
   height: auto;
   opacity: 1;
+  filter: none;
 }
 
 body.shell-marketing .tg-login-button__fallback {
