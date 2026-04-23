@@ -1396,6 +1396,102 @@ def admin_required(request: Request) -> Optional[Response]:
     return None
 
 
+def build_login_code_email_html(recipient: str, code: str) -> str:
+    safe_code = html_lib.escape(code)
+    safe_recipient = html_lib.escape(recipient)
+    base_url = (globals().get("APP_BASE_URL") or os.getenv("APP_BASE_URL") or "https://school.peaky-minds.ru").rstrip("/")
+    login_url = html_lib.escape(f"{base_url}/login/email")
+    code_cells = "".join(
+        f'<td style="padding:0 4px;"><span style="display:inline-block;width:42px;line-height:54px;border-radius:16px;background:#111111;color:#ffffff;font-size:28px;font-weight:900;text-align:center;letter-spacing:0;font-family:Arial,Helvetica,sans-serif;">{html_lib.escape(char)}</span></td>'
+        for char in code
+    )
+    return f"""<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
+    <title>Код для входа в Peaky Minds</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f4f4ee;color:#111111;font-family:Arial,Helvetica,sans-serif;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Ваш код для входа: {safe_code}. Он действует 10 минут.</div>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;background:#f4f4ee;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;max-width:640px;border-collapse:collapse;">
+            <tr>
+              <td style="padding:0 0 16px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+                  <tr>
+                    <td align="left" style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:#666b72;font-weight:800;">Peaky Minds</td>
+                    <td align="right" style="font-size:13px;color:#666b72;">Вход без пароля</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#ffffff;border:1px solid #e2e2dc;border-radius:32px;overflow:hidden;box-shadow:0 24px 70px rgba(17,18,24,0.10);">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+                  <tr>
+                    <td style="padding:34px 34px 18px;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+                        <tr>
+                          <td style="width:58px;height:58px;border-radius:20px;background:#111111;color:#ffffff;text-align:center;font-size:25px;font-weight:900;">PM</td>
+                          <td style="padding-left:16px;">
+                            <div style="font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#767a80;font-weight:800;">Email login</div>
+                            <h1 style="margin:6px 0 0;font-size:34px;line-height:0.95;letter-spacing:-0.05em;color:#111111;">Код для входа</h1>
+                          </td>
+                        </tr>
+                      </table>
+                      <p style="margin:24px 0 0;font-size:17px;line-height:1.55;color:#4d535c;">Введите этот шестизначный код на сайте Peaky Minds, чтобы открыть личный кабинет, договоры, расписание и материалы.</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="center" style="padding:8px 26px 8px;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+                        <tr>{code_cells}</tr>
+                      </table>
+                      <div style="margin-top:18px;font-size:14px;color:#6f747c;">Код отправлен для: <strong style="color:#111111;">{safe_recipient}</strong></div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:22px 34px 0;">
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;border-spacing:0 10px;">
+                        <tr>
+                          <td style="padding:14px 16px;border-radius:18px;background:#f7f7f1;color:#111111;font-size:15px;font-weight:700;">1. Скопируйте код из письма</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:14px 16px;border-radius:18px;background:#f7f7f1;color:#111111;font-size:15px;font-weight:700;">2. Вставьте его на странице подтверждения</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:14px 16px;border-radius:18px;background:#f7f7f1;color:#111111;font-size:15px;font-weight:700;">3. Продолжайте обучение без пароля</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="center" style="padding:26px 34px 34px;">
+                      <a href="{login_url}" style="display:inline-block;padding:16px 24px;border-radius:999px;background:#111111;color:#ffffff;text-decoration:none;font-size:15px;font-weight:800;">Открыть страницу входа</a>
+                      <p style="margin:18px 0 0;font-size:13px;line-height:1.5;color:#767a80;">Код действует 10 минут. Если вы не запрашивали вход, просто проигнорируйте письмо.</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:18px 8px 0;font-size:12px;line-height:1.5;color:#858991;">
+                Если кнопка не работает, откройте страницу входа: <a href="{login_url}" style="color:#111111;font-weight:700;">{login_url}</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>"""
+
+
 def send_email_code(recipient: str, code: str) -> None:
     smtp_host = os.getenv("SMTP_HOST")
     smtp_port = int(os.getenv("SMTP_PORT", "587"))
@@ -1411,7 +1507,19 @@ def send_email_code(recipient: str, code: str) -> None:
     msg["Subject"] = "Код для входа"
     msg["From"] = smtp_from
     msg["To"] = recipient
-    msg.set_content(f"Ваш код для входа: {code}\nКод действует 10 минут.")
+    msg.set_content(
+        "\n".join(
+            [
+                "Peaky Minds",
+                "",
+                f"Ваш код для входа: {code}",
+                "Код действует 10 минут.",
+                "",
+                "Если вы не запрашивали вход, просто проигнорируйте письмо.",
+            ]
+        )
+    )
+    msg.add_alternative(build_login_code_email_html(recipient, code), subtype="html")
 
     try:
         with smtplib.SMTP(smtp_host, smtp_port) as server:
