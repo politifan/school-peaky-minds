@@ -5210,7 +5210,7 @@ body.shell-marketing .pm-calendar-window--light .pm-calendar-window__top h3 {
 }
 
 body.shell-marketing .pm-calendar-window--light .pm-calendar-window__top .course-meta {
-  color: rgba(17, 17, 17, 0.56);
+  color: rgba(17, 17, 17, 0.72);
 }
 
 body.shell-marketing .pm-calendar-window--dark .pm-calendar-window__top h3,
@@ -5727,7 +5727,7 @@ body.shell-marketing .pm-feature-card span {
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(17, 17, 17, 0.48);
+  color: rgba(17, 17, 17, 0.68);
 }
 
 body.shell-marketing .pm-feature-card p {
@@ -5860,7 +5860,7 @@ body.shell-marketing .faq-answer {
   max-height: 0;
   overflow: hidden;
   padding: 0;
-  color: var(--pm-muted);
+  color: rgba(17, 17, 17, 0.78);
   line-height: 1.6;
   transition: max-height 0.24s ease, padding-bottom 0.24s ease;
 }
@@ -6957,7 +6957,7 @@ body.shell-marketing .pm-auth-verify h1 {
 
 body.shell-marketing .pm-auth-card__head p {
   margin: 0;
-  color: #545b6c;
+  color: #434957;
   line-height: 1.6;
 }
 
@@ -6968,7 +6968,7 @@ body.shell-marketing .pm-auth-form {
 
 body.shell-marketing .pm-auth-form__hint {
   margin: 0;
-  color: var(--pm-muted);
+  color: rgba(17, 17, 17, 0.74);
   font-size: 0.94rem;
   line-height: 1.5;
 }
@@ -7160,7 +7160,7 @@ body.shell-marketing .pm-email-login__steps {
 }
 
 body.shell-marketing .pm-email-login__side-card .course-meta {
-  color: rgba(255, 255, 255, 0.54);
+  color: rgba(255, 255, 255, 0.74);
 }
 
 body.shell-marketing .pm-email-login__side-card h2 {
@@ -7468,7 +7468,7 @@ body.shell-marketing .pm-auth-verify__side p {
 }
 
 body.shell-marketing .pm-auth-verify__side .course-meta {
-  color: rgba(255, 255, 255, 0.54);
+  color: rgba(255, 255, 255, 0.74);
 }
 
 body.shell-marketing .pm-auth-verify__orb {
@@ -10258,10 +10258,11 @@ body.shell-marketing .pm-journal-promo--dark h3 {
   font-size: clamp(1.6rem, 2.2vw, 2.2rem);
   line-height: 1.05;
   letter-spacing: -0.04em;
+  color: #ffffff;
 }
 
 body.shell-marketing .pm-journal-promo p {
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 body.shell-marketing .pm-journal-promo__actions,
@@ -11198,8 +11199,8 @@ body.shell-marketing .pm-faculty-card__variant strong {
 
 body.shell-marketing .pm-faculty-card__variant span {
   border: 1px solid rgba(17, 17, 17, 0.08);
-  background: rgba(255, 255, 255, 0.74);
-  color: rgba(17, 17, 17, 0.58);
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(17, 17, 17, 0.74);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -11225,7 +11226,7 @@ body.shell-marketing .pm-faculty-card__identity h3 {
 
 body.shell-marketing .pm-faculty-card__role {
   margin: 0;
-  color: rgba(17, 17, 17, 0.62);
+  color: rgba(17, 17, 17, 0.76);
   font-weight: 700;
 }
 
@@ -11257,7 +11258,7 @@ body.shell-marketing .pm-faculty-card__facts span {
 
 body.shell-marketing .pm-faculty-card__facts span {
   background: rgba(17, 17, 17, 0.04);
-  color: rgba(17, 17, 17, 0.72);
+  color: rgba(17, 17, 17, 0.82);
 }
 
 body.shell-marketing .pm-faculty-card--avatar {
@@ -11337,12 +11338,12 @@ body.shell-marketing .pm-faculty-showcase__note strong {
   font-size: 0.9rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(17, 17, 17, 0.54);
+  color: rgba(17, 17, 17, 0.72);
 }
 
 body.shell-marketing .pm-faculty-showcase__note p {
   margin: 0;
-  color: rgba(17, 17, 17, 0.68);
+  color: rgba(17, 17, 17, 0.78);
 }
 
 body.shell-marketing .pm-faculty-grid.reveal .pm-faculty-card {
@@ -11996,7 +11997,7 @@ body.shell-marketing .pm-roi-entry__track strong {
 body.shell-marketing .pm-roi-page__highlight p,
 body.shell-marketing .pm-roi-entry__track small {
   margin: 0;
-  color: rgba(17, 17, 17, 0.68);
+  color: rgba(17, 17, 17, 0.76);
   line-height: 1.55;
 }
 
@@ -12270,7 +12271,7 @@ body.shell-marketing .pm-promo-teaser__copy strong {
 }
 
 body.shell-marketing .pm-promo-teaser__copy small {
-  color: rgba(17, 17, 17, 0.68);
+  color: rgba(17, 17, 17, 0.8);
   font-size: 0.84rem;
   font-weight: 700;
   white-space: nowrap;
@@ -12304,7 +12305,7 @@ body.shell-marketing .pm-countdown--teaser .pm-countdown__item span {
 }
 
 body.shell-marketing .pm-promo-teaser__action {
-  color: rgba(17, 17, 17, 0.6);
+  color: rgba(17, 17, 17, 0.76);
   font-weight: 700;
   font-size: 0.88rem;
   white-space: nowrap;
@@ -13750,7 +13751,7 @@ body.shell-marketing .pm-fit-check__copy p,
 body.shell-marketing .pm-decision-card p,
 body.shell-marketing .pm-compare-card p {
   margin: 0;
-  color: rgba(17, 17, 17, 0.68);
+  color: rgba(17, 17, 17, 0.78);
 }
 
 body.shell-marketing .pm-intent-rail__actions {
@@ -13790,7 +13791,7 @@ body.shell-marketing .pm-fit-check__card strong {
 
 body.shell-marketing .pm-intent-pill span {
   font-size: 0.92rem;
-  color: rgba(17, 17, 17, 0.65);
+  color: rgba(17, 17, 17, 0.78);
 }
 
 body.shell-marketing .pm-intent-pill:hover,
@@ -13858,7 +13859,7 @@ body.shell-marketing .pm-compare-card__stats span {
   font-size: 0.8rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: rgba(17, 17, 17, 0.48);
+  color: rgba(17, 17, 17, 0.66);
 }
 
 body.shell-marketing .pm-compare-card__stats strong {
@@ -13881,7 +13882,7 @@ body.shell-marketing .pm-compare-card__audience span,
 body.shell-marketing .pm-decision-fact p,
 body.shell-marketing .pm-start-step p,
 body.shell-marketing .pm-fit-check__card p {
-  color: rgba(17, 17, 17, 0.68);
+  color: rgba(17, 17, 17, 0.78);
 }
 
 body.shell-marketing .pm-compare-card__actions {
@@ -13920,7 +13921,7 @@ body.shell-marketing .pm-section-jump__link {
   padding: 0 18px;
   border-radius: 999px;
   border: 1px solid transparent;
-  color: rgba(17, 17, 17, 0.68);
+  color: rgba(17, 17, 17, 0.78);
   text-decoration: none;
   font-weight: 700;
   transition: transform 180ms ease, border-color 180ms ease, color 180ms ease, background 180ms ease, box-shadow 180ms ease;
