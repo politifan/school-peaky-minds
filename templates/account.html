@@ -390,19 +390,6 @@
               </article>
               {% endfor %}
             </div>
-            <div class="pm-settings-grid pm-settings-grid--wide">
-              {% for card in account_settings.utility_cards %}
-              <article class="pm-surface-card pm-settings-card pm-settings-card--utility">
-                <h4>{{ card.title }}</h4>
-                <p>{{ card.text }}</p>
-                <div class="pm-inline-actions">
-                  {% for tag in card.tags %}
-                  <span class="pm-student-mini-tag">{{ tag }}</span>
-                  {% endfor %}
-                </div>
-              </article>
-              {% endfor %}
-            </div>
           </section>
 
           <section id="student-contracts" class="pm-workspace__panel{% if account_workspace_active == 'documents' %} is-active{% endif %}" data-workspace-panel="documents"{% if account_workspace_active != 'documents' %} hidden{% endif %}>
