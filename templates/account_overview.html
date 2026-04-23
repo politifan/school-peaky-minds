@@ -20,11 +20,6 @@
           <div class="pm-kicker">{{ account_hero.kicker }}</div>
           <h1 class="display-title">{{ account_hero.title }}</h1>
           <p class="section-lead">Вы вошли как <strong>{{ account_hero.user_display }}</strong>. {{ account_hero.lead }}</p>
-          <div class="pm-student-hero__summary">
-            {% for item in account_hero.summary %}
-            <span class="pm-student-badge">{{ item }}</span>
-            {% endfor %}
-          </div>
           <div class="pm-student-hero__actions">
             {% for action in account_hero.actions %}
             {% if action.show is not defined or action.show %}
