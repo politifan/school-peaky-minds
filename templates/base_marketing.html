@@ -117,6 +117,9 @@
       <a class="btn btn-secondary" href="/login">Войти</a>
       {% endif %}
       <button class="btn btn-primary" type="button" data-open-modal="apply">Оставить заявку</button>
+      {% if user_is_admin %}
+      <a class="btn btn-secondary" href="/admin">Админка</a>
+      {% endif %}
     </div>
   </aside>
 
@@ -185,6 +188,9 @@
         <a class="btn btn-secondary" href="/login">Войти</a>
         {% endif %}
         <button class="btn btn-primary site-header__cta" type="button" data-open-modal="apply">Оставить заявку</button>
+        {% if user_is_admin %}
+        <a class="btn btn-secondary site-header__admin" href="/admin">Админка</a>
+        {% endif %}
         <button class="header-burger" type="button" data-drawer-toggle aria-label="Открыть меню">
           <span></span>
           <span></span>

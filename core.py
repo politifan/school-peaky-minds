@@ -1993,6 +1993,7 @@ def render(request: Request, template_name: str, context: Optional[Dict[str, Any
     ctx = {
         "request": request,
         "user": user,
+        "user_is_admin": is_admin_user(user),
         "user_avatar": {
             "url": avatar_url,
             "initial": avatar_initial,
