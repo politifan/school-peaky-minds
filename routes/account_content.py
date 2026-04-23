@@ -1369,18 +1369,6 @@ def build_account_settings_payload(user: Optional[Dict[str, Any]], api_map: Dict
                 "value": provider,
             },
         ],
-        "utility_cards": [
-            {
-                "title": "API кабинета",
-                "text": "Все ключевые разделы кабинета доступны и через JSON API. Это удобно для мобильного приложения и будущей LMS.",
-                "tags": list(api_map.values()),
-            },
-            {
-                "title": "Уведомления и поддержка",
-                "text": "Следующим шагом сюда можно добавить push/email-уведомления о занятиях, дедлайнах и новых лекциях.",
-                "tags": ["email", "calendar", "support"],
-            },
-        ],
     }
 
 

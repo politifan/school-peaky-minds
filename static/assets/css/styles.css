@@ -8674,10 +8674,6 @@ body.shell-student .pm-settings-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-body.shell-student .pm-settings-grid--wide {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
 body.shell-student .pm-workspace-calendar-card,
 body.shell-student .pm-homework-card,
 body.shell-student .pm-teacher-card,
@@ -8776,7 +8772,6 @@ body.shell-student .pm-settings-card h4 {
   body.shell-student .pm-workspace-calendars,
   body.shell-student .pm-teacher-grid,
   body.shell-student .pm-settings-grid,
-  body.shell-student .pm-settings-grid--wide,
   body.shell-student .pm-student-layout,
   body.shell-student .pm-student-hero {
     grid-template-columns: 1fr;
@@ -13445,22 +13440,13 @@ body.shell-student .pm-student-schedule-grid,
 body.shell-student .pm-student-lecture-grid,
 body.shell-student .pm-workspace-calendars,
 body.shell-student .pm-teacher-grid,
-body.shell-student .pm-settings-grid,
-body.shell-student .pm-settings-grid--wide {
+body.shell-student .pm-settings-grid {
   gap: 16px;
 }
 
 body.shell-student .pm-student-overview,
 body.shell-student .pm-settings-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-body.shell-student .pm-student-schedule-grid,
-body.shell-student .pm-student-lecture-grid,
-body.shell-student .pm-workspace-calendars,
-body.shell-student .pm-teacher-grid,
-body.shell-student .pm-settings-grid--wide {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 body.shell-student .pm-student-course-grid {
@@ -13650,7 +13636,6 @@ body.shell-student .lesson-day__tooltip {
   body.shell-student .pm-workspace-calendars,
   body.shell-student .pm-teacher-grid,
   body.shell-student .pm-settings-grid,
-  body.shell-student .pm-settings-grid--wide,
   body.shell-student .pm-student-focus__grid {
     grid-template-columns: 1fr;
   }
