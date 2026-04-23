@@ -1008,19 +1008,28 @@ const initAvatarUploads = (root = document) => {
     if (card.dataset.pmAvatarBound === 'true') return;
     card.dataset.pmAvatarBound = 'true';
     const input = card.querySelector('[data-avatar-input]');
+    const picker = card.querySelector('[data-avatar-picker]');
     const fileName = card.querySelector('[data-avatar-file-name]');
     const preview = card.querySelector('[data-avatar-preview-image]');
     let previewUrl = '';
 
+    picker?.addEventListener('click', () => {
+      input?.click();
+    });
+
     input?.addEventListener('change', () => {
       const file = input.files && input.files[0];
       if (fileName) fileName.textContent = file ? file.name : 'Выбрать фото';
-      if (!file || !preview) return;
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      previewUrl = URL.createObjectURL(file);
-      preview.src = previewUrl;
-      preview.hidden = false;
-      preview.parentElement?.classList.add('has-image');
+      if (!file) return;
+      if (preview) {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = URL.createObjectURL(file);
+        preview.src = previewUrl;
+        preview.hidden = false;
+        preview.parentElement?.classList.add('has-image');
+      }
+      if (typeof card.requestSubmit === 'function') card.requestSubmit();
+      else card.submit();
     });
   });
 };

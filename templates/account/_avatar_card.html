@@ -1,24 +1,19 @@
-<div class="pm-profile-avatar-card" data-avatar-upload>
-  <div class="pm-profile-avatar-card__visual">
-    <div class="avatar pm-profile-avatar-card__avatar {% if user_avatar.variant == 'email' %}avatar--email{% endif %}">
+<form class="pm-profile-avatar-upload" action="/account/profile/avatar" method="post" enctype="multipart/form-data" data-avatar-upload>
+  <input type="hidden" name="next" value="{{ request.url.path }}">
+  <input class="pm-avatar-upload__input" id="account-avatar-upload" type="file" name="avatar" accept="image/jpeg,image/png,image/webp,image/gif" data-avatar-input required>
+  <button class="pm-profile-avatar-trigger" type="button" data-avatar-picker aria-label="Изменить аватар профиля">
+    <span class="avatar pm-profile-avatar-trigger__avatar {% if user_avatar.variant == 'email' %}avatar--email{% endif %}">
       <img src="{% if user_avatar.url %}{{ user_avatar.url }}{% else %}data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=={% endif %}" alt="Аватар профиля" loading="lazy" data-avatar-preview-image{% if not user_avatar.url %} hidden{% endif %}
         onload="if (!this.hidden) this.parentElement.classList.add('has-image')"
         onerror="this.parentElement.classList.remove('has-image'); this.hidden = true;">
       <span class="avatar-initial">{{ user_avatar.initial }}</span>
-    </div>
-    <div class="pm-profile-avatar-card__glow"></div>
-  </div>
-  <div class="pm-profile-avatar-card__body">
-    <div class="course-meta">Фото профиля</div>
-    <h3>Большая иконка кабинета</h3>
-    <p>Загрузите JPG, PNG, WebP или GIF до 4 МБ. Фото будет видно в кабинете и в шапке сайта.</p>
-    <form class="pm-avatar-upload" action="/account/profile/avatar" method="post" enctype="multipart/form-data">
-      <input type="hidden" name="next" value="{{ request.url.path }}">
-      <label class="pm-avatar-upload__pick">
-        <input class="pm-avatar-upload__input" type="file" name="avatar" accept="image/jpeg,image/png,image/webp,image/gif" data-avatar-input required>
-        <span data-avatar-file-name>Выбрать фото</span>
-      </label>
-      <button class="btn btn-primary" type="submit">Обновить</button>
-    </form>
-  </div>
-</div>
+    </span>
+    <span class="pm-profile-avatar-trigger__overlay" aria-hidden="true">
+      <span class="pm-profile-avatar-trigger__icon">
+        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+          <path d="M4 16.75V20h3.25L18.4 8.84l-3.25-3.25L4 16.75Zm12.79-9.96 1.58-1.58a1.12 1.12 0 0 1 1.58 0l.84.84a1.12 1.12 0 0 1 0 1.58l-1.58 1.58-2.42-2.42Z" />
+        </svg>
+      </span>
+    </span>
+  </button>
+</form>
