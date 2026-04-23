@@ -62,11 +62,11 @@
           <div class="pm-account-shell-nav__intro">
             <div class="pm-kicker">{{ account_shell["eyebrow"] }}</div>
             <h2 class="pm-account-shell-nav__title">{{ account_shell["title"] }}</h2>
-            <p class="pm-account-shell-nav__note">{{ account_shell["subtitle"] }}</p>
+            <p class="pm-account-shell-nav__note" data-account-shell-note>{{ account_shell["subtitle"] }}</p>
           </div>
           <nav class="pm-account-shell-nav__menu" data-account-shell-menu>
             {% for item in account_shell["items"] %}
-            <a class="pm-account-shell-nav__link{% if item.active %} is-active{% endif %}" href="{{ item.href }}" data-account-shell-link data-account-shell-key="{{ item.key }}" data-account-shell-workspace="{{ item.workspace or "" }}" data-account-shell-target="{{ item.scroll_target or "" }}">
+            <a class="pm-account-shell-nav__link{% if item.active %} is-active{% endif %}" href="{{ item.href }}" data-account-shell-link data-account-shell-key="{{ item.key }}" data-account-shell-label="{{ item.label }}" data-account-shell-note="{{ item.note or "" }}" data-account-shell-workspace="{{ item.workspace or "" }}" data-account-shell-target="{{ item.scroll_target or "" }}">
               <span>{{ item.label }}</span>
               {% if item.count %}
               <span class="pm-account-shell-nav__count">{{ item.count }}</span>

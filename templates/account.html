@@ -55,15 +55,33 @@
     <div class="pm-inline-alert">Оплата принята. Статус обновится после подтверждения платежа.</div>
     {% endif %}
 
-    <section class="pm-student-focus" data-account-shell-panel="overview">
+    <section class="pm-student-focus" data-account-shell-panel="focus" data-account-shell-keys="{{ account_shell['keys'] if account_shell else 'overview' }}" data-account-focus>
       <div class="pm-section-head">
         <div>
           <div class="pm-kicker">Focus</div>
-          <h2 class="section-title">{{ account_focus.title }}</h2>
+          <h2 class="section-title">
+            {% if account_shell %}
+            Фокус: <span data-account-focus-label>{{ account_shell["active_label"] }}</span>
+            {% else %}
+            {{ account_focus.title }}
+            {% endif %}
+          </h2>
         </div>
-        <span class="pm-tag">{{ account_focus.text }}</span>
+        <span class="pm-tag" data-account-focus-note>{{ account_shell["subtitle"] if account_shell else account_focus.text }}</span>
       </div>
-      <div class="pm-student-focus__grid">
+      <div class="pm-student-focus__grid{% if account_shell %} pm-student-focus__grid--states{% endif %}">
+        {% if account_shell %}
+        {% for item in account_shell["items"] %}
+        <article class="pm-surface-card pm-student-focus-card pm-student-focus-card--state" data-account-focus-card="{{ item.key }}"{% if not item.active %} hidden{% endif %}>
+          <div>
+            <div class="course-meta">{{ item.label }}{% if item.count %} · {{ item.count }}{% endif %}</div>
+            <h3>Быстрый переход: {{ item.label }}</h3>
+            <p>{{ item.note }}</p>
+          </div>
+          <a class="btn btn-secondary" href="{{ item.href }}" data-account-shell-jump="{{ item.key }}">Открыть раздел</a>
+        </article>
+        {% endfor %}
+        {% else %}
         {% for card in account_focus.cards %}
         <article class="pm-surface-card pm-student-focus-card">
           <div class="course-meta">{{ card.label }}</div>
@@ -72,6 +90,7 @@
           <a class="btn btn-secondary" href="{{ card.href }}">{{ card.action }}</a>
         </article>
         {% endfor %}
+        {% endif %}
       </div>
     </section>
 

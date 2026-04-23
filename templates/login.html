@@ -91,7 +91,7 @@
             data-telegram-login="{{ telegram_bot_username }}"
             data-size="large"
             data-request-access="write"
-            data-onauth="onTelegramAuth(user)">
+            data-auth-url="{{ telegram_auth_url }}">
           </div>
           <p class="pm-auth-form__hint">Виджет Telegram загружается после открытия страницы. Если он не появился, используйте email или GitHub.</p>
         </div>
@@ -105,19 +105,4 @@
     </div>
   </div>
 </section>
-{% endblock %}
-
-{% block extra_scripts %}
-<script>
-  function onTelegramAuth(user) {
-    if (!user) return;
-    const params = new URLSearchParams();
-    Object.keys(user).forEach((key) => {
-      if (user[key] !== undefined && user[key] !== null) {
-        params.set(key, user[key]);
-      }
-    });
-    window.location.href = `/login/telegram?${params.toString()}`;
-  }
-</script>
 {% endblock %}

@@ -103,21 +103,30 @@ const initNonCriticalAnalytics = () => {
 const mountTelegramWidget = () => {
   const node = document.querySelector('[data-telegram-widget]');
   if (!node || node.dataset.pmLoaded === 'true') return;
+  const login = String(node.dataset.telegramLogin || '').trim();
+  if (!login) return;
   node.dataset.pmLoaded = 'true';
+  node.classList.remove('tg-login-button--error');
   node.innerHTML = '';
   const script = document.createElement('script');
   script.async = true;
   script.src = 'https://telegram.org/js/telegram-widget.js?22';
-  ['telegramLogin', 'size', 'onauth', 'requestAccess'].forEach((key) => {
+  ['telegramLogin', 'size', 'authUrl', 'onauth', 'requestAccess', 'userpic', 'radius'].forEach((key) => {
     const attrKey = `data-${key.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)}`;
     const value = node.dataset[key];
     if (value) script.setAttribute(attrKey, value);
   });
+  script.addEventListener('error', () => {
+    node.dataset.pmLoaded = 'false';
+    node.classList.add('tg-login-button--error');
+    node.innerHTML = '<span class="tg-login-button__fallback">Telegram не загрузился. Обновите страницу или используйте email.</span>';
+  }, { once: true });
   node.appendChild(script);
 };
 
 runAfterPageLoad(initNonCriticalAnalytics, 1500);
-runAfterPageLoad(mountTelegramWidget, 1200);
+mountTelegramWidget();
+runAfterPageLoad(mountTelegramWidget, 300);
 runAfterPageLoad(() => {
   if (window.vkBridge && typeof window.vkBridge.send === 'function') {
     window.vkBridge.send('VKWebAppInit').catch(() => {});
@@ -125,7 +134,13 @@ runAfterPageLoad(() => {
 }, 300);
 
 document.querySelectorAll('.pm-provider-telegram .pm-provider-button').forEach((button) => {
-  button.addEventListener('click', mountTelegramWidget);
+  button.addEventListener('click', () => {
+    const node = document.querySelector('[data-telegram-widget]');
+    if (node && node.classList.contains('tg-login-button--error')) {
+      node.dataset.pmLoaded = 'false';
+    }
+    mountTelegramWidget();
+  });
 });
 
 const syncBodyLock = () => {
@@ -1055,6 +1070,11 @@ accountShellPages.forEach((page) => {
   const shellLinks = Array.from(document.querySelectorAll('[data-account-shell-link]'));
   const shellPanels = Array.from(page.querySelectorAll('[data-account-shell-panel]'));
   const workspace = page.querySelector('[data-workspace-carousel]');
+  const shellNote = document.querySelector('[data-account-shell-note]');
+  const focus = page.querySelector('[data-account-focus]');
+  const focusLabel = focus?.querySelector('[data-account-focus-label]');
+  const focusNote = focus?.querySelector('[data-account-focus-note]');
+  const focusCards = focus ? Array.from(focus.querySelectorAll('[data-account-focus-card]')) : [];
   if (!shellLinks.length) return;
 
   const keyByPath = {
@@ -1092,6 +1112,19 @@ accountShellPages.forEach((page) => {
     });
   };
 
+  const syncFocus = (link) => {
+    if (!link) return;
+    const key = link.dataset.accountShellKey;
+    const label = link.dataset.accountShellLabel || link.textContent.trim();
+    const note = link.dataset.accountShellNote || '';
+    if (focusLabel) focusLabel.textContent = label;
+    if (focusNote) focusNote.textContent = note;
+    if (shellNote) shellNote.textContent = note;
+    focusCards.forEach((card) => {
+      card.hidden = card.dataset.accountFocusCard !== key;
+    });
+  };
+
   const syncWorkspace = (workspaceKey) => {
     if (!workspace || !workspaceKey) return;
     const tab = workspace.querySelector(`[data-workspace-tab="${workspaceKey}"]`);
@@ -1104,6 +1137,7 @@ accountShellPages.forEach((page) => {
     if (!link) return;
     syncShellLink(link.dataset.accountShellKey);
     syncPanels(link.dataset.accountShellKey);
+    syncFocus(link);
     syncWorkspace(link.dataset.accountShellWorkspace);
     if (settings.history) {
       window.history.pushState({ accountShell: link.dataset.accountShellKey }, '', link.getAttribute('href'));
@@ -1127,6 +1161,13 @@ accountShellPages.forEach((page) => {
     });
   });
 
+  page.querySelectorAll('[data-account-shell-jump]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      activateShell(link.dataset.accountShellJump);
+    });
+  });
+
   window.addEventListener('popstate', () => {
     activateShell(resolveKeyFromLocation(), { history: false, scroll: false });
   });
@@ -1135,9 +1176,11 @@ accountShellPages.forEach((page) => {
   workspaceTabs.forEach((tab) => {
     tab.addEventListener('click', () => {
       const shellKey = tab.dataset.workspaceTab === 'settings' ? 'profile' : tab.dataset.workspaceTab;
-      if (!shellLinks.some((link) => link.dataset.accountShellKey === shellKey)) return;
+      const shellLink = shellLinks.find((link) => link.dataset.accountShellKey === shellKey);
+      if (!shellLink) return;
       syncShellLink(shellKey);
       syncPanels(shellKey);
+      syncFocus(shellLink);
     });
   });
 

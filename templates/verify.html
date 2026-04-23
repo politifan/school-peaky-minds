@@ -8,29 +8,60 @@
 <section class="pm-auth-page pm-auth-page--narrow">
   <div class="container">
     <div class="pm-auth-verify pm-surface-card">
-      <div class="pm-kicker">Подтверждение</div>
-      <h1 class="display-title">Введите код из письма</h1>
-      <p class="section-lead">Мы отправили шестизначный код на <strong>{{ email }}</strong>. После подтверждения вернём вас к следующему шагу.</p>
-      {% if error %}
-      <div class="pm-inline-alert pm-inline-alert--error">{{ error }}</div>
-      {% endif %}
-      <form class="pm-auth-form" action="/login/verify" method="post">
-        <input type="hidden" name="email" value="{{ email }}">
-        <input type="hidden" name="next" value="{{ next }}">
-        <input type="hidden" name="{{ antibot_token_field }}" value="{{ antibot_tokens.login_verify }}">
-        <div style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
-          <input type="text" name="{{ antibot_honeypot_field }}" tabindex="-1" autocomplete="off">
+      <div class="pm-auth-verify__layout">
+        <div class="pm-auth-verify__content">
+          <div class="pm-auth-verify__top">
+            <div class="pm-auth-verify__mark">PM</div>
+            <div>
+              <div class="pm-kicker">Подтверждение</div>
+              <h1 class="display-title">Введите код из письма</h1>
+            </div>
+          </div>
+          <p class="section-lead">Мы отправили шестизначный код на почту. После подтверждения сразу вернём вас к следующему шагу.</p>
+          <div class="pm-auth-verify__mail">{{ email }}</div>
+          <div class="pm-auth-verify__steps" aria-label="Что делать дальше">
+            <span>1. Откройте письмо</span>
+            <span>2. Введите 6 цифр</span>
+            <span>3. Продолжайте обучение</span>
+          </div>
+          {% if error %}
+          <div class="pm-inline-alert pm-inline-alert--error">{{ error }}</div>
+          {% endif %}
+          <form class="pm-auth-form" action="/login/verify" method="post">
+            <input type="hidden" name="email" value="{{ email }}">
+            <input type="hidden" name="next" value="{{ next }}">
+            <input type="hidden" name="{{ antibot_token_field }}" value="{{ antibot_tokens.login_verify }}">
+            <div style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+              <input type="text" name="{{ antibot_honeypot_field }}" tabindex="-1" autocomplete="off">
+            </div>
+            <div class="pm-code-field">
+              <label class="auth-label" for="verify-code">Код подтверждения</label>
+              <input id="verify-code" class="pm-code-input" type="text" name="code" placeholder="123456" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required autofocus>
+              <p class="pm-auth-form__hint">Код действует 10 минут. Если письма нет, проверьте папку «Спам» или вернитесь и отправьте код ещё раз.</p>
+            </div>
+            {% if turnstile_enabled %}
+            <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+            {% endif %}
+            <div class="pm-auth-actions">
+              <button class="btn btn-primary" type="submit">Подтвердить вход</button>
+              <a class="btn btn-secondary" href="/login{% if next %}?next={{ next }}{% endif %}">Изменить email</a>
+            </div>
+          </form>
         </div>
-        <label class="auth-label" for="verify-code">Код</label>
-        <input id="verify-code" type="text" name="code" placeholder="123456" inputmode="numeric" autocomplete="one-time-code" required>
-        {% if turnstile_enabled %}
-        <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
-        {% endif %}
-        <div class="pm-auth-actions">
-          <button class="btn btn-primary" type="submit">Подтвердить вход</button>
-          <a class="btn btn-secondary" href="/login{% if next %}?next={{ next }}{% endif %}">Изменить email</a>
-        </div>
-      </form>
+        <aside class="pm-auth-verify__side" aria-label="Подсказки по входу">
+          <div class="pm-auth-verify__orb">6</div>
+          <div>
+            <div class="course-meta">Email login</div>
+            <h2>Без пароля. Без лишних шагов.</h2>
+            <p>Код одноразовый: он нужен только для входа и не сохраняется в браузере.</p>
+          </div>
+          <div class="pm-auth-verify__checks">
+            <span>10 минут действия</span>
+            <span>Автоподстановка кода</span>
+            <span>Безопасный вход</span>
+          </div>
+        </aside>
+      </div>
     </div>
   </div>
 </section>
