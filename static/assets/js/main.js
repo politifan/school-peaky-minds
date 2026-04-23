@@ -1013,7 +1013,7 @@ accountShellPages.forEach((page) => {
   let activeShellKey = '';
 
   const keyByPath = {
-    '/account': 'overview',
+    '/account': 'courses',
     '/account/courses': 'courses',
     '/account/calendar': 'calendar',
     '/account/homework': 'homework',
@@ -1073,7 +1073,7 @@ accountShellPages.forEach((page) => {
   };
 
   const activateShell = (key, options = {}) => {
-    const settings = { history: true, scroll: true, ...options };
+    const settings = { history: true, scroll: false, ...options };
     const link = shellLinks.find((item) => item.dataset.accountShellKey === key) || shellLinks[0];
     if (!link) return;
     activeShellKey = link.dataset.accountShellKey;
@@ -1096,7 +1096,7 @@ accountShellPages.forEach((page) => {
     if (workspaceKey) {
       return workspaceKey === 'settings' ? 'profile' : workspaceKey;
     }
-    return keyByPath[pathname] || 'overview';
+    return keyByPath[pathname] || 'courses';
   };
 
   shellLinks.forEach((link) => {

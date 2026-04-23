@@ -1606,11 +1606,12 @@ def build_account_content(
         },
     }
     workspace_tabs = [
-        {"key": "overview", "label": "Обзор", "count": ""},
+        {"key": "courses", "label": "Курсы", "count": str(len(agreements)) if agreements else ""},
         {"key": "calendar", "label": "Календарь", "count": str(len(schedule)) if schedule else ""},
         {"key": "homework", "label": "ДЗ", "count": str(homework_payload["open_count"]) if homework_payload["open_count"] else ""},
         {"key": "lectures", "label": "Лекции", "count": str(len(lectures)) if lectures else ""},
         {"key": "teachers", "label": "Преподаватели", "count": str(len(teachers)) if teachers else ""},
+        {"key": "documents", "label": "Документы", "count": str(sum(1 for item in agreements if item.get('contract_url') or item.get('contract_pdf_url'))) if agreements else ""},
         {"key": "settings", "label": "Настройки", "count": ""},
     ]
     return {
@@ -1656,20 +1657,11 @@ def build_account_content(
 
 ACCOUNT_SHELL_PAGES = [
     {
-        "key": "overview",
-        "label": "Сегодня",
-        "href": "/account",
-        "workspace": "overview",
-        "count_key": "upcoming_events",
-        "note": "Следующий шаг, ближайшие события и быстрый обзор обучения.",
-    },
-    {
         "key": "courses",
         "label": "Курсы",
-        "href": "/account/courses",
-        "workspace": "",
+        "href": "/account",
+        "workspace": "courses",
         "count_key": "total_courses",
-        "scroll_target": "student-courses",
         "note": "Все траектории, прогресс по модулям и точки входа в материалы.",
     },
     {
@@ -1678,7 +1670,6 @@ ACCOUNT_SHELL_PAGES = [
         "href": "/account/calendar",
         "workspace": "calendar",
         "count_key": "upcoming_events",
-        "scroll_target": "student-workspace",
         "note": "Ближайшие занятия и помесячный ритм обучения без лишнего шума.",
     },
     {
@@ -1687,7 +1678,6 @@ ACCOUNT_SHELL_PAGES = [
         "href": "/account/homework",
         "workspace": "homework",
         "count_key": "homework_open",
-        "scroll_target": "student-workspace",
         "note": "Активные домашние задания, дедлайны и нужные материалы в одном месте.",
     },
     {
@@ -1696,7 +1686,6 @@ ACCOUNT_SHELL_PAGES = [
         "href": "/account/lectures",
         "workspace": "lectures",
         "count_key": "lecture_records",
-        "scroll_target": "student-workspace",
         "note": "Записи занятий, фильтры и быстрый возврат к нужной теме.",
     },
     {
@@ -1705,16 +1694,14 @@ ACCOUNT_SHELL_PAGES = [
         "href": "/account/teachers",
         "workspace": "teachers",
         "count_key": "teachers_count",
-        "scroll_target": "student-workspace",
         "note": "Кто ведёт занятия, за что отвечает и как быстро связаться.",
     },
     {
         "key": "documents",
         "label": "Документы",
         "href": "/account/documents",
-        "workspace": "",
+        "workspace": "documents",
         "count_key": "signed_contracts",
-        "scroll_target": "student-contracts",
         "note": "Договоры, PDF и сервисные детали без поиска по длинной странице.",
     },
     {
@@ -1723,17 +1710,17 @@ ACCOUNT_SHELL_PAGES = [
         "href": "/account/profile",
         "workspace": "settings",
         "count_key": "",
-        "scroll_target": "student-workspace",
         "note": "Способ входа, данные аккаунта и системные настройки кабинета.",
     },
 ]
 
 ACCOUNT_WORKSPACE_ROUTE_MAP = {
-    "overview": "/account",
+    "courses": "/account",
     "calendar": "/account/calendar",
     "homework": "/account/homework",
     "lectures": "/account/lectures",
     "teachers": "/account/teachers",
+    "documents": "/account/documents",
     "settings": "/account/profile",
 }
 
@@ -2007,7 +1994,6 @@ def build_account_profile_page(*, account_content: Dict[str, Any], agreements: L
 
 
 ACCOUNT_PAGE_BUILDERS = {
-    "overview": build_account_overview_page,
     "courses": build_account_courses_page,
     "calendar": build_account_calendar_page,
     "homework": build_account_homework_page,
@@ -2024,7 +2010,7 @@ def build_account_page_payload(
     account_content: Dict[str, Any],
     agreements: List[Dict[str, Any]],
 ) -> Dict[str, Any]:
-    builder = ACCOUNT_PAGE_BUILDERS.get(page_key) or build_account_overview_page
+    builder = ACCOUNT_PAGE_BUILDERS.get(page_key) or build_account_courses_page
     return builder(account_content=account_content, agreements=agreements)
 
 

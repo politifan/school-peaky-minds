@@ -72,20 +72,11 @@ router = APIRouter()
 
 ACCOUNT_SHELL_PAGES = [
     {
-        "key": "overview",
-        "label": "Сегодня",
-        "href": "/account",
-        "workspace": "overview",
-        "count_key": "upcoming_events",
-        "note": "Следующий шаг, ближайшие события и быстрый обзор обучения.",
-    },
-    {
         "key": "courses",
         "label": "Курсы",
-        "href": "/account/courses",
-        "workspace": "",
+        "href": "/account",
+        "workspace": "courses",
         "count_key": "total_courses",
-        "scroll_target": "student-courses",
         "note": "Все траектории, прогресс по модулям и точки входа в материалы.",
     },
     {
@@ -94,7 +85,6 @@ ACCOUNT_SHELL_PAGES = [
         "href": "/account/calendar",
         "workspace": "calendar",
         "count_key": "upcoming_events",
-        "scroll_target": "student-workspace",
         "note": "Ближайшие занятия и помесячный ритм обучения без лишнего шума.",
     },
     {
@@ -103,7 +93,6 @@ ACCOUNT_SHELL_PAGES = [
         "href": "/account/homework",
         "workspace": "homework",
         "count_key": "homework_open",
-        "scroll_target": "student-workspace",
         "note": "Активные домашние задания, дедлайны и нужные материалы в одном месте.",
     },
     {
@@ -112,7 +101,6 @@ ACCOUNT_SHELL_PAGES = [
         "href": "/account/lectures",
         "workspace": "lectures",
         "count_key": "lecture_records",
-        "scroll_target": "student-workspace",
         "note": "Записи занятий, фильтры и быстрый возврат к нужной теме.",
     },
     {
@@ -121,16 +109,14 @@ ACCOUNT_SHELL_PAGES = [
         "href": "/account/teachers",
         "workspace": "teachers",
         "count_key": "teachers_count",
-        "scroll_target": "student-workspace",
         "note": "Кто ведёт занятия, за что отвечает и как быстро связаться.",
     },
     {
         "key": "documents",
         "label": "Документы",
         "href": "/account/documents",
-        "workspace": "",
+        "workspace": "documents",
         "count_key": "signed_contracts",
-        "scroll_target": "student-contracts",
         "note": "Договоры, PDF и сервисные детали без поиска по длинной странице.",
     },
     {
@@ -138,7 +124,6 @@ ACCOUNT_SHELL_PAGES = [
         "label": "Профиль",
         "href": "/account/profile",
         "workspace": "settings",
-        "scroll_target": "student-workspace",
         "note": "Способ входа, данные аккаунта и системные настройки кабинета.",
     },
 ]
@@ -380,7 +365,7 @@ def _build_account_page_context(
     )
     allowed_workspace_keys = {item["key"] for item in account_content["workspace_tabs"]}
     if workspace_active not in allowed_workspace_keys:
-        workspace_active = "overview"
+        workspace_active = "courses"
     page_payload = build_account_page_payload(
         page_key=shell_active,
         account_content=account_content,
@@ -945,7 +930,7 @@ async def account(request: Request):
     legacy_redirect = _legacy_account_workspace_redirect(request)
     if legacy_redirect:
         return legacy_redirect
-    return _render_account_page(request, workspace_active="overview", shell_active="overview")
+    return _render_account_page(request, workspace_active="courses", shell_active="courses")
     agreements_all = load_agreements()
     user_id = user.get("id")
     user_email = (user.get("email") or "").strip().lower()
@@ -1105,10 +1090,10 @@ async def account(request: Request):
         lectures_course=lecture_course,
         lectures_page=lecture_page,
     )
-    workspace_active = str(request.query_params.get("workspace") or "overview").strip() or "overview"
+    workspace_active = str(request.query_params.get("workspace") or "courses").strip() or "courses"
     allowed_workspace_keys = {item["key"] for item in account_content["workspace_tabs"]}
     if workspace_active not in allowed_workspace_keys:
-        workspace_active = "overview"
+        workspace_active = "courses"
     schedule_items = account_content["schedule"]
     homework_items = account_content["homework"]
     lecture_items = account_content["lectures"]
@@ -1144,7 +1129,7 @@ async def account(request: Request):
 
 @router.get("/account/courses", include_in_schema=False)
 async def account_courses(request: Request):
-    return _render_account_page(request, workspace_active="overview", shell_active="courses")
+    return _render_account_page(request, workspace_active="courses", shell_active="courses")
 
 
 @router.get("/account/calendar", include_in_schema=False)
@@ -1169,7 +1154,7 @@ async def account_teachers_page(request: Request):
 
 @router.get("/account/documents", include_in_schema=False)
 async def account_documents(request: Request):
-    return _render_account_page(request, workspace_active="overview", shell_active="documents")
+    return _render_account_page(request, workspace_active="documents", shell_active="documents")
 
 
 @router.get("/account/profile", include_in_schema=False)

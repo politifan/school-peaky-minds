@@ -8,7 +8,7 @@
   {% if not account_shell %}
   <div class="container">
   {% endif %}
-    <section class="pm-student-hero pm-surface-card" data-account-shell-panel="overview">
+    <section class="pm-student-hero pm-surface-card">
       <div class="pm-student-hero__main">
         <div class="account-profile">
           <div class="avatar avatar--large {% if user_avatar.variant == 'email' %}avatar--email{% endif %}">
@@ -55,45 +55,22 @@
     <div class="pm-inline-alert">Оплата принята. Статус обновится после подтверждения платежа.</div>
     {% endif %}
 
-    <section id="student-workspace" class="pm-student-section" data-account-shell-panel="workspace" data-account-shell-keys="overview,calendar,homework,lectures,teachers,profile">
+    <section id="student-workspace" class="pm-student-section" data-account-shell-panel="workspace" data-account-shell-keys="courses,calendar,homework,lectures,teachers,documents,profile">
       <div class="pm-section-head">
         <div>
           <div class="pm-kicker">Workspace</div>
           <h2 class="section-title">Карусель разделов</h2>
         </div>
-        <span class="pm-tag">Контент загружен заранее, обновление запускается вручную</span>
       </div>
       <div class="pm-surface-card pm-workspace" data-account-carousel>
         <div class="pm-workspace__intro">
           <div>
-            <div class="course-meta">Live carousel</div>
-            <strong>Выберите раздел слева. Мы не грузим новую страницу, пока вы сами не нажмёте обновление.</strong>
-          </div>
-          <div class="pm-workspace__links">
-            <a href="#student-courses">Мои курсы</a>
-            <a href="{% if agreements %}#student-contracts{% else %}/#courses{% endif %}">Договоры</a>
+            <div class="course-meta">Carousel</div>
+            <strong>Разделы переключаются в одном рабочем экране через кнопки слева.</strong>
           </div>
         </div>
 
         <div class="pm-workspace__panels">
-          <section class="pm-workspace__panel{% if account_workspace_active == 'overview' %} is-active{% endif %}" data-workspace-panel="overview"{% if account_workspace_active != 'overview' %} hidden{% endif %}>
-            <div class="pm-workspace__head">
-              <div>
-                <div class="pm-kicker">{{ account_overview.kicker }}</div>
-                <h3>{{ account_overview.title }}</h3>
-              </div>
-            </div>
-            <div class="pm-student-overview">
-              {% for card in account_overview.cards %}
-              <article class="pm-surface-card pm-student-overview-card">
-                <div class="course-meta">{{ card.kicker }}</div>
-                <h3>{{ card.title }}</h3>
-                <p>{{ card.text }}</p>
-              </article>
-              {% endfor %}
-            </div>
-          </section>
-
           <section class="pm-workspace__panel{% if account_workspace_active == 'calendar' %} is-active{% endif %}" data-workspace-panel="calendar"{% if account_workspace_active != 'calendar' %} hidden{% endif %}>
             <div class="pm-workspace__head">
               <div>
@@ -452,11 +429,8 @@
               {% endfor %}
             </div>
           </section>
-        </div>
-      </div>
-    </section>
 
-    <section id="student-contracts" class="pm-student-section" data-account-shell-panel="documents">
+          <section id="student-contracts" class="pm-workspace__panel{% if account_workspace_active == 'documents' %} is-active{% endif %}" data-workspace-panel="documents"{% if account_workspace_active != 'documents' %} hidden{% endif %}>
       <div class="pm-section-head">
         <div>
           <div class="pm-kicker">Documents</div>
@@ -494,9 +468,9 @@
         <a class="btn btn-primary" href="/#courses">Choose a course</a>
       </div>
       {% endif %}
-    </section>
+          </section>
 
-    <section id="student-courses" class="pm-student-section" data-account-shell-panel="courses">
+          <section id="student-courses" class="pm-workspace__panel{% if account_workspace_active == 'courses' %} is-active{% endif %}" data-workspace-panel="courses"{% if account_workspace_active != 'courses' %} hidden{% endif %}>
       <div class="pm-section-head">
         <div>
           <div class="pm-kicker">Courses</div>
@@ -699,6 +673,9 @@
         <a class="btn btn-primary" href="/#courses">Выбрать курс</a>
       </div>
       {% endif %}
+          </section>
+        </div>
+      </div>
     </section>
   {% if not account_shell %}
   </div>
