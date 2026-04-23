@@ -442,6 +442,25 @@ async def login(request: Request):
     return render(request, "login.html", login_context(request, next_url=next_url))
 
 
+def _login_email_context(
+    request: Request,
+    *,
+    next_url: str = "/",
+    error: Optional[str] = None,
+    email: str = "",
+) -> Dict[str, Any]:
+    context = login_context(request, next_url=next_url, error=error)
+    context["email_value"] = email
+    return context
+
+
+@router.get("/login/email", include_in_schema=False)
+async def login_email_page(request: Request):
+    next_url = request.query_params.get("next") or "/"
+    email = str(request.query_params.get("email") or "").strip().lower()
+    return render(request, "login_email.html", _login_email_context(request, next_url=next_url, email=email))
+
+
 @router.post("/login/vk-bridge", include_in_schema=False)
 async def login_vk_bridge(request: Request):
     return RedirectResponse("/login?error=Вход+через+VK+отключен", status_code=HTTP_302_FOUND)
@@ -487,11 +506,20 @@ async def login_email(request: Request):
     if not antibot_ok:
         return render(
             request,
-            "login.html",
-            login_context(request, next_url=next_url, error=_antibot_error_message(antibot_reason)),
+            "login_email.html",
+            _login_email_context(
+                request,
+                next_url=next_url,
+                error=_antibot_error_message(antibot_reason),
+                email=email,
+            ),
         )
     if not email:
-        return render(request, "login.html", login_context(request, next_url=next_url, error="Введите email"))
+        return render(
+            request,
+            "login_email.html",
+            _login_email_context(request, next_url=next_url, error="Введите email", email=email),
+        )
 
     code = f"{secrets.randbelow(10 ** 6):06d}"
     codes = load_json(CODES_FILE, {})

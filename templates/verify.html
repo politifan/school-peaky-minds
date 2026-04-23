@@ -44,7 +44,7 @@
             {% endif %}
             <div class="pm-auth-actions">
               <button class="btn btn-primary" type="submit">Подтвердить вход</button>
-              <a class="btn btn-secondary" href="/login{% if next %}?next={{ next }}{% endif %}">Изменить email</a>
+              <a class="btn btn-secondary" href="/login/email{% if next %}?next={{ next | urlencode }}{% endif %}">Изменить email</a>
             </div>
           </form>
         </div>

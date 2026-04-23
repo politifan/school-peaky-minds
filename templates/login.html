@@ -50,6 +50,7 @@
         {% endif %}
         <button class="btn btn-primary" type="submit">Получить код</button>
         <p class="pm-auth-form__hint">Код действует 10 минут и подходит для входа с любого устройства.</p>
+        <a class="pm-auth-form__link" href="/login/email{% if next %}?next={{ next | urlencode }}{% endif %}">Открыть отдельную страницу email-входа</a>
       </form>
 
       <div class="pm-auth-divider"><span>или продолжить через сервис</span></div>

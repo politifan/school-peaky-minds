@@ -6971,6 +6971,270 @@ body.shell-marketing .pm-auth-form__hint {
   line-height: 1.5;
 }
 
+body.shell-marketing .pm-auth-form__link {
+  width: fit-content;
+  color: #111111;
+  font-size: 0.94rem;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+body.shell-marketing .pm-email-login-page .container {
+  max-width: 1120px;
+}
+
+body.shell-marketing .pm-email-login {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.46fr);
+  gap: 28px;
+  padding: clamp(24px, 4vw, 44px);
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(17, 18, 24, 0.08);
+  box-shadow: 0 24px 70px rgba(17, 18, 24, 0.1);
+}
+
+body.shell-marketing .pm-email-login::before {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  right: 34%;
+  top: -120px;
+  border: 1px solid rgba(17, 18, 24, 0.08);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+body.shell-marketing .pm-email-login__main {
+  display: grid;
+  gap: 20px;
+  align-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+body.shell-marketing .pm-email-login__top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+body.shell-marketing .pm-email-login__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 22px;
+  background: #111111;
+  color: #ffffff;
+  font-size: 1.9rem;
+  font-weight: 900;
+  box-shadow: 0 18px 34px rgba(17, 18, 24, 0.18);
+}
+
+body.shell-marketing .pm-email-login__form {
+  max-width: 620px;
+  padding: 18px;
+  border: 1px solid rgba(17, 18, 24, 0.08);
+  border-radius: 28px;
+  background: #ffffff;
+}
+
+body.shell-marketing .pm-email-login__field {
+  display: grid;
+  gap: 10px;
+}
+
+body.shell-marketing .pm-email-login__input-shell {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 70px;
+  padding: 0 18px;
+  border: 1px solid rgba(17, 18, 24, 0.12);
+  border-radius: 22px;
+  background: #f7f7f1;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+body.shell-marketing .pm-email-login__input-shell:focus-within {
+  background: #ffffff;
+  border-color: rgba(17, 18, 24, 0.3);
+  box-shadow: 0 0 0 4px rgba(17, 18, 24, 0.08);
+}
+
+body.shell-marketing .pm-email-login__input-shell span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 15px;
+  background: #111111;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+body.shell-marketing .pm-email-login__input-shell input[type="email"] {
+  min-height: 66px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-weight: 750;
+}
+
+body.shell-marketing .pm-email-login__input-shell input[type="email"]:focus {
+  box-shadow: none;
+}
+
+body.shell-marketing .pm-email-login__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  color: #646978;
+  font-size: 0.95rem;
+}
+
+body.shell-marketing .pm-email-login__footer a {
+  color: #111111;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+body.shell-marketing .pm-email-login__side {
+  display: grid;
+  gap: 14px;
+  min-height: 480px;
+}
+
+body.shell-marketing .pm-email-login__side-card {
+  position: relative;
+  display: grid;
+  align-content: end;
+  gap: 18px;
+  min-height: 310px;
+  padding: 28px;
+  border-radius: 32px;
+  background: #111111;
+  color: #ffffff;
+  overflow: hidden;
+}
+
+body.shell-marketing .pm-email-login__side-card::before,
+body.shell-marketing .pm-email-login__side-card::after {
+  content: "";
+  position: absolute;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+}
+
+body.shell-marketing .pm-email-login__side-card::before {
+  width: 210px;
+  height: 210px;
+  right: -78px;
+  top: -68px;
+}
+
+body.shell-marketing .pm-email-login__side-card::after {
+  width: 112px;
+  height: 112px;
+  left: -34px;
+  bottom: 28px;
+}
+
+body.shell-marketing .pm-email-login__side-card .course-meta,
+body.shell-marketing .pm-email-login__side-card h2,
+body.shell-marketing .pm-email-login__steps {
+  position: relative;
+  z-index: 1;
+}
+
+body.shell-marketing .pm-email-login__side-card .course-meta {
+  color: rgba(255, 255, 255, 0.54);
+}
+
+body.shell-marketing .pm-email-login__side-card h2 {
+  max-width: 300px;
+  margin: 0;
+  font-size: clamp(1.65rem, 3vw, 2.3rem);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+body.shell-marketing .pm-email-login__steps,
+body.shell-marketing .pm-email-login__trust {
+  display: grid;
+  gap: 10px;
+}
+
+body.shell-marketing .pm-email-login__steps span,
+body.shell-marketing .pm-email-login__trust span {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 750;
+}
+
+body.shell-marketing .pm-email-login__steps span {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.86);
+}
+
+body.shell-marketing .pm-email-login__trust span {
+  border: 1px solid rgba(17, 18, 24, 0.08);
+  background: #f6f6ef;
+  color: #111111;
+}
+
+@media (max-width: 920px) {
+  body.shell-marketing .pm-email-login {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-marketing .pm-email-login__side {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  body.shell-marketing .pm-email-login__top {
+    align-items: flex-start;
+  }
+
+  body.shell-marketing .pm-email-login__mark {
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+    font-size: 1.55rem;
+  }
+
+  body.shell-marketing .pm-email-login__form {
+    padding: 14px;
+    border-radius: 24px;
+  }
+
+  body.shell-marketing .pm-email-login__input-shell {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 14px;
+  }
+
+  body.shell-marketing .pm-email-login__input-shell input[type="email"] {
+    min-height: 48px;
+  }
+}
+
 body.shell-marketing .pm-auth-divider {
   position: relative;
   display: flex;

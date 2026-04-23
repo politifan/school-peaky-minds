@@ -1,0 +1,70 @@
+{% extends "base_marketing.html" %}
+
+{% block title %}Вход по email - Peaky Minds{% endblock %}
+{% block description %}Получите одноразовый код на email и войдите в личный кабинет Peaky Minds.{% endblock %}
+{% block body_class %}pm-auth-body{% endblock %}
+
+{% block content %}
+<section class="pm-auth-page pm-email-login-page">
+  <div class="container">
+    <div class="pm-email-login pm-surface-card">
+      <div class="pm-email-login__main">
+        <div class="pm-email-login__top">
+          <div class="pm-email-login__mark">@</div>
+          <div>
+            <div class="pm-kicker">Email login</div>
+            <h1 class="display-title">Вход по почте за 30 секунд</h1>
+          </div>
+        </div>
+        <p class="section-lead">Укажите email, мы отправим одноразовый шестизначный код и сразу откроем личный кабинет после подтверждения.</p>
+
+        {% if error %}
+        <div class="pm-inline-alert pm-inline-alert--error">{{ error }}</div>
+        {% endif %}
+
+        <form class="pm-auth-form pm-email-login__form" action="/login/email" method="post">
+          <input type="hidden" name="next" value="{{ next }}">
+          <input type="hidden" name="{{ antibot_token_field }}" value="{{ antibot_tokens.login_email }}">
+          <div style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+            <input type="text" name="{{ antibot_honeypot_field }}" tabindex="-1" autocomplete="off">
+          </div>
+          <div class="pm-email-login__field">
+            <label class="auth-label" for="login-email-page">Ваш email</label>
+            <div class="pm-email-login__input-shell">
+              <span>@</span>
+              <input id="login-email-page" type="email" name="email" placeholder="you@example.com" value="{{ email_value }}" autocomplete="email" required maxlength="254" autofocus>
+            </div>
+          </div>
+          {% if turnstile_enabled %}
+          <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+          {% endif %}
+          <button class="btn btn-primary" type="submit">Получить код</button>
+          <p class="pm-auth-form__hint">Код действует 10 минут. Пароль не нужен, а письмо можно открыть с любого устройства.</p>
+        </form>
+
+        <div class="pm-email-login__footer">
+          <a href="/login{% if next %}?next={{ next | urlencode }}{% endif %}">Выбрать другой способ входа</a>
+          <span>Google, GitHub и Telegram доступны на общей странице входа.</span>
+        </div>
+      </div>
+
+      <aside class="pm-email-login__side" aria-label="Преимущества входа по email">
+        <div class="pm-email-login__side-card">
+          <div class="course-meta">Что дальше</div>
+          <h2>Три коротких шага без пароля</h2>
+          <div class="pm-email-login__steps">
+            <span>1. Введите email</span>
+            <span>2. Заберите код из письма</span>
+            <span>3. Вернитесь в кабинет</span>
+          </div>
+        </div>
+        <div class="pm-email-login__trust">
+          <span>Одноразовый код</span>
+          <span>Без хранения пароля</span>
+          <span>Доступ к материалам и оплате</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}
