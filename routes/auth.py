@@ -33,6 +33,7 @@ from core import (
     TELEGRAM_USERNAME_RE,
     TELETHON_AUTO_LOGIN,
     TELETHON_ENABLED,
+    PROFILE_AVATARS_DIR,
     USERS_FILE,
     CODES_FILE,
     UsernameInvalidError,
@@ -129,6 +130,80 @@ ACCOUNT_SHELL_PAGES = [
 ]
 
 ACCOUNT_SHELL_PAGE_MAP = {item["key"]: item for item in ACCOUNT_SHELL_PAGES}
+
+AVATAR_MAX_BYTES = 4 * 1024 * 1024
+
+
+def _local_avatar_url(value: Any) -> str:
+    url = str(value or "").strip()
+    return url if url.startswith("/profile_avatars/") else ""
+
+
+def _build_login_session_user(
+    users: Dict[str, Any],
+    user_id: str,
+    user: Dict[str, Any],
+    *,
+    photo_url: Optional[str] = None,
+) -> Dict[str, Any]:
+    existing = users.get(user_id) if isinstance(users, dict) else None
+    if not isinstance(existing, dict):
+        existing = {}
+
+    stored_user = {key: value for key, value in user.items() if key != "photo_url"}
+    saved_avatar_url = _local_avatar_url(existing.get("avatar_url"))
+    if saved_avatar_url:
+        stored_user["avatar_url"] = saved_avatar_url
+    else:
+        stored_user.pop("avatar_url", None)
+    stored_user.pop("photo_url", None)
+    users[user_id] = stored_user
+
+    session_user = dict(stored_user)
+    if photo_url and not session_user.get("avatar_url"):
+        session_user["photo_url"] = photo_url
+    return session_user
+
+
+def _detect_avatar_extension(data: bytes) -> str:
+    if data.startswith(b"\xff\xd8\xff"):
+        return ".jpg"
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return ".png"
+    if data[:6] in {b"GIF87a", b"GIF89a"}:
+        return ".gif"
+    if len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return ".webp"
+    return ""
+
+
+def _safe_avatar_file_stem(user_id: str) -> str:
+    stem = re.sub(r"[^a-zA-Z0-9_-]+", "-", user_id).strip("-")
+    return stem[:80] or secrets.token_hex(8)
+
+
+def _delete_uploaded_avatar(url: Any) -> None:
+    avatar_url = _local_avatar_url(url)
+    if not avatar_url:
+        return
+    file_name = avatar_url.rsplit("/", 1)[-1].split("?", 1)[0]
+    if not file_name or "/" in file_name or "\\" in file_name:
+        return
+    try:
+        root = PROFILE_AVATARS_DIR.resolve()
+        target = (PROFILE_AVATARS_DIR / file_name).resolve()
+        target.relative_to(root)
+        if target.exists():
+            target.unlink()
+    except Exception:
+        logging.getLogger("app.auth").warning("Failed to delete old profile avatar: %s", avatar_url, exc_info=True)
+
+
+def _account_avatar_redirect(next_url: str, **params: str) -> RedirectResponse:
+    safe_next = next_url if next_url.startswith("/account") else "/account/profile"
+    separator = "&" if "?" in safe_next else "?"
+    location = f"{safe_next}{separator}{urlencode(params)}" if params else safe_next
+    return RedirectResponse(location, status_code=HTTP_302_FOUND)
 
 
 def _load_current_user_agreements(user: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -474,10 +549,14 @@ async def login_vk_bridge(request: Request):
         "phone": phone,
         "provider": "vk",
     }
-    users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}
+    session_user = _build_login_session_user(
+        users,
+        user_id,
+        user,
+        photo_url=payload.get("photo_200") or payload.get("photo_100"),
+    )
     save_json(USERS_FILE, users)
 
-    session_user = {**user, "photo_url": payload.get("photo_200") or payload.get("photo_100")}
     set_current_user(request, session_user)
     return RedirectResponse("/", status_code=HTTP_302_FOUND)
 
@@ -546,12 +625,10 @@ async def login_verify(request: Request):
         "name": email,
         "provider": "email",
     }
-    user.pop("avatar_url", None)
-    user.pop("photo_url", None)
-    users[user_id] = user
+    session_user = _build_login_session_user(users, user_id, user)
     save_json(USERS_FILE, users)
 
-    set_current_user(request, user)
+    set_current_user(request, session_user)
     codes.pop(email, None)
     save_json(CODES_FILE, codes)
 
@@ -721,10 +798,9 @@ async def auth_google(request: Request):
         "phone": phone,
         "provider": "google",
     }
-    users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}
+    session_user = _build_login_session_user(users, user_id, user, photo_url=userinfo.get("picture"))
     save_json(USERS_FILE, users)
 
-    session_user = {**user, "photo_url": userinfo.get("picture")}
     set_current_user(request, session_user)
     return RedirectResponse("/", status_code=HTTP_302_FOUND)
 
@@ -791,10 +867,9 @@ async def auth_github(request: Request):
         "phone": existing.get("phone"),
         "provider": "github",
     }
-    users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}
+    session_user = _build_login_session_user(users, user_id, user, photo_url=profile.get("avatar_url"))
     save_json(USERS_FILE, users)
 
-    session_user = {**user, "photo_url": profile.get("avatar_url")}
     set_current_user(request, session_user)
     return RedirectResponse("/", status_code=HTTP_302_FOUND)
 
@@ -838,10 +913,9 @@ async def auth_vk(request: Request):
         "phone": phone,
         "provider": "vk",
     }
-    users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}
+    session_user = _build_login_session_user(users, user_id, user, photo_url=profile.get("photo_200"))
     save_json(USERS_FILE, users)
 
-    session_user = {**user, "photo_url": profile.get("photo_200")}
     set_current_user(request, session_user)
     return RedirectResponse("/", status_code=HTTP_302_FOUND)
 
@@ -867,9 +941,8 @@ async def login_telegram(request: Request):
         "phone": existing.get("phone"),
         "provider": "telegram",
     }
-    users[user_id] = {k: v for k, v in user.items() if k not in {"avatar_url", "photo_url"}}
+    session_user = _build_login_session_user(users, user_id, user, photo_url=data.get("photo_url"))
     save_json(USERS_FILE, users)
-    session_user = {**user, "photo_url": data.get("photo_url")}
     set_current_user(request, session_user)
 
     return RedirectResponse("/", status_code=HTTP_302_FOUND)
@@ -1123,6 +1196,8 @@ async def account(request: Request):
             "payments_enabled": TINKOFF_ENABLED,
             "payment_status": request.query_params.get("payment"),
             "payment_error": request.query_params.get("payment_error"),
+            "avatar_status": request.query_params.get("avatar"),
+            "avatar_error": request.query_params.get("avatar_error"),
         },
     )
 
@@ -1160,6 +1235,63 @@ async def account_documents(request: Request):
 @router.get("/account/profile", include_in_schema=False)
 async def account_profile(request: Request):
     return _render_account_page(request, workspace_active="settings", shell_active="profile")
+
+
+@router.post("/account/profile/avatar", include_in_schema=False)
+async def account_profile_avatar(request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse("/login?next=/account/profile", status_code=HTTP_302_FOUND)
+
+    form = await request.form()
+    next_url = str(form.get("next") or "/account/profile")
+    upload = form.get("avatar")
+    if not upload or not getattr(upload, "filename", ""):
+        return _account_avatar_redirect(next_url, avatar_error="Выберите изображение профиля.")
+
+    try:
+        data = await upload.read(AVATAR_MAX_BYTES + 1)
+    finally:
+        close = getattr(upload, "close", None)
+        if close:
+            await close()
+
+    if not data:
+        return _account_avatar_redirect(next_url, avatar_error="Файл пустой. Выберите другое изображение.")
+    if len(data) > AVATAR_MAX_BYTES:
+        return _account_avatar_redirect(next_url, avatar_error="Фото слишком большое. Максимум 4 МБ.")
+
+    extension = _detect_avatar_extension(data)
+    if not extension:
+        return _account_avatar_redirect(next_url, avatar_error="Поддерживаются только JPG, PNG, WebP и GIF.")
+
+    PROFILE_AVATARS_DIR.mkdir(parents=True, exist_ok=True)
+    user_id = str(user.get("id") or "")
+    file_name = f"{_safe_avatar_file_stem(user_id)}-{int(time.time())}-{secrets.token_hex(4)}{extension}"
+    file_path = PROFILE_AVATARS_DIR / file_name
+    file_path.write_bytes(data)
+    avatar_url = f"/profile_avatars/{file_name}"
+
+    users = load_json(USERS_FILE, {})
+    if not isinstance(users, dict):
+        users = {}
+    existing = users.get(user_id) if user_id else None
+    if not isinstance(existing, dict):
+        existing = {}
+    previous_avatar_url = existing.get("avatar_url") or user.get("avatar_url")
+
+    stored_user = {key: value for key, value in {**existing, **user}.items() if key != "photo_url"}
+    stored_user["avatar_url"] = avatar_url
+    if user_id:
+        users[user_id] = stored_user
+        save_json(USERS_FILE, users)
+
+    session_user = dict(stored_user)
+    set_current_user(request, session_user)
+    if previous_avatar_url != avatar_url:
+        _delete_uploaded_avatar(previous_avatar_url)
+
+    return _account_avatar_redirect(next_url, avatar="updated")
 
 
 @router.get("/api/account/schedule", include_in_schema=False)

@@ -7892,6 +7892,106 @@ body.shell-student .pm-student-metric strong {
   letter-spacing: -0.04em;
 }
 
+body.shell-student .pm-profile-avatar-card {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  min-width: min(100%, 360px);
+  padding: 22px;
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid rgba(17, 18, 24, 0.08);
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0) 32%),
+    linear-gradient(145deg, #ffffff 0%, #f4f2ea 58%, #e8e5d8 100%);
+  box-shadow: 0 18px 42px rgba(17, 18, 24, 0.08);
+}
+
+body.shell-student .pm-profile-avatar-card::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 24px;
+  border: 1px solid rgba(17, 18, 24, 0.06);
+  pointer-events: none;
+}
+
+body.shell-student .pm-profile-avatar-card__visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 168px;
+  isolation: isolate;
+}
+
+body.shell-student .pm-profile-avatar-card__glow {
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  border-radius: 44% 56% 58% 42%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0) 42%),
+    linear-gradient(135deg, rgba(17, 18, 24, 0.12), rgba(44, 212, 154, 0.2));
+  filter: blur(1px);
+  transform: rotate(-8deg);
+  z-index: -1;
+}
+
+body.shell-student .pm-profile-avatar-card__avatar {
+  width: clamp(128px, 14vw, 172px);
+  height: clamp(128px, 14vw, 172px);
+  min-width: clamp(128px, 14vw, 172px);
+  min-height: clamp(128px, 14vw, 172px);
+  border: 8px solid #ffffff;
+  background: #111111;
+  color: #ffffff;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 800;
+  box-shadow: 0 18px 38px rgba(17, 18, 24, 0.16);
+}
+
+body.shell-student .pm-profile-avatar-card__body {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  text-align: center;
+}
+
+body.shell-student .pm-profile-avatar-card__body h3,
+body.shell-student .pm-profile-avatar-card__body p {
+  margin: 0;
+}
+
+body.shell-student .pm-avatar-upload {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+body.shell-student .pm-avatar-upload__pick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px dashed rgba(17, 18, 24, 0.22);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--pm-student-text);
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+body.shell-student .pm-avatar-upload__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 body.shell-student .pm-student-section {
   display: grid;
   gap: 18px;
@@ -8694,6 +8794,10 @@ body.shell-student .pm-settings-card h4 {
   body.shell-student .pm-student-metrics {
     min-width: 0;
   }
+
+  body.shell-student .pm-profile-avatar-card {
+    min-width: 0;
+  }
 }
 
 @media (max-width: 920px) {
@@ -8785,6 +8889,18 @@ body.shell-student .pm-settings-card h4 {
 
   body.shell-student .pm-workspace__tabs {
     width: 100%;
+  }
+
+  body.shell-student .pm-profile-avatar-card {
+    padding: 18px;
+  }
+
+  body.shell-student .pm-profile-avatar-card__visual {
+    min-height: 136px;
+  }
+
+  body.shell-student .pm-avatar-upload {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -13186,6 +13302,23 @@ body.shell-student .pm-student-metrics {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   min-width: min(100%, 320px);
+}
+
+body.shell-student .pm-student-page--shell .pm-profile-avatar-card {
+  min-width: min(100%, 340px);
+  padding: 18px;
+  border-radius: 24px;
+}
+
+body.shell-student .pm-student-page--shell .pm-profile-avatar-card__visual {
+  min-height: 142px;
+}
+
+body.shell-student .pm-student-page--shell .pm-profile-avatar-card__avatar {
+  width: clamp(112px, 12vw, 148px);
+  height: clamp(112px, 12vw, 148px);
+  min-width: clamp(112px, 12vw, 148px);
+  min-height: clamp(112px, 12vw, 148px);
 }
 
 body.shell-student .pm-student-metric {

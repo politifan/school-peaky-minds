@@ -30,6 +30,7 @@ from core import (
     CANONICAL_SCHEME,
     DOCUMENTS_DIR,
     LOGS_DIR,
+    PROFILE_AVATARS_DIR,
     SESSION_DOMAIN,
     SESSION_SECRET,
     load_metrics,
@@ -85,6 +86,7 @@ logging.getLogger(__name__).info("Logging initialized. Writing to %s", log_path)
 
 app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
 app.mount("/documents", StaticFiles(directory=DOCUMENTS_DIR), name="documents")
+app.mount("/profile_avatars", StaticFiles(directory=PROFILE_AVATARS_DIR), name="profile_avatars")
 
 _METRICS_CACHE = None
 _METRICS_DIRTY = False
@@ -128,6 +130,8 @@ def _static_cache_control(path: str) -> str:
         return "public, max-age=3600, stale-while-revalidate=86400"
     if lowered.startswith("/documents/"):
         return "public, max-age=3600, stale-while-revalidate=86400"
+    if lowered.startswith("/profile_avatars/"):
+        return "public, max-age=2592000, stale-while-revalidate=604800"
     return ""
 
 
@@ -195,7 +199,7 @@ async def track_metrics(request: Request, call_next):
         if request.method != "GET":
             return response
         path = request.url.path
-        if path.startswith(("/assets", "/documents")):
+        if path.startswith(("/assets", "/documents", "/profile_avatars")):
             return response
         if path in ("/healthz", "/favicon.ico", "/robots.txt", "/sitemap.xml"):
             return response

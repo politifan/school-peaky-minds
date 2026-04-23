@@ -11,14 +11,6 @@
     <section class="pm-student-hero pm-surface-card">
       <div class="pm-student-hero__main">
         <div class="account-profile">
-          <div class="avatar avatar--large {% if user_avatar.variant == 'email' %}avatar--email{% endif %}">
-            {% if user_avatar.url %}
-            <img src="{{ user_avatar.url }}" alt="Аватар профиля" loading="lazy"
-              onload="this.parentElement.classList.add('has-image')"
-              onerror="this.parentElement.classList.remove('has-image'); this.style.display='none'">
-            {% endif %}
-            <span class="avatar-initial">{{ user_avatar.initial }}</span>
-          </div>
           <div>
             <div class="pm-kicker">{{ account_hero.kicker }}</div>
             <h1 class="display-title">{{ account_hero.title }}</h1>
@@ -38,22 +30,10 @@
           </div>
         </div>
       </div>
-      <div class="pm-student-metrics">
-        {% for metric in account_hero.metrics[:4] %}
-        <div class="pm-student-metric">
-          <span>{{ metric.label }}</span>
-          <strong>{{ metric.value }}</strong>
-        </div>
-        {% endfor %}
-      </div>
+      {% include "account/_avatar_card.html" %}
     </section>
 
-    {% if payment_error %}
-    <div class="pm-inline-alert pm-inline-alert--error">{{ payment_error }}</div>
-    {% endif %}
-    {% if payment_status %}
-    <div class="pm-inline-alert">Оплата принята. Статус обновится после подтверждения платежа.</div>
-    {% endif %}
+    {% include "account/_alerts.html" %}
 
     <section id="student-workspace" class="pm-student-section" data-account-shell-panel="workspace" data-account-shell-keys="courses,calendar,homework,lectures,teachers,documents,profile">
       <div class="pm-section-head">

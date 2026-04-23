@@ -1003,6 +1003,34 @@ carousels.forEach((carousel) => {
 
 const accountShellPages = document.querySelectorAll('[data-account-shell-page]');
 
+const initAvatarUploads = (root = document) => {
+  root.querySelectorAll('[data-avatar-upload]').forEach((card) => {
+    if (card.dataset.pmAvatarBound === 'true') return;
+    card.dataset.pmAvatarBound = 'true';
+    const input = card.querySelector('[data-avatar-input]');
+    const fileName = card.querySelector('[data-avatar-file-name]');
+    const preview = card.querySelector('[data-avatar-preview-image]');
+    let previewUrl = '';
+
+    input?.addEventListener('change', () => {
+      const file = input.files && input.files[0];
+      if (fileName) fileName.textContent = file ? file.name : 'Выбрать фото';
+      if (!file || !preview) return;
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      previewUrl = URL.createObjectURL(file);
+      preview.src = previewUrl;
+      preview.hidden = false;
+      preview.parentElement?.classList.add('has-image');
+    });
+  });
+};
+
+initAvatarUploads();
+
+document.addEventListener('pm:account-section-refreshed', (event) => {
+  initAvatarUploads(event.detail?.root || document);
+});
+
 accountShellPages.forEach((page) => {
   const shellLinks = Array.from(document.querySelectorAll('[data-account-shell-link]'));
   const shellNote = document.querySelector('[data-account-shell-note]');

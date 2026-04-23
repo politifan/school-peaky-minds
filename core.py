@@ -90,9 +90,11 @@ DATA_DIR = BASE_DIR / "data"
 STATIC_DIR = BASE_DIR / "static"
 ASSETS_DIR = STATIC_DIR / "assets"
 DOCUMENTS_DIR = STATIC_DIR / "documents"
+PROFILE_AVATARS_DIR = STATIC_DIR / "profile_avatars"
 CONTRACTS_DIR = DOCUMENTS_DIR / "contracts"
 TEMPLATES_DIR = BASE_DIR / "templates"
 DATA_DIR.mkdir(exist_ok=True)
+PROFILE_AVATARS_DIR.mkdir(parents=True, exist_ok=True)
 
 USERS_FILE = DATA_DIR / "users.json"
 CODES_FILE = DATA_DIR / "codes.json"

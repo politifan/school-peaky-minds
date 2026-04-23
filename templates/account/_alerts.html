@@ -4,3 +4,9 @@
 {% if payment_status %}
 <div class="pm-inline-alert">Оплата принята. Статус обновится после подтверждения платежа.</div>
 {% endif %}
+{% if avatar_error %}
+<div class="pm-inline-alert pm-inline-alert--error">{{ avatar_error }}</div>
+{% endif %}
+{% if avatar_status %}
+<div class="pm-inline-alert">Фото профиля обновлено.</div>
+{% endif %}

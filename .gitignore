@@ -214,4 +214,6 @@ __marimo__/
 /data/*.json
 /data/**/*.json
 /static/documents/contracts/*.pdf
+/static/profile_avatars/*
+!/static/profile_avatars/.gitkeep
 data/telethon.session

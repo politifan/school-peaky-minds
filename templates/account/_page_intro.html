@@ -13,7 +13,9 @@
     </div>
     {% endif %}
   </div>
-  {% if account_page.metrics %}
+  {% if account_page.key == "profile" %}
+  {% include "account/_avatar_card.html" %}
+  {% elif account_page.metrics %}
   <div class="pm-student-metrics">
     {% for metric in account_page.metrics %}
     <div class="pm-student-metric">

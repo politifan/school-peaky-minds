@@ -1,0 +1,24 @@
+<div class="pm-profile-avatar-card" data-avatar-upload>
+  <div class="pm-profile-avatar-card__visual">
+    <div class="avatar pm-profile-avatar-card__avatar {% if user_avatar.variant == 'email' %}avatar--email{% endif %}">
+      <img src="{% if user_avatar.url %}{{ user_avatar.url }}{% else %}data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=={% endif %}" alt="Аватар профиля" loading="lazy" data-avatar-preview-image{% if not user_avatar.url %} hidden{% endif %}
+        onload="if (!this.hidden) this.parentElement.classList.add('has-image')"
+        onerror="this.parentElement.classList.remove('has-image'); this.hidden = true;">
+      <span class="avatar-initial">{{ user_avatar.initial }}</span>
+    </div>
+    <div class="pm-profile-avatar-card__glow"></div>
+  </div>
+  <div class="pm-profile-avatar-card__body">
+    <div class="course-meta">Фото профиля</div>
+    <h3>Большая иконка кабинета</h3>
+    <p>Загрузите JPG, PNG, WebP или GIF до 4 МБ. Фото будет видно в кабинете и в шапке сайта.</p>
+    <form class="pm-avatar-upload" action="/account/profile/avatar" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="next" value="{{ request.url.path }}">
+      <label class="pm-avatar-upload__pick">
+        <input class="pm-avatar-upload__input" type="file" name="avatar" accept="image/jpeg,image/png,image/webp,image/gif" data-avatar-input required>
+        <span data-avatar-file-name>Выбрать фото</span>
+      </label>
+      <button class="btn btn-primary" type="submit">Обновить</button>
+    </form>
+  </div>
+</div>
