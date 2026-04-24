@@ -12531,9 +12531,9 @@ body.shell-marketing .pm-promo-teaser__copy small {
 
 body.shell-marketing .pm-promo-teaser__countdown {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
-  min-width: 150px;
+  min-width: 196px;
 }
 
 body.shell-marketing .pm-countdown--teaser .pm-countdown__item {
@@ -12786,7 +12786,7 @@ body.shell-marketing .pm-sticky-telegram__close {
   }
 
   body.shell-marketing .pm-promo-teaser__countdown {
-    min-width: 114px;
+    min-width: 148px;
     gap: 4px;
   }
 
