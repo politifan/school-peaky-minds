@@ -11,7 +11,8 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.status import HTTP_302_FOUND
 from routes.account_content import (
-    ACCOUNT_WORKSPACE_ROUTE_MAP,
+    ACCOUNT_PAGE_BUILDERS,
+    account_view_href,
     build_account_content,
     build_account_page_payload,
     build_account_homework_payload,
@@ -83,7 +84,7 @@ ACCOUNT_SHELL_PAGES = [
     {
         "key": "calendar",
         "label": "Календарь",
-        "href": "/account/calendar",
+        "href": account_view_href("calendar"),
         "workspace": "calendar",
         "count_key": "upcoming_events",
         "note": "Ближайшие занятия и помесячный ритм обучения без лишнего шума.",
@@ -91,7 +92,7 @@ ACCOUNT_SHELL_PAGES = [
     {
         "key": "homework",
         "label": "ДЗ",
-        "href": "/account/homework",
+        "href": account_view_href("homework"),
         "workspace": "homework",
         "count_key": "homework_open",
         "note": "Активные домашние задания, дедлайны и нужные материалы в одном месте.",
@@ -99,7 +100,7 @@ ACCOUNT_SHELL_PAGES = [
     {
         "key": "lectures",
         "label": "Лекции",
-        "href": "/account/lectures",
+        "href": account_view_href("lectures"),
         "workspace": "lectures",
         "count_key": "lecture_records",
         "note": "Записи занятий, фильтры и быстрый возврат к нужной теме.",
@@ -107,7 +108,7 @@ ACCOUNT_SHELL_PAGES = [
     {
         "key": "teachers",
         "label": "Преподаватели",
-        "href": "/account/teachers",
+        "href": account_view_href("teachers"),
         "workspace": "teachers",
         "count_key": "teachers_count",
         "note": "Кто ведёт занятия, за что отвечает и как быстро связаться.",
@@ -115,7 +116,7 @@ ACCOUNT_SHELL_PAGES = [
     {
         "key": "documents",
         "label": "Документы",
-        "href": "/account/documents",
+        "href": account_view_href("documents"),
         "workspace": "documents",
         "count_key": "signed_contracts",
         "note": "Договоры, PDF и сервисные детали без поиска по длинной странице.",
@@ -123,7 +124,7 @@ ACCOUNT_SHELL_PAGES = [
     {
         "key": "profile",
         "label": "Профиль",
-        "href": "/account/profile",
+        "href": account_view_href("profile"),
         "workspace": "settings",
         "note": "Способ входа, данные аккаунта и системные настройки кабинета.",
     },
@@ -200,7 +201,7 @@ def _delete_uploaded_avatar(url: Any) -> None:
 
 
 def _account_avatar_redirect(next_url: str, **params: str) -> RedirectResponse:
-    safe_next = next_url if next_url.startswith("/account") else "/account/profile"
+    safe_next = next_url if next_url.startswith("/account") else account_view_href("profile")
     separator = "&" if "?" in safe_next else "?"
     location = f"{safe_next}{separator}{urlencode(params)}" if params else safe_next
     return RedirectResponse(location, status_code=HTTP_302_FOUND)
@@ -232,14 +233,30 @@ def _legacy_account_workspace_redirect(request: Request) -> Optional[RedirectRes
     workspace = str(request.query_params.get("workspace") or "").strip()
     if not workspace:
         return None
-    target = ACCOUNT_WORKSPACE_ROUTE_MAP.get(workspace)
-    if not target:
+    view_key = "profile" if workspace == "settings" else workspace
+    if view_key not in ACCOUNT_PAGE_BUILDERS:
         return None
     query_items = [(key, value) for key, value in request.query_params.multi_items() if key != "workspace"]
-    location = target
-    if query_items:
-        location = f"{location}?{urlencode(query_items, doseq=True)}"
+    location = _build_account_view_url(view_key, query_items)
     return RedirectResponse(location, status_code=HTTP_302_FOUND)
+
+
+def _normalize_account_view(value: Any) -> str:
+    key = str(value or "").strip().lower()
+    return key if key in ACCOUNT_PAGE_BUILDERS else "courses"
+
+
+def _build_account_view_url(view_key: str, query_items: Optional[List[Tuple[str, str]]] = None) -> str:
+    normalized = _normalize_account_view(view_key)
+    base = "/account"
+    params: List[Tuple[str, str]] = []
+    if normalized != "courses":
+        params.append(("view", normalized))
+    if query_items:
+        params.extend(query_items)
+    if not params:
+        return base
+    return f"{base}?{urlencode(params, doseq=True)}"
 
 
 def _build_account_shell(*, active_key: str, stats: Dict[str, Any]) -> Dict[str, Any]:
@@ -493,7 +510,7 @@ def _render_account_page(
         workspace_active=workspace_active,
         shell_active=shell_active,
     )
-    return render(request, "account.html", context)
+    return render(request, context["account_template"], context)
 
 
 @router.get("/login", include_in_schema=False)
@@ -1003,7 +1020,9 @@ async def account(request: Request):
     legacy_redirect = _legacy_account_workspace_redirect(request)
     if legacy_redirect:
         return legacy_redirect
-    return _render_account_page(request, workspace_active="courses", shell_active="courses")
+    view_key = _normalize_account_view(request.query_params.get("view"))
+    workspace_active = "settings" if view_key == "profile" else view_key
+    return _render_account_page(request, workspace_active=workspace_active, shell_active=view_key)
     agreements_all = load_agreements()
     user_id = user.get("id")
     user_email = (user.get("email") or "").strip().lower()
@@ -1204,47 +1223,54 @@ async def account(request: Request):
 
 @router.get("/account/courses", include_in_schema=False)
 async def account_courses(request: Request):
-    return _render_account_page(request, workspace_active="courses", shell_active="courses")
+    query_items = [(key, value) for key, value in request.query_params.multi_items()]
+    return RedirectResponse(_build_account_view_url("courses", query_items), status_code=HTTP_302_FOUND)
 
 
 @router.get("/account/calendar", include_in_schema=False)
 async def account_calendar(request: Request):
-    return _render_account_page(request, workspace_active="calendar", shell_active="calendar")
+    query_items = [(key, value) for key, value in request.query_params.multi_items()]
+    return RedirectResponse(_build_account_view_url("calendar", query_items), status_code=HTTP_302_FOUND)
 
 
 @router.get("/account/homework", include_in_schema=False)
 async def account_homework_page(request: Request):
-    return _render_account_page(request, workspace_active="homework", shell_active="homework")
+    query_items = [(key, value) for key, value in request.query_params.multi_items()]
+    return RedirectResponse(_build_account_view_url("homework", query_items), status_code=HTTP_302_FOUND)
 
 
 @router.get("/account/lectures", include_in_schema=False)
 async def account_lectures_page(request: Request):
-    return _render_account_page(request, workspace_active="lectures", shell_active="lectures")
+    query_items = [(key, value) for key, value in request.query_params.multi_items()]
+    return RedirectResponse(_build_account_view_url("lectures", query_items), status_code=HTTP_302_FOUND)
 
 
 @router.get("/account/teachers", include_in_schema=False)
 async def account_teachers_page(request: Request):
-    return _render_account_page(request, workspace_active="teachers", shell_active="teachers")
+    query_items = [(key, value) for key, value in request.query_params.multi_items()]
+    return RedirectResponse(_build_account_view_url("teachers", query_items), status_code=HTTP_302_FOUND)
 
 
 @router.get("/account/documents", include_in_schema=False)
 async def account_documents(request: Request):
-    return _render_account_page(request, workspace_active="documents", shell_active="documents")
+    query_items = [(key, value) for key, value in request.query_params.multi_items()]
+    return RedirectResponse(_build_account_view_url("documents", query_items), status_code=HTTP_302_FOUND)
 
 
 @router.get("/account/profile", include_in_schema=False)
 async def account_profile(request: Request):
-    return _render_account_page(request, workspace_active="settings", shell_active="profile")
+    query_items = [(key, value) for key, value in request.query_params.multi_items()]
+    return RedirectResponse(_build_account_view_url("profile", query_items), status_code=HTTP_302_FOUND)
 
 
 @router.post("/account/profile/avatar", include_in_schema=False)
 async def account_profile_avatar(request: Request):
     user = get_current_user(request)
     if not user:
-        return RedirectResponse("/login?next=/account/profile", status_code=HTTP_302_FOUND)
+        return RedirectResponse(f"/login?{urlencode({'next': account_view_href('profile')})}", status_code=HTTP_302_FOUND)
 
     form = await request.form()
-    next_url = str(form.get("next") or "/account/profile")
+    next_url = str(form.get("next") or account_view_href("profile"))
     upload = form.get("avatar")
     if not upload or not getattr(upload, "filename", ""):
         return _account_avatar_redirect(next_url, avatar_error="Выберите изображение профиля.")

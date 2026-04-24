@@ -1397,12 +1397,12 @@ def _build_account_hero(
         "actions": [
             {
                 "label": "Открыть мои курсы" if has_agreements else "Выбрать курс",
-                "href": "/account/courses" if has_agreements else "/courses",
+                "href": account_view_href("courses") if has_agreements else "/courses",
                 "variant": "primary",
             },
             {
                 "label": "Рабочее пространство",
-                "href": "/account/calendar",
+                "href": account_view_href("calendar"),
                 "variant": "secondary",
                 "show": has_agreements,
             },
@@ -1436,7 +1436,7 @@ def _build_account_focus(
             "title": "Откройте workspace и проверьте ближайший фокус.",
             "text": "Календарь, ДЗ, лекции и преподаватели уже собраны внутри кабинета.",
             "action": "Открыть workspace",
-            "href": "/account/calendar",
+            "href": account_view_href("calendar"),
         }
     else:
         next_step = {
@@ -1472,21 +1472,21 @@ def _build_account_focus(
                 "title": attention_title,
                 "text": attention_text,
                 "action": "Перейти к workspace",
-                "href": "/account/homework" if homework_open else "/account/calendar",
+                "href": account_view_href("homework") if homework_open else account_view_href("calendar"),
             },
             {
                 "label": "Документы и оплата",
                 "title": docs_title,
                 "text": docs_text,
                 "action": "Открыть курсы",
-                "href": "/account/documents" if total_courses else "/courses",
+                "href": account_view_href("documents") if total_courses else "/courses",
             },
             {
                 "label": "Материалы",
                 "title": f"{lecture_records} записей лекций и учебный контур под рукой",
                 "text": "Записи, ссылки и преподаватели открываются из workspace без длинного поиска.",
                 "action": "Открыть лекции",
-                "href": "/account/lectures",
+                "href": account_view_href("lectures"),
             },
         ],
     }
@@ -1642,12 +1642,20 @@ def build_account_content(
         "stats": stats,
     }
 
+def account_view_href(view_key: str) -> str:
+    normalized = str(view_key or "").strip().lower()
+    if normalized in {"", "courses"}:
+        return "/account"
+    if normalized == "settings":
+        normalized = "profile"
+    return f"/account?view={normalized}"
+
 
 ACCOUNT_SHELL_PAGES = [
     {
         "key": "courses",
         "label": "Курсы",
-        "href": "/account",
+        "href": account_view_href("courses"),
         "workspace": "courses",
         "count_key": "total_courses",
         "note": "Все траектории, прогресс по модулям и точки входа в материалы.",
@@ -1655,7 +1663,7 @@ ACCOUNT_SHELL_PAGES = [
     {
         "key": "calendar",
         "label": "Календарь",
-        "href": "/account/calendar",
+        "href": account_view_href("calendar"),
         "workspace": "calendar",
         "count_key": "upcoming_events",
         "note": "Ближайшие занятия и помесячный ритм обучения без лишнего шума.",
@@ -1663,7 +1671,7 @@ ACCOUNT_SHELL_PAGES = [
     {
         "key": "homework",
         "label": "ДЗ",
-        "href": "/account/homework",
+        "href": account_view_href("homework"),
         "workspace": "homework",
         "count_key": "homework_open",
         "note": "Активные домашние задания, дедлайны и нужные материалы в одном месте.",
@@ -1671,7 +1679,7 @@ ACCOUNT_SHELL_PAGES = [
     {
         "key": "lectures",
         "label": "Лекции",
-        "href": "/account/lectures",
+        "href": account_view_href("lectures"),
         "workspace": "lectures",
         "count_key": "lecture_records",
         "note": "Записи занятий, фильтры и быстрый возврат к нужной теме.",
@@ -1679,7 +1687,7 @@ ACCOUNT_SHELL_PAGES = [
     {
         "key": "teachers",
         "label": "Преподаватели",
-        "href": "/account/teachers",
+        "href": account_view_href("teachers"),
         "workspace": "teachers",
         "count_key": "teachers_count",
         "note": "Кто ведёт занятия, за что отвечает и как быстро связаться.",
@@ -1687,7 +1695,7 @@ ACCOUNT_SHELL_PAGES = [
     {
         "key": "documents",
         "label": "Документы",
-        "href": "/account/documents",
+        "href": account_view_href("documents"),
         "workspace": "documents",
         "count_key": "signed_contracts",
         "note": "Договоры, PDF и сервисные детали без поиска по длинной странице.",
@@ -1695,7 +1703,7 @@ ACCOUNT_SHELL_PAGES = [
     {
         "key": "profile",
         "label": "Профиль",
-        "href": "/account/profile",
+        "href": account_view_href("profile"),
         "workspace": "settings",
         "count_key": "",
         "note": "Способ входа, данные аккаунта и системные настройки кабинета.",
@@ -1703,13 +1711,13 @@ ACCOUNT_SHELL_PAGES = [
 ]
 
 ACCOUNT_WORKSPACE_ROUTE_MAP = {
-    "courses": "/account",
-    "calendar": "/account/calendar",
-    "homework": "/account/homework",
-    "lectures": "/account/lectures",
-    "teachers": "/account/teachers",
-    "documents": "/account/documents",
-    "settings": "/account/profile",
+    "courses": account_view_href("courses"),
+    "calendar": account_view_href("calendar"),
+    "homework": account_view_href("homework"),
+    "lectures": account_view_href("lectures"),
+    "teachers": account_view_href("teachers"),
+    "documents": account_view_href("documents"),
+    "settings": account_view_href("profile"),
 }
 
 ACCOUNT_SHELL_PAGE_MAP = {item["key"]: item for item in ACCOUNT_SHELL_PAGES}
@@ -1782,8 +1790,8 @@ def build_account_overview_page(
         lead="Короткий обзор следующего шага, ближайших занятий, домашних заданий и лекций.",
         metrics=account_content["hero"]["metrics"][4:8],
         actions=[
-            {"label": "Открыть календарь", "href": "/account/calendar", "variant": "secondary"},
-            {"label": "Все курсы", "href": "/account/courses", "variant": "secondary", "show": bool(agreements)},
+            {"label": "Открыть календарь", "href": account_view_href("calendar"), "variant": "secondary"},
+            {"label": "Все курсы", "href": account_view_href("courses"), "variant": "secondary", "show": bool(agreements)},
         ],
     )
     page.update(
@@ -1824,8 +1832,8 @@ def build_account_courses_page(
                 {"label": "Лекций", "value": stats["lecture_records"]},
             ],
             actions=[
-                {"label": "Календарь", "href": "/account/calendar", "variant": "secondary"},
-                {"label": "Документы", "href": "/account/documents", "variant": "secondary", "show": bool(agreements)},
+                {"label": "Календарь", "href": account_view_href("calendar"), "variant": "secondary"},
+                {"label": "Документы", "href": account_view_href("documents"), "variant": "secondary", "show": bool(agreements)},
             ],
         ),
         "account_shell": build_account_shell(active_key="courses", stats=stats),
@@ -1848,8 +1856,8 @@ def build_account_calendar_page(*, account_content: Dict[str, Any], agreements: 
                 {"label": "ДЗ открыто", "value": stats["homework_open"]},
             ],
             actions=[
-                {"label": "Домашние задания", "href": "/account/homework", "variant": "secondary"},
-                {"label": "Лекции", "href": "/account/lectures", "variant": "secondary"},
+                {"label": "Домашние задания", "href": account_view_href("homework"), "variant": "secondary"},
+                {"label": "Лекции", "href": account_view_href("lectures"), "variant": "secondary"},
             ],
         ),
         "account_shell": build_account_shell(active_key="calendar", stats=stats),
@@ -1872,8 +1880,8 @@ def build_account_homework_page(*, account_content: Dict[str, Any], agreements: 
                 {"label": "Событий", "value": stats["upcoming_events"]},
             ],
             actions=[
-                {"label": "Открыть календарь", "href": "/account/calendar", "variant": "secondary"},
-                {"label": "Открыть лекции", "href": "/account/lectures", "variant": "secondary"},
+                {"label": "Открыть календарь", "href": account_view_href("calendar"), "variant": "secondary"},
+                {"label": "Открыть лекции", "href": account_view_href("lectures"), "variant": "secondary"},
             ],
         ),
         "account_shell": build_account_shell(active_key="homework", stats=stats),
@@ -1896,8 +1904,8 @@ def build_account_lectures_page(*, account_content: Dict[str, Any], agreements: 
                 {"label": "ДЗ", "value": stats["homework_open"]},
             ],
             actions=[
-                {"label": "Домашние задания", "href": "/account/homework", "variant": "secondary"},
-                {"label": "Преподаватели", "href": "/account/teachers", "variant": "secondary"},
+                {"label": "Домашние задания", "href": account_view_href("homework"), "variant": "secondary"},
+                {"label": "Преподаватели", "href": account_view_href("teachers"), "variant": "secondary"},
             ],
         ),
         "account_shell": build_account_shell(active_key="lectures", stats=stats),
@@ -1920,8 +1928,8 @@ def build_account_teachers_page(*, account_content: Dict[str, Any], agreements: 
                 {"label": "Лекций", "value": stats["lecture_records"]},
             ],
             actions=[
-                {"label": "Календарь", "href": "/account/calendar", "variant": "secondary"},
-                {"label": "Лекции", "href": "/account/lectures", "variant": "secondary"},
+                {"label": "Календарь", "href": account_view_href("calendar"), "variant": "secondary"},
+                {"label": "Лекции", "href": account_view_href("lectures"), "variant": "secondary"},
             ],
         ),
         "account_shell": build_account_shell(active_key="teachers", stats=stats),
@@ -1948,8 +1956,8 @@ def build_account_documents_page(
                 {"label": "Доступ", "value": account_content["hero"]["metrics"][3]["value"]},
             ],
             actions=[
-                {"label": "Все курсы", "href": "/account/courses", "variant": "secondary"},
-                {"label": "Профиль", "href": "/account/profile", "variant": "secondary"},
+                {"label": "Все курсы", "href": account_view_href("courses"), "variant": "secondary"},
+                {"label": "Профиль", "href": account_view_href("profile"), "variant": "secondary"},
             ],
         ),
         "account_shell": build_account_shell(active_key="documents", stats=stats),
@@ -1973,7 +1981,7 @@ def build_account_profile_page(*, account_content: Dict[str, Any], agreements: L
                 {"label": "Преподавателей", "value": stats["teachers_count"]},
             ],
             actions=[
-                {"label": "Документы", "href": "/account/documents", "variant": "secondary"},
+                {"label": "Документы", "href": account_view_href("documents"), "variant": "secondary"},
                 {"label": "Выйти", "href": "/logout", "variant": "secondary"},
             ],
         ),

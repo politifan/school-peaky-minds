@@ -13365,9 +13365,7 @@ body.shell-student .pm-account-shell-nav__link.is-active .pm-account-shell-nav__
 }
 
 body.shell-student .pm-account-shell-nav__refresh {
-  display: grid;
-  gap: 8px;
-  padding-top: 4px;
+  display: none;
 }
 
 body.shell-student .pm-account-shell-nav__refresh .btn {

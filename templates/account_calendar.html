@@ -15,7 +15,7 @@
         <h3>{{ account_sections.schedule.title }}</h3>
       </div>
     </div>
-    <form class="pm-student-form pm-student-form--wide" method="get" action="/account/calendar" data-month-picker>
+    <form class="pm-student-form pm-student-form--wide" method="get" action="/account" data-month-picker>
       {% set month_names = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] %}
       {% set current_year = account_schedule_payload.month[:4] %}
       {% set current_month = account_schedule_payload.month[5:7] %}
@@ -37,6 +37,7 @@
           {% endfor %}
         </div>
         <input type="hidden" name="month" value="{{ account_schedule_payload.month }}" data-month-input>
+        <input type="hidden" name="view" value="calendar">
       </div>
     </form>
 

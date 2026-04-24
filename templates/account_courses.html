@@ -51,7 +51,7 @@
                 <div class="course-meta">Календарь занятий</div>
                 <span class="pm-student-mini-tag">{{ item.lesson_month }}</span>
               </div>
-              <form class="pm-student-form" method="get" action="/account/courses" data-month-picker>
+              <form class="pm-student-form" method="get" action="/account" data-month-picker>
                 <div class="month-picker">
                   {% set month_names = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] %}
                   {% set current_year = item.lesson_month[:4] %}
@@ -73,6 +73,7 @@
                     {% endfor %}
                   </div>
                   <input type="hidden" name="month" value="{{ item.lesson_month }}" data-month-input>
+                  <input type="hidden" name="view" value="courses">
                 </div>
               </form>
               <div class="lesson-legend">

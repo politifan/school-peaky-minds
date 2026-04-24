@@ -1,5 +1,5 @@
 <form class="pm-profile-avatar-upload" action="/account/profile/avatar" method="post" enctype="multipart/form-data" data-avatar-upload>
-  <input type="hidden" name="next" value="{{ request.url.path }}">
+  <input type="hidden" name="next" value="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}">
   <input class="pm-avatar-upload__input" id="account-avatar-upload" type="file" name="avatar" accept="image/jpeg,image/png,image/webp,image/gif" data-avatar-input required>
   <button class="pm-profile-avatar-trigger" type="button" data-avatar-picker aria-label="Изменить аватар профиля">
     <span class="avatar pm-profile-avatar-trigger__avatar {% if user_avatar.variant == 'email' %}avatar--email{% endif %}">

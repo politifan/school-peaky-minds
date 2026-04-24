@@ -15,7 +15,8 @@
         <h3>{{ account_sections.lectures.title }}</h3>
       </div>
     </div>
-    <form class="pm-student-form pm-student-form--wide" method="get" action="/account/lectures">
+    <form class="pm-student-form pm-student-form--wide" method="get" action="/account">
+      <input type="hidden" name="view" value="lectures">
       {% if request.query_params.get("month") %}
       <input type="hidden" name="month" value="{{ request.query_params.get('month') }}">
       {% endif %}
@@ -49,7 +50,7 @@
       </div>
       <div class="pm-inline-actions">
         <button class="btn btn-secondary" type="submit">Применить</button>
-        <a class="btn btn-secondary" href="/account/lectures">Сбросить</a>
+        <a class="btn btn-secondary" href="/account?view=lectures">Сбросить</a>
       </div>
     </form>
     {% if account_sections.lectures["items"] %}
@@ -80,7 +81,8 @@
     {% if account_lectures_payload.pages > 1 %}
     <div class="pm-inline-actions">
       {% if account_lectures_payload.has_prev %}
-      <form method="get" action="/account/lectures">
+      <form method="get" action="/account">
+        <input type="hidden" name="view" value="lectures">
         <input type="hidden" name="lecture_q" value="{{ account_lectures_payload.filters.q }}">
         <input type="hidden" name="lecture_source" value="{{ account_lectures_payload.filters.source }}">
         <input type="hidden" name="lecture_course" value="{{ account_lectures_payload.filters.course }}">
@@ -90,7 +92,8 @@
       {% endif %}
       <span class="pm-tag">Страница {{ account_lectures_payload.page }} / {{ account_lectures_payload.pages }}</span>
       {% if account_lectures_payload.has_next %}
-      <form method="get" action="/account/lectures">
+      <form method="get" action="/account">
+        <input type="hidden" name="view" value="lectures">
         <input type="hidden" name="lecture_q" value="{{ account_lectures_payload.filters.q }}">
         <input type="hidden" name="lecture_source" value="{{ account_lectures_payload.filters.source }}">
         <input type="hidden" name="lecture_course" value="{{ account_lectures_payload.filters.course }}">
