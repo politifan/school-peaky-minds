@@ -15,16 +15,17 @@
 <body class="shell-admin shell-teacher {% block body_class %}{% endblock %}">
   <header class="site-header site-header--admin">
     <div class="container site-header__inner">
-      <a class="logo logo--marketing" href="/teacher">
+      <a class="logo logo--marketing" href="{{ teacher_links.overview if teacher_links is defined else '/teacher' }}">
         <img src="/assets/img/logo.png" alt="Логотип IT-школы Peaky Minds">
         <span>Peaky Minds Teacher</span>
       </a>
 
-      <nav class="nav-links nav-links--admin">
-        <a href="/teacher">Обзор</a>
-        <a href="/teacher?view=hours">Часы</a>
-        <a href="/teacher?view=groups">Группы</a>
-        <a href="/teacher?view=students">Ученики</a>
+      <nav class="nav-links nav-links--admin teacher-header-nav">
+        <a class="{% if view == 'overview' %}is-active{% endif %}" href="{{ teacher_links.overview if teacher_links is defined else '/teacher' }}">Обзор</a>
+        <a class="{% if view == 'profile' %}is-active{% endif %}" href="{{ teacher_links.profile if teacher_links is defined else '/teacher?view=profile' }}">Профиль</a>
+        <a class="{% if view == 'hours' %}is-active{% endif %}" href="{{ teacher_links.hours if teacher_links is defined else '/teacher?view=hours' }}">Часы</a>
+        <a class="{% if view == 'groups' %}is-active{% endif %}" href="{{ teacher_links.groups if teacher_links is defined else '/teacher?view=groups' }}">Группы</a>
+        <a class="{% if view == 'students' %}is-active{% endif %}" href="{{ teacher_links.students if teacher_links is defined else '/teacher?view=students' }}">Ученики</a>
       </nav>
 
       <div class="site-header__actions">

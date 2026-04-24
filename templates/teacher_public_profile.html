@@ -16,20 +16,34 @@
         {% if teacher.bio %}
         <p class="teacher-public__lead">{{ teacher.bio }}</p>
         {% endif %}
+        <div class="teacher-public__stats">
+          <div class="teacher-public__stat">
+            <strong>{{ teacher.groups_count }}</strong>
+            <span>групп</span>
+          </div>
+          <div class="teacher-public__stat">
+            <strong>{{ teacher.students_count }}</strong>
+            <span>учеников</span>
+          </div>
+          <div class="teacher-public__stat">
+            <strong>{{ teacher.upcoming_count }}</strong>
+            <span>занятий в календаре</span>
+          </div>
+        </div>
         <div class="teacher-public__chips">
           {% if teacher.speciality %}
           <span>{{ teacher.speciality }}</span>
           {% endif %}
-          <span>Групп: {{ teacher.groups_count }}</span>
-          <span>Учеников: {{ teacher.students_count }}</span>
-          <span>Занятий: {{ teacher.upcoming_count }}</span>
+          {% if teacher.availability_updated_label %}
+          <span>Часы обновлены {{ teacher.availability_updated_label }}</span>
+          {% endif %}
         </div>
         <div class="teacher-public__actions">
           {% if teacher.contact_url %}
           <a class="btn btn-primary" href="{{ teacher.contact_url }}" target="_blank" rel="noopener">Связаться</a>
           {% endif %}
-          {% if user_can_access_teacher and user_is_teacher and user.email and teacher.email and user.email|lower == teacher.email|lower %}
-          <a class="btn btn-secondary" href="/teacher">Открыть кабинет</a>
+          {% if teacher_manage_href %}
+          <a class="btn btn-secondary" href="{{ teacher_manage_href }}">Открыть кабинет</a>
           {% endif %}
         </div>
       </div>

@@ -36,7 +36,7 @@
                 <h1>{% if teacher_record %}{{ teacher_record.name }}{% else %}Кабинет преподавателя{% endif %}</h1>
                 <p>
                   {% if teacher_record %}
-                  {{ teacher_record.role }}. Здесь собраны рабочие часы, группы, список учеников и текущий операционный слой по согласованию расписания.
+                  {{ teacher_record.role }}. Здесь собраны рабочие часы, группы, ученики и рабочий слой для согласования расписания.
                   {% else %}
                   Сначала выберите преподавателя либо привяжите текущий аккаунт к карточке в <code>config/teacher_access.json</code>.
                   {% endif %}
@@ -47,6 +47,7 @@
                 <span class="admin-chip">{{ teacher_record.speciality or "Направление будет уточнено" }}</span>
                 <span class="admin-chip">Раздел: {{ teacher_view_label }}</span>
                 <span class="admin-chip">Групп: {{ teacher_dashboard.group_items|length }}</span>
+                <span class="admin-chip">Учеников: {{ teacher_dashboard.student_rows|length }}</span>
                 {% if teacher_public_profile_url %}
                 <a class="admin-chip admin-chip--accent" href="{{ teacher_public_profile_url }}" target="_blank" rel="noopener">Публичный профиль</a>
                 {% endif %}
@@ -54,6 +55,15 @@
                 <span class="admin-chip">Нет выбранной карточки преподавателя</span>
                 {% endif %}
               </div>
+              {% if teacher_record %}
+              <nav class="teacher-shell-tabs" aria-label="Разделы кабинета преподавателя">
+                <a class="{% if view == 'overview' %}is-active{% endif %}" href="{{ teacher_links.overview }}">Обзор</a>
+                <a class="{% if view == 'profile' %}is-active{% endif %}" href="{{ teacher_links.profile }}">Профиль</a>
+                <a class="{% if view == 'hours' %}is-active{% endif %}" href="{{ teacher_links.hours }}">Часы</a>
+                <a class="{% if view == 'groups' %}is-active{% endif %}" href="{{ teacher_links.groups }}">Группы</a>
+                <a class="{% if view == 'students' %}is-active{% endif %}" href="{{ teacher_links.students }}">Ученики</a>
+              </nav>
+              {% endif %}
             </div>
           </div>
           <div class="admin-hero__actions teacher-hero__actions">
@@ -94,7 +104,7 @@
           </div>
           <p class="admin-subtext">
             Для доступа нужен локальный файл <code>config/teacher_access.json</code> с привязкой аккаунта к <code>teacher_id</code>.
-            Если вы администратор, выберите преподавателя справа вверху и кабинет откроется в режиме просмотра.
+            Если вы администратор, выберите преподавателя справа вверху и кабинет откроется в режиме просмотра и управления.
           </p>
           {% if teacher_options %}
           <div class="admin-grid two" style="margin-top: 18px;">
@@ -115,6 +125,7 @@
           </div>
           {% endif %}
         </section>
+
         {% elif view == 'overview' %}
         <section class="panel" style="margin-top: 24px;">
           <div class="admin-section-head">
@@ -125,6 +136,7 @@
               {% endfor %}
             </div>
           </div>
+
           <div class="admin-kpi-grid" style="margin-top: 18px;">
             {% for kpi in teacher_dashboard.kpis %}
             <article class="admin-kpi-card">
@@ -134,13 +146,53 @@
             </article>
             {% endfor %}
           </div>
+
+          <div class="teacher-focus-grid" style="margin-top: 18px;">
+            <article class="card teacher-focus-card">
+              <div class="course-meta">Профиль</div>
+              <h3>Базовые данные заполнены</h3>
+              <div class="teacher-focus-card__list">
+                <span class="admin-status {% if teacher_record.role %}status-good{% else %}status-warm{% endif %}">{{ "Роль указана" if teacher_record.role else "Добавьте роль" }}</span>
+                <span class="admin-status {% if teacher_record.speciality %}status-good{% else %}status-warm{% endif %}">{{ "Направление указано" if teacher_record.speciality else "Добавьте направление" }}</span>
+                <span class="admin-status {% if teacher_record.bio %}status-good{% else %}status-warm{% endif %}">{{ "Есть описание" if teacher_record.bio else "Нужно описание" }}</span>
+                <span class="admin-status {% if teacher_record.email or teacher_record.telegram %}status-good{% else %}status-warm{% endif %}">{{ "Контакт указан" if teacher_record.email or teacher_record.telegram else "Нужен контакт" }}</span>
+              </div>
+              <a class="admin-copy" href="{{ teacher_links.profile }}">Открыть профиль</a>
+            </article>
+
+            <article class="card teacher-focus-card">
+              <div class="course-meta">Рабочие часы</div>
+              <h3>{{ teacher_dashboard.summary.hours_days_count }} дн. / {{ teacher_dashboard.summary.hours_slots_count }} слотов</h3>
+              <p class="admin-subtext">
+                {% if teacher_dashboard.summary.availability_updated_label %}
+                Последнее обновление: {{ teacher_dashboard.summary.availability_updated_label }}.
+                {% else %}
+                Часы ещё не заполнены. Без этого ученики не увидят корректные окна.
+                {% endif %}
+              </p>
+              <a class="admin-copy" href="{{ teacher_links.hours }}">Настроить часы</a>
+            </article>
+
+            <article class="card teacher-focus-card">
+              <div class="course-meta">Согласование групп</div>
+              <h3>{{ teacher_dashboard.summary.groups_ready_count }} из {{ teacher_dashboard.group_items|length }} готовы к подсчёту</h3>
+              <p class="admin-subtext">
+                Ответили {{ teacher_dashboard.summary.students_ready_count }} учеников, ждём ещё {{ teacher_dashboard.summary.students_waiting_count }}.
+                {% if teacher_dashboard.summary.latest_student_response_label %}
+                Последний ответ: {{ teacher_dashboard.summary.latest_student_response_label }}.
+                {% endif %}
+              </p>
+              <a class="admin-copy" href="{{ teacher_links.groups }}">Открыть группы</a>
+            </article>
+          </div>
+
           <div class="admin-grid two teacher-overview-grid" style="margin-top: 18px;">
             <section class="card">
               <div class="course-meta">Ближайшие занятия</div>
               {% if teacher_dashboard.upcoming_lessons %}
               <div class="teacher-compact-list">
                 {% for item in teacher_dashboard.upcoming_lessons %}
-                <article class="teacher-compact-list__item">
+                <article class="teacher-compact-list__item teacher-compact-list__item--rich">
                   <strong>{{ item.date_label }} · {{ item.time }}</strong>
                   <span>{{ item.student_name }} · {{ item.course }}</span>
                 </article>
@@ -150,6 +202,7 @@
               <p class="admin-subtext">В текущем месяце у преподавателя пока нет назначенных уроков.</p>
               {% endif %}
             </section>
+
             <section class="card">
               <div class="course-meta">Рабочие часы</div>
               {% if teacher_dashboard.availability_summary %}
@@ -163,13 +216,14 @@
               {% endif %}
             </section>
           </div>
+
           <div class="admin-grid two teacher-overview-grid" style="margin-top: 18px;">
             <section class="card">
               <div class="course-meta">Группы</div>
               {% if teacher_dashboard.group_items %}
               <div class="teacher-compact-list">
                 {% for group in teacher_dashboard.group_items %}
-                <article class="teacher-compact-list__item">
+                <article class="teacher-compact-list__item teacher-compact-list__item--rich">
                   <strong>{{ group.title }}</strong>
                   <span>{{ group.status_label }} · {{ group.match_status }}</span>
                 </article>
@@ -179,12 +233,13 @@
               <p class="admin-subtext">Пока нет групп. Их можно создать в одноимённом разделе и добавить записанных учеников.</p>
               {% endif %}
             </section>
+
             <section class="card">
               <div class="course-meta">Ученики</div>
               {% if teacher_dashboard.student_rows %}
               <div class="teacher-compact-list">
                 {% for student in teacher_dashboard.student_rows[:8] %}
-                <article class="teacher-compact-list__item">
+                <article class="teacher-compact-list__item teacher-compact-list__item--rich">
                   <strong>{{ student.student_name }}</strong>
                   <span>{{ student.group_title }} · {{ "доступность заполнена" if student.availability_ready else "ждём часы" }}</span>
                 </article>
@@ -196,55 +251,99 @@
             </section>
           </div>
         </section>
+
         {% elif view == 'profile' %}
         <section class="panel" style="margin-top: 24px;">
           <div class="admin-section-head">
             <h2 class="section-title">Профиль преподавателя</h2>
           </div>
-          <form class="teacher-form-grid" action="/teacher/profile/save" method="post">
-            <input type="hidden" name="teacher_id" value="{{ teacher_record.id }}">
-            <label>
-              <span>Имя</span>
-              <input type="text" name="name" value="{{ teacher_record.name }}" required>
-            </label>
-            <label>
-              <span>Роль</span>
-              <input type="text" name="role" value="{{ teacher_record.role }}" placeholder="Senior mentor">
-            </label>
-            <label>
-              <span>Направление</span>
-              <input type="text" name="speciality" value="{{ teacher_record.speciality }}" placeholder="Python, Backend, Data">
-            </label>
-            <label>
-              <span>Telegram</span>
-              <input type="text" name="telegram" value="{{ teacher_record.telegram }}" placeholder="@mentor_handle">
-            </label>
-            <label>
-              <span>Email</span>
-              <input type="email" name="email" value="{{ teacher_record.email }}" placeholder="mentor@example.com">
-            </label>
-            <label>
-              <span>Экспертиза</span>
-              <input type="text" name="expertise" value="{{ teacher_record.expertise|join(', ') if teacher_record.expertise else '' }}" placeholder="FastAPI, SQL, code review">
-            </label>
-            <label class="teacher-form-grid__wide">
-              <span>Краткое описание</span>
-              <textarea name="bio" rows="6" placeholder="Кто вы, что ведёте и как работаете со студентами.">{{ teacher_record.bio }}</textarea>
-            </label>
-            <div class="teacher-form-grid__wide teacher-form-grid__actions">
-              <button class="btn btn-primary" type="submit">Сохранить профиль</button>
-              {% if teacher_public_profile_url %}
-              <a class="btn btn-secondary" href="{{ teacher_public_profile_url }}" target="_blank" rel="noopener">Открыть публичную страницу</a>
-              {% endif %}
-            </div>
-          </form>
+
+          <div class="teacher-profile-layout">
+            <form class="teacher-form-grid" action="/teacher/profile/save" method="post">
+              <input type="hidden" name="teacher_id" value="{{ teacher_record.id }}">
+              <label>
+                <span>Имя</span>
+                <input type="text" name="name" value="{{ teacher_record.name }}" required>
+              </label>
+              <label>
+                <span>Роль</span>
+                <input type="text" name="role" value="{{ teacher_record.role }}" placeholder="Senior mentor">
+              </label>
+              <label>
+                <span>Направление</span>
+                <input type="text" name="speciality" value="{{ teacher_record.speciality }}" placeholder="Python, Backend, Data">
+              </label>
+              <label>
+                <span>Telegram</span>
+                <input type="text" name="telegram" value="{{ teacher_record.telegram }}" placeholder="@mentor_handle">
+              </label>
+              <label>
+                <span>Email</span>
+                <input type="email" name="email" value="{{ teacher_record.email }}" placeholder="mentor@example.com">
+              </label>
+              <label>
+                <span>Экспертиза</span>
+                <input type="text" name="expertise" value="{{ teacher_record.expertise|join(', ') if teacher_record.expertise else '' }}" placeholder="FastAPI, SQL, code review">
+              </label>
+              <label class="teacher-form-grid__wide">
+                <span>Краткое описание</span>
+                <textarea name="bio" rows="6" placeholder="Кто вы, что ведёте и как работаете со студентами.">{{ teacher_record.bio }}</textarea>
+              </label>
+              <div class="teacher-form-grid__wide teacher-form-grid__actions">
+                <button class="btn btn-primary" type="submit">Сохранить профиль</button>
+                {% if teacher_public_profile_url %}
+                <a class="btn btn-secondary" href="{{ teacher_public_profile_url }}" target="_blank" rel="noopener">Открыть публичную страницу</a>
+                {% endif %}
+              </div>
+            </form>
+
+            <aside class="card teacher-side-card">
+              <div class="course-meta">Публичный профиль</div>
+              <h3>{{ teacher_record.name }}</h3>
+              <p class="admin-subtext">{{ teacher_record.role }}</p>
+              <div class="teacher-chip-stack">
+                {% if teacher_record.speciality %}
+                <span class="admin-chip">{{ teacher_record.speciality }}</span>
+                {% endif %}
+                {% if teacher_record.email %}
+                <span class="admin-chip">{{ teacher_record.email }}</span>
+                {% endif %}
+                {% if teacher_record.telegram %}
+                <span class="admin-chip">{{ teacher_record.telegram }}</span>
+                {% endif %}
+              </div>
+              <p class="admin-subtext">
+                Этот блок увидит студент. Держите формулировки короткими, а направления и контакты — точными.
+              </p>
+            </aside>
+          </div>
         </section>
+
         {% elif view == 'hours' %}
         <section class="panel" style="margin-top: 24px;">
           <div class="admin-section-head">
             <h2 class="section-title">Недельный шаблон рабочих часов</h2>
           </div>
-          <p class="admin-subtext">Для первого этапа доступны две временные зоны на день с шагом 30 минут. Этого достаточно, чтобы дальше наложить часы учеников и искать общие окна.</p>
+          <p class="admin-subtext">Доступны две временные зоны на день с шагом 30 минут. Система использует их как верхнее ограничение для доступности учеников.</p>
+
+          <div class="teacher-summary-grid" style="margin-top: 18px;">
+            <article class="card teacher-summary-card">
+              <div class="course-meta">Дней настроено</div>
+              <strong>{{ teacher_dashboard.summary.hours_days_count }}</strong>
+              <span>из 7</span>
+            </article>
+            <article class="card teacher-summary-card">
+              <div class="course-meta">Всего слотов</div>
+              <strong>{{ teacher_dashboard.summary.hours_slots_count }}</strong>
+              <span>в недельном шаблоне</span>
+            </article>
+            <article class="card teacher-summary-card">
+              <div class="course-meta">Последнее обновление</div>
+              <strong>{{ teacher_dashboard.summary.availability_updated_label or "ещё не было" }}</strong>
+              <span>после сохранения кабинет и ученики увидят новые окна</span>
+            </article>
+          </div>
+
           <form action="/teacher/hours/save" method="post" class="teacher-hours-grid" style="margin-top: 18px;">
             <input type="hidden" name="teacher_id" value="{{ teacher_record.id }}">
             {% for day in teacher_dashboard.availability_rows %}
@@ -276,138 +375,185 @@
             </div>
           </form>
         </section>
+
         {% elif view == 'groups' %}
         <section class="panel" style="margin-top: 24px;">
           <div class="admin-section-head">
             <h2 class="section-title">Группы преподавателя</h2>
             <div class="admin-section-actions">
               <span class="admin-badge">Всего: {{ teacher_dashboard.group_items|length }}</span>
+              <span class="admin-badge">Готовы: {{ teacher_dashboard.summary.groups_ready_count }}</span>
             </div>
           </div>
-          {% if teacher_dashboard.group_items %}
-          <div class="teacher-group-grid" style="margin-top: 18px;">
-            {% for group in teacher_dashboard.group_items %}
-            <article class="card teacher-group-card">
-              <div class="teacher-group-card__head">
-                <div>
-                  <h3>{{ group.title }}</h3>
-                  <p>{{ group.direction_key or "Направление будет выбрано позже" }}</p>
-                </div>
-                <span class="admin-status {% if group.status in ['active', 'scheduled'] %}status-good{% elif group.status == 'archived' %}status-muted{% else %}status-warm{% endif %}">{{ group.status_label }}</span>
-              </div>
-              <div class="teacher-chip-stack">
-                <span class="admin-chip">Участников: {{ group.members_count }}</span>
-                <span class="admin-chip">Ответили: {{ group.availability_count }}</span>
-                <span class="admin-chip">{{ group.lesson_duration_minutes }} мин</span>
-              </div>
-              <p class="admin-subtext">{{ group.match_status }}</p>
-              {% if group.final_slot %}
-              <p class="admin-subtext"><strong>Финальный слот:</strong> {{ group.final_slot }}</p>
-              {% endif %}
-              {% if group.members %}
-              <div class="teacher-member-list">
-                {% for member in group.members %}
-                <div class="teacher-member-list__item">
-                  <div>
-                    <strong>{{ member.student_name }}</strong>
-                    <span>{{ member.course }}</span>
-                  </div>
-                  <div class="teacher-member-list__actions">
-                    <span class="admin-status {% if member.availability_ready %}status-good{% else %}status-warm{% endif %}">
-                      {{ "Заполнил время" if member.availability_ready else "Ждём часы" }}
-                    </span>
-                    <form action="/teacher/groups/member/remove" method="post">
-                      <input type="hidden" name="teacher_id" value="{{ teacher_record.id }}">
-                      <input type="hidden" name="group_id" value="{{ group.id }}">
-                      <input type="hidden" name="agreement_file" value="{{ member.agreement_file }}">
-                      <button class="admin-copy" type="submit">Убрать</button>
-                    </form>
-                  </div>
-                </div>
-                {% endfor %}
-              </div>
-              {% endif %}
-              {% if group.candidate_students %}
-              <form class="teacher-inline-form" action="/teacher/groups/member/add" method="post">
-                <input type="hidden" name="teacher_id" value="{{ teacher_record.id }}">
-                <input type="hidden" name="group_id" value="{{ group.id }}">
-                <select name="agreement_file">
-                  {% for candidate in group.candidate_students %}
-                  <option value="{{ candidate.agreement_file }}">{{ candidate.student_name }} · {{ candidate.course }}</option>
-                  {% endfor %}
-                </select>
-                <button class="btn btn-secondary" type="submit">Добавить ученика</button>
-              </form>
-              {% endif %}
-            </article>
-            {% endfor %}
-          </div>
-          {% else %}
-          <p class="admin-subtext" style="margin-top: 18px;">Пока нет ни одной группы. Создайте первую ниже и начните собирать состав.</p>
-          {% endif %}
 
-          <section class="card teacher-group-editor">
-            <div class="course-meta">{{ "Редактирование группы" if teacher_group_edit else "Новая группа" }}</div>
-            <form class="teacher-form-grid" action="/teacher/groups/save" method="post" style="margin-top: 16px;">
-              <input type="hidden" name="teacher_id" value="{{ teacher_record.id }}">
-              <input type="hidden" name="group_id" value="{{ teacher_group_edit.id if teacher_group_edit else '' }}">
-              <label>
-                <span>Название группы</span>
-                <input type="text" name="title" value="{{ teacher_group_edit.title if teacher_group_edit else '' }}" placeholder="Python Evening A" required>
-              </label>
-              <label>
-                <span>Направление</span>
-                <input type="text" name="direction_key" value="{{ teacher_group_edit.direction_key if teacher_group_edit else teacher_record.speciality }}" placeholder="Python для новичков">
-              </label>
-              <label>
-                <span>Длительность занятия</span>
-                <input type="number" name="lesson_duration_minutes" min="30" max="240" step="30" value="{{ teacher_group_edit.lesson_duration_minutes if teacher_group_edit else 90 }}">
-              </label>
-              <label>
-                <span>Статус</span>
-                <select name="status">
-                  {% for status_key, status_label in teacher_group_status_meta.items() %}
-                  <option value="{{ status_key }}" {% if teacher_group_edit and teacher_group_edit.status == status_key %}selected{% endif %}>{{ status_label }}</option>
-                  {% endfor %}
-                </select>
-              </label>
-              <label class="teacher-form-grid__wide">
-                <span>Финальный слот</span>
-                <input type="text" name="final_slot" value="{{ teacher_group_edit.final_slot if teacher_group_edit else '' }}" placeholder="Например: Вторник 20:00 - 22:00">
-              </label>
-              <div class="teacher-form-grid__wide teacher-form-grid__actions">
-                <button class="btn btn-primary" type="submit">{{ "Обновить группу" if teacher_group_edit else "Создать группу" }}</button>
-                {% if teacher_group_edit %}
-                <a class="btn btn-secondary" href="{{ teacher_links.groups }}">Сбросить</a>
+          <div class="teacher-groups-layout" style="margin-top: 18px;">
+            <div class="teacher-group-grid">
+              {% if teacher_dashboard.group_items %}
+              {% for group in teacher_dashboard.group_items %}
+              <article class="card teacher-group-card">
+                <div class="teacher-group-card__head">
+                  <div>
+                    <h3>{{ group.title }}</h3>
+                    <p>{{ group.direction_key or "Направление будет выбрано позже" }}</p>
+                  </div>
+                  <span class="admin-status {% if group.status in ['active', 'scheduled'] %}status-good{% elif group.status == 'archived' %}status-muted{% else %}status-warm{% endif %}">{{ group.status_label }}</span>
+                </div>
+
+                <div class="teacher-chip-stack">
+                  <span class="admin-chip">Участников: {{ group.members_count }}</span>
+                  <span class="admin-chip">Ответили: {{ group.availability_count }}</span>
+                  <span class="admin-chip">{{ group.lesson_duration_minutes }} мин</span>
+                  {% if group.last_availability_update_label %}
+                  <span class="admin-chip">Последний ответ: {{ group.last_availability_update_label }}</span>
+                  {% endif %}
+                </div>
+
+                <div class="teacher-progress">
+                  <div class="teacher-progress__head">
+                    <strong>Готовность группы</strong>
+                    <span>{{ group.progress_label }}</span>
+                  </div>
+                  <div class="teacher-progress__track" aria-hidden="true">
+                    <span style="width: {{ group.progress_percent }}%;"></span>
+                  </div>
+                </div>
+
+                <p class="admin-subtext">{{ group.match_status }}</p>
+                {% if group.final_slot %}
+                <p class="teacher-group-card__note"><strong>Финальный слот:</strong> {{ group.final_slot }}</p>
                 {% endif %}
-              </div>
-            </form>
-          </section>
+
+                <div class="teacher-card-actions">
+                  <a class="admin-copy" href="{{ group.group_edit_href }}">Редактировать</a>
+                </div>
+
+                {% if group.members %}
+                <div class="teacher-member-list">
+                  {% for member in group.members %}
+                  <div class="teacher-member-list__item">
+                    <div>
+                      <strong>{{ member.student_name }}</strong>
+                      <span>{{ member.course }}</span>
+                      {% if member.availability_updated_label %}
+                      <span>Обновил часы: {{ member.availability_updated_label }}</span>
+                      {% endif %}
+                    </div>
+                    <div class="teacher-member-list__actions">
+                      <span class="admin-status {% if member.availability_ready %}status-good{% else %}status-warm{% endif %}">
+                        {{ "Заполнил время" if member.availability_ready else "Ждём часы" }}
+                      </span>
+                      <form action="/teacher/groups/member/remove" method="post">
+                        <input type="hidden" name="teacher_id" value="{{ teacher_record.id }}">
+                        <input type="hidden" name="group_id" value="{{ group.id }}">
+                        <input type="hidden" name="agreement_file" value="{{ member.agreement_file }}">
+                        <button class="admin-copy" type="submit">Убрать</button>
+                      </form>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if group.candidate_students %}
+                <form class="teacher-inline-form" action="/teacher/groups/member/add" method="post">
+                  <input type="hidden" name="teacher_id" value="{{ teacher_record.id }}">
+                  <input type="hidden" name="group_id" value="{{ group.id }}">
+                  <select name="agreement_file">
+                    {% for candidate in group.candidate_students %}
+                    <option value="{{ candidate.agreement_file }}">{{ candidate.student_name }} · {{ candidate.course }}</option>
+                    {% endfor %}
+                  </select>
+                  <button class="btn btn-secondary" type="submit">Добавить ученика</button>
+                </form>
+                {% endif %}
+              </article>
+              {% endfor %}
+              {% else %}
+              <p class="admin-subtext">Пока нет ни одной группы. Создайте первую справа и начните собирать состав.</p>
+              {% endif %}
+            </div>
+
+            <section class="card teacher-group-editor">
+              <div class="course-meta">{{ "Редактирование группы" if teacher_group_edit else "Новая группа" }}</div>
+              <form class="teacher-form-grid" action="/teacher/groups/save" method="post" style="margin-top: 16px;">
+                <input type="hidden" name="teacher_id" value="{{ teacher_record.id }}">
+                <input type="hidden" name="group_id" value="{{ teacher_group_edit.id if teacher_group_edit else '' }}">
+                <label>
+                  <span>Название группы</span>
+                  <input type="text" name="title" value="{{ teacher_group_edit.title if teacher_group_edit else '' }}" placeholder="Python Evening A" required>
+                </label>
+                <label>
+                  <span>Направление</span>
+                  <input type="text" name="direction_key" value="{{ teacher_group_edit.direction_key if teacher_group_edit else teacher_record.speciality }}" placeholder="Python для новичков">
+                </label>
+                <label>
+                  <span>Длительность занятия</span>
+                  <input type="number" name="lesson_duration_minutes" min="30" max="240" step="30" value="{{ teacher_group_edit.lesson_duration_minutes if teacher_group_edit else 90 }}">
+                </label>
+                <label>
+                  <span>Статус</span>
+                  <select name="status">
+                    {% for status_key, status_label in teacher_group_status_meta.items() %}
+                    <option value="{{ status_key }}" {% if teacher_group_edit and teacher_group_edit.status == status_key %}selected{% endif %}>{{ status_label }}</option>
+                    {% endfor %}
+                  </select>
+                </label>
+                <label class="teacher-form-grid__wide">
+                  <span>Финальный слот</span>
+                  <input type="text" name="final_slot" value="{{ teacher_group_edit.final_slot if teacher_group_edit else '' }}" placeholder="Например: Вторник 20:00 - 22:00">
+                </label>
+                <div class="teacher-form-grid__wide teacher-form-grid__actions">
+                  <button class="btn btn-primary" type="submit">{{ "Обновить группу" if teacher_group_edit else "Создать группу" }}</button>
+                  {% if teacher_group_edit %}
+                  <a class="btn btn-secondary" href="{{ teacher_links.groups }}">Сбросить</a>
+                  {% endif %}
+                </div>
+              </form>
+            </section>
+          </div>
         </section>
+
         {% elif view == 'students' %}
         <section class="panel" style="margin-top: 24px;">
           <div class="admin-section-head">
             <h2 class="section-title">Ученики по группам</h2>
             <div class="admin-section-actions">
               <span class="admin-badge">{{ teacher_dashboard.student_rows|length }} записей</span>
+              <span class="admin-badge">Ответили: {{ teacher_dashboard.summary.students_ready_count }}</span>
             </div>
           </div>
           {% if teacher_dashboard.student_rows %}
           <div class="teacher-student-grid" style="margin-top: 18px;">
             {% for student in teacher_dashboard.student_rows %}
             <article class="card teacher-student-card">
-              <strong>{{ student.student_name }}</strong>
-              <span>{{ student.course }}</span>
+              <div class="teacher-student-card__head">
+                <div>
+                  <strong>{{ student.student_name }}</strong>
+                  <span>{{ student.course }}</span>
+                </div>
+                <span class="admin-status {% if student.availability_ready %}status-good{% else %}status-warm{% endif %}">
+                  {{ "Доступность заполнена" if student.availability_ready else "Ещё не указал часы" }}
+                </span>
+              </div>
+
               <div class="teacher-chip-stack">
                 <span class="admin-chip">{{ student.group_title }}</span>
-                <span class="admin-chip">{{ student.final_slot }}</span>
+                <span class="admin-chip">{{ student.group_status }}</span>
               </div>
-              <span class="admin-status {% if student.availability_ready %}status-good{% else %}status-warm{% endif %}">
-                {{ "Доступность заполнена" if student.availability_ready else "Ещё не указал часы" }}
-              </span>
-              {% if student.email %}
-              <a class="admin-copy" href="mailto:{{ student.email }}">{{ student.email }}</a>
+
+              <p class="teacher-group-card__note"><strong>Финальный слот:</strong> {{ student.final_slot }}</p>
+              {% if student.availability_updated_label %}
+              <p class="admin-subtext">Последнее обновление доступности: {{ student.availability_updated_label }}</p>
               {% endif %}
+
+              <div class="teacher-card-actions">
+                {% if student.email %}
+                <a class="admin-copy" href="mailto:{{ student.email }}">{{ student.email }}</a>
+                {% endif %}
+                {% if student.phone %}
+                <a class="admin-copy" href="tel:{{ student.phone }}">{{ student.phone }}</a>
+                {% endif %}
+              </div>
             </article>
             {% endfor %}
           </div>

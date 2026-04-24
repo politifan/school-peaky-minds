@@ -1,9 +1,15 @@
 import re
 import secrets
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 from core import DATA_DIR, load_json, moscow_now, save_json
-from routes.account_content import build_homework_admin_items, build_teacher_assignment_rows, get_teacher_record, load_teachers
+from routes.account_content import (
+    build_homework_admin_items,
+    build_teacher_assignment_rows,
+    get_teacher_record,
+    load_teachers,
+)
 
 TEACHER_AVAILABILITY_FILE = DATA_DIR / "teacher_availability.json"
 STUDY_GROUPS_FILE = DATA_DIR / "study_groups.json"
@@ -36,6 +42,17 @@ def _teacher_contact_url(item: Dict[str, Any]) -> str:
     if email:
         return f"mailto:{email}"
     return ""
+
+
+def _format_iso_label(value: Any) -> str:
+    raw = str(value or "").strip()
+    if not raw:
+        return ""
+    try:
+        dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return ""
+    return dt.strftime("%d.%m.%Y, %H:%M")
 
 
 def _empty_weekly_days() -> Dict[str, List[Dict[str, str]]]:
@@ -88,6 +105,21 @@ def _normalize_weekly_days(value: Any) -> Dict[str, List[Dict[str, str]]]:
         slots.sort(key=lambda item: (_time_sort_key(item["start"]), _time_sort_key(item["end"])))
         days[key] = slots
     return days
+
+
+def _direction_matches_course(direction_key: str, course_name: str) -> bool:
+    direction_value = str(direction_key or "").strip().lower()
+    course_value = str(course_name or "").strip().lower()
+    if not direction_value:
+        return True
+    if not course_value:
+        return False
+    if direction_value == course_value:
+        return True
+    if direction_value in course_value or course_value in direction_value:
+        return True
+    tokens = [token.strip() for token in re.split(r"[,;/|]+", direction_value) if token.strip()]
+    return any(token in course_value or course_value in token for token in tokens)
 
 
 def _normalize_teacher_availability_record(item: Any) -> Optional[Dict[str, Any]]:
@@ -380,7 +412,6 @@ def _agreement_lookup(agreements: List[Dict[str, Any]]) -> Dict[str, Dict[str, A
 
 
 def build_candidate_students(agreements: List[Dict[str, Any]], *, direction_key: str = "") -> List[Dict[str, Any]]:
-    direction_value = str(direction_key or "").strip().lower()
     items = []
     seen = set()
     for agreement in agreements:
@@ -388,7 +419,7 @@ def build_candidate_students(agreements: List[Dict[str, Any]], *, direction_key:
         if not agreement_file or agreement_file in seen:
             continue
         course = str(agreement.get("course") or "").strip() or "Курс"
-        if direction_value and course.lower() != direction_value:
+        if not _direction_matches_course(direction_key, course):
             continue
         seen.add(agreement_file)
         items.append(
@@ -438,6 +469,7 @@ def build_teacher_group_items(teacher_id: str, agreements: List[Dict[str, Any]])
                     "phone": str(agreement.get("phone") or "").strip(),
                     "availability_ready": bool(availability),
                     "availability_updated_at": str(availability.get("updated_at") or "") if availability else "",
+                    "availability_updated_label": _format_iso_label(availability.get("updated_at")) if availability else "",
                 }
             )
         members.sort(key=lambda item: (item["course"].lower(), item["student_name"].lower()))
@@ -450,6 +482,7 @@ def build_teacher_group_items(teacher_id: str, agreements: List[Dict[str, Any]])
             match_status = f"Ответили {filled_count} из {members_count}"
         else:
             match_status = "Можно считать общие окна"
+        progress_percent = int(round((filled_count / members_count) * 100)) if members_count else 0
         items.append(
             {
                 **group,
@@ -457,8 +490,12 @@ def build_teacher_group_items(teacher_id: str, agreements: List[Dict[str, Any]])
                 "members_count": members_count,
                 "availability_count": filled_count,
                 "match_status": match_status,
+                "progress_percent": progress_percent,
+                "progress_label": f"{progress_percent}%" if members_count else "0%",
                 "courses": sorted(member_courses) if member_courses else ([group["direction_key"]] if group["direction_key"] else []),
                 "last_availability_update": last_updated,
+                "last_availability_update_label": _format_iso_label(last_updated),
+                "group_edit_href": f"/teacher?view=groups&teacher_id={group['teacher_id']}&group_id={group['id']}",
                 "candidate_students": [
                     item
                     for item in build_candidate_students(agreements, direction_key=group["direction_key"])
@@ -481,6 +518,7 @@ def build_teacher_student_rows(group_items: List[Dict[str, Any]]) -> List[Dict[s
                     "group_title": group["title"],
                     "group_status": group["status_label"],
                     "final_slot": group["final_slot"] or "Пока не зафиксирован",
+                    "availability_updated_label": member.get("availability_updated_label", ""),
                 }
             )
     rows.sort(key=lambda item: (item["student_name"].lower(), item["group_title"].lower()))
@@ -525,6 +563,16 @@ def build_teacher_dashboard(
             "availability_rows": build_teacher_availability_rows({"days": _empty_weekly_days()}),
             "availability_summary": [],
             "courses": [],
+            "summary": {
+                "hours_days_count": 0,
+                "hours_slots_count": 0,
+                "students_ready_count": 0,
+                "students_waiting_count": 0,
+                "groups_ready_count": 0,
+                "groups_waiting_count": 0,
+                "availability_updated_label": "",
+                "latest_student_response_label": "",
+            },
         }
     teacher_id = teacher_record["id"]
     assignment_rows = [item for item in build_teacher_assignment_rows(agreements) if item["teacher_id"] == teacher_id]
@@ -532,6 +580,7 @@ def build_teacher_dashboard(
     group_items = build_teacher_group_items(teacher_id, agreements)
     student_rows = build_teacher_student_rows(group_items)
     availability_record = get_teacher_availability_record(teacher_id)
+    availability_rows = build_teacher_availability_rows(availability_record)
     availability_summary = build_teacher_availability_summary(availability_record)
     courses = sorted(
         {
@@ -545,6 +594,18 @@ def build_teacher_dashboard(
             if str(item.get("course") or "").strip()
         }
     )
+    students_ready_count = sum(1 for item in student_rows if item.get("availability_ready"))
+    hours_days_count = sum(1 for row in availability_rows if not row["is_empty"])
+    hours_slots_count = sum(len(row["slots"]) for row in availability_rows)
+    groups_ready_count = sum(
+        1
+        for item in group_items
+        if item["members_count"] and item["availability_count"] == item["members_count"]
+    )
+    latest_student_response = max(
+        (item["last_availability_update"] for item in group_items if item.get("last_availability_update")),
+        default="",
+    )
     return {
         "kpis": [
             {"label": "Групп", "value": len(group_items), "note": "Активные и формирующиеся составы"},
@@ -557,9 +618,19 @@ def build_teacher_dashboard(
         "group_items": group_items,
         "student_rows": student_rows,
         "availability_record": availability_record,
-        "availability_rows": build_teacher_availability_rows(availability_record),
+        "availability_rows": availability_rows,
         "availability_summary": availability_summary,
         "courses": courses,
+        "summary": {
+            "hours_days_count": hours_days_count,
+            "hours_slots_count": hours_slots_count,
+            "students_ready_count": students_ready_count,
+            "students_waiting_count": max(len(student_rows) - students_ready_count, 0),
+            "groups_ready_count": groups_ready_count,
+            "groups_waiting_count": max(len(group_items) - groups_ready_count, 0),
+            "availability_updated_label": _format_iso_label(availability_record.get("updated_at")),
+            "latest_student_response_label": _format_iso_label(latest_student_response),
+        },
     }
 
 
@@ -581,5 +652,6 @@ def build_teacher_public_profile(
         "courses": courses,
         "expertise": expertise,
         "availability_summary": dashboard["availability_summary"][:4],
+        "availability_updated_label": dashboard["summary"]["availability_updated_label"],
         "match_note": "Рабочие часы и группы синхронизируются внутри кабинета преподавателя.",
     }

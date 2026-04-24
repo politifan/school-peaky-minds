@@ -1,4 +1,5 @@
-from typing import Any, Dict, Optional
+import re
+from typing import Any, Dict, Optional, Tuple
 from urllib.parse import urlencode
 
 from fastapi import APIRouter, Request
@@ -76,6 +77,57 @@ def _teacher_record_from_form(form: Dict[str, Any], user: Dict[str, Any]) -> Opt
     return resolve_teacher_record(teacher_id=teacher_id, access_entry=access_entry)
 
 
+def _can_manage_teacher_record(user: Optional[Dict[str, Any]], teacher_record: Optional[Dict[str, Any]]) -> bool:
+    if not user or not teacher_record:
+        return False
+    if is_admin_user(user):
+        return True
+    access_entry = get_teacher_access_entry(user)
+    resolved = resolve_teacher_record(access_entry=access_entry)
+    return bool(resolved and resolved["id"] == teacher_record["id"])
+
+
+def _normalize_half_hour_time(value: Any) -> str:
+    raw = str(value or "").strip()
+    if not raw or not re.match(r"^\d{2}:\d{2}$", raw):
+        return ""
+    hour = int(raw[:2])
+    minute = int(raw[3:5])
+    if 0 <= hour <= 23 and minute in {0, 30}:
+        return raw
+    return ""
+
+
+def _time_value_key(value: str) -> Tuple[int, int]:
+    return int(value[:2]), int(value[3:5])
+
+
+def _parse_availability_form(form: Dict[str, Any]) -> Tuple[Dict[str, Any], str]:
+    days = {}
+    for day in WEEKDAY_META:
+        slots = []
+        for slot_index in range(2):
+            start_raw = str(form.get(f"{day['key']}_start_{slot_index}") or "").strip()
+            end_raw = str(form.get(f"{day['key']}_end_{slot_index}") or "").strip()
+            if not start_raw and not end_raw:
+                continue
+            if not start_raw or not end_raw:
+                return {}, f"{day['label']}: заполните и начало, и конец интервала {slot_index + 1}."
+            start = _normalize_half_hour_time(start_raw)
+            end = _normalize_half_hour_time(end_raw)
+            if not start or not end:
+                return {}, f"{day['label']}: используйте время в формате ЧЧ:ММ с шагом 30 минут."
+            if _time_value_key(start) >= _time_value_key(end):
+                return {}, f"{day['label']}: начало интервала {slot_index + 1} должно быть раньше окончания."
+            slots.append({"start": start, "end": end})
+        ordered = sorted(slots, key=lambda item: (_time_value_key(item["start"]), _time_value_key(item["end"])))
+        for idx in range(1, len(ordered)):
+            if _time_value_key(ordered[idx]["start"]) < _time_value_key(ordered[idx - 1]["end"]):
+                return {}, f"{day['label']}: интервалы не должны пересекаться."
+        days[day["key"]] = ordered
+    return days, ""
+
+
 def _teacher_page_context(request: Request, *, user: Dict[str, Any]) -> Dict[str, Any]:
     view = _normalize_view(request.query_params.get("view"))
     agreements = load_agreements()
@@ -85,11 +137,9 @@ def _teacher_page_context(request: Request, *, user: Dict[str, Any]) -> Dict[str
     teacher_options = load_teachers() if is_admin_user(user) else ([teacher_record] if teacher_record else [])
     group_edit = None
     group_id = str(request.query_params.get("group_id") or "").strip()
-    if group_id:
+    if group_id and teacher_record:
         candidate = get_study_group(group_id)
-        if candidate and teacher_record and candidate["teacher_id"] == teacher_record["id"]:
-            group_edit = candidate
-        elif candidate and is_admin_user(user) and teacher_record and candidate["teacher_id"] == teacher_record["id"]:
+        if candidate and candidate["teacher_id"] == teacher_record["id"]:
             group_edit = candidate
     teacher_links = {key: _teacher_view_href(key, teacher_id=teacher_id) for key in TEACHER_VIEWS}
     teacher_message_map = {
@@ -124,19 +174,6 @@ def _teacher_page_context(request: Request, *, user: Dict[str, Any]) -> Dict[str
             direction_key=teacher_record.get("speciality", "") if teacher_record else "",
         ),
     }
-
-
-def _parse_availability_form(form: Dict[str, Any]) -> Dict[str, Any]:
-    days = {}
-    for day in WEEKDAY_META:
-        slots = []
-        for slot_index in range(2):
-            start = str(form.get(f"{day['key']}_start_{slot_index}") or "").strip()
-            end = str(form.get(f"{day['key']}_end_{slot_index}") or "").strip()
-            if start and end:
-                slots.append({"start": start, "end": end})
-        days[day["key"]] = slots
-    return days
 
 
 @router.get("/teacher", include_in_schema=False)
@@ -193,7 +230,10 @@ async def teacher_hours_save(request: Request):
     teacher_record = _teacher_record_from_form(form, user)
     if not teacher_record:
         return _redirect_teacher("hours", error="Не удалось определить преподавателя для сохранения часов.")
-    save_teacher_availability_record(teacher_record["id"], _parse_availability_form(form))
+    days, error = _parse_availability_form(form)
+    if error:
+        return _redirect_teacher("hours", teacher_id=teacher_record["id"], error=error)
+    save_teacher_availability_record(teacher_record["id"], days)
     return _redirect_teacher("hours", teacher_id=teacher_record["id"], saved="hours")
 
 
@@ -272,11 +312,16 @@ async def teacher_public_profile_page(request: Request, teacher_id: str):
         response = render(request, "404.html")
         response.status_code = 404
         return response
+    user = get_current_user(request)
     public_profile = build_teacher_public_profile(teacher_record, load_agreements())
+    teacher_manage_href = ""
+    if _can_manage_teacher_record(user, teacher_record):
+        teacher_manage_href = _teacher_view_href("overview", teacher_id=teacher_record["id"] if is_admin_user(user) else "")
     return render(
         request,
         "teacher_public_profile.html",
         {
             "teacher": public_profile,
+            "teacher_manage_href": teacher_manage_href,
         },
     )
