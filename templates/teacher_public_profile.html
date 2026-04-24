@@ -1,0 +1,83 @@
+{% extends "base_marketing.html" %}
+
+{% block title %}{{ teacher.name }} — преподаватель Peaky Minds{% endblock %}
+{% block description %}{{ teacher.name }}: {{ teacher.role }}. Направления, формат работы и преподавательский профиль в Peaky Minds.{% endblock %}
+{% block body_class %}teacher-public-page{% endblock %}
+
+{% block content %}
+<section class="pm-section pm-section--compact teacher-public">
+  <div class="container">
+    <div class="pm-surface-card teacher-public__hero">
+      <div class="teacher-public__avatar pm-teacher-card__avatar pm-teacher-card__avatar--{{ teacher.accent }}">{{ teacher.initials }}</div>
+      <div class="teacher-public__content">
+        <div class="eyebrow eyebrow--dark">Преподаватель Peaky Minds</div>
+        <h1>{{ teacher.name }}</h1>
+        <p class="teacher-public__role">{{ teacher.role }}</p>
+        {% if teacher.bio %}
+        <p class="teacher-public__lead">{{ teacher.bio }}</p>
+        {% endif %}
+        <div class="teacher-public__chips">
+          {% if teacher.speciality %}
+          <span>{{ teacher.speciality }}</span>
+          {% endif %}
+          <span>Групп: {{ teacher.groups_count }}</span>
+          <span>Учеников: {{ teacher.students_count }}</span>
+          <span>Занятий: {{ teacher.upcoming_count }}</span>
+        </div>
+        <div class="teacher-public__actions">
+          {% if teacher.contact_url %}
+          <a class="btn btn-primary" href="{{ teacher.contact_url }}" target="_blank" rel="noopener">Связаться</a>
+          {% endif %}
+          {% if user_can_access_teacher and user_is_teacher and user.email and teacher.email and user.email|lower == teacher.email|lower %}
+          <a class="btn btn-secondary" href="/teacher">Открыть кабинет</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="teacher-public__grid">
+      <article class="pm-surface-card teacher-public__card">
+        <div class="pm-kicker">Направления</div>
+        <h3>Что ведёт</h3>
+        {% if teacher.courses %}
+        <div class="teacher-public__chips">
+          {% for course in teacher.courses %}
+          <span>{{ course }}</span>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p>Направления скоро будут опубликованы.</p>
+        {% endif %}
+      </article>
+
+      <article class="pm-surface-card teacher-public__card">
+        <div class="pm-kicker">Экспертиза</div>
+        <h3>Ключевые темы</h3>
+        {% if teacher.expertise %}
+        <div class="teacher-public__chips">
+          {% for item in teacher.expertise %}
+          <span>{{ item }}</span>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p>Список навыков будет уточнён вместе с программами и кейсами.</p>
+        {% endif %}
+      </article>
+
+      <article class="pm-surface-card teacher-public__card">
+        <div class="pm-kicker">Рабочий ритм</div>
+        <h3>Часы и формат</h3>
+        {% if teacher.availability_summary %}
+        <div class="teacher-public__stack">
+          {% for line in teacher.availability_summary %}
+          <span>{{ line }}</span>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p>{{ teacher.match_note }}</p>
+        {% endif %}
+      </article>
+    </div>
+  </div>
+</section>
+{% endblock %}

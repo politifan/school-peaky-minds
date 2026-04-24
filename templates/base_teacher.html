@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Peaky Minds - кабинет преподавателя{% endblock %}</title>
+  <meta name="description" content="{% block description %}Приватный кабинет преподавателя Peaky Minds: группы, рабочие часы, ученики и согласование времени.{% endblock %}">
+  <meta name="theme-color" content="#17181d">
+  <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
+  <link rel="shortcut icon" href="/assets/img/favicon.ico">
+  <link rel="apple-touch-icon" href="/assets/img/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="shell-admin shell-teacher {% block body_class %}{% endblock %}">
+  <header class="site-header site-header--admin">
+    <div class="container site-header__inner">
+      <a class="logo logo--marketing" href="/teacher">
+        <img src="/assets/img/logo.png" alt="Логотип IT-школы Peaky Minds">
+        <span>Peaky Minds Teacher</span>
+      </a>
+
+      <nav class="nav-links nav-links--admin">
+        <a href="/teacher">Обзор</a>
+        <a href="/teacher?view=hours">Часы</a>
+        <a href="/teacher?view=groups">Группы</a>
+        <a href="/teacher?view=students">Ученики</a>
+      </nav>
+
+      <div class="site-header__actions">
+        <a class="btn btn-secondary" href="/">Сайт</a>
+        {% if user %}
+        <a class="nav-user nav-user--marketing" href="/account">
+          <span class="nav-user__label">Аккаунт</span>
+          <span class="avatar {% if user_avatar.variant == 'email' %}avatar--email{% endif %}">
+            {% if user_avatar.url %}
+            <img src="{{ user_avatar.url }}" alt="Аватар профиля" loading="lazy"
+              onload="this.parentElement.classList.add('has-image')"
+              onerror="this.parentElement.classList.remove('has-image'); this.style.display='none'">
+            {% endif %}
+            <span class="avatar-initial">{{ user_avatar.initial }}</span>
+          </span>
+        </a>
+        {% endif %}
+        {% if user_is_admin %}
+        <a class="btn btn-secondary" href="/admin">Админка</a>
+        {% endif %}
+        <a class="btn btn-primary" href="/logout">Выйти</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main site-main--admin">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script>
+    window.pmRuntimeConfig = Object.assign(window.pmRuntimeConfig || {}, {
+      analytics: {
+        yandexMetrikaId: "{{ yandex_metrika_id }}",
+        gaMeasurementId: "{{ ga_measurement_id }}"
+      }
+    });
+  </script>
+  <script src="/assets/js/main.js"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

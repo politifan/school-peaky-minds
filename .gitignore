@@ -138,6 +138,7 @@ celerybeat.pid
 .env
 .envrc
 config/marketing_config.json
+config/teacher_access.json
 .venv
 env/
 venv/

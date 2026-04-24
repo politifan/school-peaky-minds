@@ -45,6 +45,9 @@
             <span class="avatar-initial">{{ user_avatar.initial }}</span>
           </span>
         </a>
+        {% if user_can_access_teacher %}
+        <a class="btn btn-secondary" href="/teacher">Преподаватель</a>
+        {% endif %}
         <a class="btn btn-secondary" href="/logout">Выйти</a>
         {% else %}
         <a class="btn btn-secondary" href="/login">Войти</a>

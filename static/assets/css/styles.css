@@ -1954,6 +1954,304 @@ section {
   z-index: 2;
 }
 
+body.shell-admin.shell-teacher .teacher-hero {
+  display: grid;
+  gap: 24px;
+}
+
+body.shell-admin.shell-teacher .teacher-hero__grid {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+body.shell-admin.shell-teacher .teacher-hero__badge {
+  width: 108px;
+  height: 108px;
+  border-radius: 30px;
+  font-size: 2.2rem;
+}
+
+body.shell-admin.shell-teacher .teacher-hero__content {
+  gap: 12px;
+}
+
+body.shell-admin.shell-teacher .teacher-hero__content p {
+  max-width: 74ch;
+}
+
+body.shell-admin.shell-teacher .teacher-hero__actions {
+  align-items: end;
+}
+
+body.shell-admin.shell-teacher .teacher-switcher {
+  display: grid;
+  gap: 8px;
+  min-width: min(320px, 100%);
+}
+
+body.shell-admin.shell-teacher .teacher-empty .teacher-picker-card {
+  display: grid;
+  gap: 14px;
+}
+
+body.shell-admin.shell-teacher .teacher-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+body.shell-admin.shell-teacher .teacher-form-grid label,
+body.shell-admin.shell-teacher .teacher-hours-card__slot label {
+  display: grid;
+  gap: 8px;
+}
+
+body.shell-admin.shell-teacher .teacher-form-grid label span,
+body.shell-admin.shell-teacher .teacher-hours-card__slot label span {
+  color: rgba(17, 17, 17, 0.68);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body.shell-admin.shell-teacher .teacher-form-grid__wide,
+body.shell-admin.shell-teacher .teacher-hours-grid__actions {
+  grid-column: 1 / -1;
+}
+
+body.shell-admin.shell-teacher .teacher-form-grid__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+body.shell-admin.shell-teacher .teacher-hours-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+body.shell-admin.shell-teacher .teacher-hours-card {
+  display: grid;
+  gap: 14px;
+}
+
+body.shell-admin.shell-teacher .teacher-hours-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+body.shell-admin.shell-teacher .teacher-hours-card__head strong {
+  color: #111111;
+}
+
+body.shell-admin.shell-teacher .teacher-hours-card__head span {
+  color: rgba(17, 17, 17, 0.68);
+}
+
+body.shell-admin.shell-teacher .teacher-hours-card__slot {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+body.shell-admin.shell-teacher .teacher-overview-grid,
+body.shell-admin.shell-teacher .teacher-group-grid,
+body.shell-admin.shell-teacher .teacher-student-grid {
+  align-items: start;
+}
+
+body.shell-admin.shell-teacher .teacher-group-grid,
+body.shell-admin.shell-teacher .teacher-student-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+body.shell-admin.shell-teacher .teacher-group-card,
+body.shell-admin.shell-teacher .teacher-student-card {
+  display: grid;
+  gap: 14px;
+}
+
+body.shell-admin.shell-teacher .teacher-group-card__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: start;
+}
+
+body.shell-admin.shell-teacher .teacher-group-card__head h3 {
+  margin: 0;
+}
+
+body.shell-admin.shell-teacher .teacher-group-card__head p,
+body.shell-admin.shell-teacher .teacher-student-card span {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.7);
+}
+
+body.shell-admin.shell-teacher .teacher-member-list,
+body.shell-admin.shell-teacher .teacher-compact-list {
+  display: grid;
+  gap: 10px;
+}
+
+body.shell-admin.shell-teacher .teacher-member-list__item,
+body.shell-admin.shell-teacher .teacher-compact-list__item {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+body.shell-admin.shell-teacher .teacher-member-list__item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 14px;
+}
+
+body.shell-admin.shell-teacher .teacher-member-list__item strong,
+body.shell-admin.shell-teacher .teacher-compact-list__item strong,
+body.shell-admin.shell-teacher .teacher-student-card strong {
+  color: #111111;
+}
+
+body.shell-admin.shell-teacher .teacher-member-list__item span,
+body.shell-admin.shell-teacher .teacher-compact-list__item span {
+  color: rgba(17, 17, 17, 0.7);
+}
+
+body.shell-admin.shell-teacher .teacher-member-list__actions,
+body.shell-admin.shell-teacher .teacher-chip-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+body.shell-admin.shell-teacher .teacher-inline-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+body.shell-admin.shell-teacher .teacher-group-editor {
+  margin-top: 18px;
+}
+
+body.shell-marketing .teacher-public__hero {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+}
+
+body.shell-marketing .teacher-public__avatar {
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 132px;
+  border-radius: 36px;
+  background: linear-gradient(180deg, rgba(17, 17, 17, 0.08), rgba(17, 17, 17, 0.03));
+  color: #111111;
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+}
+
+body.shell-marketing .teacher-public__content {
+  display: grid;
+  gap: 12px;
+}
+
+body.shell-marketing .teacher-public__role {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.74);
+  font-weight: 700;
+}
+
+body.shell-marketing .teacher-public__lead {
+  margin: 0;
+  color: #111111;
+}
+
+body.shell-marketing .teacher-public__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+body.shell-marketing .teacher-public__card {
+  display: grid;
+  gap: 14px;
+}
+
+body.shell-marketing .teacher-public__chips,
+body.shell-marketing .teacher-public__stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+body.shell-marketing .teacher-public__chips span,
+body.shell-marketing .teacher-public__stack span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+  color: #111111;
+  font-weight: 700;
+}
+
+body.shell-marketing .teacher-public__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (max-width: 1024px) {
+  body.shell-admin.shell-teacher .teacher-hours-grid,
+  body.shell-admin.shell-teacher .teacher-group-grid,
+  body.shell-admin.shell-teacher .teacher-student-grid,
+  body.shell-marketing .teacher-public__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  body.shell-admin.shell-teacher .teacher-form-grid,
+  body.shell-admin.shell-teacher .teacher-hours-card__slot,
+  body.shell-admin.shell-teacher .teacher-inline-form,
+  body.shell-marketing .teacher-public__hero {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-admin.shell-teacher .teacher-hero__grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-admin.shell-teacher .teacher-hero__badge,
+  body.shell-marketing .teacher-public__avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 28px;
+  }
+}
+
 .auth-provider-label .tg-login-button--visible iframe {
   width: 100%;
   height: 100%;

@@ -44,6 +44,7 @@ from routes.contracts import router as contracts_router
 from routes.forms import router as forms_router
 from routes.payments import router as payments_router
 from routes.public import router as public_router
+from routes.teacher import router as teacher_router
 
 app = FastAPI(docs_url=None, redoc_url=None)
 SAMESITE = "none" if CANONICAL_SCHEME == "https" else "lax"
@@ -338,6 +339,7 @@ async def flush_metrics_on_shutdown():
 app.include_router(public_router)
 app.include_router(auth_router)
 app.include_router(admin_router)
+app.include_router(teacher_router)
 app.include_router(forms_router)
 app.include_router(contracts_router)
 app.include_router(payments_router)

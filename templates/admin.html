@@ -1576,6 +1576,8 @@
                   {% endif %}
                   <div class="pm-inline-actions">
                     <a class="admin-copy" href="/admin?view=teachers&month={{ lesson_month }}&teacher_id={{ teacher.id }}">Редактировать</a>
+                    <a class="admin-copy" href="/teacher?teacher_id={{ teacher.id }}">Кабинет</a>
+                    <a class="admin-copy" href="/teachers/{{ teacher.id }}" target="_blank" rel="noopener">Профиль</a>
                     {% if teacher.contact_url %}
                     <a class="admin-copy" href="{{ teacher.contact_url }}" target="_blank" rel="noopener">Контакт</a>
                     {% endif %}

@@ -1,0 +1,10 @@
+{
+  "items": [
+    {
+      "label": "Example teacher",
+      "user_id": "email:teacher@example.com",
+      "email": "teacher@example.com",
+      "teacher_id": "teacher-example"
+    }
+  ]
+}

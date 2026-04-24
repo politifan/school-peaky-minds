@@ -48,7 +48,8 @@ except Exception:  # pragma: no cover - optional dependency
     qrcode = None
 
 BASE_DIR = Path(__file__).resolve().parent
-ENV_PATH = BASE_DIR / "config" / ".env"
+CONFIG_DIR = BASE_DIR / "config"
+ENV_PATH = CONFIG_DIR / ".env"
 
 
 def load_env(path: Path) -> None:
@@ -93,6 +94,7 @@ DOCUMENTS_DIR = STATIC_DIR / "documents"
 PROFILE_AVATARS_DIR = STATIC_DIR / "profile_avatars"
 CONTRACTS_DIR = DOCUMENTS_DIR / "contracts"
 TEMPLATES_DIR = BASE_DIR / "templates"
+TEACHER_ACCESS_FILE = CONFIG_DIR / "teacher_access.json"
 DATA_DIR.mkdir(exist_ok=True)
 PROFILE_AVATARS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -1236,6 +1238,76 @@ def is_admin_user(user: Optional[Dict[str, Any]]) -> bool:
     return tg_id in get_admin_ids()
 
 
+def _normalize_teacher_access_entry(item: Any) -> Optional[Dict[str, str]]:
+    if not isinstance(item, dict):
+        return None
+    user_id = str(item.get("user_id") or "").strip()
+    email = str(item.get("email") or "").strip().lower()
+    provider = str(item.get("provider") or "").strip().lower()
+    teacher_id = str(item.get("teacher_id") or "").strip()
+    label = str(item.get("label") or item.get("name") or "").strip()
+    if not user_id and not email:
+        return None
+    return {
+        "user_id": user_id,
+        "email": email,
+        "provider": provider,
+        "teacher_id": teacher_id,
+        "label": label,
+    }
+
+
+def load_teacher_access_entries() -> List[Dict[str, str]]:
+    data = load_json(TEACHER_ACCESS_FILE, {"items": []})
+    raw_items = data.get("items") if isinstance(data, dict) else data
+    if not isinstance(raw_items, list):
+        return []
+    items: List[Dict[str, str]] = []
+    seen = set()
+    for raw_item in raw_items:
+        normalized = _normalize_teacher_access_entry(raw_item)
+        if not normalized:
+            continue
+        dedupe_key = (
+            normalized["user_id"],
+            normalized["email"],
+            normalized["provider"],
+            normalized["teacher_id"],
+        )
+        if dedupe_key in seen:
+            continue
+        seen.add(dedupe_key)
+        items.append(normalized)
+    return items
+
+
+def get_teacher_access_entry(user: Optional[Dict[str, Any]]) -> Optional[Dict[str, str]]:
+    if not user:
+        return None
+    current_user_id = str(user.get("id") or "").strip()
+    current_email = str(user.get("email") or "").strip().lower()
+    current_provider = str(user.get("provider") or "").strip().lower()
+    exact_match = None
+    email_match = None
+    for entry in load_teacher_access_entries():
+        if entry["provider"] and entry["provider"] != current_provider:
+            continue
+        if entry["user_id"] and entry["user_id"] == current_user_id:
+            exact_match = entry
+            break
+        if entry["email"] and current_email and entry["email"] == current_email and email_match is None:
+            email_match = entry
+    return exact_match or email_match
+
+
+def is_teacher_user(user: Optional[Dict[str, Any]]) -> bool:
+    return get_teacher_access_entry(user) is not None
+
+
+def can_access_teacher_cabinet(user: Optional[Dict[str, Any]]) -> bool:
+    return is_admin_user(user) or is_teacher_user(user)
+
+
 def next_lead_path() -> Path:
     return LEADS_DIR / f"lead_{int(time.time())}_{secrets.token_hex(4)}.json"
 
@@ -1400,6 +1472,15 @@ def admin_required(request: Request) -> Optional[Response]:
         return RedirectResponse("/login?next=/admin", status_code=HTTP_302_FOUND)
     if not is_admin_user(user):
         return RedirectResponse("https://clck.ru/3RfY2P", status_code=HTTP_302_FOUND)
+    return None
+
+
+def teacher_required(request: Request) -> Optional[Response]:
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse("/login?next=/teacher", status_code=HTTP_302_FOUND)
+    if not can_access_teacher_cabinet(user):
+        return RedirectResponse("/account?view=teachers", status_code=HTTP_302_FOUND)
     return None
 
 
@@ -1996,6 +2077,8 @@ def render(request: Request, template_name: str, context: Optional[Dict[str, Any
         "request": request,
         "user": user,
         "user_is_admin": is_admin_user(user),
+        "user_is_teacher": is_teacher_user(user),
+        "user_can_access_teacher": can_access_teacher_cabinet(user),
         "user_avatar": {
             "url": avatar_url,
             "initial": avatar_initial,
