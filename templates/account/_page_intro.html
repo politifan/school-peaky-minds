@@ -1,4 +1,4 @@
-<section class="pm-student-hero pm-student-hero--compact pm-surface-card">
+<section class="pm-student-hero pm-student-hero--compact {% if account_page.key == 'profile' %}pm-student-hero--profile {% endif %}pm-surface-card">
   <div class="pm-student-hero__main">
     <div class="pm-kicker">{{ account_page.kicker }}</div>
     <h1 class="section-title">{{ account_page.title }}</h1>
