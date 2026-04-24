@@ -76,8 +76,6 @@
 
       <a href="/courses" {% if request.url.path.startswith('/courses') %}aria-current="page"{% endif %}>Направления</a>
 
-      <a href="/roi" {% if request.url.path.startswith('/roi') %}aria-current="page"{% endif %}>Окупаемость курса</a>
-
       <a href="/reviews" {% if request.url.path.startswith('/reviews') %}aria-current="page"{% endif %}>Отзывы</a>
       <details class="marketing-drawer__group" {% if request.url.path.startswith('/blog') or request.url.path.startswith('/posts') or request.url.path.startswith('/how-it-works') %}open{% endif %}>
         <summary>Как учимся</summary>
@@ -133,8 +131,6 @@
       <nav class="nav-links nav-links--marketing">
 
         <a href="/courses" {% if request.url.path.startswith('/courses') %}aria-current="page"{% endif %}>Направления</a>
-
-        <a href="/roi" {% if request.url.path.startswith('/roi') %}aria-current="page"{% endif %}>Окупаемость курса</a>
 
         <a href="/reviews" {% if request.url.path.startswith('/reviews') %}aria-current="page"{% endif %}>Отзывы</a>
       </nav>
