@@ -1,19 +1,61 @@
 {% extends "base_marketing.html" %}
 
-{% block title %}Страница не найдена - IT‑школа Peaky Minds{% endblock %}
-{% block description %}Запрошенная страница не найдена. Перейдите на главную страницу IT‑школы Peaky Minds.{% endblock %}
+{% block title %}Страница не найдена — Peaky Minds{% endblock %}
+{% block description %}Запрошенная страница не найдена. Вернитесь на главную, в каталог курсов или к разделу с форматом обучения.{% endblock %}
 
 {% block content %}
-<section class="pm-status-page">
+<section class="pm-not-found-page">
   <div class="container">
-    <div class="pm-status-card pm-surface-card">
-      <div class="pm-status-code">404</div>
-      <div class="pm-kicker">Not found</div>
-      <h1 class="display-title">Страница не найдена</h1>
-      <p class="section-lead">Похоже, адрес изменился или страница больше не используется. Вернитесь в каталог курсов или на главную.</p>
-      <div class="pm-status-actions">
-        <a class="btn btn-primary" href="/">На главную</a>
-        <a class="btn btn-secondary" href="/#courses">Смотреть курсы</a>
+    <div class="pm-not-found pm-surface-card">
+      <div class="pm-not-found__content">
+        <div class="pm-kicker">404 / Not found</div>
+        <div class="pm-not-found__digits" aria-hidden="true">
+          <span>4</span>
+          <span>0</span>
+          <span>4</span>
+        </div>
+        <h1 class="display-title">Такой страницы сейчас нет</h1>
+        <p class="section-lead">Ссылка могла устареть, адрес мог измениться, или страница больше не используется. Вернитесь на главный экран и продолжите маршрут оттуда.</p>
+        <div class="pm-not-found__actions">
+          <a class="btn btn-primary" href="/">На главную</a>
+          <a class="btn btn-secondary" href="/courses">Все курсы</a>
+        </div>
+        <div class="pm-not-found__quicklinks">
+          <a href="/how-it-works">Как учимся</a>
+          <a href="/reviews">Отзывы</a>
+          <a href="/roi">Окупаемость курса</a>
+        </div>
+      </div>
+      <div class="pm-not-found__visual" aria-hidden="true">
+        <div class="pm-not-found__glow pm-not-found__glow--left"></div>
+        <div class="pm-not-found__glow pm-not-found__glow--right"></div>
+        <div class="pm-not-found__frame">
+          <div class="pm-not-found__frame-top">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="pm-not-found__path">{{ request.url.path }}</div>
+          <div class="pm-not-found__redirect">→ /courses</div>
+          <div class="pm-not-found__grid">
+            <div>
+              <strong>Главная</strong>
+              <span>Быстрый старт</span>
+            </div>
+            <div>
+              <strong>Каталог</strong>
+              <span>Все направления</span>
+            </div>
+            <div>
+              <strong>FAQ</strong>
+              <span>Формат и оплата</span>
+            </div>
+            <div>
+              <strong>ROI</strong>
+              <span>Когда окупится курс</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
