@@ -528,7 +528,7 @@
       },
       marketing: {{ marketing_runtime | tojson }},
       pageMarketing: {% if marketing is defined %}{{ marketing | tojson }}{% else %}null{% endif %},
-      pageCourseMarketing: {% if course is defined %}{{ course.marketing | tojson }}{% else %}null{% endif %}
+      pageCourseMarketing: {% if course is defined and course is mapping and course.marketing is defined %}{{ course.marketing | tojson }}{% else %}null{% endif %}
     });
   </script>
   <script>
