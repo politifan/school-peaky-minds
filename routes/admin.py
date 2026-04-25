@@ -709,6 +709,7 @@ def _admin_panel_impl(request: Request):
     homework_edit = None
     agreement_options = []
     teacher_options = []
+    teacher_map: Dict[str, Dict[str, Any]] = {}
 
     leads = filter_items(leads_all, course, date_from, date_to)
     agreements = filter_items(agreements_all, course, date_from, date_to)
@@ -734,11 +735,13 @@ def _admin_panel_impl(request: Request):
             page=lecture_page,
             per_page=8,
         )
+    if view in {"teachers", "users"}:
+        teacher_options = list_teachers()
+        teacher_map = {item["id"]: item for item in teacher_options}
     if view == "teachers":
         teacher_items = build_teacher_overview_items(agreements_all, month=lesson_month)
         teacher_assignment_rows = build_teacher_assignment_rows(agreements_all, month=lesson_month)
         teacher_homework_items = build_homework_admin_items(agreements_all)
-        teacher_options = list_teachers()
         agreement_options = sorted(
             [
                 {
@@ -1030,15 +1033,26 @@ def _admin_panel_impl(request: Request):
     for user in users_data.values():
         if not isinstance(user, dict):
             continue
+        teacher_access = core.get_teacher_access_entry(user)
+        teacher_access_id = str((teacher_access or {}).get("teacher_id") or "").strip()
+        teacher_card = teacher_map.get(teacher_access_id) if teacher_access_id else None
         users_view.append(
             {
                 "id": user.get("id"),
                 "provider": user.get("provider", "-"),
+                "provider_value": user.get("provider") or "",
                 "email": user.get("email") or "-",
+                "email_value": user.get("email") or "",
                 "name": user.get("name") or user.get("email") or user.get("id") or "-",
+                "teacher_access_id": teacher_access_id,
+                "teacher_access_label": teacher_card["name"] if teacher_card else (teacher_access_id or ""),
+                "teacher_access_status": "Назначен" if teacher_access_id else "Не назначен",
+                "teacher_access_class": "status-good" if teacher_access_id else "status-muted",
+                "teacher_access_missing": bool(teacher_access_id and not teacher_card),
             }
         )
     users_view.sort(key=lambda item: (str(item.get("provider")), str(item.get("name"))))
+    teacher_access_total = sum(1 for item in users_view if item.get("teacher_access_id"))
 
     filter_bits = []
     if course:
@@ -1592,6 +1606,7 @@ def _admin_panel_impl(request: Request):
             "teacher_edit": teacher_edit,
             "homework_edit": homework_edit,
             "teacher_options": teacher_options,
+            "teacher_access_total": teacher_access_total,
             "agreement_options": agreement_options,
         },
     )
@@ -2889,6 +2904,38 @@ async def admin_teachers_delete(request: Request):
     if not delete_teacher_record(teacher_id):
         return teachers_redirect(error="Преподаватель не найден", month=month)
     return teachers_redirect(message="Преподаватель удалён", month=month)
+
+
+@router.post("/admin/users/assign-teacher", include_in_schema=False)
+async def admin_users_assign_teacher(request: Request):
+    guard = admin_required(request)
+    if guard:
+        return guard
+    form = await request.form()
+    teacher_id = str(form.get("teacher_id") or "").strip()
+    user_id = str(form.get("user_id") or "").strip()
+    email = str(form.get("email") or "").strip().lower()
+    provider = str(form.get("provider") or "").strip().lower()
+    user_name = str(form.get("name") or "").strip()
+    teacher = next((item for item in list_teachers() if item["id"] == teacher_id), None)
+    if not teacher:
+        return admin_notice_redirect("users", error="Сначала выберите существующую карточку преподавателя.")
+    if not user_id and not email:
+        return admin_notice_redirect("users", error="Не удалось определить пользователя для привязки.")
+    file_was_missing = not core.TEACHER_ACCESS_FILE.exists()
+    try:
+        core.upsert_teacher_access_entry(
+            user_id=user_id,
+            email=email,
+            provider=provider,
+            teacher_id=teacher_id,
+            label=user_name,
+        )
+    except ValueError as exc:
+        return admin_notice_redirect("users", error=str(exc))
+    if file_was_missing and core.TEACHER_ACCESS_FILE.exists():
+        return admin_notice_redirect("users", message=f"teacher_access.json создан, а пользователь привязан к преподавателю {teacher['name']}.")
+    return admin_notice_redirect("users", message=f"Пользователь привязан к преподавателю {teacher['name']}.")
 
 
 @router.post("/admin/teachers/assign", include_in_schema=False)

@@ -1281,6 +1281,87 @@ def load_teacher_access_entries() -> List[Dict[str, str]]:
     return items
 
 
+def save_teacher_access_entries(items: List[Dict[str, Any]]) -> List[Dict[str, str]]:
+    CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    normalized_items: List[Dict[str, str]] = []
+    seen = set()
+    for raw_item in items:
+        normalized = _normalize_teacher_access_entry(raw_item)
+        if not normalized:
+            continue
+        dedupe_key = (
+            normalized["user_id"],
+            normalized["email"],
+            normalized["provider"],
+            normalized["teacher_id"],
+        )
+        if dedupe_key in seen:
+            continue
+        seen.add(dedupe_key)
+        normalized_items.append(normalized)
+    normalized_items.sort(
+        key=lambda item: (
+            item.get("label") or item.get("email") or item.get("user_id") or "",
+            item.get("teacher_id") or "",
+        )
+    )
+    save_json(TEACHER_ACCESS_FILE, {"items": normalized_items})
+    return normalized_items
+
+
+def upsert_teacher_access_entry(
+    *,
+    user_id: str = "",
+    email: str = "",
+    provider: str = "",
+    teacher_id: str = "",
+    label: str = "",
+) -> Dict[str, str]:
+    normalized = _normalize_teacher_access_entry(
+        {
+            "user_id": user_id,
+            "email": email,
+            "provider": provider,
+            "teacher_id": teacher_id,
+            "label": label,
+        }
+    )
+    if not normalized:
+        raise ValueError("Не удалось определить пользователя для teacher-access.")
+    if not normalized["teacher_id"]:
+        raise ValueError("Укажите карточку преподавателя.")
+
+    items = load_teacher_access_entries()
+    updated = False
+    result = normalized
+    for index, item in enumerate(items):
+        provider_matches = (
+            not normalized["provider"]
+            or not item["provider"]
+            or normalized["provider"] == item["provider"]
+        )
+        same_user_id = bool(normalized["user_id"] and item["user_id"] == normalized["user_id"])
+        same_email = bool(normalized["email"] and item["email"] == normalized["email"])
+        if not provider_matches or not (same_user_id or same_email):
+            continue
+        merged = {
+            "user_id": normalized["user_id"] or item["user_id"],
+            "email": normalized["email"] or item["email"],
+            "provider": normalized["provider"] or item["provider"],
+            "teacher_id": normalized["teacher_id"],
+            "label": normalized["label"] or item["label"],
+        }
+        items[index] = merged
+        result = merged
+        updated = True
+        break
+    if not updated:
+        items.append(normalized)
+        result = normalized
+    save_teacher_access_entries(items)
+    return result
+
+
 def get_teacher_access_entry(user: Optional[Dict[str, Any]]) -> Optional[Dict[str, str]]:
     if not user:
         return None

@@ -856,13 +856,20 @@
 
         {% if view == 'users' %}
         <section class="panel" id="admin-users" style="margin-top: 24px;">
-      <div class="admin-section-head">
-        <h2 class="section-title">Пользователи</h2>
-        <div class="admin-section-actions">
-          <span class="admin-badge">Всего: {{ users_total }}</span>
-          <a class="btn btn-secondary" href="/admin/export/users.csv">Экспорт CSV</a>
-        </div>
+      {% if not teacher_options %}
+      <div class="card" style="margin-bottom: 14px;">
+        <strong>Сначала создайте хотя бы одну карточку преподавателя в разделе "Преподаватели".</strong>
+        <div class="admin-subtext" style="margin-top: 8px;">После этого можно будет привязать аккаунт к teacher-cabinet прямо из списка пользователей.</div>
       </div>
+      {% endif %}
+        <div class="admin-section-head">
+          <h2 class="section-title">Пользователи</h2>
+          <div class="admin-section-actions">
+            <span class="admin-badge">Всего: {{ users_total }}</span>
+            <span class="admin-badge">Привязано к преподавателям: {{ teacher_access_total }}</span>
+            <a class="btn btn-secondary" href="/admin/export/users.csv">Экспорт CSV</a>
+          </div>
+        </div>
       {% if users %}
       <div class="admin-table-wrap">
         <table class="admin-table">
@@ -872,6 +879,8 @@
               <th>Имя</th>
               <th>Email</th>
               <th>Провайдер</th>
+              <th>Преподаватель</th>
+              <th>Действие</th>
             </tr>
           </thead>
           <tbody>
@@ -881,6 +890,38 @@
               <td data-label="Имя"><strong>{{ user.name }}</strong></td>
               <td data-label="Email">{{ user.email }}</td>
               <td data-label="Провайдер"><span class="admin-chip">{{ user.provider }}</span></td>
+              <td data-label="Преподаватель">
+                <div class="admin-cell">
+                  <span class="admin-status {{ user.teacher_access_class }}">{{ user.teacher_access_status }}</span>
+                  {% if user.teacher_access_id %}
+                  <div class="admin-subtext">
+                    {{ user.teacher_access_label }}
+                    {% if user.teacher_access_missing %}
+                    · карточка не найдена
+                    {% endif %}
+                  </div>
+                  {% endif %}
+                </div>
+              </td>
+              <td data-label="Действие">
+                {% if teacher_options %}
+                <form class="admin-meta-form" action="/admin/users/assign-teacher" method="post">
+                  <input type="hidden" name="user_id" value="{{ user.id }}">
+                  <input type="hidden" name="email" value="{{ user.email_value }}">
+                  <input type="hidden" name="provider" value="{{ user.provider_value }}">
+                  <input type="hidden" name="name" value="{{ user.name }}">
+                  <select name="teacher_id" aria-label="Назначить преподавателя пользователю">
+                    <option value="">Выберите преподавателя</option>
+                    {% for teacher in teacher_options %}
+                    <option value="{{ teacher.id }}" {% if user.teacher_access_id == teacher.id %}selected{% endif %}>{{ teacher.name }}</option>
+                    {% endfor %}
+                  </select>
+                  <button class="admin-copy" type="submit">{% if user.teacher_access_id %}Обновить{% else %}Назначить{% endif %}</button>
+                </form>
+                {% else %}
+                <span class="admin-subtext">Сначала создайте карточку преподавателя</span>
+                {% endif %}
+              </td>
             </tr>
             {% endfor %}
           </tbody>
