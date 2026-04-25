@@ -73,6 +73,100 @@ def _time_sort_key(value: str) -> Tuple[int, int]:
     return int(value[:2]), int(value[3:5])
 
 
+def _time_to_minutes(value: str) -> int:
+    hour, minute = _time_sort_key(value)
+    return hour * 60 + minute
+
+
+def _minutes_to_time_label(value: int) -> str:
+    hours = max(int(value), 0) // 60
+    minutes = max(int(value), 0) % 60
+    return f"{hours:02d}:{minutes:02d}"
+
+
+def _days_to_slot_map(days: Any) -> Dict[str, set]:
+    normalized_days = _normalize_weekly_days(days)
+    slot_map = {key: set() for key in WEEKDAY_KEYS}
+    for key in WEEKDAY_KEYS:
+        for slot in normalized_days.get(key) or []:
+            start_slot = _time_to_minutes(slot["start"]) // 30
+            end_slot = _time_to_minutes(slot["end"]) // 30
+            if end_slot <= start_slot:
+                continue
+            slot_map[key].update(range(start_slot, end_slot))
+    return slot_map
+
+
+def _slot_map_to_days(slot_map: Dict[str, set], *, minimum_slots: int = 1) -> Dict[str, List[Dict[str, str]]]:
+    days = _empty_weekly_days()
+    required_slots = max(int(minimum_slots or 1), 1)
+    for key in WEEKDAY_KEYS:
+        indexes = sorted(int(value) for value in slot_map.get(key) or [])
+        if not indexes:
+            continue
+        range_start = indexes[0]
+        prev = indexes[0]
+        for current in indexes[1:]:
+            if current == prev + 1:
+                prev = current
+                continue
+            if (prev - range_start + 1) >= required_slots:
+                days[key].append(
+                    {
+                        "start": _minutes_to_time_label(range_start * 30),
+                        "end": _minutes_to_time_label((prev + 1) * 30),
+                    }
+                )
+            range_start = current
+            prev = current
+        if (prev - range_start + 1) >= required_slots:
+            days[key].append(
+                {
+                    "start": _minutes_to_time_label(range_start * 30),
+                    "end": _minutes_to_time_label((prev + 1) * 30),
+                }
+            )
+    return days
+
+
+def _slot_map_summary(slot_map: Dict[str, set], *, minimum_slots: int = 1, limit: int = 4) -> List[str]:
+    days = _slot_map_to_days(slot_map, minimum_slots=minimum_slots)
+    return build_teacher_availability_summary({"days": days})[:limit]
+
+
+def _slot_map_has_any(slot_map: Dict[str, set], *, minimum_slots: int = 1) -> bool:
+    days = _slot_map_to_days(slot_map, minimum_slots=minimum_slots)
+    return any(days.get(key) for key in WEEKDAY_KEYS)
+
+
+def _intersect_slot_maps(slot_maps: List[Dict[str, set]]) -> Dict[str, set]:
+    result = {key: set() for key in WEEKDAY_KEYS}
+    if not slot_maps:
+        return result
+    for key in WEEKDAY_KEYS:
+        merged = None
+        for slot_map in slot_maps:
+            day_slots = set(slot_map.get(key) or set())
+            merged = day_slots if merged is None else merged & day_slots
+        result[key] = merged or set()
+    return result
+
+
+def _lesson_duration_slot_count(value: Any) -> int:
+    try:
+        minutes = int(value or 90)
+    except Exception:
+        minutes = 90
+    minutes = min(max(minutes, 30), 240)
+    return max(minutes // 30, 1)
+
+
+def _availability_record_has_slots(record: Optional[Dict[str, Any]], *, minimum_slots: int = 1) -> bool:
+    if not isinstance(record, dict):
+        return False
+    return _slot_map_has_any(_days_to_slot_map(record.get("days")), minimum_slots=minimum_slots)
+
+
 def _normalize_interval(item: Any) -> Optional[Dict[str, str]]:
     if not isinstance(item, dict):
         return None
@@ -105,6 +199,52 @@ def _normalize_weekly_days(value: Any) -> Dict[str, List[Dict[str, str]]]:
         slots.sort(key=lambda item: (_time_sort_key(item["start"]), _time_sort_key(item["end"])))
         days[key] = slots
     return days
+
+
+def parse_weekly_availability_form(form: Dict[str, Any]) -> Tuple[Dict[str, Any], str]:
+    days = {}
+    for day in WEEKDAY_META:
+        slots = []
+        for slot_index in range(2):
+            start_raw = str(form.get(f"{day['key']}_start_{slot_index}") or "").strip()
+            end_raw = str(form.get(f"{day['key']}_end_{slot_index}") or "").strip()
+            if not start_raw and not end_raw:
+                continue
+            if not start_raw or not end_raw:
+                return {}, f"{day['label']}: заполните и начало, и конец интервала {slot_index + 1}."
+            start = _normalize_time_value(start_raw)
+            end = _normalize_time_value(end_raw)
+            if not start or not end:
+                return {}, f"{day['label']}: используйте время в формате ЧЧ:ММ с шагом 30 минут."
+            if _time_sort_key(start) >= _time_sort_key(end):
+                return {}, f"{day['label']}: начало интервала {slot_index + 1} должно быть раньше окончания."
+            slots.append({"start": start, "end": end})
+        ordered = sorted(slots, key=lambda item: (_time_sort_key(item["start"]), _time_sort_key(item["end"])))
+        for idx in range(1, len(ordered)):
+            if _time_sort_key(ordered[idx]["start"]) < _time_sort_key(ordered[idx - 1]["end"]):
+                return {}, f"{day['label']}: интервалы не должны пересекаться."
+        days[day["key"]] = ordered
+    return days, ""
+
+
+def _agreement_file_key(agreement: Dict[str, Any]) -> str:
+    return str(agreement.get("agreement_file") or agreement.get("_file") or agreement.get("file") or "").strip()
+
+
+def _agreement_int(agreement: Dict[str, Any], key: str) -> int:
+    try:
+        return int(agreement.get(key) or 0)
+    except Exception:
+        return 0
+
+
+def _agreement_is_group_eligible(agreement: Dict[str, Any]) -> bool:
+    status = str(agreement.get("contract_status_key") or agreement.get("contract_status") or "").strip().lower()
+    if status == "signed":
+        return True
+    if str(agreement.get("contract_pdf_url") or "").strip():
+        return True
+    return _agreement_int(agreement, "paid_lessons") > 0 or _agreement_int(agreement, "attended_lessons") > 0
 
 
 def _direction_matches_course(direction_key: str, course_name: str) -> bool:
@@ -329,18 +469,25 @@ def add_group_member(group_id: str, agreement_file: str) -> Optional[Dict[str, A
     key = str(group_id or "").strip()
     member_key = str(agreement_file or "").strip()
     for item in items:
-        if item["id"] != key:
-            updated_items.append(item)
+        current_member_ids = list(item.get("member_ids") or [])
+        member_ids = [item_id for item_id in current_member_ids if item_id != member_key or item["id"] == key]
+        if item["id"] == key:
+            if member_key and member_key not in member_ids:
+                member_ids.append(member_key)
+            updated_group = {
+                **item,
+                "member_ids": member_ids,
+                "updated_at": moscow_now().isoformat(),
+            }
+            updated_items.append(updated_group)
             continue
-        member_ids = list(item.get("member_ids") or [])
-        if member_key and member_key not in member_ids:
-            member_ids.append(member_key)
-        updated_group = {
-            **item,
-            "member_ids": member_ids,
-            "updated_at": moscow_now().isoformat(),
-        }
-        updated_items.append(updated_group)
+        updated_items.append(
+            {
+                **item,
+                "member_ids": member_ids,
+                "updated_at": moscow_now().isoformat() if len(member_ids) != len(current_member_ids) else item.get("updated_at"),
+            }
+        )
     if updated_group:
         save_study_groups(updated_items)
     return updated_group
@@ -388,35 +535,83 @@ def load_student_availability_items() -> List[Dict[str, Any]]:
     raw_items = data.get("items") if isinstance(data, dict) else data
     if not isinstance(raw_items, list):
         return []
-    items = []
-    seen = set()
+    indexed_items: Dict[Tuple[str, str], Dict[str, Any]] = {}
     for raw_item in raw_items:
         item = _normalize_student_availability_record(raw_item)
         if not item:
             continue
         dedupe_key = (item["group_id"], item["student_id"])
-        if dedupe_key in seen:
-            continue
-        seen.add(dedupe_key)
-        items.append(item)
-    return items
+        indexed_items[dedupe_key] = item
+    return sorted(indexed_items.values(), key=lambda item: (item["group_id"], item["student_id"]))
+
+
+def load_student_availability_map() -> Dict[Tuple[str, str], Dict[str, Any]]:
+    return {
+        (item["group_id"], item["student_id"]): item
+        for item in load_student_availability_items()
+    }
+
+
+def get_student_availability_record(group_id: str, student_id: str) -> Dict[str, Any]:
+    group_key = str(group_id or "").strip()
+    student_key = str(student_id or "").strip()
+    record = load_student_availability_map().get((group_key, student_key))
+    if record:
+        return record
+    return {
+        "group_id": group_key,
+        "student_id": student_key,
+        "days": _empty_weekly_days(),
+        "updated_at": "",
+    }
+
+
+def save_student_availability_record(group_id: str, student_id: str, days: Dict[str, List[Dict[str, str]]]) -> Dict[str, Any]:
+    group_key = str(group_id or "").strip()
+    student_key = str(student_id or "").strip()
+    record = {
+        "group_id": group_key,
+        "student_id": student_key,
+        "days": _normalize_weekly_days(days),
+        "updated_at": moscow_now().isoformat(),
+    }
+    records = load_student_availability_map()
+    records[(group_key, student_key)] = record
+    save_json(
+        STUDENT_AVAILABILITY_FILE,
+        {
+            "items": sorted(
+                records.values(),
+                key=lambda item: (item["group_id"], item["student_id"]),
+            )
+        },
+    )
+    return record
 
 
 def _agreement_lookup(agreements: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
     lookup: Dict[str, Dict[str, Any]] = {}
     for agreement in agreements:
-        agreement_file = str(agreement.get("agreement_file") or agreement.get("_file") or agreement.get("file") or "").strip()
+        agreement_file = _agreement_file_key(agreement)
         if agreement_file:
             lookup[agreement_file] = agreement
     return lookup
 
 
-def build_candidate_students(agreements: List[Dict[str, Any]], *, direction_key: str = "") -> List[Dict[str, Any]]:
+def build_candidate_students(
+    agreements: List[Dict[str, Any]],
+    *,
+    direction_key: str = "",
+    exclude_member_ids: Optional[set] = None,
+) -> List[Dict[str, Any]]:
     items = []
     seen = set()
+    excluded_ids = {str(item).strip() for item in (exclude_member_ids or set()) if str(item).strip()}
     for agreement in agreements:
-        agreement_file = str(agreement.get("agreement_file") or agreement.get("_file") or agreement.get("file") or "").strip()
-        if not agreement_file or agreement_file in seen:
+        agreement_file = _agreement_file_key(agreement)
+        if not agreement_file or agreement_file in seen or agreement_file in excluded_ids:
+            continue
+        if not _agreement_is_group_eligible(agreement):
             continue
         course = str(agreement.get("course") or "").strip() or "Курс"
         if not _direction_matches_course(direction_key, course):
@@ -436,16 +631,232 @@ def build_candidate_students(agreements: List[Dict[str, Any]], *, direction_key:
     return items
 
 
-def build_teacher_group_items(teacher_id: str, agreements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    availability_index = {
-        (item["group_id"], item["student_id"]): item
-        for item in load_student_availability_items()
+def _build_group_matching_state(
+    group: Dict[str, Any],
+    *,
+    availability_index: Dict[Tuple[str, str], Dict[str, Any]],
+) -> Dict[str, Any]:
+    lesson_slots = _lesson_duration_slot_count(group.get("lesson_duration_minutes"))
+    teacher_availability = get_teacher_availability_record(group["teacher_id"])
+    teacher_slot_map = _days_to_slot_map(teacher_availability.get("days"))
+    teacher_has_hours = _slot_map_has_any(teacher_slot_map, minimum_slots=lesson_slots)
+    answered_records = [
+        availability_index[(group["id"], member_id)]
+        for member_id in group["member_ids"]
+        if (group["id"], member_id) in availability_index
+        and _availability_record_has_slots(availability_index[(group["id"], member_id)])
+    ]
+    answered_slot_maps = [_days_to_slot_map(item.get("days")) for item in answered_records]
+    common_slot_map = (
+        _intersect_slot_maps([teacher_slot_map, *answered_slot_maps])
+        if teacher_has_hours and answered_slot_maps
+        else {key: set() for key in WEEKDAY_KEYS}
+    )
+    common_windows_summary = _slot_map_summary(common_slot_map, minimum_slots=lesson_slots, limit=4)
+    answered_count = len(answered_records)
+    members_count = len(group["member_ids"])
+    all_answered = bool(members_count) and answered_count == members_count
+    if not members_count:
+        match_status = "Нет участников"
+        scope_label = ""
+    elif not teacher_has_hours:
+        match_status = "Сначала задайте рабочие часы"
+        scope_label = "Рабочие часы преподавателя пока не заполнены."
+    elif answered_count == 0:
+        match_status = "Ждём ответы по времени"
+        scope_label = "Сначала хотя бы один ученик должен указать доступность."
+    elif all_answered and common_windows_summary:
+        match_status = f"Найдено {len(common_windows_summary)} общих окна"
+        scope_label = "Подходит всей группе и попадает в рабочие часы преподавателя."
+    elif all_answered:
+        match_status = "Общих окон пока нет"
+        scope_label = "Все участники ответили, но пересечения по времени пока нет."
+    elif common_windows_summary:
+        match_status = f"Есть окна для {answered_count} из {members_count}"
+        scope_label = f"Подходит всем, кто уже отметил время: {answered_count} из {members_count}."
+    else:
+        match_status = f"Ответили {answered_count} из {members_count}"
+        scope_label = "Общее окно появится после новых ответов или корректировки часов."
+    return {
+        "teacher_availability": teacher_availability,
+        "teacher_availability_summary": build_teacher_availability_summary(teacher_availability),
+        "teacher_has_hours": teacher_has_hours,
+        "answered_count": answered_count,
+        "members_count": members_count,
+        "all_answered": all_answered,
+        "common_windows_summary": common_windows_summary,
+        "common_windows_count": len(common_windows_summary),
+        "match_status": match_status,
+        "match_scope_label": scope_label,
     }
+
+
+def build_student_group_items(current_agreements: List[Dict[str, Any]], agreements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    current_agreement_map = _agreement_lookup(current_agreements)
+    current_member_ids = set(current_agreement_map.keys())
+    if not current_member_ids:
+        return []
     agreement_map = _agreement_lookup(agreements)
+    teacher_map = {item["id"]: item for item in load_teachers()}
+    availability_index = load_student_availability_map()
     items = []
     for group in load_study_groups():
+        own_member_ids = [member_id for member_id in group["member_ids"] if member_id in current_member_ids]
+        if not own_member_ids:
+            continue
+        matching_state = _build_group_matching_state(group, availability_index=availability_index)
+        teacher_record = teacher_map.get(group["teacher_id"], {})
+        teacher_slot_map = _days_to_slot_map(matching_state["teacher_availability"].get("days"))
+        lesson_slots = _lesson_duration_slot_count(group.get("lesson_duration_minutes"))
+        members = []
+        for member_id in group["member_ids"]:
+            agreement = agreement_map.get(member_id, {})
+            availability = availability_index.get((group["id"], member_id))
+            members.append(
+                {
+                    "agreement_file": member_id,
+                    "student_name": str(agreement.get("full_name") or agreement.get("name") or "").strip() or "Студент",
+                    "course": str(agreement.get("course") or "").strip() or group["direction_key"] or "Курс",
+                    "availability_ready": _availability_record_has_slots(availability),
+                    "availability_updated_label": _format_iso_label(availability.get("updated_at")) if availability else "",
+                    "is_current_user": member_id in current_member_ids,
+                }
+            )
+        members.sort(key=lambda item: (not item["is_current_user"], item["student_name"].lower()))
+        for student_id in own_member_ids:
+            agreement = current_agreement_map.get(student_id, {})
+            student_availability = get_student_availability_record(group["id"], student_id)
+            student_slot_map = _days_to_slot_map(student_availability.get("days"))
+            student_teacher_overlap = (
+                _intersect_slot_maps([teacher_slot_map, student_slot_map])
+                if matching_state["teacher_has_hours"] and _slot_map_has_any(student_slot_map)
+                else {key: set() for key in WEEKDAY_KEYS}
+            )
+            teacher_student_overlap_summary = _slot_map_summary(student_teacher_overlap, minimum_slots=lesson_slots, limit=4)
+            items.append(
+                {
+                    **group,
+                    "teacher": teacher_record,
+                    "teacher_name": teacher_record.get("name") or "Преподаватель",
+                    "teacher_role": teacher_record.get("role") or "Преподаватель",
+                    "teacher_contact_url": _teacher_contact_url(teacher_record),
+                    "teacher_initials": teacher_record.get("initials") or "PM",
+                    "teacher_accent": teacher_record.get("accent") or "violet",
+                    "student_id": student_id,
+                    "course": str(agreement.get("course") or "").strip() or group["direction_key"] or "Курс",
+                    "student_availability_rows": build_teacher_availability_rows(student_availability),
+                    "student_availability_summary": build_teacher_availability_summary(student_availability),
+                    "student_availability_ready": _slot_map_has_any(student_slot_map),
+                    "teacher_availability_summary": matching_state["teacher_availability_summary"],
+                    "teacher_hours_ready": matching_state["teacher_has_hours"],
+                    "teacher_student_overlap_summary": teacher_student_overlap_summary,
+                    "teacher_student_overlap_count": len(teacher_student_overlap_summary),
+                    "common_windows_summary": matching_state["common_windows_summary"],
+                    "common_windows_count": matching_state["common_windows_count"],
+                    "common_windows_scope_label": matching_state["match_scope_label"],
+                    "all_members_ready": matching_state["all_answered"],
+                    "availability_count": matching_state["answered_count"],
+                    "members_count": matching_state["members_count"],
+                    "members_waiting_count": max(matching_state["members_count"] - matching_state["answered_count"], 0),
+                    "match_status": matching_state["match_status"],
+                    "members": members,
+                    "updated_at_label": _format_iso_label(student_availability.get("updated_at")),
+                }
+            )
+    items.sort(key=lambda item: (item["status"] == "archived", item["title"].lower(), item["course"].lower()))
+    return items
+
+
+def _build_teacher_group_items_v2(teacher_id: str, agreements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    availability_index = load_student_availability_map()
+    agreement_map = _agreement_lookup(agreements)
+    all_groups = load_study_groups()
+    items = []
+    for group in all_groups:
         if group["teacher_id"] != teacher_id:
             continue
+        matching_state = _build_group_matching_state(group, availability_index=availability_index)
+        members = []
+        member_courses = set()
+        filled_count = 0
+        last_updated = ""
+        for member_id in group["member_ids"]:
+            agreement = agreement_map.get(member_id, {})
+            availability = availability_index.get((group["id"], member_id))
+            availability_ready = _availability_record_has_slots(availability)
+            if availability_ready:
+                filled_count += 1
+                updated_at = str(availability.get("updated_at") or "")
+                if updated_at and (not last_updated or updated_at > last_updated):
+                    last_updated = updated_at
+            course = str(agreement.get("course") or "").strip() or group["direction_key"] or "Курс"
+            member_courses.add(course)
+            members.append(
+                {
+                    "agreement_file": member_id,
+                    "student_name": str(agreement.get("full_name") or agreement.get("name") or "").strip() or "Студент без имени",
+                    "course": course,
+                    "email": str(agreement.get("email") or "").strip(),
+                    "phone": str(agreement.get("phone") or "").strip(),
+                    "availability_ready": availability_ready,
+                    "availability_updated_at": str(availability.get("updated_at") or "") if availability else "",
+                    "availability_updated_label": _format_iso_label(availability.get("updated_at")) if availability else "",
+                }
+            )
+        members.sort(key=lambda item: (item["course"].lower(), item["student_name"].lower()))
+        members_count = len(members)
+        progress_percent = int(round((filled_count / members_count) * 100)) if members_count else 0
+        occupied_member_ids = {
+            member_id
+            for other_group in all_groups
+            if other_group["id"] != group["id"]
+            for member_id in other_group.get("member_ids") or []
+        }
+        items.append(
+            {
+                **group,
+                "members": members,
+                "members_count": members_count,
+                "availability_count": filled_count,
+                "match_status": matching_state["match_status"],
+                "match_scope_label": matching_state["match_scope_label"],
+                "progress_percent": progress_percent,
+                "progress_label": f"{progress_percent}%" if members_count else "0%",
+                "courses": sorted(member_courses) if member_courses else ([group["direction_key"]] if group["direction_key"] else []),
+                "last_availability_update": last_updated,
+                "last_availability_update_label": _format_iso_label(last_updated),
+                "group_edit_href": f"/teacher?view=groups&teacher_id={group['teacher_id']}&group_id={group['id']}",
+                "teacher_availability_summary": matching_state["teacher_availability_summary"],
+                "teacher_has_hours": matching_state["teacher_has_hours"],
+                "common_windows_summary": matching_state["common_windows_summary"],
+                "common_windows_count": matching_state["common_windows_count"],
+                "all_members_ready": matching_state["all_answered"],
+                "candidate_students": [
+                    item
+                    for item in build_candidate_students(
+                        agreements,
+                        direction_key=group["direction_key"],
+                        exclude_member_ids=occupied_member_ids,
+                    )
+                    if item["agreement_file"] not in group["member_ids"]
+                ],
+            }
+        )
+    items.sort(key=lambda item: (item["status"] == "archived", item["title"].lower()))
+    return items
+
+
+def build_teacher_group_items(teacher_id: str, agreements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    return _build_teacher_group_items_v2(teacher_id, agreements)
+
+    availability_index = load_student_availability_map()
+    agreement_map = _agreement_lookup(agreements)
+    all_groups = load_study_groups()
+    items = []
+    for group in all_groups:
+        if group["teacher_id"] != teacher_id:
+            continue
+        matching_state = _build_group_matching_state(group, availability_index=availability_index)
         members = []
         member_courses = set()
         filled_count = 0

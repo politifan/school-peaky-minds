@@ -23,6 +23,7 @@ from routes.teacher_content import (
     build_teacher_dashboard,
     build_teacher_public_profile,
     get_study_group,
+    load_study_groups,
     remove_group_member,
     resolve_teacher_record,
     save_teacher_availability_record,
@@ -280,10 +281,28 @@ async def teacher_group_member_add(request: Request):
     form = await request.form()
     teacher_record = _teacher_record_from_form(form, user)
     group_id = str(form.get("group_id") or "").strip()
+    agreement_file = str(form.get("agreement_file") or "").strip()
     group = get_study_group(group_id)
     if not group or not teacher_record or group["teacher_id"] != teacher_record["id"]:
         return _redirect_teacher("groups", teacher_id=teacher_record["id"] if teacher_record else "", error="Группа не найдена.")
-    add_group_member(group_id, str(form.get("agreement_file") or "").strip())
+    occupied_member_ids = {
+        member_id
+        for item in load_study_groups()
+        if item["id"] != group_id
+        for member_id in item.get("member_ids") or []
+    }
+    candidate_ids = {
+        item["agreement_file"]
+        for item in build_candidate_students(
+            load_agreements(),
+            direction_key=group["direction_key"],
+            exclude_member_ids=occupied_member_ids,
+        )
+    }
+    allowed_ids = candidate_ids | set(group.get("member_ids") or [])
+    if not agreement_file or agreement_file not in allowed_ids:
+        return _redirect_teacher("groups", teacher_id=teacher_record["id"], error="Р­С‚РѕРіРѕ СѓС‡РµРЅРёРєР° РЅРµР»СЊР·СЏ РґРѕР±Р°РІРёС‚СЊ РІ РіСЂСѓРїРїСѓ.")
+    add_group_member(group_id, agreement_file)
     return _redirect_teacher("groups", teacher_id=teacher_record["id"], saved="member_added")
 
 

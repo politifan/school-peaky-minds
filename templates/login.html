@@ -57,7 +57,7 @@
 
       <div class="pm-provider-list">
         {% if providers.google %}
-        <a class="pm-provider-button" href="/login/google">
+        <a class="pm-provider-button" href="/login/google{% if next %}?next={{ next | urlencode }}{% endif %}">
           <span class="pm-provider-button__badge">G</span>
           <span>Войти через Google</span>
         </a>
@@ -69,7 +69,7 @@
         {% endif %}
 
         {% if providers.github %}
-        <a class="pm-provider-button" href="/login/github">
+        <a class="pm-provider-button" href="/login/github{% if next %}?next={{ next | urlencode }}{% endif %}">
           <span class="pm-provider-button__badge">GH</span>
           <span>Войти через GitHub</span>
         </a>

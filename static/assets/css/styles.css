@@ -9491,6 +9491,163 @@ body.shell-student .pm-teacher-card__avatar--sunset {
   background: linear-gradient(135deg, #ff8c52, #ffb84a);
 }
 
+body.shell-student .pm-student-group-grid {
+  display: grid;
+  gap: 18px;
+}
+
+body.shell-student .pm-student-group-card {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+}
+
+body.shell-student .pm-student-group-card__head {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+body.shell-student .pm-student-group-card__head p,
+body.shell-student .pm-student-group-note {
+  margin: 0;
+  color: var(--pm-student-text-soft);
+}
+
+body.shell-student .pm-student-group-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  gap: 18px;
+}
+
+body.shell-student .pm-student-group-column {
+  display: grid;
+  gap: 14px;
+}
+
+body.shell-student .pm-student-group-summary,
+body.shell-student .pm-student-group-day {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid var(--pm-student-border);
+  background: var(--pm-student-surface-soft);
+}
+
+body.shell-student .pm-student-group-summary h4,
+body.shell-student .pm-student-group-form__head h4 {
+  margin: 0;
+  font-size: 1.02rem;
+}
+
+body.shell-student .pm-student-group-summary p,
+body.shell-student .pm-student-group-form__head p {
+  margin: 0;
+  color: var(--pm-student-text-soft);
+}
+
+body.shell-student .pm-student-group-window-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+body.shell-student .pm-student-group-window-list li {
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--pm-student-border);
+  background: #ffffff;
+  color: var(--pm-student-text);
+  font-weight: 600;
+}
+
+body.shell-student .pm-student-group-members {
+  display: grid;
+  gap: 10px;
+}
+
+body.shell-student .pm-student-group-member {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--pm-student-border);
+  background: #ffffff;
+}
+
+body.shell-student .pm-student-group-member.is-current {
+  border-color: var(--pm-student-border-strong);
+  box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
+}
+
+body.shell-student .pm-student-group-member span {
+  color: var(--pm-student-text-soft);
+}
+
+body.shell-student .pm-student-group-form {
+  display: grid;
+  gap: 16px;
+}
+
+body.shell-student .pm-student-group-form__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+body.shell-student .pm-student-group-form__head .btn {
+  flex-shrink: 0;
+}
+
+body.shell-student .pm-student-group-days {
+  display: grid;
+  gap: 12px;
+}
+
+body.shell-student .pm-student-group-day__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+body.shell-student .pm-student-group-day__head span {
+  color: var(--pm-student-text-soft);
+  font-size: 0.92rem;
+}
+
+body.shell-student .pm-student-group-day__slots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+
+body.shell-student .pm-student-group-day__slots label {
+  display: grid;
+  gap: 6px;
+}
+
+body.shell-student .pm-student-group-day__slots label span {
+  font-size: 0.78rem;
+  color: var(--pm-student-text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+body.shell-student .pm-student-group-day__slots input {
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--pm-student-border);
+  background: #ffffff;
+  color: var(--pm-student-text);
+}
+
 body.shell-student .pm-settings-card h4 {
   font-size: 1.12rem;
 }
@@ -9502,6 +9659,7 @@ body.shell-student .pm-settings-card h4 {
   body.shell-student .pm-student-lecture-grid,
   body.shell-student .pm-workspace-calendars,
   body.shell-student .pm-teacher-grid,
+  body.shell-student .pm-student-group-layout,
   body.shell-student .pm-settings-grid,
   body.shell-student .pm-student-layout,
   body.shell-student .pm-student-hero {
@@ -9589,6 +9747,7 @@ body.shell-student .pm-settings-card h4 {
   body.shell-student .pm-student-hero__actions,
   body.shell-student .pm-inline-actions,
   body.shell-student .pm-workspace__toolbar,
+  body.shell-student .pm-student-group-form__head,
   body.shell-marketing .pm-auth-actions,
   body.shell-marketing .pm-status-actions {
     flex-direction: column;
@@ -9610,6 +9769,15 @@ body.shell-student .pm-settings-card h4 {
 
   body.shell-student .pm-profile-avatar-upload {
     justify-self: center;
+  }
+
+  body.shell-student .pm-student-group-day__head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  body.shell-student .pm-student-group-day__slots {
+    grid-template-columns: 1fr;
   }
 }
 

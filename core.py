@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 import httpx
 
@@ -2190,12 +2190,21 @@ def render(request: Request, template_name: str, context: Optional[Dict[str, Any
 
 def login_context(request: Request, next_url: Optional[str] = None, error: Optional[str] = None) -> Dict[str, Any]:
     ctx = {"providers": providers, "telegram_bot_username": TELEGRAM_BOT_USERNAME}
+    safe_next = "/"
     if next_url is not None:
-        ctx["next"] = next_url
+        raw_next = str(next_url or "").strip()
+        parsed_next = urlparse(raw_next)
+        if raw_next.startswith("/") and not raw_next.startswith("//") and not parsed_next.scheme and not parsed_next.netloc:
+            safe_next = raw_next
+        ctx["next"] = safe_next
     if error:
         ctx["error"] = error
     if providers["telegram"]:
-        ctx["telegram_auth_url"] = build_redirect_uri(request, "login_telegram")
+        telegram_auth_url = build_redirect_uri(request, "login_telegram")
+        if safe_next and safe_next != "/":
+            separator = "&" if "?" in telegram_auth_url else "?"
+            telegram_auth_url = f"{telegram_auth_url}{separator}{urlencode({'next': safe_next})}"
+        ctx["telegram_auth_url"] = telegram_auth_url
     return ctx
 
 

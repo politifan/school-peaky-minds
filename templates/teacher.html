@@ -419,6 +419,16 @@
                 </div>
 
                 <p class="admin-subtext">{{ group.match_status }}</p>
+                {% if group.match_scope_label %}
+                <p class="teacher-group-card__note">{{ group.match_scope_label }}</p>
+                {% endif %}
+                {% if group.common_windows_summary %}
+                <div class="teacher-chip-stack">
+                  {% for line in group.common_windows_summary %}
+                  <span class="admin-chip">{{ line }}</span>
+                  {% endfor %}
+                </div>
+                {% endif %}
                 {% if group.final_slot %}
                 <p class="teacher-group-card__note"><strong>Финальный слот:</strong> {{ group.final_slot }}</p>
                 {% endif %}

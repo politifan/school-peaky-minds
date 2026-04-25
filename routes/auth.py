@@ -4,7 +4,7 @@ import secrets
 import time
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 import httpx
 from fastapi import APIRouter, Request
@@ -20,6 +20,13 @@ from routes.account_content import (
     build_account_schedule_payload,
     build_account_teachers_payload,
     get_lecture_record,
+)
+from routes.teacher_content import (
+    WEEKDAY_META,
+    build_student_group_items,
+    get_study_group,
+    parse_weekly_availability_form,
+    save_student_availability_record,
 )
 
 from core import (
@@ -71,6 +78,8 @@ from core import (
 )
 
 router = APIRouter()
+
+AUTH_NEXT_SESSION_KEY = "auth_next_url"
 
 ACCOUNT_SHELL_PAGES = [
     {
@@ -133,6 +142,32 @@ ACCOUNT_SHELL_PAGES = [
 ACCOUNT_SHELL_PAGE_MAP = {item["key"]: item for item in ACCOUNT_SHELL_PAGES}
 
 AVATAR_MAX_BYTES = 4 * 1024 * 1024
+
+
+def _safe_next_url(value: Any, default: str = "/") -> str:
+    raw = str(value or "").strip()
+    if not raw:
+        return default
+    parsed = urlparse(raw)
+    if parsed.scheme or parsed.netloc:
+        return default
+    if not raw.startswith("/") or raw.startswith("//"):
+        return default
+    return raw
+
+
+def _store_auth_next(request: Request, next_url: Any) -> str:
+    safe_next = _safe_next_url(next_url)
+    request.session[AUTH_NEXT_SESSION_KEY] = safe_next
+    return safe_next
+
+
+def _peek_auth_next(request: Request, fallback: Any = "/") -> str:
+    return _safe_next_url(request.session.get(AUTH_NEXT_SESSION_KEY) or fallback)
+
+
+def _clear_auth_next(request: Request) -> None:
+    request.session.pop(AUTH_NEXT_SESSION_KEY, None)
 
 
 def _local_avatar_url(value: Any) -> str:
@@ -455,6 +490,7 @@ def _build_account_page_context(
         lectures_course=lecture_course,
         lectures_page=lecture_page,
     )
+    student_group_items = build_student_group_items(agreements_view, agreements_all)
     allowed_workspace_keys = {item["key"] for item in account_content["workspace_tabs"]}
     if workspace_active not in allowed_workspace_keys:
         workspace_active = "courses"
@@ -467,12 +503,18 @@ def _build_account_page_context(
     homework_items = account_content["homework"]
     lecture_items = account_content["lectures"]
     teacher_items = account_content["teachers"]
+    account_notice_map = {
+        "availability_saved": "Доступность для группы сохранена.",
+    }
     return {
         "agreements": agreements_view,
         "account_schedule": schedule_items,
         "account_homework": homework_items,
         "account_lectures": lecture_items,
         "account_teachers": teacher_items,
+        "account_teacher_groups": student_group_items,
+        "account_teacher_groups_count": len(student_group_items),
+        "account_weekdays": WEEKDAY_META,
         "account_api": account_content["api"],
         "account_hero": account_content["hero"],
         "account_focus": account_content["focus"],
@@ -492,6 +534,10 @@ def _build_account_page_context(
         "payments_enabled": TINKOFF_ENABLED,
         "payment_status": request.query_params.get("payment"),
         "payment_error": request.query_params.get("payment_error"),
+        "avatar_status": request.query_params.get("avatar"),
+        "avatar_error": request.query_params.get("avatar_error"),
+        "account_notice": account_notice_map.get(str(request.query_params.get("account_saved") or "").strip(), ""),
+        "account_error": str(request.query_params.get("account_error") or "").strip(),
     }
 
 
@@ -515,7 +561,7 @@ def _render_account_page(
 
 @router.get("/login", include_in_schema=False)
 async def login(request: Request):
-    next_url = request.query_params.get("next") or "/"
+    next_url = _store_auth_next(request, request.query_params.get("next") or "/")
     return render(request, "login.html", login_context(request, next_url=next_url))
 
 
@@ -533,7 +579,7 @@ def _login_email_context(
 
 @router.get("/login/email", include_in_schema=False)
 async def login_email_page(request: Request):
-    next_url = request.query_params.get("next") or "/"
+    next_url = _store_auth_next(request, request.query_params.get("next") or "/")
     email = str(request.query_params.get("email") or "").strip().lower()
     return render(request, "login_email.html", _login_email_context(request, next_url=next_url, email=email))
 
@@ -582,7 +628,7 @@ async def login_vk_bridge(request: Request):
 async def login_email(request: Request):
     form = await request.form()
     email = str(form.get("email", "")).strip().lower()
-    next_url = str(form.get("next", "/"))
+    next_url = _safe_next_url(form.get("next") or "/")
     antibot_ok, antibot_reason = await validate_antibot_submission(request, form, "login_email")
     if not antibot_ok:
         return render(
@@ -616,7 +662,7 @@ async def login_verify(request: Request):
     form = await request.form()
     email = str(form.get("email", "")).strip().lower()
     code = str(form.get("code", "")).strip()
-    next_url = str(form.get("next", "/"))
+    next_url = _safe_next_url(form.get("next") or "/")
     antibot_ok, antibot_reason = await validate_antibot_submission(request, form, "login_verify")
     if not antibot_ok:
         return render(
@@ -648,14 +694,16 @@ async def login_verify(request: Request):
     set_current_user(request, session_user)
     codes.pop(email, None)
     save_json(CODES_FILE, codes)
+    _clear_auth_next(request)
 
     return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
 @router.get("/login/google", include_in_schema=False)
 async def login_google(request: Request):
+    next_url = _store_auth_next(request, request.query_params.get("next") or "/")
     if not (oauth and providers["google"]):
-        return render(request, "login.html", login_context(request, error="Google OAuth не настроен"))
+        return render(request, "login.html", login_context(request, next_url=next_url, error="Google OAuth не настроен"))
     logging.getLogger("app.auth").info(
         "Google login start: host=%s scheme=%s cookies=%s session_keys=%s",
         request.url.hostname,
@@ -669,8 +717,9 @@ async def login_google(request: Request):
 
 @router.get("/auth/google/callback", include_in_schema=False, name="auth_google")
 async def auth_google(request: Request):
+    next_url = _peek_auth_next(request, request.query_params.get("next") or "/")
     if not oauth:
-        return render(request, "login.html", login_context(request, error="Google OAuth не настроен"))
+        return render(request, "login.html", login_context(request, next_url=next_url, error="Google OAuth не настроен"))
     logging.getLogger("app.auth").info(
         "Google callback: host=%s scheme=%s query_state=%s cookies=%s session_keys=%s",
         request.url.hostname,
@@ -716,7 +765,7 @@ async def auth_google(request: Request):
                 return render(
                     request,
                     "login.html",
-                    login_context(request, error=f"Ошибка авторизации Google: {safe_detail}"),
+                    login_context(request, next_url=next_url, error=f"Ошибка авторизации Google: {safe_detail}"),
                 )
     except OAuthError as exc:
         detail = getattr(exc, "error", None) or str(exc) or "OAuthError"
@@ -754,14 +803,14 @@ async def auth_google(request: Request):
             return render(
                 request,
                 "login.html",
-                login_context(request, error=f"Ошибка авторизации Google: {safe_detail}"),
+                login_context(request, next_url=next_url, error=f"Ошибка авторизации Google: {safe_detail}"),
             )
     except Exception as exc:
         safe_detail = re.sub(r"[\\r\\n]+", " ", str(exc) or "Unknown error")[:300]
         return render(
             request,
             "login.html",
-            login_context(request, error=f"Ошибка авторизации Google: {safe_detail}"),
+            login_context(request, next_url=next_url, error=f"Ошибка авторизации Google: {safe_detail}"),
         )
 
     userinfo = None
@@ -790,11 +839,11 @@ async def auth_google(request: Request):
             return render(
                 request,
                 "login.html",
-                login_context(request, error=f"Ошибка авторизации Google: userinfo_failed {safe_detail}"),
+                login_context(request, next_url=next_url, error=f"Ошибка авторизации Google: userinfo_failed {safe_detail}"),
             )
 
     if not userinfo or not isinstance(userinfo, dict):
-        return render(request, "login.html", login_context(request, error="Ошибка авторизации Google"))
+        return render(request, "login.html", login_context(request, next_url=next_url, error="Ошибка авторизации Google"))
 
     users = load_json(USERS_FILE, {})
     user_sub = userinfo.get("sub") or userinfo.get("id") or userinfo.get("email")
@@ -819,34 +868,37 @@ async def auth_google(request: Request):
     save_json(USERS_FILE, users)
 
     set_current_user(request, session_user)
-    return RedirectResponse("/", status_code=HTTP_302_FOUND)
+    _clear_auth_next(request)
+    return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
 @router.get("/login/github", include_in_schema=False)
 async def login_github(request: Request):
+    next_url = _store_auth_next(request, request.query_params.get("next") or "/")
     if not (oauth and providers["github"]):
-        return render(request, "login.html", login_context(request, error="GitHub OAuth не настроен"))
+        return render(request, "login.html", login_context(request, next_url=next_url, error="GitHub OAuth не настроен"))
     redirect_uri = build_redirect_uri(request, "auth_github")
     return await oauth.github.authorize_redirect(request, redirect_uri)
 
 
 @router.get("/auth/github/callback", include_in_schema=False, name="auth_github")
 async def auth_github(request: Request):
+    next_url = _peek_auth_next(request, request.query_params.get("next") or "/")
     if not (oauth and GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET):
-        return render(request, "login.html", login_context(request, error="GitHub OAuth не настроен"))
+        return render(request, "login.html", login_context(request, next_url=next_url, error="GitHub OAuth не настроен"))
     try:
         token = await oauth.github.authorize_access_token(request)
         profile_resp = await oauth.github.get("user", token=token)
         profile = profile_resp.json()
     except OAuthError as exc:
         safe_detail = re.sub(r"[\r\n]+", " ", getattr(exc, "description", None) or str(exc) or "oauth_error")[:300]
-        return render(request, "login.html", login_context(request, error=f"Ошибка авторизации GitHub: {safe_detail}"))
+        return render(request, "login.html", login_context(request, next_url=next_url, error=f"Ошибка авторизации GitHub: {safe_detail}"))
     except Exception as exc:
         safe_detail = re.sub(r"[\r\n]+", " ", str(exc) or "unknown_error")[:300]
-        return render(request, "login.html", login_context(request, error=f"Ошибка авторизации GitHub: {safe_detail}"))
+        return render(request, "login.html", login_context(request, next_url=next_url, error=f"Ошибка авторизации GitHub: {safe_detail}"))
 
     if not isinstance(profile, dict) or not profile.get("id"):
-        return render(request, "login.html", login_context(request, error="Ошибка авторизации GitHub: профиль не получен"))
+        return render(request, "login.html", login_context(request, next_url=next_url, error="Ошибка авторизации GitHub: профиль не получен"))
 
     email = profile.get("email")
     if not email:
@@ -888,7 +940,8 @@ async def auth_github(request: Request):
     save_json(USERS_FILE, users)
 
     set_current_user(request, session_user)
-    return RedirectResponse("/", status_code=HTTP_302_FOUND)
+    _clear_auth_next(request)
+    return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
 @router.get("/login/vk", include_in_schema=False)
@@ -939,12 +992,13 @@ async def auth_vk(request: Request):
 
 @router.get("/login/telegram", include_in_schema=False)
 async def login_telegram(request: Request):
+    next_url = _safe_next_url(request.query_params.get("next") or _peek_auth_next(request))
     logging.getLogger("app.auth").info("Telegram login start: cookies=%s session_keys=%s", list(request.cookies.keys()), list(request.session.keys()))
     data = dict(request.query_params)
     if not data or "hash" not in data:
-        return render(request, "login.html", login_context(request, error="Нажмите и подтвердите вход через Telegram"))
+        return render(request, "login.html", login_context(request, next_url=next_url, error="Нажмите и подтвердите вход через Telegram"))
     if not verify_telegram_auth(data):
-        return render(request, "login.html", login_context(request, error="Ошибка авторизации Telegram"))
+        return render(request, "login.html", login_context(request, next_url=next_url, error="Ошибка авторизации Telegram"))
 
     users = load_json(USERS_FILE, {})
     user_id = f"telegram:{data.get('id')}"
@@ -961,8 +1015,8 @@ async def login_telegram(request: Request):
     session_user = _build_login_session_user(users, user_id, user, photo_url=data.get("photo_url"))
     save_json(USERS_FILE, users)
     set_current_user(request, session_user)
-
-    return RedirectResponse("/", status_code=HTTP_302_FOUND)
+    _clear_auth_next(request)
+    return RedirectResponse(next_url, status_code=HTTP_302_FOUND)
 
 
 @router.get("/validate/telegram", include_in_schema=False)
@@ -1261,6 +1315,46 @@ async def account_documents(request: Request):
 async def account_profile(request: Request):
     query_items = [(key, value) for key, value in request.query_params.multi_items()]
     return RedirectResponse(_build_account_view_url("profile", query_items), status_code=HTTP_302_FOUND)
+
+
+@router.post("/account/teachers/availability/save", include_in_schema=False)
+async def account_teacher_availability_save(request: Request):
+    next_url = _build_account_view_url("teachers")
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(f"/login?{urlencode({'next': next_url})}", status_code=HTTP_302_FOUND)
+
+    form = await request.form()
+    group_id = str(form.get("group_id") or "").strip()
+    student_id = str(form.get("student_id") or "").strip()
+    group = get_study_group(group_id)
+    current_agreements = _load_current_user_agreements(user)
+    current_agreement_ids = {
+        str(item.get("_file") or item.get("agreement_file") or item.get("file") or "").strip()
+        for item in current_agreements
+        if str(item.get("_file") or item.get("agreement_file") or item.get("file") or "").strip()
+    }
+    if not group:
+        return RedirectResponse(
+            f"{next_url}?{urlencode({'account_error': 'Группа не найдена.'})}",
+            status_code=HTTP_302_FOUND,
+        )
+    if not student_id or student_id not in current_agreement_ids or student_id not in set(group.get("member_ids") or []):
+        return RedirectResponse(
+            f"{next_url}?{urlencode({'account_error': 'Нельзя сохранить время для этой группы.'})}",
+            status_code=HTTP_302_FOUND,
+        )
+    days, error = parse_weekly_availability_form(form)
+    if error:
+        return RedirectResponse(
+            f"{next_url}?{urlencode({'account_error': error})}",
+            status_code=HTTP_302_FOUND,
+        )
+    save_student_availability_record(group_id, student_id, days)
+    return RedirectResponse(
+        f"{next_url}?{urlencode({'account_saved': 'availability_saved'})}",
+        status_code=HTTP_302_FOUND,
+    )
 
 
 @router.post("/account/profile/avatar", include_in_schema=False)

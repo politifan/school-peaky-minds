@@ -56,6 +56,157 @@
     </div>
     {% endif %}
   </section>
+
+  <section class="pm-student-section">
+    <div class="pm-workspace__head">
+      <div>
+        <div class="pm-kicker">Group matching</div>
+        <h3>Группы и подбор общего времени</h3>
+      </div>
+      <span class="pm-student-mini-tag">Активно: {{ account_teacher_groups_count }}</span>
+    </div>
+    {% if account_teacher_groups %}
+    <div class="pm-student-group-grid">
+      {% for group in account_teacher_groups %}
+      <article class="pm-surface-card pm-student-group-card">
+        <div class="pm-student-group-card__head">
+          <div>
+            <div class="pm-kicker">{{ group.course }}</div>
+            <h3>{{ group.title }}</h3>
+            <p>{{ group.teacher_name }} · {{ group.teacher_role }}</p>
+          </div>
+          <span class="pm-student-mini-tag">{{ group.status_label }}</span>
+        </div>
+
+        <div class="pm-inline-actions">
+          <span class="pm-student-mini-tag">Длительность: {{ group.lesson_duration_minutes }} мин</span>
+          <span class="pm-student-mini-tag">Ответили: {{ group.availability_count }}/{{ group.members_count }}</span>
+          {% if group.updated_at_label %}
+          <span class="pm-student-mini-tag">Мой ответ: {{ group.updated_at_label }}</span>
+          {% endif %}
+        </div>
+
+        <div class="pm-student-group-layout">
+          <div class="pm-student-group-column">
+            <section class="pm-student-group-summary">
+              <h4>Что происходит сейчас</h4>
+              <p>{{ group.match_status }}</p>
+              {% if group.common_windows_scope_label %}
+              <p class="pm-student-group-note">{{ group.common_windows_scope_label }}</p>
+              {% endif %}
+              {% if group.final_slot %}
+              <p class="pm-student-group-note"><strong>Финальный слот:</strong> {{ group.final_slot }}</p>
+              {% endif %}
+            </section>
+
+            <section class="pm-student-group-summary">
+              <h4>Рабочие часы преподавателя</h4>
+              {% if group.teacher_hours_ready and group.teacher_availability_summary %}
+              <ul class="pm-student-group-window-list">
+                {% for line in group.teacher_availability_summary %}
+                <li>{{ line }}</li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              <p class="pm-student-group-note">Преподаватель ещё не заполнил верхние рамки по времени.</p>
+              {% endif %}
+              {% if group.teacher_contact_url %}
+              <a class="btn btn-secondary" href="{{ group.teacher_contact_url }}" target="_blank" rel="noopener">Написать преподавателю</a>
+              {% endif %}
+            </section>
+
+            <section class="pm-student-group-summary">
+              <h4>Моё пересечение с преподавателем</h4>
+              {% if group.teacher_student_overlap_summary %}
+              <ul class="pm-student-group-window-list">
+                {% for line in group.teacher_student_overlap_summary %}
+                <li>{{ line }}</li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              <p class="pm-student-group-note">После сохранения времени здесь появятся окна, которые подходят вам и преподавателю.</p>
+              {% endif %}
+            </section>
+
+            <section class="pm-student-group-summary">
+              <h4>Общие окна группы</h4>
+              {% if group.common_windows_summary %}
+              <ul class="pm-student-group-window-list">
+                {% for line in group.common_windows_summary %}
+                <li>{{ line }}</li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              <p class="pm-student-group-note">Система покажет результат, как только появится пересечение по всем ответившим участникам.</p>
+              {% endif %}
+            </section>
+
+            <section class="pm-student-group-summary">
+              <h4>Кто уже ответил</h4>
+              <div class="pm-student-group-members">
+                {% for member in group.members %}
+                <div class="pm-student-group-member{% if member.is_current_user %} is-current{% endif %}">
+                  <strong>{{ member.student_name }}</strong>
+                  <span>{{ member.course }}</span>
+                  <span class="pm-student-mini-tag">
+                    {% if member.availability_ready %}Время указано{% else %}Ждём ответ{% endif %}
+                  </span>
+                </div>
+                {% endfor %}
+              </div>
+            </section>
+          </div>
+
+          <div class="pm-student-group-column">
+            <form class="pm-student-group-form" action="/account/teachers/availability/save" method="post">
+              <input type="hidden" name="group_id" value="{{ group.id }}">
+              <input type="hidden" name="student_id" value="{{ group.student_id }}">
+              <div class="pm-student-group-form__head">
+                <div>
+                  <h4>Когда вам удобно</h4>
+                  <p>Укажите до двух интервалов на день. Шаг 30 минут.</p>
+                </div>
+                <button class="btn btn-primary" type="submit">Сохранить время</button>
+              </div>
+              <div class="pm-student-group-days">
+                {% for day in group.student_availability_rows %}
+                <article class="pm-student-group-day">
+                  <div class="pm-student-group-day__head">
+                    <strong>{{ day.label }}</strong>
+                    {% if day.slot_labels %}
+                    <span>{{ day.slot_labels|join(', ') }}</span>
+                    {% else %}
+                    <span>Не задано</span>
+                    {% endif %}
+                  </div>
+                  <div class="pm-student-group-day__slots">
+                    {% for slot in day.editor_slots %}
+                    <label>
+                      <span>С</span>
+                      <input type="time" step="1800" name="{{ day.key }}_start_{{ loop.index0 }}" value="{{ slot.start }}">
+                    </label>
+                    <label>
+                      <span>До</span>
+                      <input type="time" step="1800" name="{{ day.key }}_end_{{ loop.index0 }}" value="{{ slot.end }}">
+                    </label>
+                    {% endfor %}
+                  </div>
+                </article>
+                {% endfor %}
+              </div>
+            </form>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="pm-student-empty pm-surface-card">
+      <h3>Группы пока не назначены</h3>
+      <p>Как только преподаватель соберёт группу по вашему направлению, здесь появится форма выбора времени и общий статус по совпадениям.</p>
+    </div>
+    {% endif %}
+  </section>
 </section>
 {% endblock %}
 
