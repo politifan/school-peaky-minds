@@ -970,6 +970,10 @@ def build_teacher_dashboard(
             "homework_items": [],
             "group_items": [],
             "student_rows": [],
+            "today_lessons": [],
+            "next_lessons": [],
+            "attention_items": [],
+            "ready_to_schedule_groups": [],
             "availability_record": {"days": _empty_weekly_days(), "updated_at": ""},
             "availability_rows": build_teacher_availability_rows({"days": _empty_weekly_days()}),
             "availability_summary": [],
@@ -1004,6 +1008,12 @@ def build_teacher_dashboard(
             for item in student_rows
             if str(item.get("course") or "").strip()
         }
+        | {
+            str(course or "").strip()
+            for group in group_items
+            for course in (group.get("courses") or [group.get("direction_key")])
+            if str(course or "").strip()
+        }
     )
     students_ready_count = sum(1 for item in student_rows if item.get("availability_ready"))
     hours_days_count = sum(1 for row in availability_rows if not row["is_empty"])
@@ -1013,10 +1023,100 @@ def build_teacher_dashboard(
         for item in group_items
         if item["members_count"] and item["availability_count"] == item["members_count"]
     )
+    today_key = moscow_now().date().isoformat()
+    today_lessons = [item for item in assignment_rows if item.get("date") == today_key]
+    next_lessons = [item for item in assignment_rows if item.get("date", "") >= today_key]
+    ready_to_schedule_groups = [
+        item
+        for item in group_items
+        if item.get("common_windows_count") and not str(item.get("final_slot") or "").strip()
+    ]
+    groups_without_windows = [
+        item
+        for item in group_items
+        if item.get("members_count") and item.get("all_members_ready") and not item.get("common_windows_count")
+    ]
+    profile_missing = []
+    if not str(teacher_record.get("role") or "").strip():
+        profile_missing.append("роль")
+    if not str(teacher_record.get("speciality") or "").strip():
+        profile_missing.append("направление")
+    if not str(teacher_record.get("bio") or "").strip():
+        profile_missing.append("описание")
+    if not str(teacher_record.get("email") or "").strip() and not str(teacher_record.get("telegram") or "").strip():
+        profile_missing.append("контакт")
     latest_student_response = max(
         (item["last_availability_update"] for item in group_items if item.get("last_availability_update")),
         default="",
     )
+    attention_items = []
+    if profile_missing:
+        attention_items.append(
+            {
+                "title": "Заполнить профиль",
+                "text": "Не хватает: " + ", ".join(profile_missing) + ".",
+                "href": "/teacher?view=profile",
+                "view": "profile",
+                "tone": "warm",
+                "metric": len(profile_missing),
+            }
+        )
+    if not availability_summary:
+        attention_items.append(
+            {
+                "title": "Настроить рабочие часы",
+                "text": "Без недельного шаблона ученики не увидят корректные окна.",
+                "href": "/teacher?view=hours",
+                "view": "hours",
+                "tone": "danger",
+                "metric": 0,
+            }
+        )
+    waiting_students_count = max(len(student_rows) - students_ready_count, 0)
+    if waiting_students_count:
+        attention_items.append(
+            {
+                "title": "Дождаться доступности учеников",
+                "text": f"Ещё {waiting_students_count} учеников не указали удобное время.",
+                "href": "/teacher?view=students",
+                "view": "students",
+                "tone": "warm",
+                "metric": waiting_students_count,
+            }
+        )
+    if ready_to_schedule_groups:
+        attention_items.append(
+            {
+                "title": "Выбрать финальный слот",
+                "text": f"В {len(ready_to_schedule_groups)} группах уже есть общие окна.",
+                "href": "/teacher?view=groups",
+                "view": "groups",
+                "tone": "good",
+                "metric": len(ready_to_schedule_groups),
+            }
+        )
+    if groups_without_windows:
+        attention_items.append(
+            {
+                "title": "Разобрать конфликт времени",
+                "text": f"В {len(groups_without_windows)} группах все ответили, но общего окна нет.",
+                "href": "/teacher?view=groups",
+                "view": "groups",
+                "tone": "danger",
+                "metric": len(groups_without_windows),
+            }
+        )
+    if not group_items:
+        attention_items.append(
+            {
+                "title": "Создать первую группу",
+                "text": "После создания группы можно добавить учеников и собрать доступность.",
+                "href": "/teacher?view=groups",
+                "view": "groups",
+                "tone": "neutral",
+                "metric": 0,
+            }
+        )
     return {
         "kpis": [
             {"label": "Групп", "value": len(group_items), "note": "Активные и формирующиеся составы"},
@@ -1024,10 +1124,14 @@ def build_teacher_dashboard(
             {"label": "Занятий в месяце", "value": len(assignment_rows), "note": "Назначения из текущего расписания"},
             {"label": "Домашек", "value": len(homework_items), "note": "Задания, закреплённые за преподавателем"},
         ],
-        "upcoming_lessons": assignment_rows[:8],
+        "upcoming_lessons": (next_lessons or assignment_rows)[:8],
+        "today_lessons": today_lessons,
+        "next_lessons": next_lessons[:8],
         "homework_items": homework_items[:8],
         "group_items": group_items,
         "student_rows": student_rows,
+        "attention_items": attention_items[:6],
+        "ready_to_schedule_groups": ready_to_schedule_groups[:6],
         "availability_record": availability_record,
         "availability_rows": availability_rows,
         "availability_summary": availability_summary,
@@ -1036,7 +1140,7 @@ def build_teacher_dashboard(
             "hours_days_count": hours_days_count,
             "hours_slots_count": hours_slots_count,
             "students_ready_count": students_ready_count,
-            "students_waiting_count": max(len(student_rows) - students_ready_count, 0),
+            "students_waiting_count": waiting_students_count,
             "groups_ready_count": groups_ready_count,
             "groups_waiting_count": max(len(group_items) - groups_ready_count, 0),
             "availability_updated_label": _format_iso_label(availability_record.get("updated_at")),
@@ -1054,15 +1158,44 @@ def build_teacher_public_profile(
     students_count = len({item["agreement_file"] for item in dashboard["student_rows"]})
     expertise = teacher_record.get("expertise") if isinstance(teacher_record.get("expertise"), list) else []
     courses = dashboard["courses"] or ([teacher_record["speciality"]] if teacher_record.get("speciality") else [])
+    primary_course = courses[0] if courses else str(teacher_record.get("speciality") or "").strip()
+    next_lesson = dashboard["upcoming_lessons"][0] if dashboard["upcoming_lessons"] else {}
+    groups_with_windows = sum(1 for item in group_items if item.get("common_windows_count"))
+    active_groups = [item for item in group_items if item.get("status") != "archived"]
     return {
         **teacher_record,
         "contact_url": _teacher_contact_url(teacher_record),
         "students_count": students_count,
         "groups_count": len(group_items),
+        "active_groups_count": len(active_groups),
+        "groups_with_windows_count": groups_with_windows,
         "upcoming_count": len(dashboard["upcoming_lessons"]),
         "courses": courses,
+        "primary_course": primary_course,
         "expertise": expertise,
         "availability_summary": dashboard["availability_summary"][:4],
         "availability_updated_label": dashboard["summary"]["availability_updated_label"],
+        "next_lesson_label": (
+            f"{next_lesson.get('date_label')} · {next_lesson.get('time')}"
+            if next_lesson.get("date_label") and next_lesson.get("time")
+            else ""
+        ),
+        "public_facts": [
+            {
+                "label": "Фокус",
+                "value": primary_course or "Индивидуальный трек",
+                "text": "Направление, по которому преподаватель сейчас ведёт группы и занятия.",
+            },
+            {
+                "label": "Состав",
+                "value": f"{len(active_groups)} активных групп",
+                "text": "Группы собираются вокруг расписания преподавателя и доступности учеников.",
+            },
+            {
+                "label": "Расписание",
+                "value": f"{groups_with_windows} групп с окнами",
+                "text": "Общие слоты рассчитываются по рабочим часам и ответам учеников.",
+            },
+        ],
         "match_note": "Рабочие часы и группы синхронизируются внутри кабинета преподавателя.",
     }

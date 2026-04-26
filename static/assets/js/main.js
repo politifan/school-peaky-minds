@@ -1728,3 +1728,142 @@ sectionJumpNavs.forEach((nav) => {
 
   linkMap.forEach(({ section }) => observer.observe(section));
 });
+
+const initTeacherHoursPresets = () => {
+  const form = document.querySelector('[data-teacher-hours-form]');
+  const presetWrap = document.querySelector('[data-teacher-hours-presets]');
+  if (!form || !presetWrap) return;
+
+  const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  const weekdayKeys = ['mon', 'tue', 'wed', 'thu', 'fri'];
+  const weekendKeys = ['sat', 'sun'];
+  const getField = (day, type, index) => form.querySelector(`[name="${day}_${type}_${index}"]`);
+  const setSlot = (day, index, start = '', end = '') => {
+    const startField = getField(day, 'start', index);
+    const endField = getField(day, 'end', index);
+    if (startField) startField.value = start;
+    if (endField) endField.value = end;
+  };
+
+  const clearDay = (day) => {
+    setSlot(day, 0);
+    setSlot(day, 1);
+  };
+
+  const syncLabels = () => {
+    dayKeys.forEach((day) => {
+      const labels = [];
+      [0, 1].forEach((index) => {
+        const start = getField(day, 'start', index)?.value || '';
+        const end = getField(day, 'end', index)?.value || '';
+        if (start && end) labels.push(`${start} - ${end}`);
+      });
+      const label = labels.length ? labels.join(', ') : 'Нет часов';
+      const weekLabel = document.querySelector(`[data-teacher-week-label="${day}"]`);
+      const weekDay = document.querySelector(`[data-teacher-week-day="${day}"]`);
+      const card = getField(day, 'start', 0)?.closest('.teacher-hours-card');
+      const cardLabel = card ? card.querySelector('.teacher-hours-card__head span') : null;
+      if (weekLabel) weekLabel.textContent = label;
+      if (cardLabel) cardLabel.textContent = labels.length ? label : 'Не задано';
+      if (weekDay) weekDay.classList.toggle('is-empty', !labels.length);
+    });
+  };
+
+  presetWrap.querySelectorAll('[data-teacher-hours-preset]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const preset = button.dataset.teacherHoursPreset || 'clear';
+      dayKeys.forEach(clearDay);
+
+      if (preset === 'weekday-evening') {
+        weekdayKeys.forEach((day) => setSlot(day, 0, '18:00', '21:00'));
+      }
+      if (preset === 'weekday-full') {
+        weekdayKeys.forEach((day) => setSlot(day, 0, '10:00', '18:00'));
+      }
+      if (preset === 'weekend') {
+        weekendKeys.forEach((day) => setSlot(day, 0, '11:00', '16:00'));
+      }
+
+      presetWrap.querySelectorAll('[data-teacher-hours-preset]').forEach((item) => {
+        item.classList.toggle('is-active', item === button);
+      });
+      syncLabels();
+    });
+  });
+
+  form.querySelectorAll('input[type="time"]').forEach((input) => {
+    input.addEventListener('input', syncLabels);
+  });
+  syncLabels();
+};
+
+const initTeacherCardFilters = () => {
+  const setupFilter = (filterbar, cardSelector, mode) => {
+    const panel = filterbar.closest('.teacher-groups-panel, .teacher-students-panel') || document;
+    const cards = Array.from(panel.querySelectorAll(cardSelector));
+    if (!cards.length) return;
+    const search = filterbar.querySelector('[data-teacher-filter-search]');
+    const course = filterbar.querySelector('[data-teacher-filter-course]');
+    const stateButtons = Array.from(filterbar.querySelectorAll('[data-teacher-filter-state]'));
+    const count = filterbar.querySelector('[data-teacher-filter-count]');
+    const empty = panel.querySelector('[data-teacher-filter-empty]');
+    let activeState = 'all';
+
+    const normalize = (value) => String(value || '').trim().toLowerCase();
+    const matchesState = (card) => {
+      if (activeState === 'all') return true;
+      const ready = card.dataset.ready === 'yes';
+      if (mode === 'students') {
+        if (activeState === 'ready') return ready;
+        if (activeState === 'waiting') return !ready;
+        return true;
+      }
+      const hasCommon = card.dataset.common === 'yes';
+      const hasSlot = card.dataset.slot === 'yes';
+      const hasMembers = Number(card.dataset.members || 0) > 0;
+      if (activeState === 'needs-slot') return hasCommon && !hasSlot;
+      if (activeState === 'waiting') return hasMembers && !ready;
+      if (activeState === 'no-window') return hasMembers && ready && !hasCommon;
+      return true;
+    };
+
+    const apply = () => {
+      const queryValue = normalize(search?.value);
+      const courseValue = normalize(course?.value);
+      let visible = 0;
+
+      cards.forEach((card) => {
+        const matchesQuery = !queryValue || normalize(card.dataset.search).includes(queryValue);
+        const matchesCourse = !courseValue || courseValue === 'all' || normalize(card.dataset.course).includes(courseValue);
+        const isVisible = matchesQuery && matchesCourse && matchesState(card);
+        card.hidden = !isVisible;
+        if (isVisible) visible += 1;
+      });
+
+      if (count) count.textContent = `${visible} показано`;
+      if (empty) empty.hidden = visible !== 0;
+    };
+
+    if (search) search.addEventListener('input', apply);
+    if (course) course.addEventListener('change', apply);
+    stateButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        activeState = button.dataset.teacherFilterState || 'all';
+        stateButtons.forEach((item) => item.classList.toggle('is-active', item === button));
+        apply();
+      });
+    });
+
+    apply();
+  };
+
+  document.querySelectorAll('[data-teacher-group-filter]').forEach((filterbar) => {
+    setupFilter(filterbar, '[data-teacher-group-card]', 'groups');
+  });
+  document.querySelectorAll('[data-teacher-student-filter]').forEach((filterbar) => {
+    setupFilter(filterbar, '[data-teacher-student-card]', 'students');
+  });
+};
+
+initTeacherHoursPresets();
+initTeacherCardFilters();

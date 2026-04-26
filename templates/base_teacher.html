@@ -21,7 +21,7 @@
       </a>
 
       <nav class="nav-links nav-links--admin teacher-header-nav">
-        <a class="{% if view == 'overview' %}is-active{% endif %}" href="{{ teacher_links.overview if teacher_links is defined else '/teacher' }}">Обзор</a>
+        <a class="{% if view == 'overview' %}is-active{% endif %}" href="{{ teacher_links.overview if teacher_links is defined else '/teacher' }}">Сегодня</a>
         <a class="{% if view == 'profile' %}is-active{% endif %}" href="{{ teacher_links.profile if teacher_links is defined else '/teacher?view=profile' }}">Профиль</a>
         <a class="{% if view == 'hours' %}is-active{% endif %}" href="{{ teacher_links.hours if teacher_links is defined else '/teacher?view=hours' }}">Часы</a>
         <a class="{% if view == 'groups' %}is-active{% endif %}" href="{{ teacher_links.groups if teacher_links is defined else '/teacher?view=groups' }}">Группы</a>

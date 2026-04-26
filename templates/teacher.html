@@ -8,18 +8,18 @@
 <section class="pm-admin-page">
   <div class="container admin-container" id="teacher-top" style="width:100%;">
     <div class="admin-layout">
-      <aside class="panel admin-sidebar" aria-label="Навигация по кабинету преподавателя">
-        <div class="admin-sidebar__title">Преподаватель</div>
+      <aside class="panel admin-sidebar teacher-sidebar" aria-label="Навигация по кабинету преподавателя">
+        <div class="admin-sidebar__title">Кабинет</div>
         <nav class="admin-sidebar__nav">
-          <a class="{% if view == 'overview' %}is-active{% endif %}" href="{{ teacher_links.overview }}">Обзор</a>
-          <a class="{% if view == 'profile' %}is-active{% endif %}" href="{{ teacher_links.profile }}">Профиль</a>
-          <a class="{% if view == 'hours' %}is-active{% endif %}" href="{{ teacher_links.hours }}">Рабочие часы</a>
-          <a class="{% if view == 'groups' %}is-active{% endif %}" href="{{ teacher_links.groups }}">Группы</a>
-          <a class="{% if view == 'students' %}is-active{% endif %}" href="{{ teacher_links.students }}">Ученики</a>
+          <a class="{% if view == 'overview' %}is-active{% endif %}" href="{{ teacher_links.overview }}"><span>Сегодня</span><strong>{{ teacher_dashboard.attention_items|length }}</strong></a>
+          <a class="{% if view == 'profile' %}is-active{% endif %}" href="{{ teacher_links.profile }}"><span>Профиль</span></a>
+          <a class="{% if view == 'hours' %}is-active{% endif %}" href="{{ teacher_links.hours }}"><span>Рабочие часы</span><strong>{{ teacher_dashboard.summary.hours_days_count }}/7</strong></a>
+          <a class="{% if view == 'groups' %}is-active{% endif %}" href="{{ teacher_links.groups }}"><span>Группы</span><strong>{{ teacher_dashboard.group_items|length }}</strong></a>
+          <a class="{% if view == 'students' %}is-active{% endif %}" href="{{ teacher_links.students }}"><span>Ученики</span><strong>{{ teacher_dashboard.student_rows|length }}</strong></a>
           {% if user_is_admin %}
-          <a href="/admin?view=teachers">Назад в админку</a>
+          <a href="/admin?view=teachers"><span>Назад в админку</span></a>
           {% endif %}
-          <a href="/">На сайт</a>
+          <a href="/"><span>На сайт</span></a>
         </nav>
       </aside>
 
@@ -32,11 +32,11 @@
             <div class="admin-hero__content teacher-hero__content">
               <a class="page-back" href="/">← На главную</a>
               <div>
-                <div class="pm-kicker">Teacher workspace</div>
+                <div class="pm-kicker">Teacher command center</div>
                 <h1>{% if teacher_record %}{{ teacher_record.name }}{% else %}Кабинет преподавателя{% endif %}</h1>
                 <p>
                   {% if teacher_record %}
-                  {{ teacher_record.role }}. Здесь собраны рабочие часы, группы, ученики и рабочий слой для согласования расписания.
+                  {{ teacher_record.role or "Преподаватель" }}. На первом экране собраны ближайшие занятия, проблемные группы и быстрые действия для расписания.
                   {% else %}
                   Сначала выберите преподавателя либо привяжите текущий аккаунт к карточке в <code>config/teacher_access.json</code>.
                   {% endif %}
@@ -48,6 +48,7 @@
                 <span class="admin-chip">Раздел: {{ teacher_view_label }}</span>
                 <span class="admin-chip">Групп: {{ teacher_dashboard.group_items|length }}</span>
                 <span class="admin-chip">Учеников: {{ teacher_dashboard.student_rows|length }}</span>
+                <span class="admin-chip">Сегодня: {{ teacher_dashboard.today_lessons|length }}</span>
                 {% if teacher_public_profile_url %}
                 <a class="admin-chip admin-chip--accent" href="{{ teacher_public_profile_url }}" target="_blank" rel="noopener">Публичный профиль</a>
                 {% endif %}
@@ -80,8 +81,16 @@
             </form>
             {% endif %}
             {% if teacher_record %}
-            <a class="btn btn-secondary" href="{{ teacher_links.groups }}">Открыть группы</a>
-            <a class="btn btn-primary" href="{{ teacher_links.hours }}">Настроить часы</a>
+            <div class="teacher-hero-metrics" aria-label="Ключевые показатели преподавателя">
+              <div><span>Занятий сегодня</span><strong>{{ teacher_dashboard.today_lessons|length }}</strong></div>
+              <div><span>Ждём ответы</span><strong>{{ teacher_dashboard.summary.students_waiting_count }}</strong></div>
+              <div><span>Готовы к слоту</span><strong>{{ teacher_dashboard.ready_to_schedule_groups|length }}</strong></div>
+              <div><span>Рабочих дней</span><strong>{{ teacher_dashboard.summary.hours_days_count }}/7</strong></div>
+            </div>
+            <div class="teacher-hero-cta">
+              <a class="btn btn-secondary" href="{{ teacher_links.groups }}">Открыть группы</a>
+              <a class="btn btn-primary" href="{{ teacher_links.hours }}">Настроить часы</a>
+            </div>
             {% endif %}
           </div>
         </header>
@@ -127,17 +136,80 @@
         </section>
 
         {% elif view == 'overview' %}
-        <section class="panel" style="margin-top: 24px;">
+        <section class="panel teacher-command-center">
           <div class="admin-section-head">
-            <h2 class="section-title">Операционный обзор</h2>
+            <div>
+              <div class="pm-kicker">Today</div>
+              <h2 class="section-title">Рабочая консоль</h2>
+            </div>
             <div class="admin-section-actions">
-              {% for course in teacher_dashboard.courses %}
+              {% for course in teacher_dashboard.courses[:4] %}
               <span class="admin-badge">{{ course }}</span>
               {% endfor %}
+              {% if not teacher_dashboard.courses %}
+              <span class="admin-badge">Направления появятся после групп</span>
+              {% endif %}
             </div>
           </div>
 
-          <div class="admin-kpi-grid" style="margin-top: 18px;">
+          <div class="teacher-dashboard-grid">
+            <section class="teacher-priority-panel">
+              <div class="teacher-panel-head">
+                <div>
+                  <div class="course-meta">Требует внимания</div>
+                  <h3>Что нужно сделать дальше</h3>
+                </div>
+                <span class="admin-badge">{{ teacher_dashboard.attention_items|length }} задач</span>
+              </div>
+              {% if teacher_dashboard.attention_items %}
+              <div class="teacher-attention-list">
+                {% for attention in teacher_dashboard.attention_items %}
+                <a class="teacher-attention-card teacher-attention-card--{{ attention.tone }}" href="{{ teacher_links[attention.view] if attention.view else attention.href }}">
+                  <span class="teacher-attention-card__metric">{{ attention.metric }}</span>
+                  <span>
+                    <strong>{{ attention.title }}</strong>
+                    <small>{{ attention.text }}</small>
+                  </span>
+                </a>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="teacher-empty-state">
+                <strong>Критичных задач нет</strong>
+                <span>Профиль, часы и группы выглядят готовыми к работе.</span>
+              </div>
+              {% endif %}
+            </section>
+
+            <aside class="teacher-today-panel">
+              <div class="teacher-panel-head">
+                <div>
+                  <div class="course-meta">Сегодня</div>
+                  <h3>{{ teacher_dashboard.today_lessons|length }} занятий</h3>
+                </div>
+                <a class="admin-copy" href="{{ teacher_links.groups }}">Группы</a>
+              </div>
+              {% if teacher_dashboard.today_lessons %}
+              <div class="teacher-timeline">
+                {% for item in teacher_dashboard.today_lessons %}
+                <article class="teacher-timeline__item">
+                  <time>{{ item.time }}</time>
+                  <div>
+                    <strong>{{ item.student_name }}</strong>
+                    <span>{{ item.course }} · {{ item.status_label }}</span>
+                  </div>
+                </article>
+                {% endfor %}
+              </div>
+              {% elif teacher_dashboard.next_lessons %}
+              <p class="admin-subtext">Сегодня уроков нет. Ближайшее занятие: {{ teacher_dashboard.next_lessons[0].date_label }} в {{ teacher_dashboard.next_lessons[0].time }}.</p>
+              {% else %}
+              <p class="admin-subtext">В расписании текущего месяца пока нет назначенных уроков.</p>
+              {% endif %}
+            </aside>
+          </div>
+
+          <div class="admin-kpi-grid teacher-kpi-grid">
             {% for kpi in teacher_dashboard.kpis %}
             <article class="admin-kpi-card">
               <div class="admin-kpi-label">{{ kpi.label }}</div>
@@ -147,54 +219,63 @@
             {% endfor %}
           </div>
 
-          <div class="teacher-focus-grid" style="margin-top: 18px;">
-            <article class="card teacher-focus-card">
-              <div class="course-meta">Профиль</div>
-              <h3>Базовые данные заполнены</h3>
-              <div class="teacher-focus-card__list">
-                <span class="admin-status {% if teacher_record.role %}status-good{% else %}status-warm{% endif %}">{{ "Роль указана" if teacher_record.role else "Добавьте роль" }}</span>
-                <span class="admin-status {% if teacher_record.speciality %}status-good{% else %}status-warm{% endif %}">{{ "Направление указано" if teacher_record.speciality else "Добавьте направление" }}</span>
-                <span class="admin-status {% if teacher_record.bio %}status-good{% else %}status-warm{% endif %}">{{ "Есть описание" if teacher_record.bio else "Нужно описание" }}</span>
-                <span class="admin-status {% if teacher_record.email or teacher_record.telegram %}status-good{% else %}status-warm{% endif %}">{{ "Контакт указан" if teacher_record.email or teacher_record.telegram else "Нужен контакт" }}</span>
-              </div>
-              <a class="admin-copy" href="{{ teacher_links.profile }}">Открыть профиль</a>
-            </article>
-
-            <article class="card teacher-focus-card">
-              <div class="course-meta">Рабочие часы</div>
-              <h3>{{ teacher_dashboard.summary.hours_days_count }} дн. / {{ teacher_dashboard.summary.hours_slots_count }} слотов</h3>
-              <p class="admin-subtext">
-                {% if teacher_dashboard.summary.availability_updated_label %}
-                Последнее обновление: {{ teacher_dashboard.summary.availability_updated_label }}.
-                {% else %}
-                Часы ещё не заполнены. Без этого ученики не увидят корректные окна.
-                {% endif %}
-              </p>
-              <a class="admin-copy" href="{{ teacher_links.hours }}">Настроить часы</a>
-            </article>
-
-            <article class="card teacher-focus-card">
-              <div class="course-meta">Согласование групп</div>
-              <h3>{{ teacher_dashboard.summary.groups_ready_count }} из {{ teacher_dashboard.group_items|length }} готовы к подсчёту</h3>
-              <p class="admin-subtext">
-                Ответили {{ teacher_dashboard.summary.students_ready_count }} учеников, ждём ещё {{ teacher_dashboard.summary.students_waiting_count }}.
-                {% if teacher_dashboard.summary.latest_student_response_label %}
-                Последний ответ: {{ teacher_dashboard.summary.latest_student_response_label }}.
-                {% endif %}
-              </p>
-              <a class="admin-copy" href="{{ teacher_links.groups }}">Открыть группы</a>
-            </article>
+          <div class="teacher-quick-actions">
+            <a class="teacher-action-card" href="{{ teacher_links.hours }}">
+              <span>Часы</span>
+              <strong>{{ teacher_dashboard.summary.hours_days_count }} дн. / {{ teacher_dashboard.summary.hours_slots_count }} окон</strong>
+              <small>{{ teacher_dashboard.summary.availability_updated_label or "Нужно задать недельный шаблон" }}</small>
+            </a>
+            <a class="teacher-action-card" href="{{ teacher_links.groups }}">
+              <span>Группы</span>
+              <strong>{{ teacher_dashboard.summary.groups_ready_count }} из {{ teacher_dashboard.group_items|length }} готовы</strong>
+              <small>Ответили {{ teacher_dashboard.summary.students_ready_count }}, ждём {{ teacher_dashboard.summary.students_waiting_count }}</small>
+            </a>
+            <a class="teacher-action-card" href="{{ teacher_links.students }}">
+              <span>Ученики</span>
+              <strong>{{ teacher_dashboard.student_rows|length }} в составе</strong>
+              <small>{{ teacher_dashboard.summary.latest_student_response_label or "Ответы появятся после заполнения доступности" }}</small>
+            </a>
           </div>
 
-          <div class="admin-grid two teacher-overview-grid" style="margin-top: 18px;">
-            <section class="card">
-              <div class="course-meta">Ближайшие занятия</div>
-              {% if teacher_dashboard.upcoming_lessons %}
+          <div class="admin-grid two teacher-overview-grid">
+            <section class="card teacher-decision-card">
+              <div class="teacher-panel-head">
+                <div>
+                  <div class="course-meta">Готово к решению</div>
+                  <h3>Группы с найденными окнами</h3>
+                </div>
+                <a class="admin-copy" href="{{ teacher_links.groups }}">Открыть</a>
+              </div>
+              {% if teacher_dashboard.ready_to_schedule_groups %}
               <div class="teacher-compact-list">
-                {% for item in teacher_dashboard.upcoming_lessons %}
+                {% for group in teacher_dashboard.ready_to_schedule_groups %}
                 <article class="teacher-compact-list__item teacher-compact-list__item--rich">
-                  <strong>{{ item.date_label }} · {{ item.time }}</strong>
-                  <span>{{ item.student_name }} · {{ item.course }}</span>
+                  <strong>{{ group.title }}</strong>
+                  <span>{{ group.common_windows_summary|join(" · ") }}</span>
+                </article>
+                {% endfor %}
+              </div>
+              {% else %}
+              <p class="admin-subtext">Как только появится пересечение по группе, она попадёт сюда для выбора финального слота.</p>
+              {% endif %}
+            </section>
+
+            <section class="card teacher-decision-card">
+              <div class="teacher-panel-head">
+                <div>
+                  <div class="course-meta">Ближайшая лента</div>
+                  <h3>Следующие занятия</h3>
+                </div>
+              </div>
+              {% if teacher_dashboard.upcoming_lessons %}
+              <div class="teacher-timeline teacher-timeline--compact">
+                {% for item in teacher_dashboard.upcoming_lessons %}
+                <article class="teacher-timeline__item">
+                  <time>{{ item.date_label }} · {{ item.time }}</time>
+                  <div>
+                    <strong>{{ item.student_name }}</strong>
+                    <span>{{ item.course }} · {{ item.status_label }}</span>
+                  </div>
                 </article>
                 {% endfor %}
               </div>
@@ -202,51 +283,49 @@
               <p class="admin-subtext">В текущем месяце у преподавателя пока нет назначенных уроков.</p>
               {% endif %}
             </section>
+          </div>
 
-            <section class="card">
-              <div class="course-meta">Рабочие часы</div>
+          <div class="admin-grid two teacher-overview-grid">
+            <section class="card teacher-decision-card">
+              <div class="teacher-panel-head">
+                <div>
+                  <div class="course-meta">Рабочие часы</div>
+                  <h3>Недельный шаблон</h3>
+                </div>
+                <a class="admin-copy" href="{{ teacher_links.hours }}">Настроить</a>
+              </div>
               {% if teacher_dashboard.availability_summary %}
-              <div class="teacher-chip-stack">
-                {% for line in teacher_dashboard.availability_summary %}
-                <span class="admin-chip">{{ line }}</span>
+              <div class="teacher-week-strip">
+                {% for day in teacher_dashboard.availability_rows %}
+                <div class="teacher-week-strip__day {% if day.is_empty %}is-empty{% endif %}">
+                  <strong>{{ day.short }}</strong>
+                  <span>{{ day.slot_labels|join(", ") if day.slot_labels else "—" }}</span>
+                </div>
                 {% endfor %}
               </div>
               {% else %}
               <p class="admin-subtext">Часы ещё не настроены. Следующий шаг — заполнить недельный шаблон доступности.</p>
               {% endif %}
             </section>
-          </div>
 
-          <div class="admin-grid two teacher-overview-grid" style="margin-top: 18px;">
-            <section class="card">
-              <div class="course-meta">Группы</div>
-              {% if teacher_dashboard.group_items %}
+            <section class="card teacher-decision-card">
+              <div class="teacher-panel-head">
+                <div>
+                  <div class="course-meta">Домашние задания</div>
+                  <h3>Закреплено за преподавателем</h3>
+                </div>
+              </div>
+              {% if teacher_dashboard.homework_items %}
               <div class="teacher-compact-list">
-                {% for group in teacher_dashboard.group_items %}
+                {% for homework in teacher_dashboard.homework_items[:5] %}
                 <article class="teacher-compact-list__item teacher-compact-list__item--rich">
-                  <strong>{{ group.title }}</strong>
-                  <span>{{ group.status_label }} · {{ group.match_status }}</span>
+                  <strong>{{ homework.title }}</strong>
+                  <span>{{ homework.course }} · {{ homework.due_label }}</span>
                 </article>
                 {% endfor %}
               </div>
               {% else %}
-              <p class="admin-subtext">Пока нет групп. Их можно создать в одноимённом разделе и добавить записанных учеников.</p>
-              {% endif %}
-            </section>
-
-            <section class="card">
-              <div class="course-meta">Ученики</div>
-              {% if teacher_dashboard.student_rows %}
-              <div class="teacher-compact-list">
-                {% for student in teacher_dashboard.student_rows[:8] %}
-                <article class="teacher-compact-list__item teacher-compact-list__item--rich">
-                  <strong>{{ student.student_name }}</strong>
-                  <span>{{ student.group_title }} · {{ "доступность заполнена" if student.availability_ready else "ждём часы" }}</span>
-                </article>
-                {% endfor %}
-              </div>
-              {% else %}
-              <p class="admin-subtext">Состав ещё не собран. После добавления учеников здесь появится статус по каждому.</p>
+              <p class="admin-subtext">Домашние задания появятся здесь, когда будут привязаны к преподавателю.</p>
               {% endif %}
             </section>
           </div>
@@ -315,18 +394,33 @@
               <p class="admin-subtext">
                 Этот блок увидит студент. Держите формулировки короткими, а направления и контакты — точными.
               </p>
+              <div class="teacher-profile-checklist">
+                <span class="admin-status {% if teacher_record.role %}status-good{% else %}status-warm{% endif %}">{{ "Роль указана" if teacher_record.role else "Добавьте роль" }}</span>
+                <span class="admin-status {% if teacher_record.speciality %}status-good{% else %}status-warm{% endif %}">{{ "Направление указано" if teacher_record.speciality else "Добавьте направление" }}</span>
+                <span class="admin-status {% if teacher_record.bio %}status-good{% else %}status-warm{% endif %}">{{ "Есть описание" if teacher_record.bio else "Нужно описание" }}</span>
+                <span class="admin-status {% if teacher_record.email or teacher_record.telegram %}status-good{% else %}status-warm{% endif %}">{{ "Контакт указан" if teacher_record.email or teacher_record.telegram else "Нужен контакт" }}</span>
+              </div>
             </aside>
           </div>
         </section>
 
         {% elif view == 'hours' %}
-        <section class="panel" style="margin-top: 24px;">
+        <section class="panel teacher-hours-panel">
           <div class="admin-section-head">
-            <h2 class="section-title">Недельный шаблон рабочих часов</h2>
+            <div>
+              <div class="pm-kicker">Availability</div>
+              <h2 class="section-title">Недельный шаблон рабочих часов</h2>
+            </div>
+            <div class="teacher-preset-actions" data-teacher-hours-presets>
+              <button class="admin-copy" type="button" data-teacher-hours-preset="weekday-evening">Будни вечером</button>
+              <button class="admin-copy" type="button" data-teacher-hours-preset="weekday-full">Будни днём</button>
+              <button class="admin-copy" type="button" data-teacher-hours-preset="weekend">Выходные</button>
+              <button class="admin-copy" type="button" data-teacher-hours-preset="clear">Очистить</button>
+            </div>
           </div>
           <p class="admin-subtext">Доступны две временные зоны на день с шагом 30 минут. Система использует их как верхнее ограничение для доступности учеников.</p>
 
-          <div class="teacher-summary-grid" style="margin-top: 18px;">
+          <div class="teacher-summary-grid">
             <article class="card teacher-summary-card">
               <div class="course-meta">Дней настроено</div>
               <strong>{{ teacher_dashboard.summary.hours_days_count }}</strong>
@@ -344,7 +438,16 @@
             </article>
           </div>
 
-          <form action="/teacher/hours/save" method="post" class="teacher-hours-grid" style="margin-top: 18px;">
+          <div class="teacher-week-map" aria-label="Карта рабочих часов по дням недели">
+            {% for day in teacher_dashboard.availability_rows %}
+            <article class="teacher-week-map__day {% if day.is_empty %}is-empty{% endif %}" data-teacher-week-day="{{ day.key }}">
+              <strong>{{ day.short }}</strong>
+              <span data-teacher-week-label="{{ day.key }}">{{ day.slot_labels|join(", ") if day.slot_labels else "Нет часов" }}</span>
+            </article>
+            {% endfor %}
+          </div>
+
+          <form action="/teacher/hours/save" method="post" class="teacher-hours-grid" data-teacher-hours-form>
             <input type="hidden" name="teacher_id" value="{{ teacher_record.id }}">
             {% for day in teacher_dashboard.availability_rows %}
             <article class="card teacher-hours-card">
@@ -377,20 +480,55 @@
         </section>
 
         {% elif view == 'groups' %}
-        <section class="panel" style="margin-top: 24px;">
+        <section class="panel teacher-groups-panel">
           <div class="admin-section-head">
-            <h2 class="section-title">Группы преподавателя</h2>
+            <div>
+              <div class="pm-kicker">Groups</div>
+              <h2 class="section-title">Группы преподавателя</h2>
+            </div>
             <div class="admin-section-actions">
               <span class="admin-badge">Всего: {{ teacher_dashboard.group_items|length }}</span>
               <span class="admin-badge">Готовы: {{ teacher_dashboard.summary.groups_ready_count }}</span>
+              <span class="admin-badge">К выбору слота: {{ teacher_dashboard.ready_to_schedule_groups|length }}</span>
             </div>
           </div>
 
-          <div class="teacher-groups-layout" style="margin-top: 18px;">
+          <div class="teacher-filterbar" data-teacher-group-filter>
+            <label>
+              <span>Поиск</span>
+              <input type="search" placeholder="Группа, курс, статус" data-teacher-filter-search>
+            </label>
+            <label>
+              <span>Курс</span>
+              <select data-teacher-filter-course>
+                <option value="all">Все направления</option>
+                {% for course in teacher_dashboard.courses %}
+                <option value="{{ course|lower|e }}">{{ course }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <div class="teacher-filterbar__states" role="group" aria-label="Фильтр групп по состоянию">
+              <button class="admin-copy is-active" type="button" data-teacher-filter-state="all">Все</button>
+              <button class="admin-copy" type="button" data-teacher-filter-state="needs-slot">Есть окно</button>
+              <button class="admin-copy" type="button" data-teacher-filter-state="waiting">Ждём ответы</button>
+              <button class="admin-copy" type="button" data-teacher-filter-state="no-window">Без окна</button>
+            </div>
+            <span class="teacher-filterbar__count" data-teacher-filter-count>{{ teacher_dashboard.group_items|length }} показано</span>
+          </div>
+
+          <div class="teacher-groups-layout">
             <div class="teacher-group-grid">
               {% if teacher_dashboard.group_items %}
               {% for group in teacher_dashboard.group_items %}
-              <article class="card teacher-group-card">
+              {% set group_course_text = group.courses|join(' ') %}
+              <article class="card teacher-group-card"
+                data-teacher-group-card
+                data-search="{{ (group.title ~ ' ' ~ group.direction_key ~ ' ' ~ group_course_text ~ ' ' ~ group.status_label ~ ' ' ~ group.match_status)|lower|e }}"
+                data-course="{{ group_course_text|lower|e }}"
+                data-ready="{{ 'yes' if group.all_members_ready else 'no' }}"
+                data-common="{{ 'yes' if group.common_windows_count else 'no' }}"
+                data-slot="{{ 'yes' if group.final_slot else 'no' }}"
+                data-members="{{ group.members_count }}">
                 <div class="teacher-group-card__head">
                   <div>
                     <h3>{{ group.title }}</h3>
@@ -423,7 +561,7 @@
                 <p class="teacher-group-card__note">{{ group.match_scope_label }}</p>
                 {% endif %}
                 {% if group.common_windows_summary %}
-                <div class="teacher-chip-stack">
+                <div class="teacher-chip-stack teacher-window-stack">
                   {% for line in group.common_windows_summary %}
                   <span class="admin-chip">{{ line }}</span>
                   {% endfor %}
@@ -431,6 +569,8 @@
                 {% endif %}
                 {% if group.final_slot %}
                 <p class="teacher-group-card__note"><strong>Финальный слот:</strong> {{ group.final_slot }}</p>
+                {% elif group.common_windows_summary %}
+                <p class="teacher-group-card__note teacher-group-card__note--accent"><strong>Следующий шаг:</strong> выберите одно из найденных окон и сохраните как финальный слот.</p>
                 {% endif %}
 
                 <div class="teacher-card-actions">
@@ -478,6 +618,10 @@
                 {% endif %}
               </article>
               {% endfor %}
+              <div class="teacher-empty-state teacher-filter-empty" data-teacher-filter-empty hidden>
+                <strong>Ничего не найдено</strong>
+                <span>Смените курс, состояние или поисковый запрос.</span>
+              </div>
               {% else %}
               <p class="admin-subtext">Пока нет ни одной группы. Создайте первую справа и начните собирать состав.</p>
               {% endif %}
@@ -524,18 +668,47 @@
         </section>
 
         {% elif view == 'students' %}
-        <section class="panel" style="margin-top: 24px;">
+        <section class="panel teacher-students-panel">
           <div class="admin-section-head">
-            <h2 class="section-title">Ученики по группам</h2>
+            <div>
+              <div class="pm-kicker">Students</div>
+              <h2 class="section-title">Ученики по группам</h2>
+            </div>
             <div class="admin-section-actions">
               <span class="admin-badge">{{ teacher_dashboard.student_rows|length }} записей</span>
               <span class="admin-badge">Ответили: {{ teacher_dashboard.summary.students_ready_count }}</span>
             </div>
           </div>
           {% if teacher_dashboard.student_rows %}
-          <div class="teacher-student-grid" style="margin-top: 18px;">
+          <div class="teacher-filterbar" data-teacher-student-filter>
+            <label>
+              <span>Поиск</span>
+              <input type="search" placeholder="Имя, группа, курс" data-teacher-filter-search>
+            </label>
+            <label>
+              <span>Курс</span>
+              <select data-teacher-filter-course>
+                <option value="all">Все курсы</option>
+                {% for course in teacher_dashboard.courses %}
+                <option value="{{ course|lower|e }}">{{ course }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <div class="teacher-filterbar__states" role="group" aria-label="Фильтр учеников по готовности">
+              <button class="admin-copy is-active" type="button" data-teacher-filter-state="all">Все</button>
+              <button class="admin-copy" type="button" data-teacher-filter-state="ready">Заполнили</button>
+              <button class="admin-copy" type="button" data-teacher-filter-state="waiting">Ждём часы</button>
+            </div>
+            <span class="teacher-filterbar__count" data-teacher-filter-count>{{ teacher_dashboard.student_rows|length }} показано</span>
+          </div>
+
+          <div class="teacher-student-grid">
             {% for student in teacher_dashboard.student_rows %}
-            <article class="card teacher-student-card">
+            <article class="card teacher-student-card"
+              data-teacher-student-card
+              data-search="{{ (student.student_name ~ ' ' ~ student.course ~ ' ' ~ student.group_title ~ ' ' ~ student.group_status)|lower|e }}"
+              data-course="{{ student.course|lower|e }}"
+              data-ready="{{ 'yes' if student.availability_ready else 'no' }}">
               <div class="teacher-student-card__head">
                 <div>
                   <strong>{{ student.student_name }}</strong>
@@ -566,6 +739,10 @@
               </div>
             </article>
             {% endfor %}
+            <div class="teacher-empty-state teacher-filter-empty" data-teacher-filter-empty hidden>
+              <strong>Ничего не найдено</strong>
+              <span>Попробуйте другой курс, статус или имя ученика.</span>
+            </div>
           </div>
           {% else %}
           <p class="admin-subtext" style="margin-top: 18px;">После создания групп и добавления учеников здесь появится общий состав с их статусами.</p>

@@ -7,19 +7,37 @@
 {% block content %}
 <section class="pm-section pm-section--compact teacher-public">
   <div class="container">
-    <div class="pm-surface-card teacher-public__hero">
-      <div class="teacher-public__avatar pm-teacher-card__avatar pm-teacher-card__avatar--{{ teacher.accent }}">{{ teacher.initials }}</div>
+    <article class="pm-surface-card teacher-public__hero">
+      <div class="teacher-public__portrait">
+        <div class="teacher-public__avatar pm-teacher-card__avatar pm-teacher-card__avatar--{{ teacher.accent }}">{{ teacher.initials }}</div>
+        <div class="teacher-public__portrait-meta">
+          <span>{{ teacher.primary_course or "Peaky Minds" }}</span>
+          <strong>{{ teacher.role or "Преподаватель" }}</strong>
+        </div>
+      </div>
+
       <div class="teacher-public__content">
         <div class="eyebrow eyebrow--dark">Преподаватель Peaky Minds</div>
-        <h1>{{ teacher.name }}</h1>
-        <p class="teacher-public__role">{{ teacher.role }}</p>
+        <div class="teacher-public__title-row">
+          <div>
+            <h1>{{ teacher.name }}</h1>
+            <p class="teacher-public__role">{{ teacher.role or "Преподаватель" }}</p>
+          </div>
+          {% if teacher.speciality %}
+          <span class="teacher-public__speciality">{{ teacher.speciality }}</span>
+          {% endif %}
+        </div>
+
         {% if teacher.bio %}
         <p class="teacher-public__lead">{{ teacher.bio }}</p>
+        {% else %}
+        <p class="teacher-public__lead">Преподаватель ведёт занятия, помогает группе держать темп и синхронизирует расписание с учениками.</p>
         {% endif %}
+
         <div class="teacher-public__stats">
           <div class="teacher-public__stat">
-            <strong>{{ teacher.groups_count }}</strong>
-            <span>групп</span>
+            <strong>{{ teacher.active_groups_count }}</strong>
+            <span>активных групп</span>
           </div>
           <div class="teacher-public__stat">
             <strong>{{ teacher.students_count }}</strong>
@@ -30,14 +48,7 @@
             <span>занятий в календаре</span>
           </div>
         </div>
-        <div class="teacher-public__chips">
-          {% if teacher.speciality %}
-          <span>{{ teacher.speciality }}</span>
-          {% endif %}
-          {% if teacher.availability_updated_label %}
-          <span>Часы обновлены {{ teacher.availability_updated_label }}</span>
-          {% endif %}
-        </div>
+
         <div class="teacher-public__actions">
           {% if teacher.contact_url %}
           <a class="btn btn-primary" href="{{ teacher.contact_url }}" target="_blank" rel="noopener">Связаться</a>
@@ -47,12 +58,22 @@
           {% endif %}
         </div>
       </div>
+    </article>
+
+    <div class="teacher-public__fact-grid">
+      {% for fact in teacher.public_facts %}
+      <article class="teacher-public__fact">
+        <span>{{ fact.label }}</span>
+        <strong>{{ fact.value }}</strong>
+        <p>{{ fact.text }}</p>
+      </article>
+      {% endfor %}
     </div>
 
-    <div class="teacher-public__grid">
-      <article class="pm-surface-card teacher-public__card">
+    <div class="teacher-public__layout">
+      <section class="pm-surface-card teacher-public__main-card">
         <div class="pm-kicker">Направления</div>
-        <h3>Что ведёт</h3>
+        <h2>Что ведёт преподаватель</h2>
         {% if teacher.courses %}
         <div class="teacher-public__chips">
           {% for course in teacher.courses %}
@@ -62,11 +83,11 @@
         {% else %}
         <p>Направления скоро будут опубликованы.</p>
         {% endif %}
-      </article>
+      </section>
 
-      <article class="pm-surface-card teacher-public__card">
+      <section class="pm-surface-card teacher-public__main-card">
         <div class="pm-kicker">Экспертиза</div>
-        <h3>Ключевые темы</h3>
+        <h2>Ключевые темы</h2>
         {% if teacher.expertise %}
         <div class="teacher-public__chips">
           {% for item in teacher.expertise %}
@@ -76,11 +97,11 @@
         {% else %}
         <p>Список навыков будет уточнён вместе с программами и кейсами.</p>
         {% endif %}
-      </article>
+      </section>
 
-      <article class="pm-surface-card teacher-public__card">
+      <aside class="pm-surface-card teacher-public__schedule-card">
         <div class="pm-kicker">Рабочий ритм</div>
-        <h3>Часы и формат</h3>
+        <h2>Часы и формат</h2>
         {% if teacher.availability_summary %}
         <div class="teacher-public__stack">
           {% for line in teacher.availability_summary %}
@@ -90,7 +111,15 @@
         {% else %}
         <p>{{ teacher.match_note }}</p>
         {% endif %}
-      </article>
+
+        <div class="teacher-public__schedule-note">
+          <span>Ближайшее занятие</span>
+          <strong>{{ teacher.next_lesson_label or "Дата появится после согласования" }}</strong>
+        </div>
+        {% if teacher.availability_updated_label %}
+        <p class="teacher-public__muted">Часы обновлены {{ teacher.availability_updated_label }}.</p>
+        {% endif %}
+      </aside>
     </div>
   </div>
 </section>
