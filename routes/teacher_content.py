@@ -1014,6 +1014,11 @@ def build_teacher_dashboard(
             for course in (group.get("courses") or [group.get("direction_key")])
             if str(course or "").strip()
         }
+        | {
+            str(course or "").strip()
+            for course in (teacher_record.get("disciplines") or [])
+            if str(course or "").strip()
+        }
     )
     students_ready_count = sum(1 for item in student_rows if item.get("availability_ready"))
     hours_days_count = sum(1 for row in availability_rows if not row["is_empty"])
@@ -1039,8 +1044,8 @@ def build_teacher_dashboard(
     profile_missing = []
     if not str(teacher_record.get("role") or "").strip():
         profile_missing.append("роль")
-    if not str(teacher_record.get("speciality") or "").strip():
-        profile_missing.append("направление")
+    if not (teacher_record.get("disciplines") or []) and not str(teacher_record.get("speciality") or "").strip():
+        profile_missing.append("дисциплины")
     if not str(teacher_record.get("bio") or "").strip():
         profile_missing.append("описание")
     if not str(teacher_record.get("email") or "").strip() and not str(teacher_record.get("telegram") or "").strip():
@@ -1157,7 +1162,15 @@ def build_teacher_public_profile(
     group_items = dashboard["group_items"]
     students_count = len({item["agreement_file"] for item in dashboard["student_rows"]})
     expertise = teacher_record.get("expertise") if isinstance(teacher_record.get("expertise"), list) else []
-    courses = dashboard["courses"] or ([teacher_record["speciality"]] if teacher_record.get("speciality") else [])
+    courses = []
+    for course in [
+        *(teacher_record.get("disciplines") or []),
+        *dashboard["courses"],
+        str(teacher_record.get("speciality") or "").strip(),
+    ]:
+        course_name = str(course or "").strip()
+        if course_name and course_name not in courses:
+            courses.append(course_name)
     primary_course = courses[0] if courses else str(teacher_record.get("speciality") or "").strip()
     next_lesson = dashboard["upcoming_lessons"][0] if dashboard["upcoming_lessons"] else {}
     groups_with_windows = sum(1 for item in group_items if item.get("common_windows_count"))

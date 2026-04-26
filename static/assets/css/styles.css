@@ -2524,6 +2524,99 @@ body.shell-admin.shell-teacher .teacher-form-grid__actions {
   align-items: center;
 }
 
+body.shell-admin.shell-teacher .teacher-discipline-picker {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+body.shell-admin.shell-teacher .teacher-discipline-picker__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+body.shell-admin.shell-teacher .teacher-discipline-picker__head span {
+  color: rgba(17, 17, 17, 0.68);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body.shell-admin.shell-teacher .teacher-discipline-picker__head small {
+  max-width: 280px;
+  color: rgba(17, 17, 17, 0.54);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  text-align: right;
+}
+
+body.shell-admin.shell-teacher .teacher-discipline-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+body.shell-admin.shell-teacher .teacher-discipline-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 18px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+body.shell-admin.shell-teacher .teacher-discipline-option:hover {
+  border-color: rgba(109, 82, 255, 0.34);
+  box-shadow: 0 14px 30px rgba(17, 17, 17, 0.08);
+  transform: translateY(-1px);
+}
+
+body.shell-admin.shell-teacher .teacher-discipline-option input {
+  width: 18px;
+  min-height: 18px;
+  margin-top: 2px;
+  accent-color: #6d52ff;
+}
+
+body.shell-admin.shell-teacher .teacher-discipline-option > span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  color: #111111;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-transform: none;
+}
+
+body.shell-admin.shell-teacher .teacher-discipline-option strong,
+body.shell-admin.shell-teacher .teacher-discipline-option small {
+  overflow-wrap: anywhere;
+}
+
+body.shell-admin.shell-teacher .teacher-discipline-option strong {
+  font-size: 0.98rem;
+  line-height: 1.35;
+}
+
+body.shell-admin.shell-teacher .teacher-discipline-option small {
+  color: rgba(17, 17, 17, 0.52);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
 body.shell-admin.shell-teacher .teacher-hours-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2713,7 +2806,7 @@ body.shell-admin.shell-teacher .teacher-group-editor {
 
 body.shell-marketing .teacher-public__hero {
   display: grid;
-  grid-template-columns: minmax(220px, 0.36fr) minmax(0, 0.64fr);
+  grid-template-columns: minmax(220px, 360px) minmax(0, 1fr);
   gap: 28px;
   align-items: stretch;
   padding: clamp(24px, 4vw, 42px);
@@ -2744,6 +2837,7 @@ body.shell-marketing .teacher-public__portrait {
   gap: 18px;
   align-content: space-between;
   justify-items: start;
+  min-width: 0;
   min-height: 100%;
   padding: 22px;
   border-radius: 30px;
@@ -2774,6 +2868,8 @@ body.shell-marketing .teacher-public__content {
   display: grid;
   gap: 18px;
   align-content: center;
+  min-width: 0;
+  max-width: 100%;
 }
 
 body.shell-marketing .teacher-public__title-row {
@@ -2781,6 +2877,11 @@ body.shell-marketing .teacher-public__title-row {
   align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
+  min-width: 0;
+}
+
+body.shell-marketing .teacher-public__title-row > div {
+  min-width: 0;
 }
 
 body.shell-marketing .teacher-public__title-row h1 {
@@ -2789,6 +2890,8 @@ body.shell-marketing .teacher-public__title-row h1 {
   font-size: clamp(2.7rem, 6vw, 5.6rem);
   line-height: 0.92;
   letter-spacing: -0.06em;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 body.shell-marketing .teacher-public__role {
@@ -2803,11 +2906,13 @@ body.shell-marketing .teacher-public__lead {
   color: #111111;
   font-size: clamp(1.02rem, 1.4vw, 1.18rem);
   line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
 body.shell-marketing .teacher-public__speciality {
   display: inline-flex;
   align-items: center;
+  max-width: min(260px, 100%);
   min-height: 40px;
   padding: 0 14px;
   border-radius: 999px;
@@ -2815,12 +2920,15 @@ body.shell-marketing .teacher-public__speciality {
   color: #0f7667;
   font-weight: 800;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 body.shell-marketing .teacher-public__stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
   gap: 12px;
+  min-width: 0;
 }
 
 body.shell-marketing .teacher-public__stat {
@@ -2992,6 +3100,12 @@ body.shell-marketing .teacher-public__schedule-note strong {
   line-height: 1.25;
 }
 
+@media (max-width: 1180px) {
+  body.shell-marketing .teacher-public__stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 1024px) {
   body.shell-admin.shell-teacher .teacher-focus-grid,
   body.shell-admin.shell-teacher .teacher-summary-grid,
@@ -3014,10 +3128,20 @@ body.shell-marketing .teacher-public__schedule-note strong {
 
 @media (max-width: 860px) {
   body.shell-admin.shell-teacher .teacher-form-grid,
+  body.shell-admin.shell-teacher .teacher-discipline-grid,
   body.shell-admin.shell-teacher .teacher-hours-card__slot,
   body.shell-admin.shell-teacher .teacher-inline-form,
   body.shell-marketing .teacher-public__hero {
     grid-template-columns: 1fr;
+  }
+
+  body.shell-admin.shell-teacher .teacher-discipline-picker__head {
+    display: grid;
+  }
+
+  body.shell-admin.shell-teacher .teacher-discipline-picker__head small {
+    max-width: none;
+    text-align: left;
   }
 
   body.shell-marketing .teacher-public__title-row {
@@ -12762,6 +12886,13 @@ body.shell-marketing .pm-faculty-card__facts {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+body.shell-marketing .pm-faculty-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
 }
 
 body.shell-marketing .pm-faculty-card__chips span,

@@ -663,6 +663,11 @@
             <span>{{ fact }}</span>
             {% endfor %}
           </div>
+          {% if item.href %}
+          <div class="pm-faculty-card__actions">
+            <a class="btn btn-secondary" href="{{ item.href }}">Открыть профиль</a>
+          </div>
+          {% endif %}
         </div>
       </article>
       {% endfor %}

@@ -270,6 +270,7 @@ def _normalize_teacher_record(item: Any) -> Optional[Dict[str, Any]]:
     created_at = str(item.get("created_at") or "").strip() or moscow_now().isoformat()
     updated_at = str(item.get("updated_at") or "").strip() or created_at
     expertise = _split_csv(item.get("expertise"))
+    disciplines = _split_csv(item.get("disciplines"))
     return {
         "id": teacher_id,
         "name": name,
@@ -279,6 +280,7 @@ def _normalize_teacher_record(item: Any) -> Optional[Dict[str, Any]]:
         "telegram": str(item.get("telegram") or "").strip(),
         "email": str(item.get("email") or "").strip(),
         "speciality": str(item.get("speciality") or "").strip(),
+        "disciplines": disciplines,
         "expertise": expertise,
         "status": status,
         "status_label": TEACHER_STATUS_META[status],
@@ -337,6 +339,7 @@ def upsert_teacher_record(
     role: str = "",
     bio: str = "",
     speciality: str = "",
+    disciplines: Any = None,
     telegram: str = "",
     email: str = "",
     expertise: Any = None,
@@ -361,6 +364,7 @@ def upsert_teacher_record(
             "role": role or (existing.get("role") if existing else ""),
             "bio": bio,
             "speciality": speciality,
+            "disciplines": disciplines if disciplines is not None else (existing.get("disciplines") if existing else []),
             "telegram": telegram,
             "email": email,
             "expertise": expertise,

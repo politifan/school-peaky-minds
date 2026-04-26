@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlencode
 
 from fastapi import APIRouter, Request
@@ -15,6 +15,7 @@ from core import (
     teacher_required,
 )
 from routes.account_content import get_teacher_record, load_teachers, upsert_teacher_record
+from routes.course_content import COURSE_PAGES
 from routes.teacher_content import (
     GROUP_STATUS_META,
     WEEKDAY_META,
@@ -88,6 +89,18 @@ def _can_manage_teacher_record(user: Optional[Dict[str, Any]], teacher_record: O
     return bool(resolved and resolved["id"] == teacher_record["id"])
 
 
+def _teacher_course_options() -> List[Dict[str, str]]:
+    return [
+        {
+            "key": str(course_key),
+            "name": str(course.get("name") or course_key).strip(),
+            "path": str(course.get("path") or "").strip(),
+        }
+        for course_key, course in COURSE_PAGES.items()
+        if str(course.get("name") or course_key).strip()
+    ]
+
+
 def _normalize_half_hour_time(value: Any) -> str:
     raw = str(value or "").strip()
     if not raw or not re.match(r"^\d{2}:\d{2}$", raw):
@@ -142,6 +155,12 @@ def _teacher_page_context(request: Request, *, user: Dict[str, Any]) -> Dict[str
         candidate = get_study_group(group_id)
         if candidate and candidate["teacher_id"] == teacher_record["id"]:
             group_edit = candidate
+    candidate_direction_key = ""
+    if teacher_record:
+        candidate_direction_key = str(teacher_record.get("speciality") or "").strip()
+        if not candidate_direction_key:
+            disciplines = teacher_record.get("disciplines") if isinstance(teacher_record.get("disciplines"), list) else []
+            candidate_direction_key = str(disciplines[0] if disciplines else "").strip()
     teacher_links = {key: _teacher_view_href(key, teacher_id=teacher_id) for key in TEACHER_VIEWS}
     teacher_message_map = {
         "profile": "Профиль преподавателя обновлён.",
@@ -170,9 +189,10 @@ def _teacher_page_context(request: Request, *, user: Dict[str, Any]) -> Dict[str
         }.get(view, "Обзор"),
         "teacher_weekdays": WEEKDAY_META,
         "teacher_group_status_meta": GROUP_STATUS_META,
+        "teacher_course_options": _teacher_course_options(),
         "teacher_candidate_students": build_candidate_students(
             agreements,
-            direction_key=teacher_record.get("speciality", "") if teacher_record else "",
+            direction_key=candidate_direction_key,
         ),
     }
 
@@ -202,12 +222,14 @@ async def teacher_profile_save(request: Request):
         return _redirect_teacher("profile", error="Сначала привяжите аккаунт к карточке преподавателя.")
     name = str(form.get("name") or "").strip() or teacher_record["name"]
     try:
+        disciplines = form.getlist("disciplines") if hasattr(form, "getlist") else []
         upsert_teacher_record(
             teacher_id=teacher_record["id"],
             name=name,
             role=str(form.get("role") or "").strip() or teacher_record.get("role", ""),
             bio=str(form.get("bio") or "").strip(),
             speciality=str(form.get("speciality") or "").strip(),
+            disciplines=disciplines,
             telegram=str(form.get("telegram") or "").strip(),
             email=str(form.get("email") or "").strip(),
             expertise=str(form.get("expertise") or "").strip(),

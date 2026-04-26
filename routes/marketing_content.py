@@ -953,9 +953,63 @@ TRACK_MARKETING = _deep_merge(TRACK_MARKETING, _MARKETING_OVERRIDES.get("tracks"
 HOME_MARKETING = _deep_merge(HOME_MARKETING, _MARKETING_OVERRIDES.get("home", {}))
 ROI_PAGE_MARKETING = _deep_merge(ROI_PAGE_MARKETING, _MARKETING_OVERRIDES.get("roi_page", {}))
 
+TEACHER_SHOWCASE_ACCENTS = {
+    "violet": ("#6d52ff", "rgba(109, 82, 255, 0.18)"),
+    "mint": ("#28b894", "rgba(40, 184, 148, 0.18)"),
+    "sky": ("#2f80ed", "rgba(47, 128, 237, 0.18)"),
+    "sunset": ("#ff8a5b", "rgba(255, 138, 91, 0.18)"),
+}
+
 
 def build_marketing_runtime() -> Dict[str, Any]:
     return deepcopy(MARKETING_RUNTIME)
+
+
+def _build_teacher_showcase_cards() -> List[Dict[str, Any]]:
+    try:
+        from routes.account_content import load_teachers
+
+        teachers = [item for item in load_teachers() if item.get("status") == "active"]
+    except Exception:
+        return []
+    if not teachers:
+        return []
+
+    cards = []
+    compact_variant = len(teachers) > 1
+    for teacher in teachers:
+        disciplines = teacher.get("disciplines") if isinstance(teacher.get("disciplines"), list) else []
+        expertise = teacher.get("expertise") if isinstance(teacher.get("expertise"), list) else []
+        course_names = disciplines or ([teacher["speciality"]] if teacher.get("speciality") else [])
+        primary_course = course_names[0] if course_names else "Индивидуальный маршрут"
+        accent, accent_soft = TEACHER_SHOWCASE_ACCENTS.get(
+            str(teacher.get("accent") or "").strip(),
+            TEACHER_SHOWCASE_ACCENTS["violet"],
+        )
+        cards.append(
+            {
+                "variant": "avatar" if compact_variant else "portrait",
+                "panel_label": "Преподаватель",
+                "panel_name": primary_course,
+                "name": teacher["name"],
+                "role": teacher["role"],
+                "lead": (
+                    f"Ведёт {', '.join(course_names[:2])}."
+                    if course_names
+                    else "Помогает выстроить понятный темп и учебный маршрут."
+                ),
+                "bio": teacher.get("bio") or "Работает с практикой, разбором ошибок и понятным движением по программе.",
+                "expertise": (expertise or course_names or [teacher["role"]])[:5],
+                "facts": (course_names or expertise or [primary_course])[:4],
+                "initials": teacher["initials"],
+                "photo": str(teacher.get("photo") or "").strip(),
+                "alt": f"Фото преподавателя {teacher['name']}",
+                "accent": accent,
+                "accent_soft": accent_soft,
+                "href": f"/teachers/{teacher['id']}",
+            }
+        )
+    return cards
 
 
 def save_marketing_runtime_settings(updates: Dict[str, Any]) -> Dict[str, Any]:
@@ -978,6 +1032,14 @@ def build_homepage_marketing() -> Dict[str, Any]:
     payload["video"] = deepcopy(MARKETING_RUNTIME["video"])
     payload["intent_nav"] = _build_home_intent_nav()
     payload["compare_tracks"] = _build_home_compare_tracks()
+    teacher_cards = _build_teacher_showcase_cards()
+    if teacher_cards:
+        payload["teachers_showcase"] = deepcopy(payload.get("teachers_showcase", {}))
+        payload["teachers_showcase"]["description"] = (
+            "Наставники ведут мини-группы, проверяют практику и помогают держать маршрут до результата."
+        )
+        payload["teachers_showcase"]["note"] = ""
+        payload["teachers_showcase"]["cards"] = teacher_cards
     roi_visuals = {
         "python_start": {
             "accent": "#ff9a62",

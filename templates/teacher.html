@@ -44,7 +44,13 @@
               </div>
               <div class="admin-meta">
                 {% if teacher_record %}
-                <span class="admin-chip">{{ teacher_record.speciality or "Направление будет уточнено" }}</span>
+                <span class="admin-chip">
+                  {% if teacher_record.disciplines %}
+                  {{ teacher_record.disciplines|join(', ') }}
+                  {% else %}
+                  {{ teacher_record.speciality or "Направление будет уточнено" }}
+                  {% endif %}
+                </span>
                 <span class="admin-chip">Раздел: {{ teacher_view_label }}</span>
                 <span class="admin-chip">Групп: {{ teacher_dashboard.group_items|length }}</span>
                 <span class="admin-chip">Учеников: {{ teacher_dashboard.student_rows|length }}</span>
@@ -349,8 +355,8 @@
                 <input type="text" name="role" value="{{ teacher_record.role }}" placeholder="Senior mentor">
               </label>
               <label>
-                <span>Направление</span>
-                <input type="text" name="speciality" value="{{ teacher_record.speciality }}" placeholder="Python, Backend, Data">
+                <span>Краткая специализация</span>
+                <input type="text" name="speciality" value="{{ teacher_record.speciality }}" placeholder="Backend, Data, ML">
               </label>
               <label>
                 <span>Telegram</span>
@@ -364,6 +370,25 @@
                 <span>Экспертиза</span>
                 <input type="text" name="expertise" value="{{ teacher_record.expertise|join(', ') if teacher_record.expertise else '' }}" placeholder="FastAPI, SQL, code review">
               </label>
+              <div class="teacher-form-grid__wide teacher-discipline-picker">
+                <div class="teacher-discipline-picker__head">
+                  <span>Дисциплины</span>
+                  <small>Выберите курсы, которые преподаватель готов вести.</small>
+                </div>
+                <div class="teacher-discipline-grid">
+                  {% for course in teacher_course_options %}
+                  <label class="teacher-discipline-option">
+                    <input type="checkbox" name="disciplines" value="{{ course.name }}" {% if course.name in (teacher_record.disciplines or []) %}checked{% endif %}>
+                    <span>
+                      <strong>{{ course.name }}</strong>
+                      {% if course.path %}
+                      <small>{{ course.path }}</small>
+                      {% endif %}
+                    </span>
+                  </label>
+                  {% endfor %}
+                </div>
+              </div>
               <label class="teacher-form-grid__wide">
                 <span>Краткое описание</span>
                 <textarea name="bio" rows="6" placeholder="Кто вы, что ведёте и как работаете со студентами.">{{ teacher_record.bio }}</textarea>
@@ -381,7 +406,11 @@
               <h3>{{ teacher_record.name }}</h3>
               <p class="admin-subtext">{{ teacher_record.role }}</p>
               <div class="teacher-chip-stack">
-                {% if teacher_record.speciality %}
+                {% if teacher_record.disciplines %}
+                {% for discipline in teacher_record.disciplines %}
+                <span class="admin-chip">{{ discipline }}</span>
+                {% endfor %}
+                {% elif teacher_record.speciality %}
                 <span class="admin-chip">{{ teacher_record.speciality }}</span>
                 {% endif %}
                 {% if teacher_record.email %}
@@ -396,7 +425,7 @@
               </p>
               <div class="teacher-profile-checklist">
                 <span class="admin-status {% if teacher_record.role %}status-good{% else %}status-warm{% endif %}">{{ "Роль указана" if teacher_record.role else "Добавьте роль" }}</span>
-                <span class="admin-status {% if teacher_record.speciality %}status-good{% else %}status-warm{% endif %}">{{ "Направление указано" if teacher_record.speciality else "Добавьте направление" }}</span>
+                <span class="admin-status {% if teacher_record.disciplines or teacher_record.speciality %}status-good{% else %}status-warm{% endif %}">{{ "Дисциплины выбраны" if teacher_record.disciplines else ("Направление указано" if teacher_record.speciality else "Добавьте дисциплины") }}</span>
                 <span class="admin-status {% if teacher_record.bio %}status-good{% else %}status-warm{% endif %}">{{ "Есть описание" if teacher_record.bio else "Нужно описание" }}</span>
                 <span class="admin-status {% if teacher_record.email or teacher_record.telegram %}status-good{% else %}status-warm{% endif %}">{{ "Контакт указан" if teacher_record.email or teacher_record.telegram else "Нужен контакт" }}</span>
               </div>
@@ -638,7 +667,17 @@
                 </label>
                 <label>
                   <span>Направление</span>
-                  <input type="text" name="direction_key" value="{{ teacher_group_edit.direction_key if teacher_group_edit else teacher_record.speciality }}" placeholder="Python для новичков">
+                  <input type="text" name="direction_key" value="{{ teacher_group_edit.direction_key if teacher_group_edit else ((teacher_record.disciplines or [teacher_record.speciality])|first) }}" placeholder="Python для новичков" list="teacher-discipline-list">
+                  <datalist id="teacher-discipline-list">
+                    {% for discipline in teacher_record.disciplines or [] %}
+                    <option value="{{ discipline }}"></option>
+                    {% endfor %}
+                    {% if not teacher_record.disciplines %}
+                    {% for course in teacher_course_options %}
+                    <option value="{{ course.name }}"></option>
+                    {% endfor %}
+                    {% endif %}
+                  </datalist>
                 </label>
                 <label>
                   <span>Длительность занятия</span>
