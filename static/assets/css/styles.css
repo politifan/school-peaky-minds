@@ -14151,7 +14151,7 @@ body.shell-marketing .pm-sticky-telegram__close {
   }
 
   body.shell-marketing .pm-promo-window__countdown {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   body.shell-marketing .pm-promo-window__actions {
@@ -14168,37 +14168,43 @@ body.shell-marketing .pm-sticky-telegram__close {
     top: 72px;
     right: 6px;
     left: auto;
-    max-width: min(calc(100vw - 12px), 360px);
-    gap: 8px;
-    padding: 8px 8px 8px 10px;
+    max-width: min(calc(100vw - 12px), 300px);
+    gap: 6px;
+    min-height: 40px;
+    padding: 6px 7px 6px 8px;
   }
 
   body.shell-marketing .pm-promo-teaser__badge {
-    min-width: 50px;
-    min-height: 28px;
-    padding: 0 10px;
+    min-width: 44px;
+    min-height: 26px;
+    padding: 0 8px;
+    font-size: 0.78rem;
   }
 
   body.shell-marketing .pm-promo-teaser__copy strong {
-    font-size: 0.72rem;
+    font-size: 0.66rem;
   }
 
   body.shell-marketing .pm-promo-teaser__copy small {
-    font-size: 0.76rem;
+    display: none;
   }
 
   body.shell-marketing .pm-promo-teaser__countdown {
-    min-width: 148px;
-    gap: 4px;
+    min-width: 128px;
+    gap: 3px;
   }
 
   body.shell-marketing .pm-countdown--teaser .pm-countdown__item {
-    padding: 7px 6px 6px;
-    border-radius: 12px;
+    padding: 5px 4px 4px;
+    border-radius: 10px;
   }
 
   body.shell-marketing .pm-countdown--teaser .pm-countdown__item strong {
-    font-size: 0.84rem;
+    font-size: 0.76rem;
+  }
+
+  body.shell-marketing .pm-countdown--teaser .pm-countdown__item span {
+    font-size: 0.56rem;
   }
 
   body.shell-marketing .pm-promo-teaser__action {

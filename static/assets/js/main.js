@@ -1198,8 +1198,12 @@ const parseNumber = (value) => Number(String(value || '').replace(/[^\d]/g, ''))
 const countdownCards = document.querySelectorAll('[data-countdown]');
 
 countdownCards.forEach((card) => {
-  const deadline = new Date(card.dataset.deadline || '');
+  let deadline = new Date(card.dataset.deadline || '');
   if (Number.isNaN(deadline.getTime())) return;
+  if (deadline.getTime() <= Date.now()) {
+    const now = new Date();
+    deadline = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  }
 
   const daysNode = card.querySelector('[data-countdown-days]');
   const hoursNode = card.querySelector('[data-countdown-hours]');

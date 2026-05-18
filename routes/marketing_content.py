@@ -1,12 +1,15 @@
+import calendar
 import json
 import re
 from copy import deepcopy
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 MARKETING_CONFIG_FILE = BASE_DIR / "config" / "marketing_config.json"
+MOSCOW_TZ = timezone(timedelta(hours=3))
 
 
 DEFAULT_MARKETING_RUNTIME: Dict[str, Any] = {
@@ -32,6 +35,49 @@ DEFAULT_MARKETING_RUNTIME: Dict[str, Any] = {
         "poster": "/assets/img/logo.png",
     },
 }
+
+
+def _next_month_end_deadline(now: datetime | None = None) -> tuple[str, str]:
+    current = now or datetime.now(MOSCOW_TZ)
+    if current.tzinfo is None:
+        current = current.replace(tzinfo=MOSCOW_TZ)
+    current = current.astimezone(MOSCOW_TZ)
+
+    year = current.year
+    month = current.month
+    last_day = calendar.monthrange(year, month)[1]
+    deadline = datetime(year, month, last_day, 23, 59, 59, tzinfo=MOSCOW_TZ)
+
+    if deadline <= current:
+        month += 1
+        if month > 12:
+            year += 1
+            month = 1
+        last_day = calendar.monthrange(year, month)[1]
+        deadline = datetime(year, month, last_day, 23, 59, 59, tzinfo=MOSCOW_TZ)
+
+    return deadline.isoformat(), f"\u0434\u043e {deadline.day}.{deadline.month:02d}"
+
+
+def _deadline_is_future(value: Any) -> bool:
+    try:
+        deadline = datetime.fromisoformat(str(value or "").replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    if deadline.tzinfo is None:
+        deadline = deadline.replace(tzinfo=MOSCOW_TZ)
+    return deadline > datetime.now(MOSCOW_TZ)
+
+
+def _refresh_offer_deadline(offer: Dict[str, Any]) -> Dict[str, Any]:
+    if not isinstance(offer, dict):
+        return offer
+    if _deadline_is_future(offer.get("deadline_iso")):
+        return offer
+    deadline_iso, deadline_label = _next_month_end_deadline()
+    offer["deadline_iso"] = deadline_iso
+    offer["deadline_label"] = deadline_label
+    return offer
 
 
 TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
@@ -1029,6 +1075,7 @@ def save_marketing_runtime_settings(updates: Dict[str, Any]) -> Dict[str, Any]:
 def build_homepage_marketing() -> Dict[str, Any]:
     payload = deepcopy(HOME_MARKETING)
     payload["promo"] = deepcopy(MARKETING_RUNTIME["promo"])
+    _refresh_offer_deadline(payload["promo"])
     payload["video"] = deepcopy(MARKETING_RUNTIME["video"])
     payload["intent_nav"] = _build_home_intent_nav()
     payload["compare_tracks"] = _build_home_compare_tracks()
@@ -1142,9 +1189,11 @@ def get_track_marketing(course_key: str) -> Dict[str, Any]:
         },
     }
     if course_key not in TRACK_MARKETING:
+        _refresh_offer_deadline(default["offer"])
         return default
     payload = deepcopy(default)
     payload.update(deepcopy(TRACK_MARKETING[course_key]))
+    _refresh_offer_deadline(payload["offer"])
     return payload
 
 
