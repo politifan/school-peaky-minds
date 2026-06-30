@@ -94,7 +94,7 @@
         >
           <div class="pm-course-card__top">
             <span class="pm-course-card__label">{{ course.track_label }}</span>
-            <span class="pm-course-card__price">от {{ course.price }}</span>
+            <span class="pm-course-card__price">до {{ course.price }}</span>
           </div>
           <h3>{{ course.name }}</h3>
           <p>{{ course.marketing.summary }}</p>
@@ -108,7 +108,7 @@
           </div>
           <div class="pm-course-card__micro">
             <strong>{{ course.marketing.slogan }}</strong>
-            <span>{{ course.marketing.offer.discount }} и {{ course.marketing.offer.seats_left }} мест по спеццене</span>
+            <span>{{ course.marketing.roi.time_to_offer }} мес. до первой оплачиваемой роли</span>
           </div>
           <div class="pm-course-card__actions">
             <a class="btn btn-secondary" href="{{ course.path }}">Смотреть программу</a>

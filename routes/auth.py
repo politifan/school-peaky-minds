@@ -587,41 +587,6 @@ async def login_email_page(request: Request):
 @router.post("/login/vk-bridge", include_in_schema=False)
 async def login_vk_bridge(request: Request):
     return RedirectResponse("/login?error=Вход+через+VK+отключен", status_code=HTTP_302_FOUND)
-    return RedirectResponse("/login?error=Вход+через+VK+отключен", status_code=HTTP_302_FOUND)
-    try:
-        payload = await request.json()
-    except Exception:
-        return RedirectResponse("/login?error=Некорректные+данные", status_code=HTTP_302_FOUND)
-
-    vk_id = payload.get("id")
-    if not vk_id:
-        return RedirectResponse("/login?error=Нет+данных+VK", status_code=HTTP_302_FOUND)
-
-    users = load_json(USERS_FILE, {})
-    user_id = f"vk:{vk_id}"
-    existing = users.get(user_id) if isinstance(users, dict) else None
-    if not isinstance(existing, dict):
-        existing = {}
-    name = f"{payload.get('first_name', '')} {payload.get('last_name', '')}".strip() or "VK User"
-    phone = existing.get("phone") or payload.get("phone") or payload.get("mobile_phone")
-    email = payload.get("email") or existing.get("email")
-    user = {
-        "id": user_id,
-        "email": email,
-        "name": name,
-        "phone": phone,
-        "provider": "vk",
-    }
-    session_user = _build_login_session_user(
-        users,
-        user_id,
-        user,
-        photo_url=payload.get("photo_200") or payload.get("photo_100"),
-    )
-    save_json(USERS_FILE, users)
-
-    set_current_user(request, session_user)
-    return RedirectResponse("/", status_code=HTTP_302_FOUND)
 
 
 @router.post("/login/email", include_in_schema=False)
@@ -947,47 +912,11 @@ async def auth_github(request: Request):
 @router.get("/login/vk", include_in_schema=False)
 async def login_vk(request: Request):
     return render(request, "login.html", login_context(request, error="Вход через VK отключен"))
-    if not (oauth and providers["vk"]):
-        return render(request, "login.html", login_context(request, error="VK OAuth не настроен"))
-    redirect_uri = build_redirect_uri(request, "auth_vk")
-    return await oauth.vk.authorize_redirect(request, redirect_uri)
 
 
 @router.get("/auth/vk/callback", include_in_schema=False, name="auth_vk")
 async def auth_vk(request: Request):
     return render(request, "login.html", login_context(request, error="Вход через VK отключен"))
-    if not oauth:
-        return render(request, "login.html", login_context(request, error="VK OAuth не настроен"))
-    try:
-        token = await oauth.vk.authorize_access_token(request)
-        user_resp = await oauth.vk.get("users.get", params={"v": "5.131", "fields": "photo_200"})
-        profile = user_resp.json().get("response", [{}])[0]
-    except OAuthError:
-        return render(request, "login.html", login_context(request, error="Ошибка авторизации VK"))
-
-    users = load_json(USERS_FILE, {})
-    user_id = f"vk:{profile.get('id')}"
-    existing = users.get(user_id) if isinstance(users, dict) else None
-    if not isinstance(existing, dict):
-        existing = {}
-    phone = (
-        existing.get("phone")
-        or profile.get("mobile_phone")
-        or profile.get("phone")
-        or token.get("phone")
-    )
-    user = {
-        "id": user_id,
-        "email": token.get("email") or existing.get("email"),
-        "name": f"{profile.get('first_name', '')} {profile.get('last_name', '')}".strip() or existing.get("name"),
-        "phone": phone,
-        "provider": "vk",
-    }
-    session_user = _build_login_session_user(users, user_id, user, photo_url=profile.get("photo_200"))
-    save_json(USERS_FILE, users)
-
-    set_current_user(request, session_user)
-    return RedirectResponse("/", status_code=HTTP_302_FOUND)
 
 
 @router.get("/login/telegram", include_in_schema=False)

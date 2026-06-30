@@ -14,10 +14,10 @@ MOSCOW_TZ = timezone(timedelta(hours=3))
 
 DEFAULT_MARKETING_RUNTIME: Dict[str, Any] = {
     "promo": {
-        "label": "Спецпредложение апреля",
+        "label": "Актуальное предложение",
         "discount": "-20%",
         "deadline_iso": "2026-05-01T23:59:59+03:00",
-        "deadline_label": "до 1 мая",
+        "deadline_label": "",
         "seats_left": 3,
         "summary": "Фиксируем место в мини-группе и текущую цену до конца акции.",
     },
@@ -98,7 +98,7 @@ TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
         "offer": {
             "discount": "-15%",
             "deadline_iso": "2026-05-01T23:59:59+03:00",
-            "deadline_label": "до 1 мая",
+            "deadline_label": "",
             "seats_left": 4,
         },
         "alumni": {
@@ -125,7 +125,7 @@ TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
         "offer": {
             "discount": "-15%",
             "deadline_iso": "2026-05-01T23:59:59+03:00",
-            "deadline_label": "до 1 мая",
+            "deadline_label": "",
             "seats_left": 4,
         },
         "alumni": {
@@ -152,7 +152,7 @@ TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
         "offer": {
             "discount": "-15%",
             "deadline_iso": "2026-05-01T23:59:59+03:00",
-            "deadline_label": "до 1 мая",
+            "deadline_label": "",
             "seats_left": 5,
         },
         "alumni": {
@@ -179,7 +179,7 @@ TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
         "offer": {
             "discount": "-20%",
             "deadline_iso": "2026-05-01T23:59:59+03:00",
-            "deadline_label": "до 1 мая",
+            "deadline_label": "",
             "seats_left": 4,
         },
         "alumni": {
@@ -206,7 +206,7 @@ TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
         "offer": {
             "discount": "-20%",
             "deadline_iso": "2026-05-01T23:59:59+03:00",
-            "deadline_label": "до 1 мая",
+            "deadline_label": "",
             "seats_left": 3,
         },
         "alumni": {
@@ -233,7 +233,7 @@ TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
         "offer": {
             "discount": "-20%",
             "deadline_iso": "2026-05-01T23:59:59+03:00",
-            "deadline_label": "до 1 мая",
+            "deadline_label": "",
             "seats_left": 3,
         },
         "alumni": {
@@ -260,7 +260,7 @@ TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
         "offer": {
             "discount": "-15%",
             "deadline_iso": "2026-05-01T23:59:59+03:00",
-            "deadline_label": "до 1 мая",
+            "deadline_label": "",
             "seats_left": 4,
         },
         "alumni": {
@@ -287,7 +287,7 @@ TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
         "offer": {
             "discount": "-15%",
             "deadline_iso": "2026-05-01T23:59:59+03:00",
-            "deadline_label": "до 1 мая",
+            "deadline_label": "",
             "seats_left": 4,
         },
         "alumni": {
@@ -314,7 +314,7 @@ TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
         "offer": {
             "discount": "-15%",
             "deadline_iso": "2026-05-01T23:59:59+03:00",
-            "deadline_label": "до 1 мая",
+            "deadline_label": "",
             "seats_left": 4,
         },
         "alumni": {
@@ -341,7 +341,7 @@ TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
         "offer": {
             "discount": "-15%",
             "deadline_iso": "2026-05-01T23:59:59+03:00",
-            "deadline_label": "до 1 мая",
+            "deadline_label": "",
             "seats_left": 4,
         },
         "alumni": {
@@ -368,7 +368,7 @@ TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
         "offer": {
             "discount": "-20%",
             "deadline_iso": "2026-05-01T23:59:59+03:00",
-            "deadline_label": "до 1 мая",
+            "deadline_label": "",
             "seats_left": 3,
         },
         "alumni": {
@@ -395,7 +395,7 @@ TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
         "offer": {
             "discount": "-15%",
             "deadline_iso": "2026-05-01T23:59:59+03:00",
-            "deadline_label": "до 1 мая",
+            "deadline_label": "",
             "seats_left": 4,
         },
         "alumni": {
@@ -422,7 +422,7 @@ TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
         "offer": {
             "discount": "-20%",
             "deadline_iso": "2026-05-01T23:59:59+03:00",
-            "deadline_label": "до 1 мая",
+            "deadline_label": "",
             "seats_left": 3,
         },
         "alumni": {
@@ -449,7 +449,7 @@ TRACK_MARKETING: Dict[str, Dict[str, Any]] = {
         "offer": {
             "discount": "-20%",
             "deadline_iso": "2026-05-01T23:59:59+03:00",
-            "deadline_label": "до 1 мая",
+            "deadline_label": "",
             "seats_left": 3,
         },
         "alumni": {

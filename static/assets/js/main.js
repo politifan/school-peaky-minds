@@ -127,12 +127,6 @@ const mountTelegramWidget = () => {
 runAfterPageLoad(initNonCriticalAnalytics, 1500);
 mountTelegramWidget();
 runAfterPageLoad(mountTelegramWidget, 300);
-runAfterPageLoad(() => {
-  if (window.vkBridge && typeof window.vkBridge.send === 'function') {
-    window.vkBridge.send('VKWebAppInit').catch(() => {});
-  }
-}, 300);
-
 document.querySelectorAll('.pm-provider-telegram .pm-provider-button').forEach((button) => {
   button.addEventListener('click', () => {
     const node = document.querySelector('[data-telegram-widget]');
@@ -1243,76 +1237,6 @@ if (stickyTelegram && stickyTelegramClose) {
     stickyTelegram.hidden = true;
     safeSessionStorage.set(stickyTelegramStorageKey, '1');
   });
-}
-
-const promoWindow = document.querySelector('[data-promo-window]');
-const promoTeaser = document.querySelector('[data-promo-teaser]');
-
-if (promoWindow && promoTeaser) {
-  const pageKey = `${window.location.pathname || '/'}`;
-  const promoDismissKey = `pm-promo-dismissed:${pageKey}`;
-  const promoMinimizeKey = `pm-promo-minimized:${pageKey}`;
-  const minimizeButton = promoWindow.querySelector('[data-promo-minimize]');
-  const dismissButton = promoWindow.querySelector('[data-promo-dismiss]');
-
-  const hideWindow = () => {
-    promoWindow.classList.remove('is-visible');
-    window.setTimeout(() => {
-      if (!promoWindow.classList.contains('is-visible')) {
-        promoWindow.hidden = true;
-      }
-    }, 220);
-  };
-
-  const showWindow = () => {
-    promoWindow.hidden = false;
-    promoTeaser.hidden = true;
-    window.requestAnimationFrame(() => {
-      promoWindow.classList.add('is-visible');
-    });
-  };
-
-  const showTeaser = () => {
-    hideWindow();
-    promoTeaser.hidden = false;
-  };
-
-  const dismissPromo = () => {
-    hideWindow();
-    promoTeaser.hidden = true;
-    safeSessionStorage.set(promoDismissKey, '1');
-    safeSessionStorage.set(promoMinimizeKey, '0');
-  };
-
-  const minimizePromo = () => {
-    showTeaser();
-    safeSessionStorage.set(promoMinimizeKey, '1');
-  };
-
-  const restorePromo = () => {
-    showWindow();
-    safeSessionStorage.set(promoMinimizeKey, '0');
-  };
-
-  if (safeSessionStorage.get(promoDismissKey) === '1') {
-    promoWindow.hidden = true;
-    promoTeaser.hidden = true;
-  } else {
-    promoWindow.hidden = true;
-    promoWindow.classList.remove('is-visible');
-    promoTeaser.hidden = false;
-    safeSessionStorage.set(promoMinimizeKey, '1');
-  }
-
-  if (minimizeButton) {
-    minimizeButton.addEventListener('click', minimizePromo);
-  }
-
-  if (dismissButton) {
-    dismissButton.addEventListener('click', dismissPromo);
-  }
-
-  promoTeaser.addEventListener('click', restorePromo);
 }
 
 const coursePresetButtons = document.querySelectorAll('[data-course-preset]');

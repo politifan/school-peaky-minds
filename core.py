@@ -223,39 +223,47 @@ def course_rate(course: Optional[str], duration: Optional[str] = None) -> Option
         return None
 
     course_rates = {
-        "python для новичков": 500,
-        "front-end разработчик": 700,
-        "backend разработчик": 800,
-        "full-stack разработчик": 1000,
-        "тестировщик": 700,
-        "аналитик данных": 700,
+        "python для новичков": 750,
+        "front-end разработчик": 1000,
+        "frontend разработчик": 1000,
+        "backend разработчик": 1000,
+        "full-stack разработчик": 1200,
+        "тестировщик": 1000,
+        "qa automation": 1000,
+        "аналитик данных": 800,
         "бизнес-аналитик": 800,
-        "системный аналитик": 700,
-        "data science / ml engineer": 1000,
-        "data science / ml": 1000,
-        "системный администратор": 700,
-        "devops инженер": 1000,
+        "системный аналитик": 1000,
+        "data science / ml engineer": 1500,
+        "data science / ml": 1500,
+        "системный администратор": 800,
+        "devops инженер": 1200,
         "автоматизация бизнеса": 1000,
         "программирование для бизнеса": 1000,
+        "1c-разработчик": 1000,
+        "1с-разработчик": 1000,
+        "product manager": 1000,
     }
 
     base_rate = course_rates.get(value)
     if base_rate is None:
         alias_matches = [
-            ("python", 500),
-            ("front", 700),
-            ("backend", 800),
-            ("full", 1000),
-            ("qa", 700),
-            ("test", 700),
-            ("data science", 1000),
-            ("ml", 1000),
-            ("data analyst", 700),
+            ("python", 750),
+            ("front", 1000),
+            ("backend", 1000),
+            ("full", 1200),
+            ("qa", 1000),
+            ("test", 1000),
+            ("data science", 1500),
+            ("ml", 1500),
+            ("data analyst", 800),
             ("business analyst", 800),
-            ("system analyst", 700),
-            ("sysadmin", 700),
-            ("administrator", 700),
-            ("devops", 1000),
+            ("system analyst", 1000),
+            ("sysadmin", 800),
+            ("administrator", 800),
+            ("devops", 1200),
+            ("product", 1000),
+            ("1c", 1000),
+            ("1с", 1000),
             ("business", 1000),
             ("automation", 1000),
         ]
@@ -1722,6 +1730,7 @@ def send_email_message(recipient: str, subject: str, body: str) -> None:
 
 
 # OAuth setup
+GOOGLE_LOGIN_ENABLED = False
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
@@ -1763,7 +1772,7 @@ TINKOFF_PASSWORD = os.getenv("TINKOFF_PASSWORD") or os.getenv("TINKOFF_SECRET")
 TINKOFF_ENABLED = bool(TINKOFF_TERMINAL_KEY and TINKOFF_PASSWORD)
 
 providers = {
-    "google": bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET),
+    "google": bool(GOOGLE_LOGIN_ENABLED and GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET),
     "github": bool(GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET),
     "telegram": bool(TELEGRAM_BOT_TOKEN and TELEGRAM_BOT_USERNAME),
 }

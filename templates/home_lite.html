@@ -167,7 +167,7 @@
       >
         <div class="pm-course-card__top">
           <span class="pm-course-card__label">{{ course.track_label }}</span>
-          <span class="pm-course-card__price">от {{ course.prices[0].new }}</span>
+          <span class="pm-course-card__price">до {{ course.prices[0].new }}</span>
         </div>
         <h3>{{ course.name }}</h3>
         <p>{{ course.marketing.summary }}</p>
@@ -179,7 +179,7 @@
         </div>
         <div class="pm-course-card__micro">
           <strong>{{ course.marketing.slogan }}</strong>
-          <small>Осталось {{ course.marketing.offer.seats_left }} места по спеццене {{ course.marketing.offer.discount }}</small>
+          <small>{{ course.hero_bullets[1].value }} · {{ course.marketing.salary.range }}</small>
         </div>
         <div class="pm-course-card__actions">
           <a class="btn btn-secondary" href="{{ course.path }}">Смотреть программу</a>

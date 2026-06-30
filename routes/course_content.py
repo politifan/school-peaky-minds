@@ -33,7 +33,7 @@ COURSE_PAGES = {
             },
             {
                 "kicker": "Цена",
-                "value": "от 800 ₽ / час",
+                "value": "до 1200 ₽ / час",
                 "meta": "Пакеты на 1, 3, 6 и 12 месяцев.",
                 "tone": "gradient",
             },
@@ -160,7 +160,7 @@ COURSE_PAGES = {
             },
             {
                 "kicker": "Цена",
-                "value": "от 800 ₽ / час",
+                "value": "до 1500 ₽ / час",
                 "meta": "Снижение ставки при длительных пакетах.",
                 "tone": "gradient",
             },
@@ -287,7 +287,7 @@ COURSE_PAGES = {
             },
             {
                 "kicker": "Цена",
-                "value": "от 800 ₽ / час",
+                "value": "до 1000 ₽ / час",
                 "meta": "Подходит для тех, кто хочет быстро монетизировать навык.",
                 "tone": "gradient",
             },
@@ -414,7 +414,7 @@ COURSE_PAGES = {
             },
             {
                 "kicker": "Цена",
-                "value": "от 425 ₽ / час",
+                "value": "до 750 ₽ / час",
                 "meta": "Подходит для входа в IT без большого барьера.",
                 "tone": "gradient",
             },
@@ -561,7 +561,7 @@ def _build_standard_course(
             },
             {
                 "kicker": "Цена",
-                "value": "от " + price_int + " ₽ / час",
+                "value": "до " + price_int + " ₽ / час",
                 "meta": "Можно начать точечно и перейти на длинный пакет.",
                 "tone": "gradient",
             },
@@ -908,7 +908,7 @@ def _apply_course_base_price(course, price_from):
 
     for hero_card in course.get("hero_cards", []):
         if str(hero_card.get("kicker") or "").strip() == "Цена":
-            hero_card["value"] = "от " + str(price_int) + " ₽ / час"
+            hero_card["value"] = "до " + str(price_int) + " ₽ / час"
             break
 
 
@@ -926,7 +926,7 @@ COURSE_BASE_PRICES = {
     "devops": 1200,
     "business": 1000,
     "one_c_developer": 1000,
-    "product_manager": 800,
+    "product_manager": 1000,
 }
 
 for _course_key, _price_from in COURSE_BASE_PRICES.items():

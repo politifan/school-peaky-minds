@@ -76,19 +76,11 @@ async def contract_view(request: Request, token: str):
 
     contact_email = core.resolve_contact_email(user, agreement, "")
     telegram_chat_id = core.extract_telegram_chat_id(user, agreement)
-    vk_user_id = core.extract_vk_user_id(user)
     telegram_label = agreement.get("telegram") or (f"ID {telegram_chat_id}" if telegram_chat_id else "")
 
     channels = [
         {"key": "email", "label": "Email", "detail": contact_email or "не указан", "disabled": False},
         {"key": "telegram", "label": "Telegram", "detail": telegram_label or "не указан", "disabled": not telegram_chat_id},
-        {
-            "key": "vk",
-            "label": "VK",
-            "detail": vk_user_id or "не указан",
-            "disabled": not (vk_user_id and core.VK_MESSAGE_TOKEN),
-            "note": "" if core.VK_MESSAGE_TOKEN else "VK не настроен",
-        },
     ]
     default_channel = _resolve_default_channel(channels, core.default_contract_channel(user))
 
@@ -175,11 +167,6 @@ async def contract_send(request: Request, token: str):
             if not chat_id:
                 return RedirectResponse(f"/contract/{token}?error=Telegram+не+привязан", status_code=HTTP_302_FOUND)
             await core.send_telegram_message(chat_id, text)
-        elif channel == "vk":
-            vk_id = core.extract_vk_user_id(user)
-            if not vk_id:
-                return RedirectResponse(f"/contract/{token}?error=VK+не+привязан", status_code=HTTP_302_FOUND)
-            await core.send_vk_message(vk_id, text)
         else:
             return RedirectResponse(f"/contract/{token}?error=Неизвестный+канал", status_code=HTTP_302_FOUND)
     except Exception as exc:

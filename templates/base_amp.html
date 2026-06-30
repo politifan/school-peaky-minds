@@ -158,7 +158,7 @@
               </button>
               <button class="choice-card" type="button" on="tap:AMP.setState({applyPanel: {value: 'contact'}})">
                 <span class="choice-title">Хочу связаться сам</span>
-                <span class="choice-text">Телефон, Telegram и VK автора курса.</span>
+                <span class="choice-text">Телефон и Telegram автора курса.</span>
               </button>
             </div>
           </div>
@@ -240,16 +240,13 @@
             <button class="modal-back" type="button" on="tap:AMP.setState({applyPanel: {value: 'choice'}})">← Назад</button>
             <h3>Связаться напрямую</h3>
             <p>Если хотите обсудить детали напрямую с автором курса.</p>
-            {% if contact_phone or contact_telegram or contact_vk %}
+            {% if contact_phone or contact_telegram %}
             <div class="contact-list">
               {% if contact_phone and contact_phone_link %}
                 <a class="contact-item" href="{{ contact_phone_link }}">Телефон: {{ contact_phone }}</a>
               {% endif %}
               {% if contact_telegram and contact_telegram_link %}
                 <a class="contact-item" href="{{ contact_telegram_link }}" target="_blank" rel="noopener">Telegram: {{ contact_telegram }}</a>
-              {% endif %}
-              {% if contact_vk and contact_vk_link %}
-                <a class="contact-item" href="{{ contact_vk_link }}" target="_blank" rel="noopener">VK: {{ contact_vk }}</a>
               {% endif %}
             </div>
             {% else %}

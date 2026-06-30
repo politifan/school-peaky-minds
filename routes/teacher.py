@@ -323,7 +323,7 @@ async def teacher_group_member_add(request: Request):
     }
     allowed_ids = candidate_ids | set(group.get("member_ids") or [])
     if not agreement_file or agreement_file not in allowed_ids:
-        return _redirect_teacher("groups", teacher_id=teacher_record["id"], error="Р­С‚РѕРіРѕ СѓС‡РµРЅРёРєР° РЅРµР»СЊР·СЏ РґРѕР±Р°РІРёС‚СЊ РІ РіСЂСѓРїРїСѓ.")
+        return _redirect_teacher("groups", teacher_id=teacher_record["id"], error="Этого ученика нельзя добавить в группу.")
     add_group_member(group_id, agreement_file)
     return _redirect_teacher("groups", teacher_id=teacher_record["id"], saved="member_added")
 

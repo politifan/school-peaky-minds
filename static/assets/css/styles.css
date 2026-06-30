@@ -13709,6 +13709,14 @@ body.shell-marketing .pm-price-row {
 
 body.shell-marketing .pm-price-row--featured {
   border-color: #101010;
+  background: linear-gradient(135deg, #101010 0%, #232329 100%);
+  color: #ffffff;
+  box-shadow: 0 18px 42px rgba(16, 16, 16, 0.22);
+}
+
+body.shell-marketing .pm-price-row--featured .pm-price-row__plan,
+body.shell-marketing .pm-price-row--featured .pm-price-row__new {
+  color: #ffffff;
 }
 
 body.shell-marketing .pm-career-banner,
