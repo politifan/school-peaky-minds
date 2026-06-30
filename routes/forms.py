@@ -124,7 +124,6 @@ def normalize_duration(value: object) -> str:
     raw = str(value or "").strip()
     allowed = {
         "Разово",
-        "1 месяц",
         "3 месяца",
         "6 месяцев",
         "12 месяцев",

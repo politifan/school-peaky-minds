@@ -206,8 +206,7 @@
               data-calendar-format-value="{{ month.format }}"
               aria-selected="{{ 'true' if loop.first else 'false' }}"
             >
-              <strong>{{ month.short }}</strong>
-              <span>{{ month.days }}</span>
+              {{ month.tab_label }}
             </button>
             {% endfor %}
           </div>
@@ -228,12 +227,12 @@
         <div class="pm-calendar-grid-preview-wrap">
           {% for month in calendar_preview.window.months %}
           <div class="pm-calendar-grid-preview{% if loop.first %} is-active{% endif %}" data-calendar-panel="{{ month.key }}"{% if not loop.first %} hidden{% endif %}>
-            {% for day in month.days_grid %}
+            {% for day in month.days %}
             <div class="pm-calendar-day-preview{% if day.empty %} is-empty{% elif day.status %} is-{{ day.status }}{% endif %}">
               {% if not day.empty %}
-              <span>{{ day.label }}</span>
-              {% if day.note %}
-              <small>{{ day.note }}</small>
+              <span>{{ day.day }}</span>
+              {% if day.label %}
+              <small>{{ day.label }}</small>
               {% endif %}
               {% endif %}
             </div>

@@ -54,10 +54,9 @@ COURSE_PAGES = {
         ],
         "prices": [
             {"plan": "Разовая оплата занятия", "new": "1000 ₽ / час", "featured": True},
-            {"plan": "Пакет на 1 месяц", "old": "1000 ₽ / час", "discount": "-5%", "new": "950 ₽ / час"},
-            {"plan": "Пакет на 3 месяца", "old": "1000 ₽ / час", "discount": "-10%", "new": "900 ₽ / час"},
-            {"plan": "Пакет на 6 месяцев", "old": "1000 ₽ / час", "discount": "-15%", "new": "850 ₽ / час"},
-            {"plan": "Пакет на 12 месяцев", "old": "1000 ₽ / час", "discount": "-20%", "new": "800 ₽ / час"},
+            {"plan": "Пакет на 3 месяца", "old": "1000 ₽ / час", "discount": "-5%", "new": "950 ₽ / час"},
+            {"plan": "Пакет на 6 месяцев", "old": "1000 ₽ / час", "discount": "-10%", "new": "900 ₽ / час"},
+            {"plan": "Пакет на 12 месяцев", "old": "1000 ₽ / час", "discount": "-15%", "new": "850 ₽ / час"},
         ],
         "for_whom_description": "Подходит тем, кто хочет войти в backend не через хаотичный набор роликов, а через сильную техническую базу, структуру и production-подход.",
         "for_whom": [
@@ -124,7 +123,7 @@ COURSE_PAGES = {
         "enroll_heading": "Запись на курс Full-stack",
         "enroll_text": "Подпишите договор и оставьте контакты. Дальше мы подтверждаем оплату, согласуем расписание и собираем стартовый маршрут под ваш уровень.",
         "enroll_value": "Full-stack",
-        "duration_options": ["Разово", "1 месяц", "3 месяца", "6 месяцев", "12 месяцев"],
+        "duration_options": ["Разово", "3 месяца", "6 месяцев", "12 месяцев"],
     },
     "data_science": {
         "name": "Data Science / ML Engineer",
@@ -181,10 +180,9 @@ COURSE_PAGES = {
         ],
         "prices": [
             {"plan": "Разовая оплата занятия", "new": "1000 ₽ / час", "featured": True},
-            {"plan": "Пакет на 1 месяц", "old": "1000 ₽ / час", "discount": "-5%", "new": "950 ₽ / час"},
-            {"plan": "Пакет на 3 месяца", "old": "1000 ₽ / час", "discount": "-10%", "new": "900 ₽ / час"},
-            {"plan": "Пакет на 6 месяцев", "old": "1000 ₽ / час", "discount": "-15%", "new": "850 ₽ / час"},
-            {"plan": "Пакет на 12 месяцев", "old": "1000 ₽ / час", "discount": "-20%", "new": "800 ₽ / час"},
+            {"plan": "Пакет на 3 месяца", "old": "1000 ₽ / час", "discount": "-5%", "new": "950 ₽ / час"},
+            {"plan": "Пакет на 6 месяцев", "old": "1000 ₽ / час", "discount": "-10%", "new": "900 ₽ / час"},
+            {"plan": "Пакет на 12 месяцев", "old": "1000 ₽ / час", "discount": "-15%", "new": "850 ₽ / час"},
         ],
         "for_whom_description": "Подходит тем, кто хочет идти в ML не как в модное слово, а как в техническую дисциплину с данными, метриками и production-ограничениями.",
         "for_whom": [
@@ -251,7 +249,7 @@ COURSE_PAGES = {
         "enroll_heading": "Запись на курс Data Science / ML",
         "enroll_text": "Подпишите договор и оставьте контакты. После оплаты подтверждаем платеж, помогаем со средой и собираем ваш ML-маршрут от первой недели до сильных кейсов.",
         "enroll_value": "Data Science",
-        "duration_options": ["Разово", "1 месяц", "3 месяца", "6 месяцев", "12 месяцев"],
+        "duration_options": ["Разово", "3 месяца", "6 месяцев", "12 месяцев"],
     },
     "business": {
         "name": "Автоматизация бизнеса",
@@ -308,10 +306,9 @@ COURSE_PAGES = {
         ],
         "prices": [
             {"plan": "Разовая оплата занятия", "new": "1000 ₽ / час", "featured": True},
-            {"plan": "Пакет на 1 месяц", "old": "1000 ₽ / час", "discount": "-5%", "new": "950 ₽ / час"},
-            {"plan": "Пакет на 3 месяца", "old": "1000 ₽ / час", "discount": "-10%", "new": "900 ₽ / час"},
-            {"plan": "Пакет на 6 месяцев", "old": "1000 ₽ / час", "discount": "-15%", "new": "850 ₽ / час"},
-            {"plan": "Пакет на 12 месяцев", "old": "1000 ₽ / час", "discount": "-20%", "new": "800 ₽ / час"},
+            {"plan": "Пакет на 3 месяца", "old": "1000 ₽ / час", "discount": "-5%", "new": "950 ₽ / час"},
+            {"plan": "Пакет на 6 месяцев", "old": "1000 ₽ / час", "discount": "-10%", "new": "900 ₽ / час"},
+            {"plan": "Пакет на 12 месяцев", "old": "1000 ₽ / час", "discount": "-15%", "new": "850 ₽ / час"},
         ],
         "for_whom_description": "Подходит тем, кому нужна не академическая разработка, а прикладной Python: быстро собрать инструмент, монетизировать навык и решать понятные задачи бизнеса.",
         "for_whom": [
@@ -378,7 +375,7 @@ COURSE_PAGES = {
         "enroll_heading": "Запись на курс Автоматизация бизнеса",
         "enroll_text": "Подпишите договор и оставьте контакты. Дальше мы подтверждаем оплату, согласуем график и собираем маршрут под ваш контекст: свой бизнес, freelance или automation-роль.",
         "enroll_value": "Business",
-        "duration_options": ["Разово", "1 месяц", "3 месяца", "6 месяцев", "12 месяцев"],
+        "duration_options": ["Разово", "3 месяца", "6 месяцев", "12 месяцев"],
     },
     "python_start": {
         "name": "Python для новичков",
@@ -435,9 +432,8 @@ COURSE_PAGES = {
         ],
         "prices": [
             {"plan": "Разовая оплата занятия", "new": "500 ₽ / час", "featured": True},
-            {"plan": "Пакет на 1 месяц", "old": "500 ₽ / час", "discount": "-5%", "new": "475 ₽ / час"},
-            {"plan": "Пакет на 3 месяца", "old": "500 ₽ / час", "discount": "-10%", "new": "450 ₽ / час"},
-            {"plan": "Пакет на 6 месяцев", "old": "500 ₽ / час", "discount": "-15%", "new": "425 ₽ / час"},
+            {"plan": "Пакет на 3 месяца", "old": "500 ₽ / час", "discount": "-5%", "new": "475 ₽ / час"},
+            {"plan": "Пакет на 6 месяцев", "old": "500 ₽ / час", "discount": "-10%", "new": "450 ₽ / час"},
         ],
         "for_whom_description": "Курс для тех, кто хочет войти в программирование без хаоса, получить сильную базу и быстро увидеть реальный результат своей работы.",
         "for_whom": [
@@ -501,7 +497,7 @@ COURSE_PAGES = {
         "enroll_heading": "Запись на курс Python для новичков",
         "enroll_text": "Подпишите договор и оставьте контакты. Мы подтвердим оплату, подключим вас к обучению и дадим понятный старт без перегруза и хаоса.",
         "enroll_value": "Python для новичков",
-        "duration_options": ["Разово", "1 месяц", "3 месяца", "6 месяцев"],
+        "duration_options": ["Разово", "3 месяца", "6 месяцев"],
     },
 }
 
@@ -521,10 +517,9 @@ def _build_standard_course(
 ):
     breadcrumb_name = "Курс " + name
     price_int = str(int(price_from))
-    price_1 = int(round(price_from * 0.95))
-    price_3 = int(round(price_from * 0.9))
-    price_6 = int(round(price_from * 0.85))
-    price_12 = int(round(price_from * 0.8))
+    price_3 = int(round(price_from * 0.95))
+    price_6 = int(round(price_from * 0.9))
+    price_12 = int(round(price_from * 0.85))
     title_lower = name.lower()
     stack_primary = stack[:6]
     return {
@@ -582,10 +577,9 @@ def _build_standard_course(
         ],
         "prices": [
             {"plan": "Разовая оплата занятия", "new": price_int + " ₽ / час", "featured": True},
-            {"plan": "Пакет на 1 месяц", "old": price_int + " ₽ / час", "discount": "-5%", "new": str(price_1) + " ₽ / час"},
-            {"plan": "Пакет на 3 месяца", "old": price_int + " ₽ / час", "discount": "-10%", "new": str(price_3) + " ₽ / час"},
-            {"plan": "Пакет на 6 месяцев", "old": price_int + " ₽ / час", "discount": "-15%", "new": str(price_6) + " ₽ / час"},
-            {"plan": "Пакет на 12 месяцев", "old": price_int + " ₽ / час", "discount": "-20%", "new": str(price_12) + " ₽ / час"},
+            {"plan": "Пакет на 3 месяца", "old": price_int + " ₽ / час", "discount": "-5%", "new": str(price_3) + " ₽ / час"},
+            {"plan": "Пакет на 6 месяцев", "old": price_int + " ₽ / час", "discount": "-10%", "new": str(price_6) + " ₽ / час"},
+            {"plan": "Пакет на 12 месяцев", "old": price_int + " ₽ / час", "discount": "-15%", "new": str(price_12) + " ₽ / час"},
         ],
         "for_whom_description": "Трек рассчитан на тех, кто хочет не просто пройти курс, а прийти к понятному рабочему результату и профессиональной позиции на рынке.",
         "for_whom": [
@@ -635,7 +629,7 @@ def _build_standard_course(
         "enroll_heading": "Запись на курс " + name,
         "enroll_text": "Подпишите договор и оставьте контакты. Мы подтвердим формат, поможем с маршрутом и подключим вас к обучению без лишних задержек.",
         "enroll_value": name,
-        "duration_options": ["Разово", "1 месяц", "3 месяца", "6 месяцев", "12 месяцев"],
+        "duration_options": ["Разово", "3 месяца", "6 месяцев", "12 месяцев"],
     }
 
 
@@ -887,24 +881,27 @@ COURSE_PAGES.update(
 
 def _build_price_rows(price_from):
     price_int = int(price_from)
-    price_1 = int(round(price_int * 0.95))
-    price_3 = int(round(price_int * 0.9))
-    price_6 = int(round(price_int * 0.85))
-    price_12 = int(round(price_int * 0.8))
+    price_3 = int(round(price_int * 0.95))
+    price_6 = int(round(price_int * 0.9))
+    price_12 = int(round(price_int * 0.85))
     price_label = str(price_int) + " ₽ / час"
     return [
         {"plan": "Разовая оплата занятия", "new": price_label, "featured": True},
-        {"plan": "Пакет на 1 месяц", "old": price_label, "discount": "-5%", "new": str(price_1) + " ₽ / час"},
-        {"plan": "Пакет на 3 месяца", "old": price_label, "discount": "-10%", "new": str(price_3) + " ₽ / час"},
-        {"plan": "Пакет на 6 месяцев", "old": price_label, "discount": "-15%", "new": str(price_6) + " ₽ / час"},
-        {"plan": "Пакет на 12 месяцев", "old": price_label, "discount": "-20%", "new": str(price_12) + " ₽ / час"},
+        {"plan": "Пакет на 3 месяца", "old": price_label, "discount": "-5%", "new": str(price_3) + " ₽ / час"},
+        {"plan": "Пакет на 6 месяцев", "old": price_label, "discount": "-10%", "new": str(price_6) + " ₽ / час"},
+        {"plan": "Пакет на 12 месяцев", "old": price_label, "discount": "-15%", "new": str(price_12) + " ₽ / час"},
     ]
 
 
-def _apply_course_base_price(course, price_from):
+def _apply_course_base_price(course, price_from, course_key=None):
     price_int = int(price_from)
     course["offer_price"] = str(price_int)
     course["prices"] = _build_price_rows(price_int)
+    if course_key == "python_start" or course.get("slug") in {"python-start", "python-beginners"}:
+        course["prices"] = [
+            item for item in course["prices"]
+            if "12" not in str(item.get("plan") or "")
+        ]
 
     for hero_card in course.get("hero_cards", []):
         if str(hero_card.get("kicker") or "").strip() == "Цена":
@@ -931,7 +928,7 @@ COURSE_BASE_PRICES = {
 
 for _course_key, _price_from in COURSE_BASE_PRICES.items():
     if _course_key in COURSE_PAGES:
-        _apply_course_base_price(COURSE_PAGES[_course_key], _price_from)
+        _apply_course_base_price(COURSE_PAGES[_course_key], _price_from, _course_key)
 
 
 HOME_COURSE_KEYS = [

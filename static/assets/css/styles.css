@@ -16036,7 +16036,7 @@ body.shell-marketing.pm-course-page .pm-career-banner__content {
   gap: 30px;
 }
 
-body.shell-marketing.pm-course-page .pm-career-banner .display-title {
+  body.shell-marketing.pm-course-page .pm-career-banner .display-title {
   max-width: 16ch;
   font-size: 3.5rem;
   line-height: 1.08;
@@ -16090,8 +16090,814 @@ body.shell-marketing.pm-course-page .pm-career-banner__card {
     justify-content: flex-start;
   }
 
-  body.shell-marketing.pm-course-page .pm-career-banner .display-title {
+body.shell-marketing.pm-course-page .pm-career-banner .display-title {
     font-size: 2.35rem;
     line-height: 1.12;
   }
+}
+
+/* Theme toggle and dark theme layer */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.theme-toggle__icon {
+  display: none;
+  width: 20px;
+  height: 20px;
+}
+
+.theme-toggle__icon svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.theme-toggle__icon--moon svg {
+  fill: currentColor;
+  stroke: none;
+}
+
+html:not([data-theme="dark"]) .theme-toggle__icon--moon,
+html[data-theme="dark"] .theme-toggle__icon--sun {
+  display: block;
+}
+
+body.shell-marketing .pm-course-card__program {
+  border: 0;
+  background: linear-gradient(135deg, #6d52ff 0%, #4d7dff 48%, #26b89a 100%);
+  color: #ffffff;
+  box-shadow: 0 16px 34px rgba(77, 125, 255, 0.24);
+}
+
+body.shell-marketing .pm-course-card__program:hover,
+body.shell-marketing .pm-course-card__program:focus-visible {
+  color: #ffffff;
+  box-shadow: 0 20px 42px rgba(77, 125, 255, 0.3);
+}
+
+body.shell-student .site-header--student {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 80;
+  background: rgba(24, 24, 31, 0.94);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+body.shell-student .site-main--student {
+  padding-top: 122px;
+}
+
+html[data-theme="dark"] body {
+  background: #0f1117;
+  color: #f3f5fb;
+}
+
+html[data-theme="dark"] body.shell-marketing {
+  --pm-surface: #171a22;
+  --pm-surface-soft: #1d2029;
+  --pm-surface-muted: #242834;
+  --pm-ink: #f5f7ff;
+  --pm-ink-soft: #b8bfce;
+  --pm-text: #f5f7ff;
+  --pm-muted: #b8bfce;
+  --pm-border: rgba(255, 255, 255, 0.12);
+  --pm-stroke: rgba(255, 255, 255, 0.12);
+  --pm-stroke-strong: rgba(255, 255, 255, 0.24);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(109, 82, 255, 0.18), transparent 34%),
+    linear-gradient(180deg, #101219 0%, #0f1117 100%);
+  color: var(--pm-ink);
+}
+
+html[data-theme="dark"] body.shell-student {
+  --pm-student-bg: #0f1117;
+  --pm-student-surface: rgba(23, 26, 34, 0.96);
+  --pm-student-border: rgba(255, 255, 255, 0.12);
+  --pm-student-shadow: 0 24px 50px rgba(0, 0, 0, 0.28);
+  background:
+    radial-gradient(circle at top left, rgba(109, 82, 255, 0.16), transparent 34%),
+    linear-gradient(180deg, #101219 0%, #0f1117 100%);
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-admin {
+  background: #0f1117;
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .site-header--marketing,
+html[data-theme="dark"] body.shell-student .site-header--student,
+html[data-theme="dark"] body.shell-admin .site-header--admin {
+  background: rgba(14, 16, 23, 0.92);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-section--soft,
+html[data-theme="dark"] body.shell-marketing .pm-blog-section--soft {
+  background: #141720;
+}
+
+html[data-theme="dark"] body.shell-marketing .c-card,
+html[data-theme="dark"] body.shell-marketing .pm-project-card,
+html[data-theme="dark"] body.shell-marketing .pm-step-card,
+html[data-theme="dark"] body.shell-marketing .pm-course-card,
+html[data-theme="dark"] body.shell-marketing .pm-metric-card,
+html[data-theme="dark"] body.shell-marketing .pm-testimonial,
+html[data-theme="dark"] body.shell-marketing .pm-audience-card,
+html[data-theme="dark"] body.shell-marketing .pm-home-hero__visual,
+html[data-theme="dark"] body.shell-marketing .pm-course-hero__visual,
+html[data-theme="dark"] body.shell-marketing .pm-video-showcase,
+html[data-theme="dark"] body.shell-marketing .pm-discovery-card,
+html[data-theme="dark"] body.shell-marketing .pm-quiz-card,
+html[data-theme="dark"] body.shell-marketing .pm-salary-guide,
+html[data-theme="dark"] body.shell-marketing .pm-it-facts,
+html[data-theme="dark"] body.shell-marketing .pm-roi-card,
+html[data-theme="dark"] body.shell-marketing .pm-alumni-card,
+html[data-theme="dark"] body.shell-marketing .pm-course-fact,
+html[data-theme="dark"] body.shell-marketing .pm-course-insight,
+html[data-theme="dark"] body.shell-marketing .pm-price-card,
+html[data-theme="dark"] body.shell-marketing .pm-price-note,
+html[data-theme="dark"] body.shell-marketing .pm-outcomes-card,
+html[data-theme="dark"] body.shell-marketing .pm-stack-card,
+html[data-theme="dark"] body.shell-marketing .pm-module-card,
+html[data-theme="dark"] body.shell-marketing .faq-item,
+html[data-theme="dark"] body.shell-marketing .pm-post-card,
+html[data-theme="dark"] body.shell-marketing .pm-blog-card,
+html[data-theme="dark"] body.shell-marketing .pm-story-card,
+html[data-theme="dark"] body.shell-marketing .pm-collection-card,
+html[data-theme="dark"] body.shell-marketing .pm-post-detail__article,
+html[data-theme="dark"] body.shell-marketing .pm-post-aside-card,
+html[data-theme="dark"] body.shell-student .pm-surface-card,
+html[data-theme="dark"] body.shell-student .pm-student-hero,
+html[data-theme="dark"] body.shell-student .pm-student-metric,
+html[data-theme="dark"] body.shell-student .pm-student-overview-card,
+html[data-theme="dark"] body.shell-student .pm-student-schedule-card,
+html[data-theme="dark"] body.shell-student .pm-student-lecture-card,
+html[data-theme="dark"] body.shell-student .pm-contract-card,
+html[data-theme="dark"] body.shell-student .pm-student-pane,
+html[data-theme="dark"] body.shell-student .pm-student-course-card,
+html[data-theme="dark"] body.shell-student .pm-student-subcard,
+html[data-theme="dark"] body.shell-student .pm-student-empty,
+html[data-theme="dark"] body.shell-student .pm-code-block,
+html[data-theme="dark"] body.shell-student .pm-account-shell-nav,
+html[data-theme="dark"] body.shell-admin .admin-shell,
+html[data-theme="dark"] body.shell-admin .admin-panel,
+html[data-theme="dark"] body.shell-admin .admin-card,
+html[data-theme="dark"] body.shell-admin .admin-table-wrap,
+html[data-theme="dark"] body.shell-admin .teacher-panel,
+html[data-theme="dark"] body.shell-admin .teacher-card {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(23, 26, 34, 0.96);
+  color: #f5f7ff;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] body.shell-marketing .display-title,
+html[data-theme="dark"] body.shell-marketing h1,
+html[data-theme="dark"] body.shell-marketing h2,
+html[data-theme="dark"] body.shell-marketing h3,
+html[data-theme="dark"] body.shell-marketing strong,
+html[data-theme="dark"] body.shell-student .display-title,
+html[data-theme="dark"] body.shell-student .section-title,
+html[data-theme="dark"] body.shell-student h1,
+html[data-theme="dark"] body.shell-student h2,
+html[data-theme="dark"] body.shell-student h3,
+html[data-theme="dark"] body.shell-student strong,
+html[data-theme="dark"] body.shell-admin h1,
+html[data-theme="dark"] body.shell-admin h2,
+html[data-theme="dark"] body.shell-admin h3,
+html[data-theme="dark"] body.shell-admin strong {
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing p,
+html[data-theme="dark"] body.shell-marketing li,
+html[data-theme="dark"] body.shell-marketing small,
+html[data-theme="dark"] body.shell-marketing .lead-text,
+html[data-theme="dark"] body.shell-marketing .pm-section-head p,
+html[data-theme="dark"] body.shell-student p,
+html[data-theme="dark"] body.shell-student li,
+html[data-theme="dark"] body.shell-student small,
+html[data-theme="dark"] body.shell-student .section-lead,
+html[data-theme="dark"] body.shell-student .pm-student-note,
+html[data-theme="dark"] body.shell-admin p,
+html[data-theme="dark"] body.shell-admin li,
+html[data-theme="dark"] body.shell-admin small,
+html[data-theme="dark"] body.shell-admin .admin-muted {
+  color: #b8bfce;
+}
+
+html[data-theme="dark"] body.shell-marketing .btn-secondary,
+html[data-theme="dark"] body.shell-student .btn-secondary,
+html[data-theme="dark"] body.shell-admin .btn-secondary,
+html[data-theme="dark"] body.shell-marketing .header-pill,
+html[data-theme="dark"] body.shell-marketing .nav-user--marketing,
+html[data-theme="dark"] body.shell-student .nav-user--marketing {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-price-row,
+html[data-theme="dark"] body.shell-student .pm-student-facts > div,
+html[data-theme="dark"] body.shell-student .pm-tag,
+html[data-theme="dark"] body.shell-student input,
+html[data-theme="dark"] body.shell-student select,
+html[data-theme="dark"] body.shell-student textarea,
+html[data-theme="dark"] body.shell-admin input,
+html[data-theme="dark"] body.shell-admin select,
+html[data-theme="dark"] body.shell-admin textarea {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: #11141c;
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-price-row--featured {
+  background: linear-gradient(135deg, #6d52ff 0%, #4d7dff 100%);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-price-row--featured .pm-price-row__plan,
+html[data-theme="dark"] body.shell-marketing .pm-price-row--featured .pm-price-row__new {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-course-card__chips span,
+html[data-theme="dark"] body.shell-marketing .pm-chip-cloud span,
+html[data-theme="dark"] body.shell-marketing .c-pill,
+html[data-theme="dark"] body.shell-student .pm-student-badge,
+html[data-theme="dark"] body.shell-student .pm-student-mini-tag,
+html[data-theme="dark"] body.shell-student .pm-account-shell-nav__link {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
+  color: #eef2ff;
+}
+
+html[data-theme="dark"] body.shell-student .pm-account-shell-nav__link.is-active,
+html[data-theme="dark"] body.shell-marketing .c-pill.is-active,
+html[data-theme="dark"] body.shell-marketing .pm-course-quick-filter.is-active {
+  border-color: rgba(109, 82, 255, 0.72);
+  background: linear-gradient(135deg, rgba(109, 82, 255, 0.94), rgba(77, 125, 255, 0.94));
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .site-footer--marketing,
+html[data-theme="dark"] body.shell-student .site-footer--student {
+  background: #0b0d12;
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .modal-content,
+html[data-theme="dark"] body.shell-student .modal-content {
+  background: #171a22;
+  color: #f5f7ff;
+}
+
+body.shell-marketing .pm-course-card__actions .pm-course-card__program,
+html[data-theme="dark"] body.shell-marketing .pm-course-card__actions .pm-course-card__program {
+  border-color: transparent;
+  background-color: transparent;
+  background-image: linear-gradient(135deg, #6d52ff 0%, #4d7dff 48%, #26b89a 100%);
+  color: #ffffff;
+  box-shadow: 0 16px 34px rgba(77, 125, 255, 0.24);
+}
+
+body.shell-marketing .pm-course-card__actions .pm-course-card__program:hover,
+body.shell-marketing .pm-course-card__actions .pm-course-card__program:focus-visible,
+html[data-theme="dark"] body.shell-marketing .pm-course-card__actions .pm-course-card__program:hover,
+html[data-theme="dark"] body.shell-marketing .pm-course-card__actions .pm-course-card__program:focus-visible {
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 20px 42px rgba(77, 125, 255, 0.3);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-hero-card,
+html[data-theme="dark"] body.shell-marketing .pm-home-hero__trust li,
+html[data-theme="dark"] body.shell-marketing .pm-course-manifesto,
+html[data-theme="dark"] body.shell-marketing .pm-course-glance,
+html[data-theme="dark"] body.shell-marketing .pm-course-glance--dark,
+html[data-theme="dark"] body.shell-marketing .pm-course-glance--gradient,
+html[data-theme="dark"] body.shell-marketing .pm-decision-card,
+html[data-theme="dark"] body.shell-marketing .pm-fit-check,
+html[data-theme="dark"] body.shell-marketing .pm-decision-fact,
+html[data-theme="dark"] body.shell-marketing .pm-fit-check__card {
+  border-color: rgba(255, 255, 255, 0.13);
+  background: linear-gradient(180deg, rgba(25, 28, 37, 0.98), rgba(18, 21, 30, 0.98));
+  color: #f5f7ff;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-hero-card strong,
+html[data-theme="dark"] body.shell-marketing .pm-home-hero__trust strong,
+html[data-theme="dark"] body.shell-marketing .pm-course-manifesto strong,
+html[data-theme="dark"] body.shell-marketing .pm-course-glance strong,
+html[data-theme="dark"] body.shell-marketing .pm-decision-fact strong,
+html[data-theme="dark"] body.shell-marketing .pm-fit-check__card strong {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-hero-card span,
+html[data-theme="dark"] body.shell-marketing .pm-home-hero__trust span,
+html[data-theme="dark"] body.shell-marketing .pm-course-manifesto span,
+html[data-theme="dark"] body.shell-marketing .pm-course-glance span,
+html[data-theme="dark"] body.shell-marketing .pm-decision-fact p,
+html[data-theme="dark"] body.shell-marketing .pm-fit-check__card p {
+  color: #b8bfce;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-hero__aside,
+html[data-theme="dark"] body.shell-marketing .pm-journal-promo,
+html[data-theme="dark"] body.shell-marketing .pm-journal-toolbar,
+html[data-theme="dark"] body.shell-marketing .pm-auth-hero,
+html[data-theme="dark"] body.shell-marketing .pm-auth-card,
+html[data-theme="dark"] body.shell-marketing .pm-auth-verify,
+html[data-theme="dark"] body.shell-marketing .pm-email-login,
+html[data-theme="dark"] body.shell-marketing .pm-email-login__side-card {
+  border-color: rgba(255, 255, 255, 0.13);
+  background: linear-gradient(180deg, rgba(25, 28, 37, 0.98), rgba(18, 21, 30, 0.98));
+  color: #f5f7ff;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-hero__aside strong,
+html[data-theme="dark"] body.shell-marketing .pm-journal-promo h3,
+html[data-theme="dark"] body.shell-marketing .pm-auth-card h2,
+html[data-theme="dark"] body.shell-marketing .pm-auth-hero h1,
+html[data-theme="dark"] body.shell-marketing .pm-email-login h1,
+html[data-theme="dark"] body.shell-marketing .pm-email-login h2 {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-hero__aside span,
+html[data-theme="dark"] body.shell-marketing .pm-journal-promo p,
+html[data-theme="dark"] body.shell-marketing .pm-auth-card p,
+html[data-theme="dark"] body.shell-marketing .pm-auth-form__hint,
+html[data-theme="dark"] body.shell-marketing .pm-auth-form__link,
+html[data-theme="dark"] body.shell-marketing .pm-email-login p {
+  color: #b8bfce;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-chip,
+html[data-theme="dark"] body.shell-marketing .pm-course-quick-filter,
+html[data-theme="dark"] body.shell-marketing .pm-journal-search,
+html[data-theme="dark"] body.shell-marketing .pm-course-sort,
+html[data-theme="dark"] body.shell-marketing .pm-course-sort select,
+html[data-theme="dark"] body.shell-marketing .pm-provider-button,
+html[data-theme="dark"] body.shell-marketing .pm-auth-form input,
+html[data-theme="dark"] body.shell-marketing .pm-auth-form select,
+html[data-theme="dark"] body.shell-marketing .pm-auth-form textarea,
+html[data-theme="dark"] body.shell-marketing .pm-email-login input,
+html[data-theme="dark"] body.shell-marketing .pm-email-login select,
+html[data-theme="dark"] body.shell-marketing .pm-email-login textarea {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-chip small,
+html[data-theme="dark"] body.shell-marketing .pm-journal-search input,
+html[data-theme="dark"] body.shell-marketing .pm-journal-search span,
+html[data-theme="dark"] body.shell-marketing .pm-course-sort span,
+html[data-theme="dark"] body.shell-marketing .pm-provider-button span,
+html[data-theme="dark"] body.shell-marketing .pm-auth-form label,
+html[data-theme="dark"] body.shell-marketing .auth-label {
+  color: #d7dcec;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-search input::placeholder,
+html[data-theme="dark"] body.shell-marketing .pm-auth-form input::placeholder,
+html[data-theme="dark"] body.shell-marketing .pm-email-login input::placeholder {
+  color: #8f98ad;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-provider-button.is-disabled {
+  border-color: rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.06);
+  color: #9ca5b8;
+  opacity: 1;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-provider-button.is-disabled span {
+  color: #9ca5b8;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-provider-button.is-disabled .pm-provider-button__badge {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-home-hero__statement,
+html[data-theme="dark"] body.shell-marketing .pm-hero-manifesto,
+html[data-theme="dark"] body.shell-marketing .pm-hero-card,
+html[data-theme="dark"] body.shell-marketing .pm-feature-card,
+html[data-theme="dark"] body.shell-marketing .pm-course-manifesto,
+html[data-theme="dark"] body.shell-marketing .pm-course-glance,
+html[data-theme="dark"] body.shell-marketing .pm-course-glance--dark,
+html[data-theme="dark"] body.shell-marketing .pm-course-glance--gradient,
+html[data-theme="dark"] body.shell-marketing .pm-decision-card,
+html[data-theme="dark"] body.shell-marketing .pm-fit-check,
+html[data-theme="dark"] body.shell-marketing .pm-decision-fact,
+html[data-theme="dark"] body.shell-marketing .pm-fit-check__card,
+html[data-theme="dark"] body.shell-marketing .pm-start-step,
+html[data-theme="dark"] body.shell-marketing .pm-auth-hero,
+html[data-theme="dark"] body.shell-marketing .pm-auth-card,
+html[data-theme="dark"] body.shell-marketing .pm-journal-hero__aside,
+html[data-theme="dark"] body.shell-marketing .pm-journal-promo,
+html[data-theme="dark"] body.shell-marketing .pm-not-found__frame,
+html[data-theme="dark"] body.shell-marketing .pm-not-found__grid > * {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, rgba(24, 27, 36, 0.98), rgba(15, 18, 27, 0.98));
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-home-hero__statement h2,
+html[data-theme="dark"] body.shell-marketing .pm-home-hero__statement strong,
+html[data-theme="dark"] body.shell-marketing .pm-hero-manifesto strong,
+html[data-theme="dark"] body.shell-marketing .pm-feature-card strong,
+html[data-theme="dark"] body.shell-marketing .pm-hero-card strong,
+html[data-theme="dark"] body.shell-marketing .pm-course-manifesto strong,
+html[data-theme="dark"] body.shell-marketing .pm-course-glance strong,
+html[data-theme="dark"] body.shell-marketing .pm-decision-card h3,
+html[data-theme="dark"] body.shell-marketing .pm-decision-fact strong,
+html[data-theme="dark"] body.shell-marketing .pm-fit-check h2,
+html[data-theme="dark"] body.shell-marketing .pm-fit-check__card strong,
+html[data-theme="dark"] body.shell-marketing .pm-start-step strong,
+html[data-theme="dark"] body.shell-marketing .pm-auth-hero h1,
+html[data-theme="dark"] body.shell-marketing .pm-auth-card h2,
+html[data-theme="dark"] body.shell-marketing .pm-journal-promo h3,
+html[data-theme="dark"] body.shell-marketing .pm-not-found__frame strong {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-home-hero__statement p,
+html[data-theme="dark"] body.shell-marketing .pm-home-hero__statement span,
+html[data-theme="dark"] body.shell-marketing .pm-hero-manifesto p,
+html[data-theme="dark"] body.shell-marketing .pm-hero-manifesto span,
+html[data-theme="dark"] body.shell-marketing .pm-feature-card p,
+html[data-theme="dark"] body.shell-marketing .pm-hero-card span,
+html[data-theme="dark"] body.shell-marketing .pm-course-manifesto p,
+html[data-theme="dark"] body.shell-marketing .pm-course-manifesto span,
+html[data-theme="dark"] body.shell-marketing .pm-course-glance span,
+html[data-theme="dark"] body.shell-marketing .pm-decision-card p,
+html[data-theme="dark"] body.shell-marketing .pm-decision-fact p,
+html[data-theme="dark"] body.shell-marketing .pm-fit-check p,
+html[data-theme="dark"] body.shell-marketing .pm-fit-check__card p,
+html[data-theme="dark"] body.shell-marketing .pm-start-step p,
+html[data-theme="dark"] body.shell-marketing .pm-auth-hero p,
+html[data-theme="dark"] body.shell-marketing .pm-auth-card p,
+html[data-theme="dark"] body.shell-marketing .pm-journal-promo p,
+html[data-theme="dark"] body.shell-marketing .pm-not-found__frame span {
+  color: #b8bfce;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-course-hero__visual-pills span,
+html[data-theme="dark"] body.shell-marketing .tag-grid .tag,
+html[data-theme="dark"] body.shell-marketing .pm-chip-cloud span,
+html[data-theme="dark"] body.shell-marketing .pm-course-card__chips span,
+html[data-theme="dark"] body.shell-marketing .pm-faculty-card__chips span,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-chip,
+html[data-theme="dark"] body.shell-marketing .pm-student-mini-tag {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: #eef2ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-provider-button__badge {
+  background: linear-gradient(135deg, rgba(109, 82, 255, 0.9), rgba(38, 184, 154, 0.72));
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-chip.is-active,
+html[data-theme="dark"] body.shell-marketing .pm-journal-chip[aria-pressed="true"],
+html[data-theme="dark"] body.shell-marketing .pm-course-quick-filter.is-active {
+  border-color: rgba(109, 82, 255, 0.78);
+  background: linear-gradient(135deg, #6d52ff 0%, #4d7dff 100%);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-chip.is-active small,
+html[data-theme="dark"] body.shell-marketing .pm-journal-chip[aria-pressed="true"] small {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-inline-alert,
+html[data-theme="dark"] body.shell-marketing .input-hint,
+html[data-theme="dark"] body.shell-marketing .input-status {
+  color: #b8bfce;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-inline-alert--error,
+html[data-theme="dark"] body.shell-marketing .input-error {
+  color: #ffb4b4;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-blog-featured,
+html[data-theme="dark"] body.shell-marketing .pm-posts-lead,
+html[data-theme="dark"] body.shell-marketing .pm-journal-feature,
+html[data-theme="dark"] body.shell-marketing .pm-post-card__body,
+html[data-theme="dark"] body.shell-marketing .pm-blog-stat,
+html[data-theme="dark"] body.shell-marketing .faq-item {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, rgba(24, 27, 36, 0.98), rgba(15, 18, 27, 0.98));
+  color: #f5f7ff;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-blog-featured h2,
+html[data-theme="dark"] body.shell-marketing .pm-blog-featured h3,
+html[data-theme="dark"] body.shell-marketing .pm-posts-lead h2,
+html[data-theme="dark"] body.shell-marketing .pm-journal-feature h2,
+html[data-theme="dark"] body.shell-marketing .pm-post-card__body h3,
+html[data-theme="dark"] body.shell-marketing .pm-blog-stat strong,
+html[data-theme="dark"] body.shell-marketing .faq-question,
+html[data-theme="dark"] body.shell-marketing .faq-item button {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-blog-featured p,
+html[data-theme="dark"] body.shell-marketing .pm-posts-lead p,
+html[data-theme="dark"] body.shell-marketing .pm-journal-feature p,
+html[data-theme="dark"] body.shell-marketing .pm-post-card__body p,
+html[data-theme="dark"] body.shell-marketing .pm-post-card__meta,
+html[data-theme="dark"] body.shell-marketing .pm-blog-stat span,
+html[data-theme="dark"] body.shell-marketing .faq-answer {
+  color: #b8bfce;
+}
+
+html[data-theme="dark"] body.shell-marketing .faq-item button::after {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-post-prose blockquote {
+  border-left-color: #7c65ff;
+  background: rgba(109, 82, 255, 0.13);
+  color: #eef2ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-email-login__form,
+html[data-theme="dark"] body.shell-marketing .pm-email-login__input-shell {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-email-login__input-shell:focus-within {
+  border-color: rgba(124, 101, 255, 0.72);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 4px rgba(109, 82, 255, 0.14);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-email-login__input-shell span {
+  background: #0b0d12;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-email-login__footer,
+html[data-theme="dark"] body.shell-marketing .pm-email-login__footer a {
+  color: #b8bfce;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-email-login__trust span {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f7ff;
+}
+
+body.shell-marketing .pm-course-glance--dark {
+  border-color: rgba(17, 18, 24, 0.12);
+  background: #111827;
+  color: #ffffff;
+}
+
+body.shell-marketing .pm-course-glance--gradient {
+  border-color: transparent;
+  background: linear-gradient(135deg, #6d52ff 0%, #4d7dff 52%, #26b89a 100%);
+  color: #ffffff;
+}
+
+body.shell-marketing .pm-course-glance--dark strong,
+body.shell-marketing .pm-course-glance--gradient strong,
+body.shell-marketing .pm-course-glance--dark .pm-course-glance__kicker,
+body.shell-marketing .pm-course-glance--gradient .pm-course-glance__kicker {
+  color: #ffffff;
+}
+
+body.shell-marketing .pm-course-glance--dark span,
+body.shell-marketing .pm-course-glance--gradient span {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+body.shell-marketing .pm-email-login__side-card h2,
+body.shell-marketing .pm-email-login__side-card .course-meta,
+body.shell-marketing .pm-email-login__steps span {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-not-found__redirect {
+  color: #b8bfce;
+}
+
+body.shell-marketing .pm-journal-art__badge {
+  background: rgba(255, 255, 255, 0.72);
+  color: #202431;
+}
+
+body.shell-marketing .pm-journal-art__headline {
+  color: #101010;
+}
+
+body.shell-marketing .pm-journal-art__note {
+  color: rgba(17, 18, 24, 0.78);
+}
+
+body.shell-marketing .pm-enroll-panel__auth p {
+  color: #51586a;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-art__badge {
+  background: rgba(11, 13, 18, 0.54);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-art {
+  background:
+    linear-gradient(rgba(8, 10, 16, 0.58), rgba(8, 10, 16, 0.58)),
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.16), transparent 32%),
+    linear-gradient(140deg, var(--journal-primary) 0%, var(--journal-secondary) 58%, var(--journal-tertiary) 100%);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-art__headline {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-art__note {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-enroll-panel__auth p {
+  color: #b8bfce;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-feature-card span,
+html[data-theme="dark"] body.shell-marketing .pm-feature-card p {
+  color: #b8bfce;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-faculty-media__placeholder {
+  background:
+    radial-gradient(circle at 18% 16%, rgba(109, 82, 255, 0.34), transparent 30%),
+    linear-gradient(135deg, rgba(109, 82, 255, 0.24), rgba(15, 18, 27, 0.98));
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-faculty-card,
+html[data-theme="dark"] body.shell-marketing .pm-faculty-card--portrait {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, rgba(24, 27, 36, 0.98), rgba(15, 18, 27, 0.98));
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-faculty-card h3,
+html[data-theme="dark"] body.shell-marketing .pm-faculty-card strong {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-faculty-card p,
+html[data-theme="dark"] body.shell-marketing .pm-faculty-card .course-meta {
+  color: #b8bfce;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-course-nav,
+html[data-theme="dark"] body.shell-marketing .pm-course-nav__inner {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(17, 20, 29, 0.92);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-course-nav a {
+  color: #d7dcec;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-course-nav a.is-active,
+html[data-theme="dark"] body.shell-marketing .pm-course-nav a[aria-current="true"] {
+  background: #0b0d12;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-section-jump-wrap {
+  background: transparent;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-section-jump {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(17, 20, 29, 0.92);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-section-jump__link {
+  color: #d7dcec;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-section-jump__link.is-active {
+  background: #0b0d12;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-email-login__input-shell input[type="email"] {
+  background: transparent;
+  color: #f5f7ff;
+  -webkit-text-fill-color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-email-login__input-shell input[type="email"]::placeholder {
+  color: #9da6b8;
+  opacity: 1;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-toolbar {
+  gap: 14px;
+  background: transparent;
+  width: 100%;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-course-sort {
+  flex: 0 1 380px;
+  min-width: 0;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-course-sort select {
+  min-width: 0;
+  max-width: 240px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-results {
+  flex: 0 0 auto;
+  color: #b8bfce;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, rgba(24, 27, 36, 0.98), rgba(15, 18, 27, 0.98));
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-window__top h3,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview span {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .course-meta,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-grid-preview--head span,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview small,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-legend span {
+  color: #b8bfce;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview.is-empty {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+body.shell-marketing .pm-hero-card--secondary {
+  border-color: rgba(17, 18, 24, 0.16);
+  background:
+    linear-gradient(rgba(18, 20, 28, 0.72), rgba(18, 20, 28, 0.72)),
+    radial-gradient(circle at 100% 0%, rgba(255, 216, 107, 0.16), transparent 34%),
+    linear-gradient(180deg, #282b34 0%, #181b24 100%);
+  color: #ffffff;
+}
+
+body.shell-marketing .pm-hero-card--secondary strong {
+  color: #ffffff;
+}
+
+body.shell-marketing .pm-hero-card--secondary span {
+  color: rgba(255, 255, 255, 0.82);
 }

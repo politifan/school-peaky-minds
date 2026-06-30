@@ -209,10 +209,9 @@ def duration_discount_percent(duration: Optional[str]) -> int:
     value = (duration or "").strip().lower()
     mapping = {
         "разово": 0,
-        "1 месяц": 5,
-        "3 месяца": 10,
-        "6 месяцев": 15,
-        "12 месяцев": 20,
+        "3 месяца": 5,
+        "6 месяцев": 10,
+        "12 месяцев": 15,
     }
     return int(mapping.get(value, 0))
 

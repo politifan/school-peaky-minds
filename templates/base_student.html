@@ -6,13 +6,26 @@
   <title>{% block title %}Peaky Minds - личный кабинет{% endblock %}</title>
   <meta name="description" content="{% block description %}Личный кабинет Peaky Minds: договоры, прогресс, материалы и оплата обучения.{% endblock %}">
   <meta name="theme-color" content="#f5f5ef">
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem("pm-theme");
+        var systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme = stored || (systemDark ? "dark" : "light");
+        document.documentElement.dataset.theme = theme === "dark" ? "dark" : "light";
+        document.documentElement.style.colorScheme = theme === "dark" ? "dark" : "light";
+      } catch (error) {
+        document.documentElement.dataset.theme = "light";
+      }
+    })();
+  </script>
   <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
   <link rel="shortcut icon" href="/assets/img/favicon.ico">
   <link rel="apple-touch-icon" href="/assets/img/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/css/styles.css?v=20260630-course-polish">
+  <link rel="stylesheet" href="/assets/css/styles.css?v=20260630-dark-contrast-15">
   {% block extra_head %}{% endblock %}
 </head>
 <body class="shell-student {% block body_class %}{% endblock %}">
@@ -32,6 +45,14 @@
       </nav>
 
       <div class="site-header__actions">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Переключить тему" title="Переключить тему">
+          <span class="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path d="M20.5 15.2A8.2 8.2 0 0 1 8.8 3.5a8.6 8.6 0 1 0 11.7 11.7Z"/></svg>
+          </span>
+          <span class="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2 12h2.2M19.8 12H22M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg>
+          </span>
+        </button>
         {% block student_header_actions %}
         {% if user %}
         <a class="nav-user nav-user--marketing" href="/account">
@@ -137,7 +158,7 @@
     });
   </script>
   {% endif %}
-  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/main.js?v=20260630-theme-toggle"></script>
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>

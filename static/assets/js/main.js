@@ -3,6 +3,40 @@ const modals = document.querySelectorAll('.modal');
 const closeButtons = document.querySelectorAll('[data-close-modal]');
 const pmRuntimeConfig = window.pmRuntimeConfig || {};
 
+const themeToggles = document.querySelectorAll('[data-theme-toggle]');
+const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+
+const applyTheme = (theme, persist = false) => {
+  const normalizedTheme = theme === 'dark' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = normalizedTheme;
+  document.documentElement.style.colorScheme = normalizedTheme;
+  if (themeColorMeta) {
+    themeColorMeta.setAttribute('content', normalizedTheme === 'dark' ? '#0f1117' : '#f6f6f2');
+  }
+  themeToggles.forEach((toggle) => {
+    const nextThemeLabel = normalizedTheme === 'dark' ? 'светлую' : 'тёмную';
+    toggle.setAttribute('aria-label', `Включить ${nextThemeLabel} тему`);
+    toggle.setAttribute('title', `Включить ${nextThemeLabel} тему`);
+    toggle.setAttribute('aria-pressed', normalizedTheme === 'dark' ? 'true' : 'false');
+  });
+  if (persist) {
+    try {
+      window.localStorage.setItem('pm-theme', normalizedTheme);
+    } catch (error) {
+      // Ignore storage errors in private or restricted browser modes.
+    }
+  }
+};
+
+applyTheme(document.documentElement.dataset.theme || 'light');
+
+themeToggles.forEach((toggle) => {
+  toggle.addEventListener('click', () => {
+    const currentTheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+    applyTheme(currentTheme === 'dark' ? 'light' : 'dark', true);
+  });
+});
+
 const runAfterPageLoad = (callback, delay = 0) => {
   const schedule = () => {
     if ('requestIdleCallback' in window) {
