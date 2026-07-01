@@ -199,7 +199,7 @@
     <div class="pm-video-showcase reveal">
       <div class="pm-video-showcase__copy">
         <div class="eyebrow eyebrow--dark">{{ marketing.video.eyebrow }}</div>
-        <h2 class="display-title">Промо-блок под эффектный ролик уже готов</h2>
+        <h2 class="display-title">Посмотрите, как устроен учебный ритм</h2>
         <p>{{ marketing.video.description }}</p>
       </div>
       <div class="pm-video-showcase__stage">
@@ -614,7 +614,7 @@
       <p>{{ marketing.teachers_showcase.description }}</p>
     </div>
 
-    <div class="pm-faculty-grid{% if marketing.teachers_showcase.cards|length == 1 %} pm-faculty-grid--single{% endif %} reveal">
+    <div class="pm-faculty-grid pm-faculty-carousel reveal">
       {% for item in marketing.teachers_showcase.cards %}
       <article
         class="pm-faculty-card pm-faculty-card--{{ item.variant }}"
@@ -675,7 +675,7 @@
 
     {% if marketing.teachers_showcase.note %}
     <div class="pm-faculty-showcase__note reveal">
-      <strong>Тестовый showcase</strong>
+      <strong>Преподаватели</strong>
       <p>{{ marketing.teachers_showcase.note }}</p>
     </div>
     {% endif %}

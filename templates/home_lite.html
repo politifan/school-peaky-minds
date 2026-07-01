@@ -207,7 +207,7 @@
       <p>{{ marketing.teachers_showcase.description }}</p>
     </div>
 
-    <div class="pm-faculty-grid{% if marketing.teachers_showcase.cards|length == 1 %} pm-faculty-grid--single{% endif %} reveal">
+    <div class="pm-faculty-grid pm-faculty-carousel reveal">
       {% for item in marketing.teachers_showcase.cards %}
       <article
         class="pm-faculty-card pm-faculty-card--{{ item.variant }}"
@@ -277,7 +277,7 @@
         <div class="eyebrow eyebrow--dark">Наши плюсы</div>
         <h2 class="display-title">Только суть: почему этот формат реально работает</h2>
       </div>
-      <p>Без длинных объяснений на главной. Здесь только короткие опоры, а детали по формату, календарю, записям и FAQ вынесены на отдельную страницу.</p>
+      <p>Коротко показываем главное: практика, обратная связь, онлайн-ритм и понятный путь от первых задач к портфолио.</p>
     </div>
 
     <div class="pm-feature-grid reveal">

@@ -17215,3 +17215,122 @@ html[data-theme="dark"] body.shell-marketing .pm-faculty-card__facts span {
   background: rgba(109, 82, 255, 0.16);
   color: #ffffff;
 }
+
+/* Final field, faculty carousel and avatar polish */
+html[data-theme="dark"] body.shell-marketing input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="dark"] body.shell-marketing select,
+html[data-theme="dark"] body.shell-marketing textarea,
+html[data-theme="dark"] body.shell-student input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="dark"] body.shell-student select,
+html[data-theme="dark"] body.shell-student textarea,
+html[data-theme="dark"] body.shell-admin input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="dark"] body.shell-admin select,
+html[data-theme="dark"] body.shell-admin textarea,
+html[data-theme="dark"] body.shell-marketing .pm-journal-search,
+html[data-theme="dark"] body.shell-marketing .pm-course-sort,
+html[data-theme="dark"] body.shell-marketing .pm-email-login__input-shell {
+  border-color: rgba(126, 139, 170, 0.28);
+  background: rgba(15, 19, 28, 0.96);
+  color: #f5f7ff;
+  -webkit-text-fill-color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing input:not([type="checkbox"]):not([type="radio"]):focus,
+html[data-theme="dark"] body.shell-marketing select:focus,
+html[data-theme="dark"] body.shell-marketing textarea:focus,
+html[data-theme="dark"] body.shell-student input:not([type="checkbox"]):not([type="radio"]):focus,
+html[data-theme="dark"] body.shell-student select:focus,
+html[data-theme="dark"] body.shell-student textarea:focus,
+html[data-theme="dark"] body.shell-admin input:not([type="checkbox"]):not([type="radio"]):focus,
+html[data-theme="dark"] body.shell-admin select:focus,
+html[data-theme="dark"] body.shell-admin textarea:focus {
+  border-color: rgba(93, 125, 255, 0.72);
+  box-shadow: 0 0 0 3px rgba(93, 125, 255, 0.16);
+  outline: none;
+}
+
+html[data-theme="dark"] body.shell-marketing input::placeholder,
+html[data-theme="dark"] body.shell-marketing textarea::placeholder,
+html[data-theme="dark"] body.shell-student input::placeholder,
+html[data-theme="dark"] body.shell-student textarea::placeholder,
+html[data-theme="dark"] body.shell-admin input::placeholder,
+html[data-theme="dark"] body.shell-admin textarea::placeholder {
+  color: #8f98ad;
+  -webkit-text-fill-color: #8f98ad;
+  opacity: 1;
+}
+
+body.shell-marketing .pm-faculty-carousel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(320px, 520px);
+  grid-template-columns: none;
+  justify-content: start;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 2px 14px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+
+body.shell-marketing .pm-faculty-carousel .pm-faculty-card {
+  scroll-snap-align: start;
+}
+
+body.shell-marketing .pm-faculty-carousel::-webkit-scrollbar {
+  height: 8px;
+}
+
+body.shell-marketing .pm-faculty-carousel::-webkit-scrollbar-track {
+  background: rgba(17, 17, 17, 0.06);
+  border-radius: 999px;
+}
+
+body.shell-marketing .pm-faculty-carousel::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #6d52ff, #4d7dff);
+  border-radius: 999px;
+}
+
+body.shell-marketing .pm-faculty-media__placeholder {
+  isolation: isolate;
+}
+
+body.shell-marketing .pm-faculty-media__placeholder strong {
+  display: grid;
+  place-items: center;
+  width: 34%;
+  min-width: 96px;
+  aspect-ratio: 1;
+  margin: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--pm-faculty-accent) 20%, #ffffff);
+  color: #ffffff;
+  text-shadow: 0 1px 12px rgba(17, 17, 17, 0.22);
+  box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.72);
+}
+
+body.shell-marketing .pm-faculty-media__placeholder::after {
+  display: none;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-faculty-media__placeholder strong {
+  background: linear-gradient(135deg, var(--pm-faculty-accent), #4d7dff);
+  color: #ffffff;
+  box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.12), 0 18px 42px rgba(0, 0, 0, 0.28);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-faculty-media__placeholder small {
+  color: #d7dcec;
+}
+
+body.shell-marketing .pm-story-avatar {
+  flex: 0 0 54px;
+  line-height: 1;
+  text-align: center;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-story-avatar {
+  background: color-mix(in srgb, var(--story-accent) 28%, #171a22);
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
