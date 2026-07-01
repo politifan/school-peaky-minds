@@ -17131,3 +17131,87 @@ html[data-theme="dark"] body.shell-student .site-main--student.site-main--studen
     radial-gradient(circle at 18% 0%, rgba(109, 82, 255, 0.18), transparent 34%),
     linear-gradient(180deg, #101219 0%, #0f1117 100%);
 }
+
+/* Follow-up contrast and header polish */
+body.shell-marketing .site-header--marketing .btn-secondary:hover,
+body.shell-marketing .site-header--marketing .btn-secondary:focus-visible,
+body.shell-marketing .site-header--marketing .site-header__admin:hover,
+body.shell-marketing .site-header--marketing .site-header__admin:focus-visible,
+body.shell-marketing .site-header--marketing .nav-user--marketing:hover,
+body.shell-marketing .site-header--marketing .nav-user--marketing:focus-visible {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+body.shell-student .nav-links--student a:hover,
+body.shell-student .nav-links--student a:focus-visible,
+body.shell-student .nav-links--student a[aria-current="page"],
+html[data-theme="dark"] body.shell-student .nav-links--student a:hover,
+html[data-theme="dark"] body.shell-student .nav-links--student a:focus-visible,
+html[data-theme="dark"] body.shell-student .nav-links--student a[aria-current="page"] {
+  color: #ffffff;
+}
+
+body.shell-student .nav-links--student a::after {
+  background: linear-gradient(135deg, #6d52ff 0%, #4d7dff 100%);
+}
+
+body.shell-marketing .modal-content input,
+body.shell-marketing .modal-content select,
+body.shell-marketing .modal-content textarea {
+  color: #111111;
+  -webkit-text-fill-color: #111111;
+}
+
+body.shell-marketing .modal-content input::placeholder,
+body.shell-marketing .modal-content textarea::placeholder {
+  color: #8b95a5;
+  -webkit-text-fill-color: #8b95a5;
+  opacity: 1;
+}
+
+html[data-theme="dark"] body.shell-marketing .modal-content input,
+html[data-theme="dark"] body.shell-marketing .modal-content select,
+html[data-theme="dark"] body.shell-marketing .modal-content textarea {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: #11141c;
+  color: #f5f7ff;
+  -webkit-text-fill-color: #f5f7ff;
+  caret-color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .modal-content input:-webkit-autofill,
+html[data-theme="dark"] body.shell-marketing .modal-content input:-webkit-autofill:hover,
+html[data-theme="dark"] body.shell-marketing .modal-content input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #11141c inset;
+  -webkit-text-fill-color: #f5f7ff;
+  caret-color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .modal-content input::placeholder,
+html[data-theme="dark"] body.shell-marketing .modal-content textarea::placeholder {
+  color: #9da6b8;
+  -webkit-text-fill-color: #9da6b8;
+  opacity: 1;
+}
+
+html[data-theme="dark"] body.shell-marketing .modal-content select option {
+  background: #11141c;
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-faculty-card__chips span,
+html[data-theme="dark"] body.shell-marketing .pm-faculty-card__facts span,
+html[data-theme="dark"] body.shell-marketing .teacher-public__chips span,
+html[data-theme="dark"] body.shell-marketing .teacher-public__stack span {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #eef2ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-faculty-card__facts span {
+  background: rgba(109, 82, 255, 0.16);
+  color: #ffffff;
+}

@@ -934,6 +934,7 @@
 
 <section class="pm-section" id="courses">
   <div class="container" data-course-catalog>
+    {% set featured_home_courses = home_courses[:4] %}
     <div class="pm-section-head reveal">
       <div>
         <div class="eyebrow eyebrow--dark">Направления</div>
@@ -964,7 +965,7 @@
             <option value="direction">По направлению</option>
           </select>
         </label>
-        <span class="pm-student-mini-tag" data-course-filter-count>{{ home_courses|length }} курсов</span>
+        <span class="pm-student-mini-tag" data-course-filter-count>{{ featured_home_courses|length }} курса</span>
       </div>
     </div>
 
@@ -976,7 +977,7 @@
     </div>
 
     <div class="pm-course-grid reveal">
-      {% for course in home_courses %}
+      {% for course in featured_home_courses %}
       <article
         class="pm-course-card"
         data-course-card
