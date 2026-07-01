@@ -17461,3 +17461,136 @@ html[data-theme="dark"] body.shell-admin .referral-note {
   background: rgba(255, 255, 255, 0.08);
   color: #eef2ff;
 }
+
+/* ROI dark theme polish */
+html[data-theme="dark"] body.shell-marketing .pm-roi-page__hero,
+html[data-theme="dark"] body.shell-marketing .pm-roi-entry,
+html[data-theme="dark"] body.shell-marketing .pm-final-cta {
+  border-color: rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(circle at 16% 10%, rgba(109, 82, 255, 0.2), transparent 30%),
+    radial-gradient(circle at 88% 18%, rgba(77, 125, 255, 0.18), transparent 32%),
+    linear-gradient(180deg, rgba(25, 28, 38, 0.98), rgba(18, 21, 30, 0.98));
+  color: #f5f7ff;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-roi-page__copy h1,
+html[data-theme="dark"] body.shell-marketing .pm-roi-page__copy .display-title,
+html[data-theme="dark"] body.shell-marketing .pm-roi-card__copy h3,
+html[data-theme="dark"] body.shell-marketing .pm-roi-stage__headline strong,
+html[data-theme="dark"] body.shell-marketing .pm-final-cta h2,
+html[data-theme="dark"] body.shell-marketing .pm-final-cta strong {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-roi-page__copy p,
+html[data-theme="dark"] body.shell-marketing .pm-roi-proof p,
+html[data-theme="dark"] body.shell-marketing .pm-final-cta p,
+html[data-theme="dark"] body.shell-marketing .pm-roi-card__assumption {
+  color: #c4cbda;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-roi-page__highlight,
+html[data-theme="dark"] body.shell-marketing .pm-roi-entry__track,
+html[data-theme="dark"] body.shell-marketing .pm-roi-card,
+html[data-theme="dark"] body.shell-marketing .pm-roi-bullet,
+html[data-theme="dark"] body.shell-marketing .pm-roi-track,
+html[data-theme="dark"] body.shell-marketing .pm-roi-card__control,
+html[data-theme="dark"] body.shell-marketing .pm-roi-stage,
+html[data-theme="dark"] body.shell-marketing .pm-roi-scenario,
+html[data-theme="dark"] body.shell-marketing .pm-roi-salary-presets button,
+html[data-theme="dark"] body.shell-marketing .pm-roi-metric,
+html[data-theme="dark"] body.shell-marketing .pm-roi-stage__link,
+html[data-theme="dark"] body.shell-marketing .pm-final-cta__form {
+  border-color: rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(circle at top right, rgba(77, 125, 255, 0.12), transparent 42%),
+    linear-gradient(180deg, rgba(31, 35, 46, 0.98), rgba(22, 26, 36, 0.98));
+  color: #f5f7ff;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-roi-track.is-active,
+html[data-theme="dark"] body.shell-marketing .pm-roi-track:hover,
+html[data-theme="dark"] body.shell-marketing .pm-roi-track:focus-visible,
+html[data-theme="dark"] body.shell-marketing .pm-roi-scenario.is-active,
+html[data-theme="dark"] body.shell-marketing .pm-roi-scenario:hover,
+html[data-theme="dark"] body.shell-marketing .pm-roi-scenario:focus-visible,
+html[data-theme="dark"] body.shell-marketing .pm-roi-salary-presets button.is-active {
+  border-color: rgba(93, 125, 255, 0.72);
+  background:
+    radial-gradient(circle at top right, rgba(93, 125, 255, 0.24), transparent 44%),
+    linear-gradient(180deg, rgba(42, 47, 64, 0.98), rgba(29, 34, 48, 0.98));
+  color: #ffffff;
+  box-shadow: 0 18px 40px rgba(77, 125, 255, 0.16);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-roi-page__highlight strong,
+html[data-theme="dark"] body.shell-marketing .pm-roi-entry__track strong,
+html[data-theme="dark"] body.shell-marketing .pm-roi-entry__track span,
+html[data-theme="dark"] body.shell-marketing .pm-roi-bullet strong,
+html[data-theme="dark"] body.shell-marketing .pm-roi-track strong,
+html[data-theme="dark"] body.shell-marketing .pm-roi-track span,
+html[data-theme="dark"] body.shell-marketing .pm-roi-scenario strong,
+html[data-theme="dark"] body.shell-marketing .pm-roi-salary-head strong,
+html[data-theme="dark"] body.shell-marketing .pm-roi-salary-presets button strong,
+html[data-theme="dark"] body.shell-marketing .pm-roi-metric strong,
+html[data-theme="dark"] body.shell-marketing .pm-roi-stage__timeline-head strong,
+html[data-theme="dark"] body.shell-marketing .pm-roi-timeline__segment strong,
+html[data-theme="dark"] body.shell-marketing .pm-roi-proof strong,
+html[data-theme="dark"] body.shell-marketing .pm-compare-card h3,
+html[data-theme="dark"] body.shell-marketing .pm-compare-card strong {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-roi-page__highlight p,
+html[data-theme="dark"] body.shell-marketing .pm-roi-entry__track small,
+html[data-theme="dark"] body.shell-marketing .pm-roi-bullet span,
+html[data-theme="dark"] body.shell-marketing .pm-roi-track small,
+html[data-theme="dark"] body.shell-marketing .pm-roi-scenario span,
+html[data-theme="dark"] body.shell-marketing .pm-roi-salary-head small,
+html[data-theme="dark"] body.shell-marketing .pm-roi-card__label,
+html[data-theme="dark"] body.shell-marketing .pm-roi-metric span,
+html[data-theme="dark"] body.shell-marketing .pm-roi-metric small,
+html[data-theme="dark"] body.shell-marketing .pm-roi-stage__timeline-head span,
+html[data-theme="dark"] body.shell-marketing .pm-roi-timeline__segment span,
+html[data-theme="dark"] body.shell-marketing .pm-roi-stage__headline p,
+html[data-theme="dark"] body.shell-marketing .pm-compare-card p,
+html[data-theme="dark"] body.shell-marketing .pm-compare-card span,
+html[data-theme="dark"] body.shell-marketing .pm-bullet-list li {
+  color: #c4cbda;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-roi-stage__chip {
+  background: rgba(93, 125, 255, 0.22);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-roi-stage__chip--soft {
+  background: rgba(255, 255, 255, 0.08);
+  color: #d7dcec;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-roi-card__manual input {
+  border-color: rgba(126, 139, 170, 0.28);
+  background: rgba(12, 15, 23, 0.98);
+  color: #f5f7ff;
+  -webkit-text-fill-color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-roi-timeline__segment--study,
+html[data-theme="dark"] body.shell-marketing .pm-roi-timeline__segment--payback {
+  border-color: rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(circle at top left, rgba(93, 125, 255, 0.18), transparent 46%),
+    linear-gradient(180deg, rgba(31, 35, 46, 0.98), rgba(22, 26, 36, 0.98));
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-compare-card,
+html[data-theme="dark"] body.shell-marketing .pm-compare-card__stats > div,
+html[data-theme="dark"] body.shell-marketing .pm-compare-card__audience {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(23, 26, 34, 0.96);
+  color: #f5f7ff;
+}
