@@ -17594,3 +17594,103 @@ html[data-theme="dark"] body.shell-marketing .pm-compare-card__audience {
   background: rgba(23, 26, 34, 0.96);
   color: #f5f7ff;
 }
+
+/* Student account final dark-theme polish */
+body.shell-student .pm-account-shell-nav__intro .pm-kicker,
+body.shell-student .pm-student-page--shell .pm-kicker {
+  display: none;
+}
+
+html[data-theme="dark"] body.shell-student .pm-student-form,
+html[data-theme="dark"] body.shell-student .month-picker,
+html[data-theme="dark"] body.shell-student .lesson-calendar {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(16, 19, 28, 0.92);
+  color: #f5f7ff;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] body.shell-student .pm-student-form {
+  padding: 16px;
+  border-radius: 24px;
+}
+
+html[data-theme="dark"] body.shell-student .auth-label,
+html[data-theme="dark"] body.shell-student .month-picker__year .auth-label {
+  color: #c8cedd;
+}
+
+html[data-theme="dark"] body.shell-student .pm-student-form input,
+html[data-theme="dark"] body.shell-student .pm-student-form select,
+html[data-theme="dark"] body.shell-student .pm-student-form textarea,
+html[data-theme="dark"] body.shell-student .month-picker__year select {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: #0f131d;
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-student .pm-student-form input::placeholder,
+html[data-theme="dark"] body.shell-student .pm-student-form textarea::placeholder {
+  color: #8f99ad;
+}
+
+html[data-theme="dark"] body.shell-student .month-pill {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.07);
+  color: #e6eaff;
+}
+
+html[data-theme="dark"] body.shell-student .month-pill:hover,
+html[data-theme="dark"] body.shell-student .month-pill:focus-visible {
+  border-color: rgba(107, 139, 255, 0.5);
+  background: rgba(107, 139, 255, 0.14);
+}
+
+html[data-theme="dark"] body.shell-student .month-pill.is-active {
+  border-color: transparent;
+  background: linear-gradient(135deg, #6d52ff, #4d7dff);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-student .lesson-calendar__day,
+html[data-theme="dark"] body.shell-student .lesson-legend,
+html[data-theme="dark"] body.shell-student .lesson-legend__item {
+  color: #c8cedd;
+}
+
+html[data-theme="dark"] body.shell-student .lesson-day {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-student .lesson-day--empty {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: transparent;
+}
+
+html[data-theme="dark"] body.shell-student .site-footer--student {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(circle at 24% 12%, rgba(109, 82, 255, 0.16), transparent 32%),
+    radial-gradient(circle at 80% 18%, rgba(77, 125, 255, 0.12), transparent 34%),
+    linear-gradient(180deg, #10131b 0%, #0b0d12 100%);
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-student .site-footer--student .logo--marketing,
+html[data-theme="dark"] body.shell-student .site-footer--student .logo--marketing span,
+html[data-theme="dark"] body.shell-student .site-footer--student .site-footer__column h4 {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-student .site-footer--student .site-footer__intro p,
+html[data-theme="dark"] body.shell-student .site-footer--student .site-footer__column a,
+html[data-theme="dark"] body.shell-student .site-footer--student .site-footer__column span {
+  color: #c8cedd;
+}
+
+html[data-theme="dark"] body.shell-student .site-footer--student .site-footer__column a:hover,
+html[data-theme="dark"] body.shell-student .site-footer--student .site-footer__column a:focus-visible {
+  color: #ffffff;
+}
