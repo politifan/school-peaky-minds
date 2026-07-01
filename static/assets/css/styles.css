@@ -16901,3 +16901,233 @@ body.shell-marketing .pm-hero-card--secondary strong {
 body.shell-marketing .pm-hero-card--secondary span {
   color: rgba(255, 255, 255, 0.82);
 }
+
+/* Theme polish pass: keep shared surfaces consistent after legacy layers. */
+body.shell-marketing .site-header--marketing .header-pill,
+body.shell-marketing .site-header--marketing .header-pill--active {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+body.shell-marketing .site-header--marketing .header-pill:hover,
+body.shell-marketing .site-header--marketing .header-pill:focus-visible,
+body.shell-marketing .site-header--marketing .header-pill--active:hover,
+body.shell-marketing .site-header--marketing .header-pill--active:focus-visible {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+body.shell-marketing .faq-item button {
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+
+body.shell-marketing .faq-item.open .faq-answer,
+body.shell-marketing .faq-item[expanded] .faq-answer {
+  padding-top: 0;
+  padding-bottom: 16px;
+}
+
+body.shell-marketing .faq-answer {
+  line-height: 1.5;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-sticky-telegram {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(23, 26, 34, 0.96);
+  color: #f5f7ff;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-sticky-telegram strong {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-sticky-telegram span,
+html[data-theme="dark"] body.shell-marketing .pm-sticky-telegram p {
+  color: #b8bfce;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-sticky-telegram .btn {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-sticky-telegram__close {
+  color: #b8bfce;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-enroll-panel__form {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-enroll-panel input,
+html[data-theme="dark"] body.shell-marketing .pm-enroll-panel select,
+html[data-theme="dark"] body.shell-marketing .pm-enroll-panel textarea {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: #11141c;
+  color: #f5f7ff;
+  -webkit-text-fill-color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-enroll-panel input::placeholder,
+html[data-theme="dark"] body.shell-marketing .pm-enroll-panel textarea::placeholder {
+  color: #9da6b8;
+  -webkit-text-fill-color: #9da6b8;
+  opacity: 1;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-enroll-panel select option {
+  background: #11141c;
+  color: #f5f7ff;
+}
+
+body.shell-admin .admin-chart__bar > div,
+body.shell-admin .admin-copy.is-active,
+body.shell-admin .admin-filter__presets button:hover,
+body.shell-admin .admin-chip-link.is-active {
+  background: linear-gradient(135deg, #6d52ff 0%, #4d7dff 100%);
+  color: #ffffff;
+}
+
+body.shell-admin .admin-sidebar__nav a:hover,
+body.shell-admin .admin-sidebar__nav a.is-active {
+  border-color: rgba(77, 125, 255, 0.52);
+  background: rgba(77, 125, 255, 0.12);
+}
+
+body.shell-admin .choice-card {
+  background: linear-gradient(135deg, rgba(109, 82, 255, 0.1), rgba(77, 125, 255, 0.1));
+}
+
+body.shell-admin .choice-card:hover,
+body.shell-admin .contact-item:hover {
+  border-color: rgba(77, 125, 255, 0.48);
+}
+
+body.shell-admin .wipe-alert {
+  border-color: rgba(77, 125, 255, 0.36);
+  box-shadow: 0 0 18px rgba(77, 125, 255, 0.18);
+}
+
+body.shell-admin .lesson-dot--proposed {
+  background: rgba(109, 82, 255, 0.24);
+  border-color: rgba(109, 82, 255, 0.52);
+}
+
+body.shell-admin .lesson-dot--approved {
+  background: rgba(77, 125, 255, 0.24);
+  border-color: rgba(77, 125, 255, 0.52);
+}
+
+html[data-theme="dark"] body.shell-admin .panel,
+html[data-theme="dark"] body.shell-admin .card,
+html[data-theme="dark"] body.shell-admin .kpi-card,
+html[data-theme="dark"] body.shell-admin .admin-sidebar,
+html[data-theme="dark"] body.shell-admin .admin-hero,
+html[data-theme="dark"] body.shell-admin .admin-danger-password,
+html[data-theme="dark"] body.shell-admin .admin-collapse,
+html[data-theme="dark"] body.shell-admin .admin-filter,
+html[data-theme="dark"] body.shell-admin .admin-table-wrap,
+html[data-theme="dark"] body.shell-admin .admin-list,
+html[data-theme="dark"] body.shell-admin .referral-discount-panel,
+html[data-theme="dark"] body.shell-admin .danger-zone,
+html[data-theme="dark"] body.shell-admin .month-picker,
+html[data-theme="dark"] body.shell-admin .lesson-calendar {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(23, 26, 34, 0.96);
+  color: #f5f7ff;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] body.shell-admin .kpi-card,
+html[data-theme="dark"] body.shell-admin .admin-table th,
+html[data-theme="dark"] body.shell-admin .admin-table td,
+html[data-theme="dark"] body.shell-admin .admin-list li,
+html[data-theme="dark"] body.shell-admin .admin-badge,
+html[data-theme="dark"] body.shell-admin .admin-chip,
+html[data-theme="dark"] body.shell-admin .admin-chip-link,
+html[data-theme="dark"] body.shell-admin .admin-page-btn,
+html[data-theme="dark"] body.shell-admin .month-pill,
+html[data-theme="dark"] body.shell-admin .lesson-calendar__day,
+html[data-theme="dark"] body.shell-admin .lesson-dot {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #eef2ff;
+}
+
+html[data-theme="dark"] body.shell-admin .admin-sidebar__nav a {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #eef2ff;
+}
+
+html[data-theme="dark"] body.shell-admin .admin-sidebar__nav a:hover,
+html[data-theme="dark"] body.shell-admin .admin-sidebar__nav a.is-active {
+  border-color: rgba(77, 125, 255, 0.58);
+  background: linear-gradient(135deg, rgba(109, 82, 255, 0.34), rgba(77, 125, 255, 0.24));
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-admin .admin-table tr:hover {
+  background: rgba(77, 125, 255, 0.08);
+}
+
+html[data-theme="dark"] body.shell-admin .admin-subtext,
+html[data-theme="dark"] body.shell-admin .admin-sidebar__title,
+html[data-theme="dark"] body.shell-admin .lesson-legend,
+html[data-theme="dark"] body.shell-admin .auth-label {
+  color: #b8bfce;
+}
+
+body.shell-student .site-header--student {
+  position: sticky;
+  top: 0;
+  min-height: 88px;
+  background: rgba(14, 16, 23, 0.92);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+body.shell-student .site-header--student .site-header__inner {
+  min-height: 88px;
+}
+
+body.shell-student .site-header--student .logo--marketing,
+body.shell-student .site-header--student .logo span,
+body.shell-student .nav-links--student a,
+body.shell-student .site-header--student .nav-user__label {
+  color: #ffffff;
+}
+
+body.shell-student .nav-links--student a {
+  color: rgba(255, 255, 255, 0.74);
+}
+
+body.shell-student .site-header--student .btn-secondary,
+body.shell-student .site-header--student .nav-user--marketing {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+body.shell-student .site-main--student,
+body.shell-student .site-main--student.site-main--student-shell {
+  padding-top: 34px;
+}
+
+body.shell-student .pm-account-shell-nav {
+  top: 112px;
+}
+
+html[data-theme="dark"] body.shell-student .site-main--student,
+html[data-theme="dark"] body.shell-student .site-main--student.site-main--student-shell {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(109, 82, 255, 0.18), transparent 34%),
+    linear-gradient(180deg, #101219 0%, #0f1117 100%);
+}
