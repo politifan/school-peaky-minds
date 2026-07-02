@@ -489,6 +489,7 @@ def _build_account_page_context(
         lectures_source=lecture_source,
         lectures_course=lecture_course,
         lectures_page=lecture_page,
+        schedule_month=calendar_month,
     )
     student_group_items = build_student_group_items(agreements_view, agreements_all)
     allowed_workspace_keys = {item["key"] for item in account_content["workspace_tabs"]}

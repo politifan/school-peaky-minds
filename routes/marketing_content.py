@@ -1115,6 +1115,9 @@ def build_homepage_marketing() -> Dict[str, Any]:
     payload["compare_tracks"] = _build_home_compare_tracks()
     teacher_cards = _build_teacher_showcase_cards()
     if teacher_cards:
+        fallback_teacher_cards = deepcopy(HOME_MARKETING["teachers_showcase"]["cards"])
+        if len(teacher_cards) < 3:
+            teacher_cards.extend(fallback_teacher_cards[: 3 - len(teacher_cards)])
         payload["teachers_showcase"] = deepcopy(payload.get("teachers_showcase", {}))
         payload["teachers_showcase"]["description"] = (
             "Наставники ведут мини-группы, проверяют практику и помогают держать маршрут до результата."

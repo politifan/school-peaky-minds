@@ -1541,9 +1541,10 @@ def build_account_content(
     lectures_course: str = "",
     lectures_page: int = 1,
     lectures_per_page: int = 6,
+    schedule_month: str = "",
 ) -> Dict[str, Any]:
     teacher_map = get_teacher_map()
-    schedule_payload = build_account_schedule_payload(agreements, teacher_map=teacher_map)
+    schedule_payload = build_account_schedule_payload(agreements, month=schedule_month, teacher_map=teacher_map)
     homework_payload = build_account_homework_payload(agreements, teacher_map=teacher_map)
     lectures_payload = build_account_lectures_payload(
         agreements,
