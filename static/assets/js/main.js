@@ -1119,7 +1119,9 @@ courseCatalogs.forEach((catalog) => {
   const searchField = catalog.querySelector('[data-course-search]');
   const sortField = catalog.querySelector('[data-course-sort]');
   const emptyNode = catalog.querySelector('[data-course-empty]');
-  const cardsGrid = cards[0]?.parentElement;
+  const cardsGrid = catalog.querySelector('[data-course-primary-grid]') || cards[0]?.parentElement;
+  const otherSection = catalog.querySelector('[data-course-other-section]');
+  const otherGrid = catalog.querySelector('[data-course-other-grid]');
   if (!buttons.length || !cards.length) return;
 
   let activeGroup =
@@ -1134,16 +1136,20 @@ courseCatalogs.forEach((catalog) => {
   const applyCourseFilter = () => {
     const query = (searchField?.value || '').trim().toLowerCase();
     let visibleCount = 0;
-    const visibleCards = [];
+    const matchingCards = [];
+    const otherCards = [];
+    const hasActiveCriteria = activeGroup !== 'all' || Boolean(query);
     cards.forEach((card) => {
       const matchesGroup = activeGroup === 'all' || card.dataset.courseGroup === activeGroup;
       const haystack = card.dataset.courseName || '';
       const matchesQuery = !query || haystack.includes(query);
-      const isVisible = matchesGroup && matchesQuery;
-      card.hidden = !isVisible;
-      if (isVisible) {
+      const isMatch = matchesGroup && matchesQuery;
+      card.hidden = false;
+      if (isMatch) {
         visibleCount += 1;
-        visibleCards.push(card);
+        matchingCards.push(card);
+      } else {
+        otherCards.push(card);
       }
     });
 
@@ -1159,17 +1165,24 @@ courseCatalogs.forEach((catalog) => {
         return (a.dataset.courseName || '').localeCompare(b.dataset.courseName || '', 'ru');
       },
     };
-    visibleCards
-      .sort(comparators[activeSort] || comparators.default)
-      .forEach((card) => {
-        cardsGrid?.appendChild(card);
-      });
+    const comparator = comparators[activeSort] || comparators.default;
+    const primaryCards = hasActiveCriteria ? matchingCards : cards.slice();
+    primaryCards
+      .sort(comparator)
+      .forEach((card) => cardsGrid?.appendChild(card));
 
-    cards.forEach((card) => {
-      if (card.hidden) {
-        cardsGrid?.appendChild(card);
+    if (otherSection && otherGrid) {
+      otherSection.hidden = !hasActiveCriteria || otherCards.length === 0;
+      if (!otherSection.hidden) {
+        otherCards
+          .sort(comparator)
+          .forEach((card) => otherGrid.appendChild(card));
       }
-    });
+    } else {
+      otherCards
+        .sort(comparator)
+        .forEach((card) => cardsGrid?.appendChild(card));
+    }
 
     if (countNode) {
       countNode.textContent = `${visibleCount} курсов`;

@@ -63,10 +63,6 @@
             {% endfor %}
           </select>
         </label>
-        <div class="pm-journal-results">
-          В каталоге видно
-          <strong data-course-filter-count>{{ courses_page.courses | length }} курсов</strong>
-        </div>
       </div>
 
       <div class="pm-posts-lead">
@@ -81,7 +77,7 @@
         </div>
       </div>
 
-      <div class="pm-course-grid">
+      <div class="pm-course-grid" data-course-primary-grid>
         {% for course in courses_page.courses %}
         <article
           class="pm-course-card pm-course-card--catalog"
@@ -116,6 +112,11 @@
           </div>
         </article>
         {% endfor %}
+      </div>
+
+      <div class="pm-course-other-section" data-course-other-section hidden>
+        <h2>Другие курсы</h2>
+        <div class="pm-course-grid pm-course-grid--secondary" data-course-other-grid></div>
       </div>
 
       <div class="pm-posts-empty" data-course-empty hidden>

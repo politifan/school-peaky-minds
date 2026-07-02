@@ -17890,7 +17890,36 @@ html[data-theme="dark"] body.shell-marketing .pm-home-hero__visual::after {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 48%);
 }
 
+html[data-theme="dark"] body.shell-marketing .pm-home-hero__visual::before {
+  border-color: rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(135deg, rgba(21, 25, 36, 0.76), rgba(10, 13, 21, 0.46)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+}
+
 html[data-theme="dark"] body.shell-marketing .pm-home-hero__visual .pm-hero-visual-illustration {
-  filter: saturate(0.92) brightness(0.72);
-  opacity: 0.9;
+  filter: saturate(0.86) brightness(0.56);
+  opacity: 0.82;
+}
+
+body.shell-marketing .pm-course-other-section {
+  margin-top: 44px;
+}
+
+body.shell-marketing .pm-course-other-section h2 {
+  margin: 0 0 18px;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-course-sort,
+html[data-theme="dark"] body.shell-marketing .pm-course-sort select {
+  background: rgba(15, 18, 27, 0.96);
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-course-sort select option {
+  background: #111620;
+  color: #f5f7ff;
 }
