@@ -6847,6 +6847,12 @@ body.shell-marketing .pm-course-card {
   align-content: start;
 }
 
+body.shell-marketing .pm-course-card__actions {
+  align-self: end;
+  margin-top: auto;
+  width: 100%;
+}
+
 body.shell-marketing .pm-course-card__top,
 body.shell-marketing .pm-course-card__actions {
   display: flex;
@@ -17460,6 +17466,267 @@ html[data-theme="dark"] body.shell-admin .referral-note {
   border-color: rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.08);
   color: #eef2ff;
+}
+
+/* Admin contrast and form sizing pass */
+body.shell-admin .panel,
+body.shell-admin .card,
+body.shell-admin .admin-filter,
+body.shell-admin .admin-table-wrap,
+body.shell-admin .admin-list li,
+body.shell-admin .referral-discount-panel {
+  color: #151923;
+}
+
+body.shell-admin .panel h1,
+body.shell-admin .panel h2,
+body.shell-admin .panel h3,
+body.shell-admin .card h1,
+body.shell-admin .card h2,
+body.shell-admin .card h3,
+body.shell-admin .admin-list strong,
+body.shell-admin .admin-section-head h2,
+body.shell-admin .admin-table strong {
+  color: #11141c;
+}
+
+body.shell-admin .admin-subtext,
+body.shell-admin .auth-label,
+body.shell-admin .course-meta,
+body.shell-admin .admin-chip-label,
+body.shell-admin .admin-list span,
+body.shell-admin .referral-note,
+body.shell-admin .referral-warning--muted {
+  color: #5f687c;
+}
+
+body.shell-admin input[type="text"],
+body.shell-admin input[type="password"],
+body.shell-admin input[type="date"],
+body.shell-admin input[type="month"],
+body.shell-admin input[type="time"],
+body.shell-admin input[type="number"],
+body.shell-admin input[type="email"],
+body.shell-admin select,
+body.shell-admin textarea,
+body.shell-admin .admin-input {
+  border-color: #d8deea;
+  background: #ffffff;
+  color: #172032;
+  -webkit-text-fill-color: #172032;
+}
+
+body.shell-admin input::placeholder,
+body.shell-admin textarea::placeholder {
+  color: #8290a4;
+  -webkit-text-fill-color: #8290a4;
+  opacity: 1;
+}
+
+body.shell-admin .admin-filter .btn-secondary,
+body.shell-admin .admin-section-actions .btn-secondary,
+body.shell-admin .admin-copy,
+body.shell-admin .admin-status,
+body.shell-admin .admin-badge,
+body.shell-admin .admin-chip,
+body.shell-admin .admin-chip-link,
+body.shell-admin .admin-page-btn {
+  color: #202737;
+}
+
+@media (min-width: 980px) {
+  body.shell-admin .admin-filter__row {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  }
+
+  body.shell-admin .admin-filter__row .input-wrap {
+    min-width: 180px;
+  }
+
+  body.shell-admin .admin-filter input,
+  body.shell-admin .admin-filter select,
+  body.shell-admin .admin-filter textarea,
+  body.shell-admin .admin-input {
+    min-width: 180px;
+  }
+
+  body.shell-admin .admin-view-referrals .admin-filter__row,
+  body.shell-admin .admin-view-whitelist .admin-filter__row {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  body.shell-admin .admin-view-referrals .admin-filter input,
+  body.shell-admin .admin-view-referrals .admin-filter select,
+  body.shell-admin .admin-view-whitelist .admin-filter input,
+  body.shell-admin .admin-view-whitelist .admin-filter select {
+    min-width: 220px;
+  }
+}
+
+/* How-it-works calendar contrast pass */
+body.shell-marketing .pm-calendar-window--light {
+  border-color: #dfe4ee;
+  background: linear-gradient(180deg, #ffffff 0%, #f4f6fa 100%);
+  color: #171b25;
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-window__top h3,
+body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview span,
+body.shell-marketing .pm-calendar-window--light .pm-calendar-grid-preview--head span {
+  color: #171b25;
+}
+
+body.shell-marketing .pm-calendar-window--light .course-meta,
+body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview small,
+body.shell-marketing .pm-calendar-window--light .pm-calendar-legend span {
+  color: #5c6678;
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month,
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month[aria-selected="false"] {
+  border-color: #d8deea;
+  background: #ffffff;
+  color: #263044;
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month:hover,
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month:focus-visible,
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month[aria-selected="false"]:hover,
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month[aria-selected="false"]:focus-visible {
+  border-color: #b8c2d4;
+  background: #eef2f8;
+  color: #11141c;
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month.is-active,
+body.shell-marketing .pm-calendar-window--light .pm-calendar-month[aria-selected="true"] {
+  border-color: transparent;
+  background: linear-gradient(135deg, #6d52ff 0%, #4d7dff 100%);
+  color: #ffffff;
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-chip,
+body.shell-marketing .pm-calendar-window--light .pm-student-mini-tag {
+  background: #e9edf5;
+  color: #20283a;
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview {
+  border-color: #dce2ec;
+  background: #eef1f6;
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview.is-empty {
+  border-color: #e1e6ef;
+  background: #fafbfe;
+  opacity: 1;
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview.is-live {
+  border-color: #c8bcff;
+  background: linear-gradient(180deg, #eee9ff, #f7f4ff);
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview.is-practice {
+  border-color: #aeead7;
+  background: linear-gradient(180deg, #e4fbf3, #f3fffb);
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview.is-review {
+  border-color: #b5d9ff;
+  background: linear-gradient(180deg, #e7f3ff, #f5fbff);
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview.is-rescheduled {
+  border-color: #ffd89b;
+  background: linear-gradient(180deg, #fff2dc, #fffaf1);
+}
+
+body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview.is-recording {
+  border-color: #cfd6e4;
+  background: linear-gradient(180deg, #ffffff, #eef2f8);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, rgba(20, 24, 34, 0.98), rgba(13, 16, 25, 0.98));
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-window__top h3,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview span,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-grid-preview--head span {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .course-meta,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview small,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-legend span {
+  color: #c4cbda;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-month,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-month[aria-selected="false"] {
+  border-color: rgba(255, 255, 255, 0.13);
+  background: rgba(255, 255, 255, 0.08);
+  color: #dce3f3;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-month:hover,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-month:focus-visible,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-month[aria-selected="false"]:hover,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-month[aria-selected="false"]:focus-visible {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-month.is-active,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-month[aria-selected="true"] {
+  border-color: transparent;
+  background: linear-gradient(135deg, #6d52ff 0%, #4d7dff 100%);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-chip,
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-student-mini-tag {
+  background: rgba(255, 255, 255, 0.1);
+  color: #eef2ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview.is-empty {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview.is-live {
+  border-color: rgba(109, 82, 255, 0.34);
+  background: rgba(109, 82, 255, 0.16);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview.is-practice {
+  border-color: rgba(44, 212, 154, 0.32);
+  background: rgba(44, 212, 154, 0.13);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview.is-review {
+  border-color: rgba(76, 166, 255, 0.34);
+  background: rgba(76, 166, 255, 0.14);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview.is-rescheduled {
+  border-color: rgba(255, 167, 38, 0.36);
+  background: rgba(255, 167, 38, 0.14);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-calendar-window--light .pm-calendar-day-preview.is-recording {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* ROI dark theme polish */
