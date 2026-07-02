@@ -17523,6 +17523,38 @@ body.shell-admin textarea::placeholder {
   opacity: 1;
 }
 
+/* Keep course-card actions aligned across equal-height cards. */
+body.shell-marketing .pm-course-grid {
+  align-items: stretch;
+}
+
+body.shell-marketing .pm-course-card {
+  display: flex;
+  flex-direction: column;
+  align-content: initial;
+  height: 100%;
+}
+
+body.shell-marketing .pm-course-card__top,
+body.shell-marketing .pm-course-card h3,
+body.shell-marketing .pm-course-card > p,
+body.shell-marketing .pm-course-card__chips {
+  flex: 0 0 auto;
+}
+
+body.shell-marketing .pm-course-card__micro {
+  flex: 1 0 auto;
+  display: grid;
+  align-content: end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+body.shell-marketing .pm-course-card__actions {
+  flex: 0 0 auto;
+  margin-top: 18px;
+}
+
 body.shell-admin .admin-filter .btn-secondary,
 body.shell-admin .admin-section-actions .btn-secondary,
 body.shell-admin .admin-copy,
@@ -18189,4 +18221,49 @@ html[data-theme="dark"] body.shell-marketing .pm-course-sort select {
 html[data-theme="dark"] body.shell-marketing .pm-course-sort select option {
   background: #111620;
   color: #f5f7ff;
+}
+
+/* Blog and post section polish */
+body.shell-marketing .pm-blog-featured {
+  margin-top: 38px;
+}
+
+body.shell-marketing .pm-post-aside-card.pm-journal-promo {
+  border-color: rgba(17, 18, 24, 0.14);
+  background:
+    radial-gradient(circle at 18% 10%, rgba(109, 82, 255, 0.2), transparent 36%),
+    radial-gradient(circle at 90% 18%, rgba(77, 125, 255, 0.18), transparent 38%),
+    linear-gradient(180deg, #181c27 0%, #10131b 100%);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+body.shell-marketing .pm-post-aside-card.pm-journal-promo .pm-journal-kicker {
+  background: rgba(109, 82, 255, 0.18);
+  color: #8f7dff;
+}
+
+body.shell-marketing .pm-post-aside-card.pm-journal-promo h3 {
+  color: #ffffff;
+}
+
+body.shell-marketing .pm-post-aside-card.pm-journal-promo p {
+  color: #c8cedd;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-blog-featured {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-journal-art--hero {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(109, 82, 255, 0.18), transparent 34%),
+    linear-gradient(140deg, rgba(43, 96, 137, 0.82) 0%, rgba(57, 74, 111, 0.82) 58%, rgba(68, 82, 128, 0.82) 100%);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-blog-featured .pm-journal-feature,
+html[data-theme="dark"] body.shell-marketing .pm-blog-featured .pm-journal-promo {
+  margin-top: 0;
 }
