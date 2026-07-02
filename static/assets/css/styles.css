@@ -17841,3 +17841,56 @@ html[data-theme="dark"] body.shell-marketing .pm-not-found__path {
     gap: 22px;
   }
 }
+
+/* July 2 follow-up polish */
+body.shell-student {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body.shell-student .site-main--student {
+  flex: 1 0 auto;
+}
+
+body.shell-student .site-footer--student {
+  margin-top: auto;
+}
+
+body.shell-student .pm-settings-card h4 {
+  margin: 10px 0 0;
+  color: var(--pm-text);
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+html[data-theme="dark"] body.shell-student .pm-settings-card h4,
+html[data-theme="dark"] body.shell-student .pm-settings-card strong {
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-student .pm-settings-card .course-meta {
+  color: #9ea8bc;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-home-hero__visual {
+  border-color: rgba(255, 255, 255, 0.14);
+  background:
+    radial-gradient(circle at 28% 24%, rgba(109, 82, 255, 0.24), transparent 34%),
+    radial-gradient(circle at 82% 78%, rgba(77, 125, 255, 0.16), transparent 36%),
+    linear-gradient(180deg, rgba(28, 32, 43, 0.96), rgba(15, 18, 27, 0.98));
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.34);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-home-hero__visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 48%);
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-home-hero__visual .pm-hero-visual-illustration {
+  filter: saturate(0.92) brightness(0.72);
+  opacity: 0.9;
+}

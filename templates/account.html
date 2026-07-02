@@ -377,7 +377,7 @@
           <section class="pm-workspace__panel{% if account_workspace_active == 'settings' %} is-active{% endif %}" data-workspace-panel="settings"{% if account_workspace_active != 'settings' %} hidden{% endif %}>
             <div class="pm-workspace__head">
               <div>
-                <div class="pm-kicker">Settings</div>
+                <div class="pm-kicker">Профиль</div>
                 <h3>Профиль и системные настройки</h3>
               </div>
               <span class="pm-tag">Основные данные аккаунта</span>
@@ -395,8 +395,8 @@
           <section id="student-contracts" class="pm-workspace__panel{% if account_workspace_active == 'documents' %} is-active{% endif %}" data-workspace-panel="documents"{% if account_workspace_active != 'documents' %} hidden{% endif %}>
       <div class="pm-section-head">
         <div>
-          <div class="pm-kicker">Documents</div>
-          <h2 class="section-title">My Contracts</h2>
+          <div class="pm-kicker">Документы</div>
+          <h2 class="section-title">Мои договоры</h2>
         </div>
         <span class="pm-tag">{{ agreements|length }} active</span>
       </div>
@@ -583,7 +583,7 @@
               <section class="pm-student-subcard">
                 <div class="pm-student-subcard__head">
                   <div class="course-meta">Оплата через СБП</div>
-                  <span class="pm-student-mini-tag">{% if payments_enabled %}Online{% else %}Off{% endif %}</span>
+                  <span class="pm-student-mini-tag">{% if payments_enabled %}Онлайн{% else %}Выкл{% endif %}</span>
                 </div>
               {% if payments_enabled %}
               {% set price_value = item.discounted_price if item.discounted_price is not none else item.price_per_lesson %}

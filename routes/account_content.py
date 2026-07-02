@@ -1414,7 +1414,7 @@ def _build_account_hero(
         "metrics": [
             {"label": "Курсов", "value": total_courses},
             {"label": "Подписано договоров", "value": signed_contracts},
-            {"label": "Оплата", "value": "СБП" if payments_enabled else "Offline"},
+            {"label": "Оплата", "value": "СБП" if payments_enabled else "по договорённости"},
             {"label": "Доступ", "value": "Активен" if has_agreements else "Ожидает"},
             {"label": "Ближайшие события", "value": upcoming_events},
             {"label": "Активных ДЗ", "value": homework_open},
@@ -1951,13 +1951,13 @@ def build_account_documents_page(
         "template": "account_documents.html",
         "account_page": _account_page_meta(
             key="documents",
-            kicker="Documents",
+            kicker="Документы",
             title="Договоры и PDF",
             lead="Все подписанные документы, PDF и сервисные карточки оплаты собраны отдельно от учебного контента.",
             metrics=[
                 {"label": "Договоров", "value": stats["signed_contracts"]},
                 {"label": "Курсов", "value": stats["total_courses"]},
-                {"label": "Оплата", "value": "СБП" if account_content["hero"]["metrics"][2]["value"] == "СБП" else "Offline"},
+                {"label": "Оплата", "value": "СБП" if account_content["hero"]["metrics"][2]["value"] == "СБП" else "по договорённости"},
                 {"label": "Доступ", "value": account_content["hero"]["metrics"][3]["value"]},
             ],
             actions=[

@@ -403,7 +403,7 @@
             <div class="card">
               <div class="course-meta">Видимость блока</div>
               <h3 style="margin: 10px 0 8px;">Показывать промо-видео на сайте</h3>
-              <p class="admin-subtext">Если выключить блок, он пропадёт с главной страницы и из <code>/index.html</code> без пустого места в вёрстке.</p>
+              <p class="admin-subtext">Если выключить блок, промо-видео не будет показываться на главной странице.</p>
               <form class="admin-filter" action="/admin/marketing/video" method="post" style="margin-top: 18px;">
                 <label class="admin-switch">
                   <input type="checkbox" name="video_enabled" value="1" {% if marketing_runtime.video.enabled %}checked{% endif %}>
@@ -425,7 +425,7 @@
                 <li><span>Видео</span><strong class="admin-truncate" title="{{ marketing_runtime.video.video_url or 'Не задано' }}">{{ marketing_runtime.video.video_url or 'Не задано' }}</strong></li>
                 <li><span>Постер</span><strong class="admin-truncate" title="{{ marketing_runtime.video.poster or 'Не задано' }}">{{ marketing_runtime.video.poster or 'Не задано' }}</strong></li>
               </ul>
-              <p class="admin-subtext" style="margin-top: 14px;">Вёрстка главной не ломается: когда блок выключен, соседние секции поднимаются автоматически.</p>
+              <p class="admin-subtext" style="margin-top: 14px;">Используйте переключатель, когда ролик ещё не готов или его нужно временно скрыть.</p>
             </div>
           </div>
         </section>
