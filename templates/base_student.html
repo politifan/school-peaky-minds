@@ -123,16 +123,29 @@
         <h4>Быстрые ссылки</h4>
         <a href="/">Главная</a>
         <a href="/courses">Каталог курсов</a>
-        <a href="/documents/dogovor.pdf" target="_blank" rel="noopener">Документы</a>
+        <a href="/account?view=documents">Документы в кабинете</a>
       </div>
-      <div class="site-footer__column">
-        <h4>Контакты</h4>
-        {% if contact_phone and contact_phone_link %}
-        <a href="{{ contact_phone_link }}">{{ contact_phone }}</a>
-        {% endif %}
-        {% if contact_telegram and contact_telegram_link %}
-        <a href="{{ contact_telegram_link }}" target="_blank" rel="noopener">{{ contact_telegram }}</a>
-        {% endif %}
+      <div class="site-footer__grid site-footer__grid--student">
+        <div class="site-footer__column">
+          <h4>Документы</h4>
+          <a href="/documents/dogovor.pdf" target="_blank" rel="noopener">Договор и соглашение</a>
+          <a href="/documents/personal_data_consent.pdf" target="_blank" rel="noopener">Согласие на обработку данных</a>
+          <a href="/documents/course_agreement.pdf" target="_blank" rel="noopener">Условия обучения</a>
+        </div>
+        <div class="site-footer__column">
+          <h4>Контакты</h4>
+          <a href="https://t.me/IT_school_PM" target="_blank" rel="noopener">Telegram</a>
+          <a href="mailto:School.Peaky-Minds@yandex.ru">School.Peaky-Minds@yandex.ru</a>
+          <span>+7 995 028-29-40 — Михаил</span>
+          <span>+7 995 033-41-99 — Владимир</span>
+        </div>
+        <div class="site-footer__column">
+          <h4>Юридические данные</h4>
+          <span>Самозанятый: Павлов Михаил Александрович</span>
+          <span>ИНН/ОГРН: 344597209940</span>
+          <span>Волгоград, Полоненко 10</span>
+          <span>Будни: 16:00 - 21:00 МСК</span>
+        </div>
       </div>
     </div>
   </footer>

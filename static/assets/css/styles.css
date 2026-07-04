@@ -18621,3 +18621,115 @@ html[data-theme="dark"] body.shell-admin label {
     padding: 0 12px;
   }
 }
+
+/* July 4 admin contrast correction */
+body.shell-marketing .logo--marketing img,
+body.shell-student .logo--marketing img,
+body.shell-admin .site-header--admin .logo--marketing img {
+  padding: 0;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+  object-fit: contain;
+}
+
+body.shell-admin .site-header--admin .logo--marketing img {
+  border-radius: 8px;
+}
+
+body.shell-admin .admin-hero__actions .btn-secondary {
+  border-color: rgba(17, 18, 24, 0.14);
+  background: rgba(255, 255, 255, 0.82);
+  color: #11141c;
+}
+
+body.shell-admin .admin-hero__actions .btn-secondary:hover {
+  border-color: rgba(77, 125, 255, 0.38);
+  background: #ffffff;
+  color: #11141c;
+}
+
+body.shell-admin .admin-hero p,
+body.shell-admin .admin-muted,
+body.shell-admin .funnel-meta,
+body.shell-admin .kpi-note,
+body.shell-admin .course-meta,
+body.shell-admin .admin-kpi-label,
+body.shell-admin .kpi-label,
+body.shell-admin .admin-empty,
+body.shell-admin .admin-list span,
+body.shell-admin .admin-help,
+body.shell-admin label,
+body.shell-admin .danger-zone p,
+body.shell-admin .referral-warning--muted {
+  color: #4f596b;
+}
+
+body.shell-admin .admin-collapse > summary,
+body.shell-admin .danger-zone h2,
+body.shell-admin .danger-zone strong {
+  color: #11141c;
+}
+
+html[data-theme="dark"] body.shell-admin .admin-card,
+html[data-theme="dark"] body.shell-admin .admin-kpi-card,
+html[data-theme="dark"] body.shell-admin .card,
+html[data-theme="dark"] body.shell-admin .panel:not(.admin-hero):not(.admin-sidebar),
+html[data-theme="dark"] body.shell-admin .admin-table-wrap,
+html[data-theme="dark"] body.shell-admin .admin-filter,
+html[data-theme="dark"] body.shell-admin .admin-collapse,
+html[data-theme="dark"] body.shell-admin .danger-zone,
+html[data-theme="dark"] body.shell-admin .admin-danger-password {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(23, 26, 34, 0.96);
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-admin .admin-hero__actions .btn-secondary {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-admin .admin-collapse > summary,
+html[data-theme="dark"] body.shell-admin .danger-zone h2,
+html[data-theme="dark"] body.shell-admin .danger-zone strong {
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-admin .danger-zone p,
+html[data-theme="dark"] body.shell-admin .referral-warning--muted {
+  color: #b8bfce;
+}
+
+/* Student footer parity with marketing footer */
+body.shell-student .site-footer__inner--student {
+  grid-template-columns: minmax(260px, 0.95fr) minmax(170px, 0.55fr) minmax(0, 1.65fr);
+}
+
+body.shell-student .site-footer__grid--student {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  gap: 24px 34px;
+  min-width: 0;
+}
+
+body.shell-student .site-footer__grid--student .site-footer__column {
+  min-width: 0;
+}
+
+@media (max-width: 980px) {
+  body.shell-student .site-footer__inner--student {
+    grid-template-columns: 1fr;
+  }
+
+  body.shell-student .site-footer__grid--student {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  body.shell-student .site-footer__grid--student {
+    grid-template-columns: 1fr;
+  }
+}
