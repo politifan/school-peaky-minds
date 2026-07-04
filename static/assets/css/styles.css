@@ -18267,3 +18267,178 @@ html[data-theme="dark"] body.shell-marketing .pm-blog-featured .pm-journal-featu
 html[data-theme="dark"] body.shell-marketing .pm-blog-featured .pm-journal-promo {
   margin-top: 0;
 }
+
+/* July 4 mobile and contrast polish */
+body.shell-marketing .marketing-drawer .theme-toggle {
+  display: none !important;
+}
+
+body.shell-marketing .marketing-drawer__close {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 44px;
+  border-color: rgba(17, 18, 24, 0.12);
+  background: rgba(17, 18, 24, 0.06);
+  color: #11141c;
+  line-height: 1;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] body.shell-marketing .marketing-drawer {
+  border-left-color: rgba(255, 255, 255, 0.1);
+  background: #121620;
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .marketing-drawer__close {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: #eef2ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .marketing-drawer__head .logo--marketing,
+html[data-theme="dark"] body.shell-marketing .marketing-drawer__head .logo--marketing span {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.shell-marketing .marketing-drawer__nav a,
+html[data-theme="dark"] body.shell-marketing .marketing-drawer__group,
+html[data-theme="dark"] body.shell-marketing .marketing-drawer__course-links a {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.055);
+  color: #f5f7ff;
+}
+
+body.shell-marketing .pm-story-avatar {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  min-width: 54px;
+  min-height: 54px;
+  padding: 0;
+  aspect-ratio: 1;
+  line-height: 1;
+  text-align: center;
+}
+
+body.shell-marketing .pm-course-glance__kicker,
+body.shell-marketing .pm-course-glance--dark .pm-course-glance__kicker,
+body.shell-marketing .pm-course-glance--gradient .pm-course-glance__kicker {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 34px;
+  padding: 0 13px;
+  border-radius: 999px;
+  background: rgba(109, 82, 255, 0.12);
+  color: #6d52ff;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-course-glance__kicker,
+html[data-theme="dark"] body.shell-marketing .pm-course-glance--dark .pm-course-glance__kicker,
+html[data-theme="dark"] body.shell-marketing .pm-course-glance--gradient .pm-course-glance__kicker {
+  background: rgba(255, 255, 255, 0.09);
+  color: #eef2ff;
+}
+
+body.shell-marketing .pm-enroll-panel__docs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+body.shell-marketing .pm-enroll-panel__docs a,
+body.shell-marketing .pm-enroll-panel__proof span {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  line-height: 1.25;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-enroll-panel__docs a,
+html[data-theme="dark"] body.shell-marketing .pm-enroll-panel__proof span {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-enroll-panel__auth {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f7ff;
+}
+
+html[data-theme="dark"] body.shell-marketing .pm-enroll-panel__auth p {
+  color: #c8cedd;
+}
+
+@media (max-width: 720px) {
+  body.shell-marketing .pm-course-hero__visual {
+    min-height: 0;
+    height: auto;
+    overflow: visible;
+    padding: 18px;
+  }
+
+  body.shell-marketing .pm-course-hero__visual-pills,
+  body.shell-marketing .pm-course-hero__cards {
+    position: relative;
+    inset: auto;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+  }
+
+  body.shell-marketing .pm-course-hero__visual-pills {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-bottom: 14px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  body.shell-marketing .pm-course-hero__visual-pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  body.shell-marketing .pm-course-hero__visual-pills span {
+    flex: 0 0 auto;
+  }
+
+  body.shell-marketing .pm-course-hero__cards,
+  body.shell-marketing .pm-fit-check__grid,
+  body.shell-marketing .pm-decision-card__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  body.shell-marketing .pm-course-glance {
+    min-height: 0;
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  body.shell-marketing .pm-enroll-panel__docs a,
+  body.shell-marketing .pm-enroll-panel__proof span {
+    white-space: normal;
+  }
+}

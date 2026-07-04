@@ -71,7 +71,7 @@
       "url": "{{ request.base_url }}"
     }
   </script>
-  <link rel="stylesheet" href="/assets/css/styles.css?v=20260702-polish-7">
+  <link rel="stylesheet" href="/assets/css/styles.css?v=20260704-mobile-polish-1">
   {% block extra_head %}{% endblock %}
 </head>
 <body class="shell-marketing {% block body_class %}{% endblock %}">
@@ -121,14 +121,6 @@
       </div>
     </div>
     <div class="marketing-drawer__actions">
-      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Переключить тему" title="Переключить тему">
-        <span class="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" focusable="false"><path d="M20.5 15.2A8.2 8.2 0 0 1 8.8 3.5a8.6 8.6 0 1 0 11.7 11.7Z"/></svg>
-        </span>
-        <span class="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true">
-          <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2 12h2.2M19.8 12H22M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg>
-        </span>
-      </button>
       {% if user %}
       <a class="btn btn-secondary" href="/account">Личный кабинет</a>
       {% else %}
