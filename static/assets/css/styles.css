@@ -18627,14 +18627,15 @@ body.shell-marketing .logo--marketing img,
 body.shell-student .logo--marketing img,
 body.shell-admin .site-header--admin .logo--marketing img {
   padding: 0;
-  border-radius: 10px;
+  border-radius: 50%;
   background: transparent;
   box-shadow: none;
   object-fit: contain;
+  overflow: hidden;
 }
 
 body.shell-admin .site-header--admin .logo--marketing img {
-  border-radius: 8px;
+  border-radius: 50%;
 }
 
 body.shell-admin .admin-hero__actions .btn-secondary {
