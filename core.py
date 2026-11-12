@@ -1742,8 +1742,8 @@ APP_BASE_URL = os.getenv("APP_BASE_URL")
 CONTACT_PHONE = os.getenv("CONTACT_PHONE", "+7 995 028-29-40")
 CONTACT_TELEGRAM = os.getenv("CONTACT_TELEGRAM", "")
 CONTACT_VK = os.getenv("CONTACT_VK", "")
-EXECUTOR_FULL_NAME = os.getenv("EXECUTOR_FULL_NAME", "Павлов Михаил Александрович")
-EXECUTOR_INN = os.getenv("EXECUTOR_INN", "344597209940")
+EXECUTOR_FULL_NAME = os.getenv("EXECUTOR_FULL_NAME", "Артур Мовсисян Овикович")
+EXECUTOR_INN = os.getenv("EXECUTOR_INN", "345903112420")
 EXECUTOR_PASSPORT = os.getenv("EXECUTOR_PASSPORT", "1820699537")
 EXECUTOR_PHONE = os.getenv("EXECUTOR_PHONE", "7 995 028 29 40")
 EXECUTOR_EMAIL = os.getenv("EXECUTOR_EMAIL", "mihailpavlov042006@gmail.com")
@@ -1751,7 +1751,7 @@ EXECUTOR_RECIPIENT = os.getenv("EXECUTOR_RECIPIENT", "Исполнитель")
 EXECUTOR_BANK = os.getenv("EXECUTOR_BANK", "Ozon")
 EXECUTOR_ACCOUNT = os.getenv("EXECUTOR_ACCOUNT", "2204320674292448")
 EXECUTOR_SBP_PHONE = os.getenv("EXECUTOR_SBP_PHONE", "7 968 287 29 40")
-EXECUTOR_ADDRESS = os.getenv("EXECUTOR_ADDRESS", "Волгоград, Полоненко 10")
+EXECUTOR_ADDRESS = os.getenv("EXECUTOR_ADDRESS", "Волгоград, Пельше 6")
 SEO_GOOGLE_VERIFICATION = os.getenv("SEO_GOOGLE_VERIFICATION", "")
 SEO_YANDEX_VERIFICATION = os.getenv("SEO_YANDEX_VERIFICATION", "")
 SEO_BING_VERIFICATION = os.getenv("SEO_BING_VERIFICATION", "")
@@ -2179,6 +2179,9 @@ def render(request: Request, template_name: str, context: Optional[Dict[str, Any
         "contact_telegram_link": telegram_link,
         "contact_vk": vk_display,
         "contact_vk_link": vk_link,
+        "executor_full_name": EXECUTOR_FULL_NAME,
+        "executor_inn": EXECUTOR_INN,
+        "executor_address": EXECUTOR_ADDRESS,
         "seo_google_verification": SEO_GOOGLE_VERIFICATION,
         "seo_yandex_verification": SEO_YANDEX_VERIFICATION,
         "seo_bing_verification": SEO_BING_VERIFICATION,

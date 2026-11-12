@@ -119,7 +119,7 @@
         <p>+7 995 028-29-40 – Михаил (преподаватель)</p>
         <p>+7 995 033-41-99 – Владимир (менеджер)</p>
         <p>Email: <a class="inline-link" href="mailto:School.Peaky-Minds@yandex.ru">School.Peaky-Minds@yandex.ru</a></p>
-        <p>Почтовый адрес: Волгоград, Полоненко 10</p>
+        <p>Почтовый адрес: {{ executor_address }}</p>
         <p>График сессий: 16:00 - 21:00 – будни</p>
       </div>
       <div class="footer-col footer-docs">
@@ -128,8 +128,8 @@
       </div>
       <div class="footer-col footer-legal">
         <h4>Юридические данные</h4>
-        <p>Самозанятый: <span class="footer-muted">Павлов Михаил Александрович</span></p>
-        <p>ИНН/ОГРН: <span class="footer-muted">344597209940</span></p>
+        <p>Самозанятый: <span class="footer-muted">{{ executor_full_name }}</span></p>
+        <p>ИНН: <span class="footer-muted">{{ executor_inn }}</span></p>
       </div>
     </div>
   </footer>
